@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="9531" systemVersion="14F1509" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4Ae-5T-gEc" userLabel="TopContentView">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="120"/>
+                                <subviews>
+                                    <button opaque="NO" tag="2" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r81-gA-Wag">
+                                        <rect key="frame" x="20" y="55" width="280" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="30" id="B5p-sB-c5y"/>
+                                            <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="127" id="KAp-UH-6ZM"/>
+                                            <constraint firstAttribute="height" constant="30" id="kdh-Nr-oix"/>
+                                        </constraints>
+                                        <state key="normal" title="pick multi-photos"/>
+                                        <variation key="default">
+                                            <mask key="constraints">
+                                                <exclude reference="B5p-sB-c5y"/>
+                                                <exclude reference="KAp-UH-6ZM"/>
+                                            </mask>
+                                        </variation>
+                                        <connections>
+                                            <action selector="pickPhotoButtonClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Y3s-qn-oVG"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" red="0.1715644113149847" green="0.94983992737003053" blue="0.50998662079510704" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstItem="r81-gA-Wag" firstAttribute="top" secondItem="4Ae-5T-gEc" secondAttribute="top" constant="55" id="8mQ-5b-cnI"/>
+                                    <constraint firstAttribute="trailing" secondItem="r81-gA-Wag" secondAttribute="trailing" constant="20" id="QBT-qQ-Z2n"/>
+                                    <constraint firstItem="r81-gA-Wag" firstAttribute="leading" secondItem="4Ae-5T-gEc" secondAttribute="leading" constant="20" id="o2q-G0-PT5"/>
+                                    <constraint firstAttribute="height" constant="120" id="oAh-GJ-wLO"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="4Ae-5T-gEc" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="61m-nK-szh"/>
+                            <constraint firstAttribute="trailing" secondItem="4Ae-5T-gEc" secondAttribute="trailing" id="cCX-fJ-tja"/>
+                            <constraint firstItem="4Ae-5T-gEc" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="g2m-EG-Cux"/>
+                        </constraints>
+                    </view>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+</document>
