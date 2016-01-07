@@ -30,12 +30,5 @@
 
 @implementation TZAlbumModel
 
-//+ (instancetype)modelWithPHFetchResult:(id)result count:(NSInteger)count name:(NSString *)name {
-//    TZAlbumModel *model = [[TZAlbumModel alloc] init];
-//    model.result = result;
-//    model.count = count;
-//    model.name = name;
-//    return model;
-//}
 
 @end
