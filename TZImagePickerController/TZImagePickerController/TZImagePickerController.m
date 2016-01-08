@@ -37,13 +37,18 @@
         self.navigationBar.barTintColor = kNaviBarAndBottonBarBgColor;
         self.navigationBar.tintColor = [UIColor whiteColor];
         self.automaticallyAdjustsScrollViewInsets = NO;
-        
-        UIBarButtonItem *barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
-        NSMutableDictionary *textAttrs = [NSMutableDictionary dictionary];
-        textAttrs[NSForegroundColorAttributeName] = [UIColor whiteColor];
-        textAttrs[NSFontAttributeName] = [UIFont systemFontOfSize:15];
-        [barItem setTitleTextAttributes:textAttrs forState:UIControlStateNormal];
     }
+    
+    UIBarButtonItem *barItem;
+    if (iOS9Later) {
+        barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
+    } else {
+        barItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
+    }
+    NSMutableDictionary *textAttrs = [NSMutableDictionary dictionary];
+    textAttrs[NSForegroundColorAttributeName] = [UIColor whiteColor];
+    textAttrs[NSFontAttributeName] = [UIFont systemFontOfSize:15];
+    [barItem setTitleTextAttributes:textAttrs forState:UIControlStateNormal];
 }
 
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate {
