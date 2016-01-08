@@ -2,9 +2,9 @@
  A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, fitting iOS6789 system.   
  一个支持多选、选原图和视频的图片选择器，同时有预览功能，适配了iOS6789系统。 
  
- ![image](https://github.com/banchichen/TZImagePickerController/blob/master/Screenshots/photoPickerVc.PNG) 
- ![image](https://github.com/banchichen/TZImagePickerController/blob/master/Screenshots/photoPreviewVc.PNG) 
- ![image](https://github.com/banchichen/TZImagePickerController/blob/master/Screenshots/videoPlayerVc.PNG) 
+ ![image](https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPickerVc.PNG) 
+ ![image](https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPreviewVc.PNG) 
+ ![image](https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/videoPlayerVc.PNG) 
 
 ## 一. Installation 安装
 
@@ -34,9 +34,9 @@
 ## 四. More 更多 
 
   If you find a bug, please create a issue.  
-  Welcome to cearte pull requests.  
+  Welcome to pull requests.  
   More infomation please view code.  
   如果你发现了bug，请提一个issue。  
   欢迎给我提pull requests。  
-  更多信息见代码，也可查看我的博客: [我的博客](http://www.cnblogs.com/tanzhenblog/ "半尺尘 - 博客园")
+  更多信息详见代码，也可查看我的博客: [我的博客](http://www.cnblogs.com/tanzhenblog/ "半尺尘 - 博客园")
   
