@@ -23,7 +23,7 @@
     [self presentViewController:imagePickerVc animated:YES completion:nil];
   
 ## 三. Requirements 要求
-   iOS 6 or later. Requires Arc  
+   iOS 6 or later. Requires ARC  
    iOS6及以上系统可使用. ARC环境.
    
    When system version is iOS6 or iOS7,  Using AssetsLibrary.  
