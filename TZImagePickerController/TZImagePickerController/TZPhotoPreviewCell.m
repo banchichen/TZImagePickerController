@@ -63,7 +63,7 @@
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
     [_scrollView setZoomScale:1.0 animated:NO];
-    [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info) {
+    [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         self.imageView.image = photo;
         [self resizeSubviews];
     }];

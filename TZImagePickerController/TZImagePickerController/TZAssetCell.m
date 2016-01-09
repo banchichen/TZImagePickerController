@@ -28,7 +28,7 @@
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
-    [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.width completion:^(UIImage *photo, NSDictionary *info) {
+    [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         self.imageView.image = photo;
     }];
     self.selectPhotoButton.selected = model.isSelected;
