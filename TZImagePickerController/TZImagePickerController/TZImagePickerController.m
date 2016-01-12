@@ -15,6 +15,8 @@
 #import "TZImageManager.h"
 
 @interface TZImagePickerController () {
+    NSTimer *_timer;
+    UILabel *_tipLable;
     BOOL _pushToPhotoPickerVc;
     
     UIButton *_progressHUD;
@@ -28,6 +30,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
     self.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationBar.translucent = YES;
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
@@ -63,29 +66,43 @@
         _allowPickingVideo = YES;
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
-            UILabel *tipLable = [[UILabel alloc] init];
-            tipLable.frame = CGRectMake(8, 0, self.view.width - 16, 300);
-            tipLable.textAlignment = NSTextAlignmentCenter;
-            tipLable.numberOfLines = 0;
-            tipLable.font = [UIFont systemFontOfSize:16];
-            tipLable.textColor = [UIColor blackColor];
+            _tipLable = [[UILabel alloc] init];
+            _tipLable.frame = CGRectMake(8, 0, self.view.width - 16, 300);
+            _tipLable.textAlignment = NSTextAlignmentCenter;
+            _tipLable.numberOfLines = 0;
+            _tipLable.font = [UIFont systemFontOfSize:16];
+            _tipLable.textColor = [UIColor blackColor];
             NSString *appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleDisplayName"];
             if (!appName) appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleName"];
-            tipLable.text = [NSString stringWithFormat:@"请在%@的\"设置-隐私-照片\"选项中，\r允许%@访问你的手机相册。",[UIDevice currentDevice].model,appName];
-            [self.view addSubview:tipLable];
+            _tipLable.text = [NSString stringWithFormat:@"请在%@的\"设置-隐私-照片\"选项中，\r允许%@访问你的手机相册。",[UIDevice currentDevice].model,appName];
+            [self.view addSubview:_tipLable];
+            
+            _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:YES];
         } else {
-            _pushToPhotoPickerVc = YES;
-            if (_pushToPhotoPickerVc) {
-                TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
-                [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo completion:^(TZAlbumModel *model) {
-                    photoPickerVc.model = model;
-                    [self pushViewController:photoPickerVc animated:YES];
-                    _pushToPhotoPickerVc = NO;
-                }];
-            }
+            [self pushToPhotoPickerVc];
         }
     }
     return self;
+}
+
+- (void)observeAuthrizationStatusChange {
+    if ([[TZImageManager manager] authorizationStatusAuthorized]) {
+        [self pushToPhotoPickerVc];
+        [_tipLable removeFromSuperview];
+        [_timer invalidate];
+    }
+}
+
+- (void)pushToPhotoPickerVc {
+    _pushToPhotoPickerVc = YES;
+    if (_pushToPhotoPickerVc) {
+        TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
+        [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo completion:^(TZAlbumModel *model) {
+            photoPickerVc.model = model;
+            [self pushViewController:photoPickerVc animated:YES];
+            _pushToPhotoPickerVc = NO;
+        }];
+    }
 }
 
 - (void)showAlertWithTitle:(NSString *)title {
@@ -164,25 +181,33 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = @"照片";
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStylePlain target:self action:@selector(cancel)];
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo completion:^(NSArray<TZAlbumModel *> *models) {
-        _albumArr = [NSMutableArray arrayWithArray:models];
-        [self configTableView];
-    }];
+    [self configTableView];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    if (_albumArr) return;
+    [self configTableView];
 }
 
 - (void)configTableView {
-    CGFloat top = 44;
-    if (iOS7Later) top += 20;
-    _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.width, self.view.height - top) style:UITableViewStylePlain];
-    _tableView.rowHeight = 70;
-    _tableView.tableFooterView = [[UIView alloc] init];
-    _tableView.dataSource = self;
-    _tableView.delegate = self;
-    [_tableView registerNib:[UINib nibWithNibName:@"TZAlbumCell" bundle:nil] forCellReuseIdentifier:@"TZAlbumCell"];
-    [self.view addSubview:_tableView];
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo completion:^(NSArray<TZAlbumModel *> *models) {
+        _albumArr = [NSMutableArray arrayWithArray:models];
+        
+        CGFloat top = 44;
+        if (iOS7Later) top += 20;
+        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.width, self.view.height - top) style:UITableViewStylePlain];
+        _tableView.rowHeight = 70;
+        _tableView.tableFooterView = [[UIView alloc] init];
+        _tableView.dataSource = self;
+        _tableView.delegate = self;
+        [_tableView registerNib:[UINib nibWithNibName:@"TZAlbumCell" bundle:nil] forCellReuseIdentifier:@"TZAlbumCell"];
+        [self.view addSubview:_tableView];
+    }];
 }
 
 #pragma mark - Click Event

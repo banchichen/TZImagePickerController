@@ -108,11 +108,11 @@
                 [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
             }
         }
-        if (completion) completion(albumArr);
+        if (completion && albumArr.count > 0) completion(albumArr);
     } else {
         [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
             if (group == nil) {
-                if (completion) completion(albumArr);
+                if (completion && albumArr.count > 0) completion(albumArr);
             }
             if ([group numberOfAssets] < 1) return;
             NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
@@ -133,17 +133,21 @@
 - (void)getAssetsFromFetchResult:(id)result allowPickingVideo:(BOOL)allowPickingVideo completion:(void (^)(NSArray<TZAssetModel *> *))completion {
     NSMutableArray *photoArr = [NSMutableArray array];
     if ([result isKindOfClass:[PHFetchResult class]]) {
-        for (PHAsset *asset in result) {
+        PHFetchResult *fetchResult = (PHFetchResult *)result;
+        [fetchResult enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            PHAsset *asset = (PHAsset *)obj;
             TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
             if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
             else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
             else if (asset.mediaType == PHAssetMediaTypeImage) {
-                if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
+                if (iOS9_1Later) {
+                    // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
+                }
             }
             NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
             timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
             [photoArr addObject:[TZAssetModel modelWithAsset:asset type:type timeLength:timeLength]];
-        }
+        }];
         if (completion) completion(photoArr);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *gruop = (ALAssetsGroup *)result;
@@ -248,14 +252,20 @@
     } else if ([asset isKindOfClass:[ALAsset class]]) {
         ALAsset *alAsset = (ALAsset *)asset;
         ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
-        CGImageRef imageRef;
+        CGImageRef thumbnailImageRef = alAsset.aspectRatioThumbnail;
+        UIImage *thumbnailImage = [UIImage imageWithCGImage:thumbnailImageRef scale:1.0 orientation:UIImageOrientationUp];
+        if (completion) completion(thumbnailImage,nil,YES);
+        
         if (photoWidth == [UIScreen mainScreen].bounds.size.width) {
-            imageRef = [assetRep fullScreenImage];
-        } else {
-            imageRef = alAsset.thumbnail;
+            dispatch_async(dispatch_get_global_queue(0,0), ^{
+                CGImageRef fullScrennImageRef = [assetRep fullScreenImage];
+                UIImage *fullScrennImage = [UIImage imageWithCGImage:fullScrennImageRef scale:1.0 orientation:UIImageOrientationUp];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    if (completion) completion(fullScrennImage,nil,NO);
+                });
+            });
         }
-        UIImage *image = [UIImage imageWithCGImage:imageRef scale:1.0 orientation:(UIImageOrientation)[assetRep orientation]];
-        if (completion) completion(image,nil,NO);
     }
 }
 
