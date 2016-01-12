@@ -8,7 +8,7 @@
 
 ## 一. Installation 安装
 
-  * CocoaPods：pod 'TZImagePickerController', '~> 1.0.4'
+  * CocoaPods：pod 'TZImagePickerController', '~> 1.0.5'
   * 手动导入：将TZImagePickerController文件夹拽入项目中，导入头文件：#import "TZImagePickerController.h"
 
 ## 二. Example 例子
