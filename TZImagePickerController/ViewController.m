@@ -79,6 +79,7 @@
     [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets) {
     
     }];
+    
     [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
 
@@ -87,7 +88,7 @@
 /// User click cancel button
 /// 用户点击了取消
 - (void)imagePickerControllerDidCancel:(TZImagePickerController *)picker {
-    NSLog(@"cancel");
+    // NSLog(@"cancel");
 }
 
 /// User finish picking photo，if assets are not empty, user picking original photo.

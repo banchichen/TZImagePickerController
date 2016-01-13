@@ -90,6 +90,7 @@
         [self pushToPhotoPickerVc];
         [_tipLable removeFromSuperview];
         [_timer invalidate];
+        _timer = nil;
     }
 }
 
@@ -155,6 +156,8 @@
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
     if (iOS7Later) viewController.automaticallyAdjustsScrollViewInsets = NO;
+    if (_timer) { [_timer invalidate]; _timer = nil;}
+    
     if (self.childViewControllers.count > 0) {
         UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(3, 0, 44, 44)];
         [backButton setImage:[UIImage imageNamed:@"navi_back"] forState:UIControlStateNormal];

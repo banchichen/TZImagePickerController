@@ -231,27 +231,30 @@
     TZAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCell" forIndexPath:indexPath];
     TZAssetModel *model = _photoArr[indexPath.row];
     cell.model = model;
-    typeof(cell) weakCell = cell;
+    
+    __weak typeof(cell) weakCell = cell;
+    __weak typeof(self) weakSelf = self;
+    __weak typeof(_numberImageView.layer) weakLayer = _numberImageView.layer;
     cell.didSelectPhotoBlock = ^(BOOL isSelected) {
         // 1. cancel select / 取消选择
         if (isSelected) {
             weakCell.selectPhotoButton.selected = NO;
             model.isSelected = NO;
-            [self.selectedPhotoArr removeObject:model];
-            [self refreshBottomToolBarStatus];
+            [weakSelf.selectedPhotoArr removeObject:model];
+            [weakSelf refreshBottomToolBarStatus];
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
-            TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-            if (self.selectedPhotoArr.count < imagePickerVc.maxImagesCount) {
+            TZImagePickerController *imagePickerVc = (TZImagePickerController *)weakSelf.navigationController;
+            if (weakSelf.selectedPhotoArr.count < imagePickerVc.maxImagesCount) {
                 weakCell.selectPhotoButton.selected = YES;
                 model.isSelected = YES;
-                [self.selectedPhotoArr addObject:model];
-                [self refreshBottomToolBarStatus];
+                [weakSelf.selectedPhotoArr addObject:model];
+                [weakSelf refreshBottomToolBarStatus];
             } else {
                 [imagePickerVc showAlertWithTitle:[NSString stringWithFormat:@"你最多只能选择%zd张照片",imagePickerVc.maxImagesCount]];
             }
         }
-        [UIView showOscillatoryAnimationWithLayer:_numberImageView.layer type:TZOscillatoryAnimationToSmaller];
+         [UIView showOscillatoryAnimationWithLayer:weakLayer type:TZOscillatoryAnimationToSmaller];
     };
     return cell;
 }

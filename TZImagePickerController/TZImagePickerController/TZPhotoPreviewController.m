@@ -234,12 +234,16 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TZPhotoPreviewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZPhotoPreviewCell" forIndexPath:indexPath];
     cell.model = _photoArr[indexPath.row];
+    
+    __block BOOL _weakIsHideNaviBar = _isHideNaviBar;
+    __weak typeof(_naviBar) weakNaviBar = _naviBar;
+    __weak typeof(_naviBar) weakToolBar = _naviBar;
     if (!cell.singleTapGestureBlock) {
         cell.singleTapGestureBlock = ^(){
             // show or hide naviBar / 显示或隐藏导航栏
-            _isHideNaviBar = !_isHideNaviBar;
-            _naviBar.hidden = _isHideNaviBar;
-            _toolBar.hidden = _isHideNaviBar;
+            _weakIsHideNaviBar = !_weakIsHideNaviBar;
+            weakNaviBar.hidden = _weakIsHideNaviBar;
+            weakToolBar.hidden = _weakIsHideNaviBar;
         };
     }
     return cell;
