@@ -127,9 +127,9 @@
     }
 }
 
-#pragma mark - Get Asset
+#pragma mark - Get Assets
 
-/// Get Asset 获得照片数组
+/// Get Assets 获得照片数组
 - (void)getAssetsFromFetchResult:(id)result allowPickingVideo:(BOOL)allowPickingVideo completion:(void (^)(NSArray<TZAssetModel *> *))completion {
     NSMutableArray *photoArr = [NSMutableArray array];
     if ([result isKindOfClass:[PHFetchResult class]]) {
@@ -171,6 +171,51 @@
             } else {
                 [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
             }
+        }];
+    }
+}
+
+///  Get asset at index 获得下标为index的单个照片
+- (void)getAssetFromFetchResult:(id)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo completion:(void (^)(TZAssetModel *))completion {
+    if ([result isKindOfClass:[PHFetchResult class]]) {
+        PHFetchResult *fetchResult = (PHFetchResult *)result;
+        PHAsset *asset = fetchResult[index];
+        
+        TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
+        if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
+        else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
+        else if (asset.mediaType == PHAssetMediaTypeImage) {
+            if (iOS9_1Later) {
+                // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
+            }
+        }
+        NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
+        timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
+        TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+        if (completion) completion(model);
+    } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
+        ALAssetsGroup *gruop = (ALAssetsGroup *)result;
+        if (!allowPickingVideo) [gruop setAssetsFilter:[ALAssetsFilter allPhotos]];
+        NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:index];
+        [gruop enumerateAssetsAtIndexes:indexSet options:NSEnumerationConcurrent usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+            TZAssetModel *model;
+            TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
+            if (!allowPickingVideo){
+                model = [TZAssetModel modelWithAsset:result type:type];
+                if (completion) completion(model);
+                return;
+            }
+            /// Allow picking video
+            if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
+                type = TZAssetModelMediaTypeVideo;
+                NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
+                NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
+                timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
+                model = [TZAssetModel modelWithAsset:result type:type timeLength:timeLength];
+            } else {
+                model = [TZAssetModel modelWithAsset:result type:type];
+            }
+            if (completion) completion(model);
         }];
     }
 }
