@@ -56,20 +56,20 @@
 - (void)configCollectionView {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     CGFloat margin = 4;
-    CGFloat itemWH = (self.view.width - 2 * margin - 4) / 4 - margin;
+    CGFloat itemWH = (self.view.tz_width - 2 * margin - 4) / 4 - margin;
     layout.itemSize = CGSizeMake(itemWH, itemWH);
     layout.minimumInteritemSpacing = margin;
     layout.minimumLineSpacing = margin;
     CGFloat top = margin + 44;
     if (iOS7Later) top += 20;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(margin, top, self.view.width - 2 * margin, self.view.height - 50 - top) collectionViewLayout:layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(margin, top, self.view.tz_width - 2 * margin, self.view.tz_height - 50 - top) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
     _collectionView.alwaysBounceHorizontal = NO;
     if (iOS7Later) _collectionView.contentInset = UIEdgeInsetsMake(0, 0, 0, 2);
     _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, -2);
-    _collectionView.contentSize = CGSizeMake(self.view.width, ((_model.count + 3) / 4) * self.view.width);
+    _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 3) / 4) * self.view.tz_width);
     [self.view addSubview:_collectionView];
     [_collectionView registerNib:[UINib nibWithNibName:@"TZAssetCell" bundle:nil] forCellWithReuseIdentifier:@"TZAssetCell"];
 }
@@ -83,7 +83,7 @@
 }
 
 - (void)configBottomToolBar {
-    UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.height - 50, self.view.width, 50)];
+    UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50, self.view.tz_width, 50)];
     CGFloat rgb = 253 / 255.0;
     bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     
@@ -100,7 +100,7 @@
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     if (imagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        _originalPhotoButton.frame = CGRectMake(50, self.view.height - 50, 130, 50);
+        _originalPhotoButton.frame = CGRectMake(50, self.view.tz_height - 50, 130, 50);
         _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, -8, 0, 0);
         _originalPhotoButton.contentEdgeInsets = UIEdgeInsetsMake(0, -45, 0, 0);
         [_originalPhotoButton addTarget:self action:@selector(originalPhotoButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -122,7 +122,7 @@
     }
     
     _okButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _okButton.frame = CGRectMake(self.view.width - 44 - 12, 3, 44, 44);
+    _okButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 3, 44, 44);
     _okButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_okButton setTitle:@"确定" forState:UIControlStateNormal];
@@ -132,7 +132,7 @@
     _okButton.enabled = NO;
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"photo_number_icon"]];
-    _numberImageView.frame = CGRectMake(self.view.width - 56 - 24, 12, 26, 26);
+    _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 24, 12, 26, 26);
     _numberImageView.hidden = _selectedPhotoArr.count <= 0;
     _numberImageView.backgroundColor = [UIColor clearColor];
     
@@ -148,7 +148,7 @@
     UIView *divide = [[UIView alloc] init];
     CGFloat rgb2 = 222 / 255.0;
     divide.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
-    divide.frame = CGRectMake(0, 0, self.view.width, 1);
+    divide.frame = CGRectMake(0, 0, self.view.tz_width, 1);
 
     [bottomToolBar addSubview:divide];
     [bottomToolBar addSubview:_previewButton];
