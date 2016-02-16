@@ -67,7 +67,7 @@
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
-            _tipLable.frame = CGRectMake(8, 0, self.view.width - 16, 300);
+            _tipLable.frame = CGRectMake(8, 0, self.view.tz_width - 16, 300);
             _tipLable.textAlignment = NSTextAlignmentCenter;
             _tipLable.numberOfLines = 0;
             _tipLable.font = [UIFont systemFontOfSize:16];
@@ -122,7 +122,7 @@
         [_progressHUD setBackgroundColor:[UIColor clearColor]];
 
         _HUDContainer = [[UIView alloc] init];
-        _HUDContainer.frame = CGRectMake((self.view.width - 120) / 2, (self.view.height - 90) / 2, 120, 90);
+        _HUDContainer.frame = CGRectMake((self.view.tz_width - 120) / 2, (self.view.tz_height - 90) / 2, 120, 90);
         _HUDContainer.layer.cornerRadius = 8;
         _HUDContainer.clipsToBounds = YES;
         _HUDContainer.backgroundColor = [UIColor darkGrayColor];
@@ -203,7 +203,7 @@
         
         CGFloat top = 44;
         if (iOS7Later) top += 20;
-        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.width, self.view.height - top) style:UITableViewStylePlain];
+        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, self.view.tz_height - top) style:UITableViewStylePlain];
         _tableView.rowHeight = 70;
         _tableView.tableFooterView = [[UIView alloc] init];
         _tableView.dataSource = self;

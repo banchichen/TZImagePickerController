@@ -34,11 +34,11 @@
 - (void)configCollectionView {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     _margin = 4;
-    _itemWH = (self.view.width - 2 * _margin - 4) / 3 - _margin;
+    _itemWH = (self.view.tz_width - 2 * _margin - 4) / 3 - _margin;
     layout.itemSize = CGSizeMake(_itemWH, _itemWH);
     layout.minimumInteritemSpacing = _margin;
     layout.minimumLineSpacing = _margin;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(_margin, 120, self.view.width - 2 * _margin, 400) collectionViewLayout:layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(_margin, 120, self.view.tz_width - 2 * _margin, 400) collectionViewLayout:layout];
     CGFloat rgb = 244 / 255.0;
     _collectionView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     _collectionView.contentInset = UIEdgeInsetsMake(4, 0, 0, 2);
