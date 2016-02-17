@@ -85,7 +85,8 @@
     _okButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_okButton setTitle:@"确定" forState:UIControlStateNormal];
-    [_okButton setTitleColor:kOKButtonTitleColorNormal forState:UIControlStateNormal];
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     
     [_toolBar addSubview:_okButton];
     [self.view addSubview:_toolBar];

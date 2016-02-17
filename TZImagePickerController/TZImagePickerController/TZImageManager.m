@@ -144,6 +144,7 @@
                     // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
                 }
             }
+            if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return;
             NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
             timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
             [photoArr addObject:[TZAssetModel modelWithAsset:asset type:type timeLength:timeLength]];
@@ -282,13 +283,17 @@
 }
 
 - (void)getPhotoWithAsset:(id)asset photoWidth:(CGFloat)photoWidth completion:(void (^)(UIImage *, NSDictionary *, BOOL isDegraded))completion {
+    if (photoWidth > 600) photoWidth = 600.0;
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHAsset *phAsset = (PHAsset *)asset;
         CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
         CGFloat multiple = [UIScreen mainScreen].scale;
         CGFloat pixelWidth = photoWidth * multiple;
         CGFloat pixelHeight = pixelWidth / aspectRatio;
-        [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(pixelWidth, pixelHeight) contentMode:PHImageContentModeAspectFit options:nil resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+        
+        PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
+        option.networkAccessAllowed = YES;
+        [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(pixelWidth, pixelHeight) contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined) {
                 if (completion) completion(result,info,[[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
@@ -323,6 +328,32 @@
         ALAssetsGroup *gruop = model.result;
         UIImage *postImage = [UIImage imageWithCGImage:gruop.posterImage];
         if (completion) completion(postImage);
+    }
+}
+
+/// Get Original Photo / 获取原图
+- (void)getOriginalPhotoWithAsset:(id)asset completion:(void (^)(UIImage *photo,NSDictionary *info))completion {
+    if ([asset isKindOfClass:[PHAsset class]]) {
+        PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
+        option.networkAccessAllowed = YES;
+        [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+            BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
+            if (downloadFinined) {
+                if (completion) completion(result,info);
+            }
+        }];
+    } else if ([asset isKindOfClass:[ALAsset class]]) {
+        ALAsset *alAsset = (ALAsset *)asset;
+        ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
+        
+        dispatch_async(dispatch_get_global_queue(0,0), ^{
+            CGImageRef originalImageRef = [assetRep fullResolutionImage];
+            UIImage *originalImage = [UIImage imageWithCGImage:originalImageRef scale:1.0 orientation:UIImageOrientationUp];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completion) completion(originalImage,nil);
+            });
+        });
     }
 }
 

@@ -127,8 +127,8 @@
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_okButton setTitle:@"确定" forState:UIControlStateNormal];
     [_okButton setTitle:@"确定" forState:UIControlStateDisabled];
-    [_okButton setTitleColor:kOKButtonTitleColorNormal forState:UIControlStateNormal];
-    [_okButton setTitleColor:kOKButtonTitleColorDisabled forState:UIControlStateDisabled];
+    [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+    [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     _okButton.enabled = NO;
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"photo_number_icon"]];

@@ -80,6 +80,17 @@
     
     }];
     
+    // Set the appearance
+    // 在这里设置imagePickerVc的外观
+    // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];
+    // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
+    // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
+    
+    // Set allow picking video & originalPhoto or not
+    // 设置是否可以选择视频/原图
+    // imagePickerVc.allowPickingVideo = NO;
+    // imagePickerVc.allowPickingOriginalPhoto = NO;
+    
     [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
 

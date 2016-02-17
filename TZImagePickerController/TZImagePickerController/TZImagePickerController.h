@@ -8,9 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-#define kNaviBarAndBottonBarBgColor  ([UIColor colorWithRed:(34/255.0) green:(34/255.0) blue:(34/255.0) alpha:1.0])
-#define kOKButtonTitleColorNormal    ([UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0])
-#define kOKButtonTitleColorDisabled  ([UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:0.5])
 #define iOS7Later ([UIDevice currentDevice].systemVersion.floatValue >= 7.0f)
 #define iOS8Later ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
 #define iOS9Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.0f)
@@ -36,6 +33,10 @@
 - (void)showAlertWithTitle:(NSString *)title;
 - (void)showProgressHUD;
 - (void)hideProgressHUD;
+
+/// Appearance / 外观颜色
+@property (nonatomic, strong) UIColor *oKButtonTitleColorNormal;
+@property (nonatomic, strong) UIColor *oKButtonTitleColorDisabled;
 
 // The picker does not dismiss itself; when client dismisses it these handle will be called.
 // The second array will be a empty array if user not picking original photo.
