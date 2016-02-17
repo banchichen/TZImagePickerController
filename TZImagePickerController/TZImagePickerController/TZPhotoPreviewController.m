@@ -60,13 +60,8 @@
 }
 
 - (void)configCustomNaviBar {
-<<<<<<< 017e1e86a308ce3cc61250052da3d23d4c681a5c
     _naviBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.tz_width, 64)];
-    _naviBar.backgroundColor = kNaviBarAndBottonBarBgColor;
-=======
-    _naviBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.width, 64)];
     _naviBar.backgroundColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
->>>>>>> 修复几个已知bug:
     _naviBar.alpha = 0.7;
     
     _backButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, 44, 44)];
