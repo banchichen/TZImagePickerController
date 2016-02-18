@@ -8,7 +8,6 @@
 
 #import "TZImageManager.h"
 #import <AssetsLibrary/AssetsLibrary.h>
-#import <Photos/Photos.h>
 #import "TZAssetModel.h"
 #import "TZImagePickerController.h"
 
@@ -23,6 +22,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         manager = [[self alloc] init];
+        manager.cachingImageManager = [[PHCachingImageManager alloc] init];
     });
     return manager;
 }
@@ -291,12 +291,22 @@
         CGFloat pixelWidth = photoWidth * multiple;
         CGFloat pixelHeight = pixelWidth / aspectRatio;
         
-        PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
-        option.networkAccessAllowed = YES;
-        [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(pixelWidth, pixelHeight) contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+        [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(pixelWidth, pixelHeight) contentMode:PHImageContentModeAspectFit options:nil resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
-            if (downloadFinined) {
+            if (downloadFinined && result) {
                 if (completion) completion(result,info,[[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
+            }
+            // Download image from iCloud / 从iCloud下载图片
+            if ([info objectForKey:PHImageResultIsInCloudKey] && !result) {
+                PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
+                option.networkAccessAllowed = YES;
+                [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+                    UIImage *resultImage = [UIImage imageWithData:imageData scale:0.1];
+                    resultImage = [self scaleImage:resultImage toSize:CGSizeMake(pixelWidth, pixelHeight)];
+                    if (resultImage) {
+                        if (completion) completion(resultImage,info,[[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
+                    }
+                }];
             }
         }];
     } else if ([asset isKindOfClass:[ALAsset class]]) {
@@ -338,7 +348,7 @@
         option.networkAccessAllowed = YES;
         [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
-            if (downloadFinined) {
+            if (downloadFinined && result) {
                 if (completion) completion(result,info);
             }
         }];
@@ -404,6 +414,14 @@
     } else {
         return name;
     }
+}
+
+- (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size {
+    UIGraphicsBeginImageContext(size);
+    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 @end

@@ -30,7 +30,10 @@
     BOOL _shouldScrollToBottom;
 }
 @property (nonatomic, strong) NSMutableArray *selectedPhotoArr;
+@property CGRect previousPreheatRect;
 @end
+
+static CGSize AssetGridThumbnailSize;
 
 @implementation TZPhotoPickerController
 
@@ -51,6 +54,7 @@
         [self configCollectionView];
         [self configBottomToolBar];
     }];
+    [self resetCachedAssets];
 }
 
 - (void)configCollectionView {
@@ -80,7 +84,17 @@
         [_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:(_photoArr.count - 1) inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
         _shouldScrollToBottom = NO;
     }
+    // Determine the size of the thumbnails to request from the PHCachingImageManager
+    CGFloat scale = [UIScreen mainScreen].scale;
+    CGSize cellSize = ((UICollectionViewFlowLayout *)_collectionView.collectionViewLayout).itemSize;
+    AssetGridThumbnailSize = CGSizeMake(cellSize.width * scale, cellSize.height * scale);
 }
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (iOS8Later) {
+        // [self updateCachedAssets];
+    }}
 
 - (void)configBottomToolBar {
     UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50, self.view.tz_width, 50)];
@@ -278,6 +292,14 @@
     }
 }
 
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    if (iOS8Later) {
+        // [self updateCachedAssets];
+    }
+}
+
 #pragma mark - Private Method
 
 - (void)refreshBottomToolBarStatus {
@@ -315,6 +337,113 @@
     [[TZImageManager manager] getPhotosBytesWithArray:_selectedPhotoArr completion:^(NSString *totalBytes) {
         _originalPhotoLable.text = [NSString stringWithFormat:@"(%@)",totalBytes];
     }];
+}
+
+#pragma mark - Asset Caching
+
+- (void)resetCachedAssets {
+    [[TZImageManager manager].cachingImageManager stopCachingImagesForAllAssets];
+    self.previousPreheatRect = CGRectZero;
+}
+
+- (void)updateCachedAssets {
+    BOOL isViewVisible = [self isViewLoaded] && [[self view] window] != nil;
+    if (!isViewVisible) { return; }
+    
+    // The preheat window is twice the height of the visible rect.
+    CGRect preheatRect = _collectionView.bounds;
+    preheatRect = CGRectInset(preheatRect, 0.0f, -0.5f * CGRectGetHeight(preheatRect));
+    
+    /*
+     Check if the collection view is showing an area that is significantly
+     different to the last preheated area.
+     */
+    CGFloat delta = ABS(CGRectGetMidY(preheatRect) - CGRectGetMidY(self.previousPreheatRect));
+    if (delta > CGRectGetHeight(_collectionView.bounds) / 3.0f) {
+        
+        // Compute the assets to start caching and to stop caching.
+        NSMutableArray *addedIndexPaths = [NSMutableArray array];
+        NSMutableArray *removedIndexPaths = [NSMutableArray array];
+        
+        [self computeDifferenceBetweenRect:self.previousPreheatRect andRect:preheatRect removedHandler:^(CGRect removedRect) {
+            NSArray *indexPaths = [self aapl_indexPathsForElementsInRect:removedRect];
+            [removedIndexPaths addObjectsFromArray:indexPaths];
+        } addedHandler:^(CGRect addedRect) {
+            NSArray *indexPaths = [self aapl_indexPathsForElementsInRect:addedRect];
+            [addedIndexPaths addObjectsFromArray:indexPaths];
+        }];
+        
+        NSArray *assetsToStartCaching = [self assetsAtIndexPaths:addedIndexPaths];
+        NSArray *assetsToStopCaching = [self assetsAtIndexPaths:removedIndexPaths];
+        
+        // Update the assets the PHCachingImageManager is caching.
+        [[TZImageManager manager].cachingImageManager startCachingImagesForAssets:assetsToStartCaching
+                                            targetSize:AssetGridThumbnailSize
+                                           contentMode:PHImageContentModeAspectFill
+                                               options:nil];
+        [[TZImageManager manager].cachingImageManager stopCachingImagesForAssets:assetsToStopCaching
+                                           targetSize:AssetGridThumbnailSize
+                                          contentMode:PHImageContentModeAspectFill
+                                              options:nil];
+        
+        // Store the preheat rect to compare against in the future.
+        self.previousPreheatRect = preheatRect;
+    }
+}
+
+- (void)computeDifferenceBetweenRect:(CGRect)oldRect andRect:(CGRect)newRect removedHandler:(void (^)(CGRect removedRect))removedHandler addedHandler:(void (^)(CGRect addedRect))addedHandler {
+    if (CGRectIntersectsRect(newRect, oldRect)) {
+        CGFloat oldMaxY = CGRectGetMaxY(oldRect);
+        CGFloat oldMinY = CGRectGetMinY(oldRect);
+        CGFloat newMaxY = CGRectGetMaxY(newRect);
+        CGFloat newMinY = CGRectGetMinY(newRect);
+        
+        if (newMaxY > oldMaxY) {
+            CGRect rectToAdd = CGRectMake(newRect.origin.x, oldMaxY, newRect.size.width, (newMaxY - oldMaxY));
+            addedHandler(rectToAdd);
+        }
+        
+        if (oldMinY > newMinY) {
+            CGRect rectToAdd = CGRectMake(newRect.origin.x, newMinY, newRect.size.width, (oldMinY - newMinY));
+            addedHandler(rectToAdd);
+        }
+        
+        if (newMaxY < oldMaxY) {
+            CGRect rectToRemove = CGRectMake(newRect.origin.x, newMaxY, newRect.size.width, (oldMaxY - newMaxY));
+            removedHandler(rectToRemove);
+        }
+        
+        if (oldMinY < newMinY) {
+            CGRect rectToRemove = CGRectMake(newRect.origin.x, oldMinY, newRect.size.width, (newMinY - oldMinY));
+            removedHandler(rectToRemove);
+        }
+    } else {
+        addedHandler(newRect);
+        removedHandler(oldRect);
+    }
+}
+
+- (NSArray *)assetsAtIndexPaths:(NSArray *)indexPaths {
+    if (indexPaths.count == 0) { return nil; }
+    
+    NSMutableArray *assets = [NSMutableArray arrayWithCapacity:indexPaths.count];
+    for (NSIndexPath *indexPath in indexPaths) {
+        TZAssetModel *model = _photoArr[indexPath.item];
+        [assets addObject:model.asset];
+    }
+    
+    return assets;
+}
+
+- (NSArray *)aapl_indexPathsForElementsInRect:(CGRect)rect {
+    NSArray *allLayoutAttributes = [_collectionView.collectionViewLayout layoutAttributesForElementsInRect:rect];
+    if (allLayoutAttributes.count == 0) { return nil; }
+    NSMutableArray *indexPaths = [NSMutableArray arrayWithCapacity:allLayoutAttributes.count];
+    for (UICollectionViewLayoutAttributes *layoutAttributes in allLayoutAttributes) {
+        NSIndexPath *indexPath = layoutAttributes.indexPath;
+        [indexPaths addObject:indexPath];
+    }
+    return indexPaths;
 }
 
 @end
