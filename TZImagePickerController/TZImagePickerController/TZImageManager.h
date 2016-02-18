@@ -9,9 +9,12 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
+#import <Photos/Photos.h>
 
 @class TZAlbumModel,TZAssetModel;
 @interface TZImageManager : NSObject
+
+@property (nonatomic, strong) PHCachingImageManager *cachingImageManager;
 
 + (instancetype)manager;
 
