@@ -242,12 +242,14 @@
 /// Get photo bytes 获得一组照片的大小
 - (void)getPhotosBytesWithArray:(NSArray *)photos completion:(void (^)(NSString *totalBytes))completion {
     __block NSInteger dataLength = 0;
+    __block NSInteger assetCount = 0;
     for (NSInteger i = 0; i < photos.count; i++) {
         TZAssetModel *model = photos[i];
         if ([model.asset isKindOfClass:[PHAsset class]]) {
             [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
                 if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
-                if (i >= photos.count - 1) {
+                assetCount ++;
+                if (assetCount >= photos.count) {
                     NSString *bytes = [self getBytesFromDataLength:dataLength];
                     if (completion) completion(bytes);
                 }
@@ -403,12 +405,12 @@
 - (NSString *)getNewAlbumName:(NSString *)name {
     if (iOS8Later) {
         NSString *newName;
-        if ([name containsString:@"Roll"])         newName = @"相机胶卷";
-        else if ([name containsString:@"Stream"])  newName = @"我的照片流";
-        else if ([name containsString:@"Added"])   newName = @"最近添加";
-        else if ([name containsString:@"Selfies"]) newName = @"自拍";
-        else if ([name containsString:@"shots"])   newName = @"截屏";
-        else if ([name containsString:@"Videos"])  newName = @"视频";
+        if ([name rangeOfString:@"Roll"].location != NSNotFound)         newName = @"相机胶卷";
+        else if ([name rangeOfString:@"Stream"].location != NSNotFound)  newName = @"我的照片流";
+        else if ([name rangeOfString:@"Added"].location != NSNotFound)   newName = @"最近添加";
+        else if ([name rangeOfString:@"Selfies"].location != NSNotFound) newName = @"自拍";
+        else if ([name rangeOfString:@"shots"].location != NSNotFound)   newName = @"截屏";
+        else if ([name rangeOfString:@"Videos"].location != NSNotFound)  newName = @"视频";
         else newName = name;
         return newName;
     } else {
