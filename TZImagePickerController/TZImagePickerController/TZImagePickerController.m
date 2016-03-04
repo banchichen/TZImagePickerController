@@ -156,7 +156,6 @@
         [_HUDIndicatorView stopAnimating];
         [_progressHUD removeFromSuperview];
     }
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
@@ -197,6 +196,8 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    [imagePickerVc hideProgressHUD];
     if (_albumArr) return;
     [self configTableView];
 }

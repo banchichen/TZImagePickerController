@@ -231,6 +231,7 @@ static CGSize AssetGridThumbnailSize;
                 imagePickerVc.didFinishPickingPhotosWithInfosHandle(photos,assets,infoArr);
             }
             [imagePickerVc hideProgressHUD];
+            [self.navigationController dismissViewControllerAnimated:YES completion:nil];
         }];
     }
 }

@@ -237,7 +237,7 @@
     
     __block BOOL _weakIsHideNaviBar = _isHideNaviBar;
     __weak typeof(_naviBar) weakNaviBar = _naviBar;
-    __weak typeof(_naviBar) weakToolBar = _naviBar;
+    __weak typeof(_toolBar) weakToolBar = _toolBar;
     if (!cell.singleTapGestureBlock) {
         cell.singleTapGestureBlock = ^(){
             // show or hide naviBar / 显示或隐藏导航栏
