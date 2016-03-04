@@ -2,7 +2,7 @@
  A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, fitting iOS6789 system.   
  一个支持多选、选原图和视频的图片选择器，同时有预览功能，适配了iOS6789系统。
  
- tip: 发布后不久，陆陆续续发现一些bug，表示抱歉...目前版本已到1.0.9，修复了从发布到现在发现的一些bug。如果你发现了bug，请先拉一下最新的代码，如果bug还在请提一个issue。从目前的情况看，已经发现的bug都解决了，现在的表现还算较好~
+ tip: 发布后不久，陆陆续续发现一些bug，表示抱歉...目前版本已到1.1.1，修复了从发布到现在发现的一些bug。如果你发现了bug，请先拉一下最新的代码，如果bug还在请提一个issue。从目前的情况看，已经发现的bug都解决了，现在的表现还算较好~
  
  ![image](https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPickerVc.PNG) 
  ![image](https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPreviewVc.PNG) 
@@ -10,7 +10,7 @@
 
 ## 一. Installation 安装
 
-  * CocoaPods：pod 'TZImagePickerController', '~> 1.0.9'
+  * CocoaPods：pod 'TZImagePickerController', '~> 1.1.1'
   * 手动导入：将TZImagePickerController文件夹拽入项目中，导入头文件：#import "TZImagePickerController.h"
 
 ## 二. Example 例子
