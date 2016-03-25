@@ -35,7 +35,8 @@
     self.navigationBar.translucent = YES;
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
     [UIApplication sharedApplication].statusBarHidden = NO;
-    
+    [TZImageManager manager].shouldFixOrientation = NO;
+
     // Default appearance, you can reset these after this method
     // 默认的外观，你可以在这个方法后重置
     self.oKButtonTitleColorNormal   = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0];
@@ -163,7 +164,7 @@
     if (_timer) { [_timer invalidate]; _timer = nil;}
     
     if (self.childViewControllers.count > 0) {
-        UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(3, 0, 44, 44)];
+        UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(3, 0, 50, 44)];
         [backButton setImage:[UIImage imageNamed:@"navi_back"] forState:UIControlStateNormal];
         backButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
         [backButton setTitle:@"返回" forState:UIControlStateNormal];

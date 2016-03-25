@@ -94,7 +94,8 @@ static CGSize AssetGridThumbnailSize;
     [super viewDidAppear:animated];
     if (iOS8Later) {
         // [self updateCachedAssets];
-    }}
+    }
+}
 
 - (void)configBottomToolBar {
     UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50, self.view.tz_width, 50)];
@@ -208,6 +209,7 @@ static CGSize AssetGridThumbnailSize;
     NSMutableArray *infoArr = [NSMutableArray array];
     for (NSInteger i = 0; i < _selectedPhotoArr.count; i++) { [photos addObject:@1];[assets addObject:@1];[infoArr addObject:@1]; }
     
+    [TZImageManager manager].shouldFixOrientation = YES;
     for (NSInteger i = 0; i < _selectedPhotoArr.count; i++) {
         TZAssetModel *model = _selectedPhotoArr[i];
         [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
