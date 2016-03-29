@@ -51,7 +51,7 @@
     } else {
         _selectImageView.hidden = YES;
         _selectPhotoButton.hidden = YES;
-        _bottomView.hidden = NO;
+        _bottomView.hidden = type == TZAssetCellTypeSinglePhoto;
     }
 }
 

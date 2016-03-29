@@ -13,6 +13,7 @@ typedef enum : NSUInteger {
     TZAssetCellTypeLivePhoto,
     TZAssetCellTypeVideo,
     TZAssetCellTypeAudio,
+    TZAssetCellTypeSinglePhoto,
 } TZAssetCellType;
 
 @class TZAssetModel;
