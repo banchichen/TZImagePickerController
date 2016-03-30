@@ -27,11 +27,21 @@
     UILabel *_numberLable;
     UIButton *_originalPhotoButton;
     UILabel *_originalPhotoLable;
+    TZImagePickerController *_imagePickerVc;
 }
 
 @end
 
 @implementation TZPhotoPreviewController
+
+- (instancetype)initWithImagePickerController:(TZImagePickerController *)imagePickerVc {
+    self = [super init];
+    if (self) {
+        _imagePickerVc = imagePickerVc;
+    }
+
+    return self;
+}
 
 - (NSMutableArray *)selectedPhotoArr {
     if (_selectedPhotoArr == nil) _selectedPhotoArr = [[NSMutableArray alloc] init];
@@ -40,6 +50,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    if (!_imagePickerVc) {
+        _imagePickerVc = (TZImagePickerController *)self.navigationController;
+    }
     [self configCollectionView];
     [self configCustomNaviBar];
     [self configBottomToolBar];
@@ -73,6 +86,9 @@
     [_selectButton setImage:[UIImage imageNamed:@"photo_def_photoPickerVc"] forState:UIControlStateNormal];
     [_selectButton setImage:[UIImage imageNamed:@"photo_sel_photoPickerVc"] forState:UIControlStateSelected];
     [_selectButton addTarget:self action:@selector(select:) forControlEvents:UIControlEventTouchUpInside];
+    if (_imagePickerVc.maxImagesCount == 1) {
+        _selectButton.hidden = YES;
+    }
     
     [_naviBar addSubview:_selectButton];
     [_naviBar addSubview:_backButton];
@@ -85,8 +101,7 @@
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     _toolBar.alpha = 0.7;
     
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (imagePickerVc.allowPickingOriginalPhoto) {
+    if (_imagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
         _originalPhotoButton.frame = CGRectMake(5, 0, 120, 44);
         _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, -8, 0, 0);
@@ -115,7 +130,7 @@
     _okButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_okButton setTitle:@"确定" forState:UIControlStateNormal];
-    [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+    [_okButton setTitleColor:_imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"photo_number_icon"]];
     _numberImageView.backgroundColor = [UIColor clearColor];
@@ -164,16 +179,14 @@
     TZAssetModel *model = _photoArr[_currentIndex];
     if (!selectButton.isSelected) {
         // 1. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
-        TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-        if (self.selectedPhotoArr.count >= imagePickerVc.maxImagesCount) {
-            [imagePickerVc showAlertWithTitle:[NSString stringWithFormat:@"你最多只能选择%zd张照片",imagePickerVc.maxImagesCount]];
+        if (self.selectedPhotoArr.count >= _imagePickerVc.maxImagesCount) {
+            [_imagePickerVc showAlertWithTitle:[NSString stringWithFormat:@"你最多只能选择%zd张照片",_imagePickerVc.maxImagesCount]];
             return;
         // 2. if not over the maxImagesCount / 如果没有超过最大个数限制
         } else {
             [self.selectedPhotoArr addObject:model];
             if (model.type == TZAssetModelMediaTypeVideo) {
-                TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-                [imagePickerVc showAlertWithTitle:@"多选状态下选择视频，默认将视频当图片发送"];
+                [_imagePickerVc showAlertWithTitle:@"多选状态下选择视频，默认将视频当图片发送"];
             }
         }
     } else {

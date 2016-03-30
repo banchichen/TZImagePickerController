@@ -9,8 +9,13 @@
 #import <UIKit/UIKit.h>
 
 @class TZAlbumModel;
+@class TZImagePickerController;
+
 @interface TZPhotoPickerController : UIViewController
 
 @property (nonatomic, strong) TZAlbumModel *model;
+
+- (instancetype)initWithImagePickerController:(TZImagePickerController *)imagePickerVc;
+
 
 @end

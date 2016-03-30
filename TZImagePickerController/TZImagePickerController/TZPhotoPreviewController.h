@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+@class TZImagePickerController;
+
 @interface TZPhotoPreviewController : UIViewController
 
 @property (nonatomic, strong) NSArray *photoArr;                ///< All photos / 所有图片的数组
@@ -18,5 +20,8 @@
 /// Return the new selected photos / 返回最新的选中图片数组
 @property (nonatomic, copy) void (^returnNewSelectedPhotoArrBlock)(NSMutableArray *newSeletedPhotoArr, BOOL isSelectOriginalPhoto);
 @property (nonatomic, copy) void (^okButtonClickBlock)(NSMutableArray *newSeletedPhotoArr, BOOL isSelectOriginalPhoto);
+
+- (instancetype)initWithImagePickerController:(TZImagePickerController *)imagePickerVc;
+
 
 @end
