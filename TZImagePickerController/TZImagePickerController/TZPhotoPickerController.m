@@ -31,12 +31,21 @@
 }
 @property (nonatomic, strong) NSMutableArray *selectedPhotoArr;
 @property CGRect previousPreheatRect;
-@property (nonatomic, weak) TZImagePickerController *imagePickerVc;
+@property (nonatomic, strong) TZImagePickerController *imagePickerVc;
 @end
 
 static CGSize AssetGridThumbnailSize;
 
 @implementation TZPhotoPickerController
+
+- (instancetype)initWithImagePickerController:(TZImagePickerController *)imagePickerVc {
+    self = [super init];
+    if (self) {
+        self.imagePickerVc = imagePickerVc;
+    }
+
+    return self;
+}
 
 - (NSMutableArray *)selectedPhotoArr {
     if (_selectedPhotoArr == nil) _selectedPhotoArr = [NSMutableArray array];
@@ -46,17 +55,18 @@ static CGSize AssetGridThumbnailSize;
 - (void)viewDidLoad {
     [super viewDidLoad];
     _shouldScrollToBottom = YES;
+    if (!_imagePickerVc) {
+        self.imagePickerVc = (TZImagePickerController *)self.navigationController;
+    }
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = _model.name;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStylePlain target:self action:@selector(cancel)];
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:imagePickerVc.allowPickingVideo completion:^(NSArray<TZAssetModel *> *models) {
+    [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:self.imagePickerVc.allowPickingVideo completion:^(NSArray<TZAssetModel *> *models) {
         _photoArr = [NSMutableArray arrayWithArray:models];
         [self configCollectionView];
         [self configBottomToolBar];
     }];
     [self resetCachedAssets];
-    self.imagePickerVc = (TZImagePickerController *)self.navigationController;
 }
 
 - (void)configCollectionView {
@@ -100,6 +110,10 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)configBottomToolBar {
+    if (self.imagePickerVc.maxImagesCount == 1) {
+        //单选模式下不需要 ToolBar
+        return;
+    }
     UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50, self.view.tz_width, 50)];
     CGFloat rgb = 253 / 255.0;
     bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
@@ -114,8 +128,7 @@ static CGSize AssetGridThumbnailSize;
     [_previewButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
     _previewButton.enabled = NO;
 
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (imagePickerVc.allowPickingOriginalPhoto) {
+    if (self.imagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
         _originalPhotoButton.frame = CGRectMake(50, self.view.tz_height - 50, 130, 50);
         _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, -8, 0, 0);
@@ -144,8 +157,8 @@ static CGSize AssetGridThumbnailSize;
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_okButton setTitle:@"确定" forState:UIControlStateNormal];
     [_okButton setTitle:@"确定" forState:UIControlStateDisabled];
-    [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
-    [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
+    [_okButton setTitleColor:self.imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+    [_okButton setTitleColor:self.imagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     _okButton.enabled = NO;
 
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"photo_number_icon"]];
@@ -181,17 +194,16 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)cancel {
     [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
-        [imagePickerVc.pickerDelegate imagePickerControllerDidCancel:imagePickerVc];
+    if ([self.imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
+        [self.imagePickerVc.pickerDelegate imagePickerControllerDidCancel:self.imagePickerVc];
     }
-    if (imagePickerVc.imagePickerControllerDidCancelHandle) {
-        imagePickerVc.imagePickerControllerDidCancelHandle();
+    if (self.imagePickerVc.imagePickerControllerDidCancelHandle) {
+        self.imagePickerVc.imagePickerControllerDidCancelHandle();
     }
 }
 
 - (void)previewButtonClick {
-    TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+    TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] initWithImagePickerController:self.imagePickerVc];
     photoPreviewVc.photoArr = [NSArray arrayWithArray:self.selectedPhotoArr];
     [self pushPhotoPrevireViewController:photoPreviewVc];
 }
@@ -204,8 +216,7 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)okButtonClick {
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    [imagePickerVc showProgressHUD];
+    [self.imagePickerVc showProgressHUD];
     NSMutableArray *photos = [NSMutableArray array];
     NSMutableArray *assets = [NSMutableArray array];
     NSMutableArray *infoArr = [NSMutableArray array];
@@ -222,19 +233,19 @@ static CGSize AssetGridThumbnailSize;
 
             for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
 
-            if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:)]) {
-                [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingPhotos:photos sourceAssets:assets];
+            if ([self.imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:)]) {
+                [self.imagePickerVc.pickerDelegate imagePickerController:self.imagePickerVc didFinishPickingPhotos:photos sourceAssets:assets];
             }
-            if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:infos:)]) {
-                [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingPhotos:photos sourceAssets:assets infos:infoArr];
+            if ([self.imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:infos:)]) {
+                [self.imagePickerVc.pickerDelegate imagePickerController:self.imagePickerVc didFinishPickingPhotos:photos sourceAssets:assets infos:infoArr];
             }
-            if (imagePickerVc.didFinishPickingPhotosHandle) {
-                imagePickerVc.didFinishPickingPhotosHandle(photos,assets);
+            if (self.imagePickerVc.didFinishPickingPhotosHandle) {
+                self.imagePickerVc.didFinishPickingPhotosHandle(photos,assets);
             }
-            if (imagePickerVc.didFinishPickingPhotosWithInfosHandle) {
-                imagePickerVc.didFinishPickingPhotosWithInfosHandle(photos,assets,infoArr);
+            if (self.imagePickerVc.didFinishPickingPhotosWithInfosHandle) {
+                self.imagePickerVc.didFinishPickingPhotosWithInfosHandle(photos,assets,infoArr);
             }
-            [imagePickerVc hideProgressHUD];
+            [self.imagePickerVc hideProgressHUD];
             [self.navigationController dismissViewControllerAnimated:YES completion:nil];
         }];
     }
@@ -292,15 +303,14 @@ static CGSize AssetGridThumbnailSize;
     TZAssetModel *model = _photoArr[indexPath.row];
     if (model.type == TZAssetModelMediaTypeVideo) {
         if (_selectedPhotoArr.count > 0) {
-            TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-            [imagePickerVc showAlertWithTitle:@"选择照片时不能选择视频"];
+            [self.imagePickerVc showAlertWithTitle:@"选择照片时不能选择视频"];
         } else {
             TZVideoPlayerController *videoPlayerVc = [[TZVideoPlayerController alloc] init];
             videoPlayerVc.model = model;
             [self.navigationController pushViewController:videoPlayerVc animated:YES];
         }
     } else {
-        TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+        TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] initWithImagePickerController:self.imagePickerVc];
         photoPreviewVc.photoArr = _photoArr;
         photoPreviewVc.currentIndex = indexPath.row;
         [self pushPhotoPrevireViewController:photoPreviewVc];
