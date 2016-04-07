@@ -13,14 +13,12 @@
 @implementation NSBundle (MyBundle)
 
 + (NSBundle *)myBundle {
-    NSLog(@"%@",[self bundleWithPath:[self myBundlePath]]);
     return [self bundleWithPath:[self myBundlePath]];
 }
 
 
 + (NSString *)myBundlePath {
     NSBundle *bundle = [NSBundle bundleForClass:[TZImagePickerController class]];
-    NSLog(@"%@...%@",[bundle pathForResource:@"TZImagePickerController" ofType:@"bundle"], bundle);
     return [bundle pathForResource:@"TZImagePickerController" ofType:@"bundle"];
 }
 
