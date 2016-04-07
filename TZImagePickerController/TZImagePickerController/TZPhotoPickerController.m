@@ -14,6 +14,8 @@
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
+#import "NSBundle+MyBundle.h"
+#import "UIImage+MyBundle.h"
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate> {
     UICollectionView *_collectionView;
@@ -75,7 +77,7 @@ static CGSize AssetGridThumbnailSize;
     _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, -2);
     _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 3) / 4) * self.view.tz_width);
     [self.view addSubview:_collectionView];
-    [_collectionView registerNib:[UINib nibWithNibName:@"TZAssetCell" bundle:nil] forCellWithReuseIdentifier:@"TZAssetCell"];
+    [_collectionView registerNib:[UINib nibWithNibName:@"TZAssetCell" bundle:[NSBundle myBundle]] forCellWithReuseIdentifier:@"TZAssetCell"];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -124,8 +126,8 @@ static CGSize AssetGridThumbnailSize;
         [_originalPhotoButton setTitle:@"原图" forState:UIControlStateSelected];
         [_originalPhotoButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
         [_originalPhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
-        [_originalPhotoButton setImage:[UIImage imageNamed:@"photo_original_def"] forState:UIControlStateNormal];
-        [_originalPhotoButton setImage:[UIImage imageNamed:@"photo_original_sel"] forState:UIControlStateSelected];
+        [_originalPhotoButton setImage:[UIImage imageNamedWithMyBundle:@"photo_original_def"] forState:UIControlStateNormal];
+        [_originalPhotoButton setImage:[UIImage imageNamedWithMyBundle:@"photo_original_sel"] forState:UIControlStateSelected];
         _originalPhotoButton.enabled = _selectedPhotoArr.count > 0;
         
         _originalPhotoLable = [[UILabel alloc] init];
@@ -146,7 +148,7 @@ static CGSize AssetGridThumbnailSize;
     [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     _okButton.enabled = NO;
     
-    _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"photo_number_icon"]];
+    _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedWithMyBundle:@"photo_number_icon"]];
     _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 24, 12, 26, 26);
     _numberImageView.hidden = _selectedPhotoArr.count <= 0;
     _numberImageView.backgroundColor = [UIColor clearColor];

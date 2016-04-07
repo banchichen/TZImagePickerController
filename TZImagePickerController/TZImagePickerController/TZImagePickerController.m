@@ -13,6 +13,8 @@
 #import "TZAssetCell.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
+#import "UIImage+MyBundle.h"
+#import "NSBundle+MyBundle.h"
 
 @interface TZImagePickerController () {
     NSTimer *_timer;
@@ -176,7 +178,7 @@
     
     if (self.childViewControllers.count > 0) {
         UIButton *backButton = [[UIButton alloc] initWithFrame:CGRectMake(3, 0, 50, 44)];
-        [backButton setImage:[UIImage imageNamed:@"navi_back"] forState:UIControlStateNormal];
+        [backButton setImage:[UIImage imageNamedWithMyBundle:@"navi_back"] forState:UIControlStateNormal];
         backButton.imageEdgeInsets = UIEdgeInsetsMake(0, -5, 0, 0);
         [backButton setTitle:@"返回" forState:UIControlStateNormal];
         backButton.titleLabel.font = [UIFont systemFontOfSize:15];
@@ -226,7 +228,7 @@
         _tableView.tableFooterView = [[UIView alloc] init];
         _tableView.dataSource = self;
         _tableView.delegate = self;
-        [_tableView registerNib:[UINib nibWithNibName:@"TZAlbumCell" bundle:nil] forCellReuseIdentifier:@"TZAlbumCell"];
+        [_tableView registerNib:[UINib nibWithNibName:@"TZAlbumCell" bundle:[NSBundle myBundle]] forCellReuseIdentifier:@"TZAlbumCell"];
         [self.view addSubview:_tableView];
     }];
 }

@@ -11,6 +11,7 @@
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import "TZImagePickerController.h"
+#import "UIImage+MyBundle.h"
 
 @interface TZAssetCell ()
 @property (weak, nonatomic) IBOutlet UIImageView *imageView;       // The photo / 照片
@@ -32,7 +33,7 @@
         self.imageView.image = photo;
     }];
     self.selectPhotoButton.selected = model.isSelected;
-    self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamed:@"photo_sel_photoPickerVc"] : [UIImage imageNamed:@"photo_def_photoPickerVc"];
+    self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamedWithMyBundle:@"photo_sel_photoPickerVc"] : [UIImage imageNamedWithMyBundle:@"photo_def_photoPickerVc"];
     self.type = TZAssetCellTypePhoto;
     if (model.type == TZAssetModelMediaTypeLivePhoto)      self.type = TZAssetCellTypeLivePhoto;
     else if (model.type == TZAssetModelMediaTypeAudio)     self.type = TZAssetCellTypeAudio;
@@ -59,7 +60,7 @@
     if (self.didSelectPhotoBlock) {
         self.didSelectPhotoBlock(sender.isSelected);
     }
-    self.selectImageView.image = sender.isSelected ? [UIImage imageNamed:@"photo_sel_photoPickerVc"] : [UIImage imageNamed:@"photo_def_photoPickerVc"];
+    self.selectImageView.image = sender.isSelected ? [UIImage imageNamedWithMyBundle:@"photo_sel_photoPickerVc"] : [UIImage imageNamedWithMyBundle:@"photo_def_photoPickerVc"];
     if (sender.isSelected) {
         [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
     }
