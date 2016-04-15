@@ -81,6 +81,7 @@
         // 默认准许用户选择原图和视频, 你也可以在这个方法后置为NO
         _allowPickingOriginalPhoto = YES;
         _allowPickingVideo = YES;
+        _allowPickingImage = YES;
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
@@ -115,7 +116,7 @@
     _pushToPhotoPickerVc = YES;
     if (_pushToPhotoPickerVc) {
         TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
-        [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo completion:^(TZAlbumModel *model) {
+        [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
             _pushToPhotoPickerVc = NO;
@@ -216,7 +217,7 @@
 
 - (void)configTableView {
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo completion:^(NSArray<TZAlbumModel *> *models) {
+    [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo allowPickingImage:imagePickerVc.allowPickingImage completion:^(NSArray<TZAlbumModel *> *models) {
         _albumArr = [NSMutableArray arrayWithArray:models];
         
         CGFloat top = 44;

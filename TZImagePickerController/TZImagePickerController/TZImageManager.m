@@ -45,12 +45,16 @@
 #pragma mark - Get Album
 
 /// Get Album 获得相册/相册数组
-- (void)getCameraRollAlbum:(BOOL)allowPickingVideo completion:(void (^)(TZAlbumModel *))completion{
+- (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAlbumModel *))completion{
     __block TZAlbumModel *model;
     if (iOS8Later) {
         PHFetchOptions *option = [[PHFetchOptions alloc] init];
         if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
+        if (!allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
+                                                    PHAssetMediaTypeVideo];
         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
+        
+        
         
         PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
         for (PHAssetCollection *collection in smartAlbums) {
@@ -63,6 +67,7 @@
         }
     } else {
         [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+            
             if ([group numberOfAssets] < 1) return;
             NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
             if ([name isEqualToString:@"Camera Roll"] || [name isEqualToString:@"相机胶卷"]) {
@@ -74,11 +79,13 @@
     }
 }
 
-- (void)getAllAlbums:(BOOL)allowPickingVideo completion:(void (^)(NSArray<TZAlbumModel *> *))completion{
+- (void)getAllAlbums:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAlbumModel *> *))completion{
     NSMutableArray *albumArr = [NSMutableArray array];
     if (iOS8Later) {
         PHFetchOptions *option = [[PHFetchOptions alloc] init];
         if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
+        if (!allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
+                                                    PHAssetMediaTypeVideo];
         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
         
         PHAssetCollectionSubtype smartAlbumSubtype = PHAssetCollectionSubtypeSmartAlbumUserLibrary | PHAssetCollectionSubtypeSmartAlbumRecentlyAdded | PHAssetCollectionSubtypeSmartAlbumVideos;
@@ -130,7 +137,7 @@
 #pragma mark - Get Assets
 
 /// Get Assets 获得照片数组
-- (void)getAssetsFromFetchResult:(id)result allowPickingVideo:(BOOL)allowPickingVideo completion:(void (^)(NSArray<TZAssetModel *> *))completion {
+- (void)getAssetsFromFetchResult:(id)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAssetModel *> *))completion {
     NSMutableArray *photoArr = [NSMutableArray array];
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
@@ -145,15 +152,18 @@
                 }
             }
             if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return;
+            if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return;
+            
             NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
             timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
             [photoArr addObject:[TZAssetModel modelWithAsset:asset type:type timeLength:timeLength]];
         }];
         if (completion) completion(photoArr);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
-        ALAssetsGroup *gruop = (ALAssetsGroup *)result;
-        if (!allowPickingVideo) [gruop setAssetsFilter:[ALAssetsFilter allPhotos]];
-        [gruop enumerateAssetsUsingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+        ALAssetsGroup *group = (ALAssetsGroup *)result;
+        if (!allowPickingVideo) [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+        if (!allowPickingImage) [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+        [group enumerateAssetsUsingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
             if (result == nil) {
                 if (completion) completion(photoArr);
             }
@@ -162,6 +172,11 @@
                 [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
                 return;
             }
+            if (!allowPickingImage){
+                [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
+                return;
+            }
+            
             /// Allow picking video
             if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
                 type = TZAssetModelMediaTypeVideo;
@@ -177,7 +192,7 @@
 }
 
 ///  Get asset at index 获得下标为index的单个照片
-- (void)getAssetFromFetchResult:(id)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo completion:(void (^)(TZAssetModel *))completion {
+- (void)getAssetFromFetchResult:(id)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAssetModel *))completion {
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         PHAsset *asset = fetchResult[index];
@@ -195,10 +210,11 @@
         TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
         if (completion) completion(model);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
-        ALAssetsGroup *gruop = (ALAssetsGroup *)result;
-        if (!allowPickingVideo) [gruop setAssetsFilter:[ALAssetsFilter allPhotos]];
+        ALAssetsGroup *group = (ALAssetsGroup *)result;
+        if (!allowPickingVideo) [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+        if (!allowPickingImage) [group setAssetsFilter:[ALAssetsFilter allVideos]];
         NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:index];
-        [gruop enumerateAssetsAtIndexes:indexSet options:NSEnumerationConcurrent usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+        [group enumerateAssetsAtIndexes:indexSet options:NSEnumerationConcurrent usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
             TZAssetModel *model;
             TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
             if (!allowPickingVideo){
@@ -206,6 +222,12 @@
                 if (completion) completion(model);
                 return;
             }
+            if (!allowPickingImage){
+                model = [TZAssetModel modelWithAsset:result type:type];
+                if (completion) completion(model);
+                return;
+            }
+            
             /// Allow picking video
             if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
                 type = TZAssetModelMediaTypeVideo;
@@ -339,8 +361,8 @@
             if (completion) completion(photo);
         }];
     } else {
-        ALAssetsGroup *gruop = model.result;
-        UIImage *postImage = [UIImage imageWithCGImage:gruop.posterImage];
+        ALAssetsGroup *group = model.result;
+        UIImage *postImage = [UIImage imageWithCGImage:group.posterImage];
         if (completion) completion(postImage);
     }
 }
@@ -399,8 +421,8 @@
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         model.count = fetchResult.count;
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
-        ALAssetsGroup *gruop = (ALAssetsGroup *)result;
-        model.count = [gruop numberOfAssets];
+        ALAssetsGroup *group = (ALAssetsGroup *)result;
+        model.count = [group numberOfAssets];
     }
     return model;
 }
@@ -431,7 +453,7 @@
 
 - (UIImage *)fixOrientation:(UIImage *)aImage {
     if (!self.shouldFixOrientation) return aImage;
-        
+    
     // No-op if the orientation is already correct
     if (aImage.imageOrientation == UIImageOrientationUp)
         return aImage;

@@ -30,6 +30,10 @@
 /// 默认为YES，如果设置为NO,用户将不能选择发送视频
 @property (nonatomic, assign) BOOL allowPickingVideo;
 
+/// Default is YES.if set NO, user can't picking image.
+/// 默认为YES，如果设置为NO,用户将不能选择发送图片
+@property(nonatomic, assign) BOOL allowPickingImage;
+
 - (void)showAlertWithTitle:(NSString *)title;
 - (void)showProgressHUD;
 - (void)hideProgressHUD;
