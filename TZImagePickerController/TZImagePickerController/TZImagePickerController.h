@@ -21,8 +21,6 @@
 #define iOS8Later ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
 #define iOS9Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.0f)
 #define iOS9_1Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.1f)
-// 图片路径
-#define TZImagePickerSrcName(file) [@"TZImagePickerController.bundle" stringByAppendingPathComponent:file]
 
 @protocol TZImagePickerControllerDelegate;
 @interface TZImagePickerController : UINavigationController
@@ -96,6 +94,13 @@
 
 
 @interface TZAlbumPickerController : UIViewController
+
+@end
+
+
+@interface UIImage (MyBundle)
+
++ (UIImage *)imageNamedFromMyBundle:(NSString *)name;
 
 @end
 

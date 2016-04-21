@@ -39,7 +39,7 @@
         self.imageView.image = photo;
     }];
     self.selectPhotoButton.selected = model.isSelected;
-    self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamed:TZImagePickerSrcName(@"photo_sel_photoPickerVc.png")] : [UIImage imageNamed:TZImagePickerSrcName(@"photo_def_photoPickerVc.png")];
+    self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamedFromMyBundle:@"photo_sel_photoPickerVc.png"] : [UIImage imageNamedFromMyBundle:@"photo_def_photoPickerVc.png"];
     self.type = TZAssetCellTypePhoto;
     if (model.type == TZAssetModelMediaTypeLivePhoto)      self.type = TZAssetCellTypeLivePhoto;
     else if (model.type == TZAssetModelMediaTypeAudio)     self.type = TZAssetCellTypeAudio;
@@ -66,7 +66,7 @@
     if (self.didSelectPhotoBlock) {
         self.didSelectPhotoBlock(sender.isSelected);
     }
-    self.selectImageView.image = sender.isSelected ? [UIImage imageNamed:TZImagePickerSrcName(@"photo_sel_photoPickerVc.png")] : [UIImage imageNamed:TZImagePickerSrcName(@"photo_def_photoPickerVc.png")];
+    self.selectImageView.image = sender.isSelected ? [UIImage imageNamedFromMyBundle:@"photo_sel_photoPickerVc.png"] : [UIImage imageNamedFromMyBundle:@"photo_def_photoPickerVc.png"];
     if (sender.isSelected) {
         [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
     }
@@ -123,7 +123,7 @@
     if (_viewImgView == nil) {
         UIImageView *viewImgView = [[UIImageView alloc] init];
         viewImgView.frame = CGRectMake(8, 0, 17, 17);
-        [viewImgView setImage:[UIImage imageNamed:TZImagePickerSrcName(@"VideoSendIcon.png")]];
+        [viewImgView setImage:[UIImage imageNamedFromMyBundle:@"VideoSendIcon.png"]];
         [self.bottomView addSubview:viewImgView];
         _viewImgView = viewImgView;
     }
@@ -212,7 +212,7 @@
         UIImageView *arrowImageView = [[UIImageView alloc] init];
         CGFloat arrowWH = 15;
         arrowImageView.frame = CGRectMake(self.tz_width - arrowWH - 12, 28, arrowWH, arrowWH);
-        [arrowImageView setImage:[UIImage imageNamed:TZImagePickerSrcName(@"TableViewArrow.png")]];
+        [arrowImageView setImage:[UIImage imageNamedFromMyBundle:@"TableViewArrow.png"]];
         [self.contentView addSubview:arrowImageView];
         _arrowImageView = arrowImageView;
     }
