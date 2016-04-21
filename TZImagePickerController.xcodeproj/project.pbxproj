@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		808352B01CB6D1CF003BE041 /* NSBundle+MyBundle.m in Sources */ = {isa = PBXBuildFile; fileRef = 808352AF1CB6D1CF003BE041 /* NSBundle+MyBundle.m */; };
+		808352B41CB6D683003BE041 /* UIImage+MyBundle.m in Sources */ = {isa = PBXBuildFile; fileRef = 808352B31CB6D683003BE041 /* UIImage+MyBundle.m */; };
 		900E65811C2BB8D5003D9A9E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65801C2BB8D5003D9A9E /* main.m */; };
 		900E65841C2BB8D5003D9A9E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65831C2BB8D5003D9A9E /* AppDelegate.m */; };
 		900E65871C2BB8D5003D9A9E /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65861C2BB8D5003D9A9E /* ViewController.m */; };
@@ -61,6 +63,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		808352AF1CB6D1CF003BE041 /* NSBundle+MyBundle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSBundle+MyBundle.m"; sourceTree = "<group>"; };
+		808352B11CB6D1E7003BE041 /* NSBundle+MyBundle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSBundle+MyBundle.h"; sourceTree = "<group>"; };
+		808352B21CB6D683003BE041 /* UIImage+MyBundle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+MyBundle.h"; sourceTree = "<group>"; };
+		808352B31CB6D683003BE041 /* UIImage+MyBundle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+MyBundle.m"; sourceTree = "<group>"; };
 		900E657C1C2BB8D5003D9A9E /* TZImagePickerController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TZImagePickerController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		900E65801C2BB8D5003D9A9E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		900E65821C2BB8D5003D9A9E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -226,6 +232,10 @@
 				90CE84B61C3BABB6003D0779 /* TZVideoPlayerController.m */,
 				90EBF5D41C2E298000CB9BCC /* UIView+Layout.h */,
 				90EBF5D51C2E298000CB9BCC /* UIView+Layout.m */,
+				808352B11CB6D1E7003BE041 /* NSBundle+MyBundle.h */,
+				808352AF1CB6D1CF003BE041 /* NSBundle+MyBundle.m */,
+				808352B21CB6D683003BE041 /* UIImage+MyBundle.h */,
+				808352B31CB6D683003BE041 /* UIImage+MyBundle.m */,
 				905467AC1C425BBC00793338 /* Resource */,
 			);
 			path = TZImagePickerController;
@@ -400,6 +410,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				808352B01CB6D1CF003BE041 /* NSBundle+MyBundle.m in Sources */,
+				808352B41CB6D683003BE041 /* UIImage+MyBundle.m in Sources */,
 				9038D5911C3974F0007DE549 /* TZTestCell.m in Sources */,
 				900EF00F1C2C0B1100EA709B /* TZAssetModel.m in Sources */,
 				900EEFFE1C2BD58B00EA709B /* TZPhotoPickerController.m in Sources */,
