@@ -88,7 +88,8 @@
     
     // Set allow picking video & originalPhoto or not
     // 设置是否可以选择视频/原图
-    // imagePickerVc.allowPickingVideo = NO;
+//     imagePickerVc.allowPickingVideo = NO;
+//     imagePickerVc.allowPickingImage = NO;
     // imagePickerVc.allowPickingOriginalPhoto = NO;
     
     [self presentViewController:imagePickerVc animated:YES completion:nil];
