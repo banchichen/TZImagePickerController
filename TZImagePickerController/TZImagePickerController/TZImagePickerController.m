@@ -69,6 +69,7 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
+    [self hideProgressHUD];
 }
 
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate {
@@ -82,6 +83,8 @@
         _allowPickingOriginalPhoto = YES;
         _allowPickingVideo = YES;
         _allowPickingImage = YES;
+        _timeout = 15;
+        _photoWidth = 828.0;
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
@@ -162,12 +165,26 @@
     }
     [_HUDIndicatorView startAnimating];
     [[UIApplication sharedApplication].keyWindow addSubview:_progressHUD];
+    
+    // if over time, dismiss HUD automatic
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.timeout * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self hideProgressHUD];
+    });
 }
 
 - (void)hideProgressHUD {
     if (_progressHUD) {
         [_HUDIndicatorView stopAnimating];
         [_progressHUD removeFromSuperview];
+    }
+}
+
+- (void)setTimeout:(NSInteger)timeout {
+    _timeout = timeout;
+    if (timeout < 5) {
+        _timeout = 5;
+    } else if (_timeout > 60) {
+        _timeout = 60;
     }
 }
 
@@ -227,7 +244,7 @@
         _tableView.tableFooterView = [[UIView alloc] init];
         _tableView.dataSource = self;
         _tableView.delegate = self;
-        [_tableView registerNib:[UINib nibWithNibName:@"TZAlbumCell" bundle:nil] forCellReuseIdentifier:@"TZAlbumCell"];
+        [_tableView registerClass:[TZAlbumCell class] forCellReuseIdentifier:@"TZAlbumCell"];
         [self.view addSubview:_tableView];
     }];
 }

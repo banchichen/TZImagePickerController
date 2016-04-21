@@ -54,7 +54,7 @@ static CGSize AssetGridThumbnailSize;
         [self configCollectionView];
         [self configBottomToolBar];
     }];
-    [self resetCachedAssets];
+    // [self resetCachedAssets];
 }
 
 - (void)configCollectionView {
@@ -75,7 +75,7 @@ static CGSize AssetGridThumbnailSize;
     _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, -2);
     _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 3) / 4) * self.view.tz_width);
     [self.view addSubview:_collectionView];
-    [_collectionView registerNib:[UINib nibWithNibName:@"TZAssetCell" bundle:nil] forCellWithReuseIdentifier:@"TZAssetCell"];
+    [_collectionView registerClass:[TZAssetCell class] forCellWithReuseIdentifier:@"TZAssetCell"];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -209,13 +209,16 @@ static CGSize AssetGridThumbnailSize;
     NSMutableArray *infoArr = [NSMutableArray array];
     for (NSInteger i = 0; i < _selectedPhotoArr.count; i++) { [photos addObject:@1];[assets addObject:@1];[infoArr addObject:@1]; }
     
-    [TZImageManager manager].shouldFixOrientation = YES;
+    // [TZImageManager manager].shouldFixOrientation = YES;
     for (NSInteger i = 0; i < _selectedPhotoArr.count; i++) {
         TZAssetModel *model = _selectedPhotoArr[i];
         [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
             if (isDegraded) return;
-            if (photo) [photos replaceObjectAtIndex:i withObject:photo];
-            if (info) [infoArr replaceObjectAtIndex:i withObject:info];
+            if (photo) {
+                photo = [self scaleImage:photo toSize:CGSizeMake(imagePickerVc.photoWidth, imagePickerVc.photoWidth * photo.size.height / photo.size.width)];
+                [photos replaceObjectAtIndex:i withObject:photo];
+            }
+            if (info)  [infoArr replaceObjectAtIndex:i withObject:info];
             if (_isSelectOriginalPhoto) [assets replaceObjectAtIndex:i withObject:model.asset];
 
             for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
@@ -340,6 +343,15 @@ static CGSize AssetGridThumbnailSize;
     [[TZImageManager manager] getPhotosBytesWithArray:_selectedPhotoArr completion:^(NSString *totalBytes) {
         _originalPhotoLable.text = [NSString stringWithFormat:@"(%@)",totalBytes];
     }];
+}
+
+/// Scale image / 缩放图片
+- (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size {
+    UIGraphicsBeginImageContext(size);
+    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 #pragma mark - Asset Caching

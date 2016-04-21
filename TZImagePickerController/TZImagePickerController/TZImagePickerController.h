@@ -6,6 +6,15 @@
 //  Copyright © 2015年 谭真. All rights reserved.
 //
 
+/*
+ 经过测试，比起xib的方式，把TZAssetCell改用纯代码的方式来写，滑动帧数明显提高了（约提高10帧左右）
+ 
+ 最初发现这个问题并修复的是@小鱼周凌宇同学，她的博客地址，http://www.cnblogs.com/coderfish/
+ 表示感谢~
+ 
+ 原来xib确实会导致性能问题啊...大家也要注意了...
+ */
+
 #import <UIKit/UIKit.h>
 
 #define iOS7Later ([UIDevice currentDevice].systemVersion.floatValue >= 7.0f)
@@ -21,6 +30,13 @@
 
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
+
+/// Default is 828px / 默认828像素宽
+@property (nonatomic, assign) CGFloat photoWidth;
+
+/// Default is 15, While fetching photo, HUD will dismiss automatic if timeout;
+/// 超时时间，默认为15秒，当取图片时间超过15秒还没有取成功时，会自动dismiss HUD；
+@property (nonatomic, assign) NSInteger timeout;
 
 /// Default is YES.if set NO, the original photo button will hide. user can't picking original photo.
 /// 默认为YES，如果设置为NO,原图按钮将隐藏，用户不能选择发送原图
@@ -42,9 +58,9 @@
 @property (nonatomic, strong) UIColor *oKButtonTitleColorNormal;
 @property (nonatomic, strong) UIColor *oKButtonTitleColorDisabled;
 
-// The picker does not dismiss itself; when client dismisses it these handle will be called.
+// The picker should dismiss itself; when it dismissed these handle will be called.
 // The second array will be a empty array if user not picking original photo.
-// 这个照片选择器不会自己dismiss，用户dismiss这个选择器的时候，会执行下面的handle
+// 这个照片选择器会自己dismiss，当选择器dismiss的时候，会执行下面的handle
 // 如果用户没有选择发送原图,第二个数组将是空数组
 @property (nonatomic, copy) void (^didFinishPickingPhotosHandle)(NSArray<UIImage *> *photos,NSArray *assets);
 @property (nonatomic, copy) void (^didFinishPickingPhotosWithInfosHandle)(NSArray<UIImage *> *photos,NSArray *assets,NSArray<NSDictionary *> *infos);
@@ -62,9 +78,9 @@
 
 @protocol TZImagePickerControllerDelegate <NSObject>
 @optional
-// The picker does not dismiss itself; the client dismisses it in these callbacks.
+// The picker should dismiss itself; when it dismissed these handle will be called.
 // Assets will be a empty array if user not picking original photo.
-// 这个照片选择器不会自己dismiss，用户dismiss这个选择器的时候，会走下面的回调
+// 这个照片选择器会自己dismiss，当选择器dismiss的时候，会执行下面的回调
 // 如果用户没有选择发送原图,Assets将是空数组
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets;
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets infos:(NSArray<NSDictionary *> *)infos;

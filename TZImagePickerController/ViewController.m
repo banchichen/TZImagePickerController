@@ -66,7 +66,7 @@
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row == _selectedPhotos.count) [self pickPhotoButtonClick:nil];
+    if (indexPath.row == _selectedPhotos.count) { [self pickPhotoButtonClick:nil];}
 }
 
 #pragma mark Click Event
@@ -86,10 +86,10 @@
     // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
     // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
     
-    // Set allow picking video & originalPhoto or not
-    // 设置是否可以选择视频/原图
-//     imagePickerVc.allowPickingVideo = NO;
-//     imagePickerVc.allowPickingImage = NO;
+    // Set allow picking video & photo & originalPhoto or not
+    // 设置是否可以选择视频/图片/原图
+    // imagePickerVc.allowPickingVideo = NO;
+    // imagePickerVc.allowPickingImage = NO;
     // imagePickerVc.allowPickingOriginalPhoto = NO;
     
     [self presentViewController:imagePickerVc animated:YES completion:nil];

@@ -13,18 +13,25 @@
 #import "TZImagePickerController.h"
 
 @interface TZAssetCell ()
-@property (weak, nonatomic) IBOutlet UIImageView *imageView;       // The photo / 照片
-@property (weak, nonatomic) IBOutlet UIImageView *selectImageView;
-@property (weak, nonatomic) IBOutlet UIView *bottomView;
-@property (weak, nonatomic) IBOutlet UILabel *timeLength;
+@property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
+@property (weak, nonatomic) UIImageView *selectImageView;
+@property (weak, nonatomic) UIView *bottomView;
+@property (weak, nonatomic) UILabel *timeLength;
+
+@property (nonatomic, weak) UIImageView *viewImgView;
 
 @end
 
 @implementation TZAssetCell
 
+// Now we use code to create subViews for improve performance
+// 现在我们用代码来创建TZAssetCell和TZAlbumCell的子控件，以提高性能
+
+/*
 - (void)awakeFromNib {
     self.timeLength.font = [UIFont boldSystemFontOfSize:11];
 }
+ */
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
@@ -55,7 +62,7 @@
     }
 }
 
-- (IBAction)selectPhotoButtonClick:(UIButton *)sender {
+- (void)selectPhotoButtonClick:(UIButton *)sender {
     if (self.didSelectPhotoBlock) {
         self.didSelectPhotoBlock(sender.isSelected);
     }
@@ -65,18 +72,92 @@
     }
 }
 
+#pragma mark - Lazy load 
+
+- (UIButton *)selectPhotoButton {
+    if (_selectImageView == nil) {
+        UIButton *selectImageView = [[UIButton alloc] init];
+        selectImageView.frame = CGRectMake(self.tz_width - 44, 0, 44, 44);
+        [selectImageView addTarget:self action:@selector(selectPhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [self.contentView addSubview:selectImageView];
+        _selectPhotoButton = selectImageView;
+    }
+    return _selectPhotoButton;
+}
+
+- (UIImageView *)imageView {
+    if (_imageView == nil) {
+        UIImageView *imageView = [[UIImageView alloc] init];
+        imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
+        imageView.contentMode = UIViewContentModeScaleAspectFill;
+        imageView.clipsToBounds = YES;
+        [self.contentView addSubview:imageView];
+        _imageView = imageView;
+    }
+    return _imageView;
+}
+
+- (UIImageView *)selectImageView {
+    if (_selectImageView == nil) {
+        UIImageView *selectImageView = [[UIImageView alloc] init];
+        selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
+        [self.contentView addSubview:selectImageView];
+        _selectImageView = selectImageView;
+    }
+    return _selectImageView;
+}
+
+- (UIView *)bottomView {
+    if (_bottomView == nil) {
+        UIView *bottomView = [[UIView alloc] init];
+        bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
+        bottomView.backgroundColor = [UIColor blackColor];
+        bottomView.alpha = 0.8;
+        [self.contentView addSubview:bottomView];
+        _bottomView = bottomView;
+    }
+    return _bottomView;
+}
+
+- (UIImageView *)viewImgView {
+    if (_viewImgView == nil) {
+        UIImageView *viewImgView = [[UIImageView alloc] init];
+        viewImgView.frame = CGRectMake(8, 0, 17, 17);
+        [viewImgView setImage:[UIImage imageNamed:@"VideoSendIcon"]];
+        [self.bottomView addSubview:viewImgView];
+        _viewImgView = viewImgView;
+    }
+    return _viewImgView;
+}
+
+- (UILabel *)timeLength {
+    if (_timeLength == nil) {
+        UILabel *timeLength = [[UILabel alloc] init];
+        timeLength.font = [UIFont boldSystemFontOfSize:11];
+        timeLength.frame = CGRectMake(self.viewImgView.tz_right, 0, self.tz_width - self.viewImgView.tz_right - 5, 17);
+        timeLength.textColor = [UIColor whiteColor];
+        timeLength.textAlignment = NSTextAlignmentRight;
+        [self.bottomView addSubview:timeLength];
+        _timeLength = timeLength;
+    }
+    return _timeLength;
+}
+
 @end
 
 @interface TZAlbumCell ()
-@property (weak, nonatomic) IBOutlet UIImageView *posterImageView;
-@property (weak, nonatomic) IBOutlet UILabel *titleLable;
+@property (weak, nonatomic) UIImageView *posterImageView;
+@property (weak, nonatomic) UILabel *titleLable;
+@property (weak, nonatomic) UIImageView *arrowImageView;
 @end
 
 @implementation TZAlbumCell
 
+/*
 - (void)awakeFromNib {
     self.posterImageView.clipsToBounds = YES;
 }
+ */
 
 - (void)setModel:(TZAlbumModel *)model {
     _model = model;
@@ -99,5 +180,43 @@
     if (iOS7Later) [super layoutSublayersOfLayer:layer];
 }
 
+#pragma mark - Lazy load
+
+- (UIImageView *)posterImageView {
+    if (_arrowImageView == nil) {
+        UIImageView *posterImageView = [[UIImageView alloc] init];
+        posterImageView.contentMode = UIViewContentModeScaleAspectFill;
+        posterImageView.clipsToBounds = YES;
+        posterImageView.frame = CGRectMake(0, 0, 70, 70);
+        [self.contentView addSubview:posterImageView];
+        _posterImageView = posterImageView;
+    }
+    return _posterImageView;
+}
+
+- (UILabel *)titleLable {
+    if (_titleLable == nil) {
+        UILabel *titleLable = [[UILabel alloc] init];
+        titleLable.font = [UIFont boldSystemFontOfSize:17];
+        titleLable.frame = CGRectMake(80, 0, self.tz_width - 80 - 50, self.tz_height);
+        titleLable.textColor = [UIColor blackColor];
+        titleLable.textAlignment = NSTextAlignmentLeft;
+        [self.contentView addSubview:titleLable];
+        _titleLable = titleLable;
+    }
+    return _titleLable;
+}
+
+- (UIImageView *)arrowImageView {
+    if (_arrowImageView == nil) {
+        UIImageView *arrowImageView = [[UIImageView alloc] init];
+        CGFloat arrowWH = 15;
+        arrowImageView.frame = CGRectMake(self.tz_width - arrowWH - 12, 28, arrowWH, arrowWH);
+        [arrowImageView setImage:[UIImage imageNamed:@"TableViewArrow"]];
+        [self.contentView addSubview:arrowImageView];
+        _arrowImageView = arrowImageView;
+    }
+    return _arrowImageView;
+}
 
 @end
