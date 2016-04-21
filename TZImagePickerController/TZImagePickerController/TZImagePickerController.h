@@ -9,7 +9,7 @@
 /*
  经过测试，比起xib的方式，把TZAssetCell改用纯代码的方式来写，滑动帧数明显提高了（约提高10帧左右）
  
- 最初发现这个问题并修复的是@小鱼周凌宇同学，她的博客地址，http://www.cnblogs.com/coderfish/
+ 最初发现这个问题并修复的是@小鱼周凌宇同学，她的博客地址: http://zhoulingyu.com/
  表示感谢~
  
  原来xib确实会导致性能问题啊...大家也要注意了...
@@ -21,6 +21,8 @@
 #define iOS8Later ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
 #define iOS9Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.0f)
 #define iOS9_1Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.1f)
+// 图片路径
+#define TZImagePickerSrcName(file) [@"TZImagePickerController.bundle" stringByAppendingPathComponent:file]
 
 @protocol TZImagePickerControllerDelegate;
 @interface TZImagePickerController : UINavigationController
@@ -96,3 +98,4 @@
 @interface TZAlbumPickerController : UIViewController
 
 @end
+

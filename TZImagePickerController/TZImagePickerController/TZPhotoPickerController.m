@@ -124,8 +124,8 @@ static CGSize AssetGridThumbnailSize;
         [_originalPhotoButton setTitle:@"原图" forState:UIControlStateSelected];
         [_originalPhotoButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
         [_originalPhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
-        [_originalPhotoButton setImage:[UIImage imageNamed:@"photo_original_def"] forState:UIControlStateNormal];
-        [_originalPhotoButton setImage:[UIImage imageNamed:@"photo_original_sel"] forState:UIControlStateSelected];
+        [_originalPhotoButton setImage:[UIImage imageNamed:TZImagePickerSrcName(@"photo_original_def.png")] forState:UIControlStateNormal];
+        [_originalPhotoButton setImage:[UIImage imageNamed:TZImagePickerSrcName(@"photo_original_sel.png")] forState:UIControlStateSelected];
         _originalPhotoButton.enabled = _selectedPhotoArr.count > 0;
         
         _originalPhotoLable = [[UILabel alloc] init];
@@ -146,7 +146,7 @@ static CGSize AssetGridThumbnailSize;
     [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     _okButton.enabled = NO;
     
-    _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"photo_number_icon"]];
+    _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:TZImagePickerSrcName(@"photo_number_icon.png")]];
     _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 24, 12, 26, 26);
     _numberImageView.hidden = _selectedPhotoArr.count <= 0;
     _numberImageView.backgroundColor = [UIColor clearColor];

@@ -58,7 +58,7 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TZTestCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZTestCell" forIndexPath:indexPath];
     if (indexPath.row == _selectedPhotos.count) {
-        cell.imageView.image = [UIImage imageNamed:@"AlbumAddBtn"];
+        cell.imageView.image = [UIImage imageNamed:@"AlbumAddBtn.png"];
     } else {
         cell.imageView.image = _selectedPhotos[indexPath.row];
     }
