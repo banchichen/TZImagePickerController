@@ -86,7 +86,7 @@
     _toolBar.alpha = 0.7;
     
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (imagePickerVc.allowPickingOriginalPhoto) {
+    if (imagePickerVc != nil && imagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
         _originalPhotoButton.frame = CGRectMake(5, 0, 120, 44);
         _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, -8, 0, 0);
