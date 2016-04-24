@@ -15,7 +15,7 @@
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
 
-@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate> {
+@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
     UICollectionView *_collectionView;
     NSMutableArray *_photoArr;
     
@@ -29,32 +29,70 @@
     BOOL _isSelectOriginalPhoto;
     BOOL _shouldScrollToBottom;
 }
-@property (nonatomic, strong) NSMutableArray *selectedPhotoArr;
 @property CGRect previousPreheatRect;
+@property (nonatomic, strong) UIImagePickerController *imagePickerVc;
+@property (nonatomic, strong) TZImagePickerController *tzImagePickerVc;
 @end
 
 static CGSize AssetGridThumbnailSize;
 
 @implementation TZPhotoPickerController
 
-- (NSMutableArray *)selectedPhotoArr {
-    if (_selectedPhotoArr == nil) _selectedPhotoArr = [NSMutableArray array];
-    return _selectedPhotoArr;
+- (UIImagePickerController *)imagePickerVc {
+    if (_imagePickerVc == nil) {
+        _imagePickerVc = [[UIImagePickerController alloc] init];
+        _imagePickerVc.delegate = self;
+        _imagePickerVc.allowsEditing = YES;
+        // set appearance / 改变相册选择页的导航栏外观
+        _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
+        _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
+        UIBarButtonItem *tzBarItem, *BarItem;
+        if (iOS8Later) {
+            tzBarItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
+            BarItem = [UIBarButtonItem appearanceWhenContainedIn:[UIImagePickerController class], nil];
+        } else {
+            tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
+            BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
+        }
+        NSDictionary *titleTextAttributes = [tzBarItem titleTextAttributesForState:UIControlStateNormal];
+        [BarItem setTitleTextAttributes:titleTextAttributes forState:UIControlStateNormal];
+    }
+    return _imagePickerVc;
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    __weak typeof(self) weakSelf = self;
+    _tzImagePickerVc = (TZImagePickerController *)weakSelf.navigationController;
+    _isSelectOriginalPhoto = _tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = _model.name;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStylePlain target:self action:@selector(cancel)];
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:imagePickerVc.allowPickingVideo allowPickingImage:imagePickerVc.allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
-        _photoArr = [NSMutableArray arrayWithArray:models];
-        [self configCollectionView];
-        [self configBottomToolBar];
-    }];
+    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"]) {
+        [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:_tzImagePickerVc.allowPickingVideo allowPickingImage:_tzImagePickerVc.allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
+            _photoArr = [NSMutableArray arrayWithArray:models];
+            [self initSubviews];
+        }];
+    } else {
+        _photoArr = [NSMutableArray arrayWithArray:_model.models];
+        [self initSubviews];
+    }
     // [self resetCachedAssets];
+}
+
+- (void)initSubviews {
+    [self checkSelectedModels];
+    [self configCollectionView];
+    [self configBottomToolBar];
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    _tzImagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
+    if (self.backButtonClickHandle) {
+        self.backButtonClickHandle(_model);
+    }
 }
 
 - (void)configCollectionView {
@@ -73,17 +111,19 @@ static CGSize AssetGridThumbnailSize;
     _collectionView.alwaysBounceHorizontal = NO;
     if (iOS7Later) _collectionView.contentInset = UIEdgeInsetsMake(0, 0, 0, 2);
     _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, -2);
-    _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 3) / 4) * self.view.tz_width);
+    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ) {
+        _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 4) / 4) * self.view.tz_width);
+    } else {
+        _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 3) / 4) * self.view.tz_width);
+    }
     [self.view addSubview:_collectionView];
     [_collectionView registerClass:[TZAssetCell class] forCellWithReuseIdentifier:@"TZAssetCell"];
+    [_collectionView registerClass:[TZAssetCameraCell class] forCellWithReuseIdentifier:@"TZAssetCameraCell"];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    if (_shouldScrollToBottom && _photoArr.count > 0) {
-        [_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:(_photoArr.count - 1) inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
-        _shouldScrollToBottom = NO;
-    }
+    [self scrollCollectionViewToBottom];
     // Determine the size of the thumbnails to request from the PHCachingImageManager
     CGFloat scale = [UIScreen mainScreen].scale;
     CGSize cellSize = ((UICollectionViewFlowLayout *)_collectionView.collectionViewLayout).itemSize;
@@ -110,10 +150,9 @@ static CGSize AssetGridThumbnailSize;
     [_previewButton setTitle:@"预览" forState:UIControlStateDisabled];
     [_previewButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [_previewButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
-    _previewButton.enabled = NO;
+    _previewButton.enabled = _tzImagePickerVc.selectedModels.count;
     
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (imagePickerVc.allowPickingOriginalPhoto) {
+    if (_tzImagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
         _originalPhotoButton.frame = CGRectMake(50, self.view.tz_height - 50, 130, 50);
         _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, -8, 0, 0);
@@ -126,7 +165,8 @@ static CGSize AssetGridThumbnailSize;
         [_originalPhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
         [_originalPhotoButton setImage:[UIImage imageNamedFromMyBundle:@"photo_original_def.png"] forState:UIControlStateNormal];
         [_originalPhotoButton setImage:[UIImage imageNamedFromMyBundle:@"photo_original_sel.png"] forState:UIControlStateSelected];
-        _originalPhotoButton.enabled = _selectedPhotoArr.count > 0;
+        _originalPhotoButton.selected = _isSelectOriginalPhoto;
+        _originalPhotoButton.enabled = _tzImagePickerVc.selectedModels.count > 0;
         
         _originalPhotoLable = [[UILabel alloc] init];
         _originalPhotoLable.frame = CGRectMake(70, 0, 60, 50);
@@ -142,13 +182,13 @@ static CGSize AssetGridThumbnailSize;
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_okButton setTitle:@"确定" forState:UIControlStateNormal];
     [_okButton setTitle:@"确定" forState:UIControlStateDisabled];
-    [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
-    [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
-    _okButton.enabled = NO;
+    [_okButton setTitleColor:_tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+    [_okButton setTitleColor:_tzImagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
+    _okButton.enabled = _tzImagePickerVc.selectedModels.count;
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:@"photo_number_icon.png"]];
     _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 24, 12, 26, 26);
-    _numberImageView.hidden = _selectedPhotoArr.count <= 0;
+    _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 0;
     _numberImageView.backgroundColor = [UIColor clearColor];
     
     _numberLable = [[UILabel alloc] init];
@@ -156,8 +196,8 @@ static CGSize AssetGridThumbnailSize;
     _numberLable.font = [UIFont systemFontOfSize:16];
     _numberLable.textColor = [UIColor whiteColor];
     _numberLable.textAlignment = NSTextAlignmentCenter;
-    _numberLable.text = [NSString stringWithFormat:@"%zd",_selectedPhotoArr.count];
-    _numberLable.hidden = _selectedPhotoArr.count <= 0;
+    _numberLable.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
+    _numberLable.hidden = _tzImagePickerVc.selectedModels.count <= 0;
     _numberLable.backgroundColor = [UIColor clearColor];
     
     UIView *divide = [[UIView alloc] init];
@@ -190,7 +230,7 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)previewButtonClick {
     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-    photoPreviewVc.photoArr = [NSArray arrayWithArray:self.selectedPhotoArr];
+    photoPreviewVc.photoArr = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
     [self pushPhotoPrevireViewController:photoPreviewVc];
 }
 
@@ -202,40 +242,39 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)okButtonClick {
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    [imagePickerVc showProgressHUD];
+    [_tzImagePickerVc showProgressHUD];
     NSMutableArray *photos = [NSMutableArray array];
     NSMutableArray *assets = [NSMutableArray array];
     NSMutableArray *infoArr = [NSMutableArray array];
-    for (NSInteger i = 0; i < _selectedPhotoArr.count; i++) { [photos addObject:@1];[assets addObject:@1];[infoArr addObject:@1]; }
+    for (NSInteger i = 0; i < _tzImagePickerVc.selectedModels.count; i++) { [photos addObject:@1];[assets addObject:@1];[infoArr addObject:@1]; }
     
-    // [TZImageManager manager].shouldFixOrientation = YES;
-    for (NSInteger i = 0; i < _selectedPhotoArr.count; i++) {
-        TZAssetModel *model = _selectedPhotoArr[i];
+    [TZImageManager manager].shouldFixOrientation = YES;
+    for (NSInteger i = 0; i < _tzImagePickerVc.selectedModels.count; i++) {
+        TZAssetModel *model = _tzImagePickerVc.selectedModels[i];
         [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
             if (isDegraded) return;
             if (photo) {
-                photo = [self scaleImage:photo toSize:CGSizeMake(imagePickerVc.photoWidth, imagePickerVc.photoWidth * photo.size.height / photo.size.width)];
+                photo = [self scaleImage:photo toSize:CGSizeMake(_tzImagePickerVc.photoWidth, _tzImagePickerVc.photoWidth * photo.size.height / photo.size.width)];
                 [photos replaceObjectAtIndex:i withObject:photo];
             }
             if (info)  [infoArr replaceObjectAtIndex:i withObject:info];
-            if (_isSelectOriginalPhoto) [assets replaceObjectAtIndex:i withObject:model.asset];
+            [assets replaceObjectAtIndex:i withObject:model.asset];
 
             for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
             
-            if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:)]) {
-                [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingPhotos:photos sourceAssets:assets];
+            if ([_tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:)]) {
+                [_tzImagePickerVc.pickerDelegate imagePickerController:_tzImagePickerVc didFinishPickingPhotos:photos sourceAssets:assets isSelectOriginalPhoto:_isSelectOriginalPhoto];
             }
-            if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:infos:)]) {
-                [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingPhotos:photos sourceAssets:assets infos:infoArr];
+            if ([_tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:infos:)]) {
+                [_tzImagePickerVc.pickerDelegate imagePickerController:_tzImagePickerVc didFinishPickingPhotos:photos sourceAssets:assets isSelectOriginalPhoto:_isSelectOriginalPhoto infos:infoArr];
             }
-            if (imagePickerVc.didFinishPickingPhotosHandle) {
-                imagePickerVc.didFinishPickingPhotosHandle(photos,assets);
+            if (_tzImagePickerVc.didFinishPickingPhotosHandle) {
+                _tzImagePickerVc.didFinishPickingPhotosHandle(photos,assets,_isSelectOriginalPhoto);
             }
-            if (imagePickerVc.didFinishPickingPhotosWithInfosHandle) {
-                imagePickerVc.didFinishPickingPhotosWithInfosHandle(photos,assets,infoArr);
+            if (_tzImagePickerVc.didFinishPickingPhotosWithInfosHandle) {
+                _tzImagePickerVc.didFinishPickingPhotosWithInfosHandle(photos,assets,_isSelectOriginalPhoto,infoArr);
             }
-            [imagePickerVc hideProgressHUD];
+            [_tzImagePickerVc hideProgressHUD];
             [self.navigationController dismissViewControllerAnimated:YES completion:nil];
         }];
     }
@@ -244,10 +283,22 @@ static CGSize AssetGridThumbnailSize;
 #pragma mark - UICollectionViewDataSource && Delegate
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"]) {
+        if (_tzImagePickerVc.allowPickingImage) {
+            return _photoArr.count + 1;
+        }
+    }
     return _photoArr.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
+    // the cell lead to take a picture / 去拍照的cell
+    if (indexPath.row >= _photoArr.count) {
+        TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
+        cell.imageView.image = [UIImage imageNamedFromMyBundle:@"takePicture.png"];
+        return cell;
+    }
+    // the cell dipaly photo or video / 展示照片或视频的cell
     TZAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCell" forIndexPath:indexPath];
     TZAssetModel *model = _photoArr[indexPath.row];
     cell.model = model;
@@ -260,18 +311,22 @@ static CGSize AssetGridThumbnailSize;
         if (isSelected) {
             weakCell.selectPhotoButton.selected = NO;
             model.isSelected = NO;
-            [weakSelf.selectedPhotoArr removeObject:model];
+            NSArray *selectedModels = [NSArray arrayWithArray:weakSelf.tzImagePickerVc.selectedModels];
+            for (TZAssetModel *model_item in selectedModels) {
+                if ([model.asset isEqual:model_item.asset]) {
+                    [weakSelf.tzImagePickerVc.selectedModels removeObject:model_item];
+                }
+            }
             [weakSelf refreshBottomToolBarStatus];
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
-            TZImagePickerController *imagePickerVc = (TZImagePickerController *)weakSelf.navigationController;
-            if (weakSelf.selectedPhotoArr.count < imagePickerVc.maxImagesCount) {
+            if (weakSelf.tzImagePickerVc.selectedModels.count < weakSelf.tzImagePickerVc.maxImagesCount) {
                 weakCell.selectPhotoButton.selected = YES;
                 model.isSelected = YES;
-                [weakSelf.selectedPhotoArr addObject:model];
+                [weakSelf.tzImagePickerVc.selectedModels addObject:model];
                 [weakSelf refreshBottomToolBarStatus];
             } else {
-                [imagePickerVc showAlertWithTitle:[NSString stringWithFormat:@"你最多只能选择%zd张照片",imagePickerVc.maxImagesCount]];
+                [weakSelf.tzImagePickerVc showAlertWithTitle:[NSString stringWithFormat:@"你最多只能选择%zd张照片",weakSelf.tzImagePickerVc.maxImagesCount]];
             }
         }
          [UIView showOscillatoryAnimationWithLayer:weakLayer type:TZOscillatoryAnimationToSmaller];
@@ -280,9 +335,14 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    // take a picture / 去拍照
+    if (indexPath.row >= _photoArr.count) {
+        [self takePicture]; return;
+    }
+    // preview phote or video / 预览照片或视频
     TZAssetModel *model = _photoArr[indexPath.row];
     if (model.type == TZAssetModelMediaTypeVideo) {
-        if (_selectedPhotoArr.count > 0) {
+        if (_tzImagePickerVc.selectedModels.count > 0) {
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
             [imagePickerVc showAlertWithTitle:@"选择照片时不能选择视频"];
         } else {
@@ -308,15 +368,30 @@ static CGSize AssetGridThumbnailSize;
 
 #pragma mark - Private Method
 
+- (void)takePicture {
+    UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
+    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+        self.imagePickerVc.sourceType = sourceType;
+        if(iOS8Later) {
+            _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        }
+        [self presentViewController:_imagePickerVc animated:YES completion:nil];
+    } else {
+        NSLog(@"模拟器中无法打开照相机,请在真机中使用");
+    }
+}
+
 - (void)refreshBottomToolBarStatus {
-    _previewButton.enabled = self.selectedPhotoArr.count > 0;
-    _okButton.enabled = self.selectedPhotoArr.count > 0;
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     
-    _numberImageView.hidden = _selectedPhotoArr.count <= 0;
-    _numberLable.hidden = _selectedPhotoArr.count <= 0;
-    _numberLable.text = [NSString stringWithFormat:@"%zd",_selectedPhotoArr.count];
+    _previewButton.enabled = imagePickerVc.selectedModels.count > 0;
+    _okButton.enabled = imagePickerVc.selectedModels.count > 0;
     
-    _originalPhotoButton.enabled = _selectedPhotoArr.count > 0;
+    _numberImageView.hidden = imagePickerVc.selectedModels.count <= 0;
+    _numberLable.hidden = imagePickerVc.selectedModels.count <= 0;
+    _numberLable.text = [NSString stringWithFormat:@"%zd",imagePickerVc.selectedModels.count];
+    
+    _originalPhotoButton.enabled = imagePickerVc.selectedModels.count > 0;
     _originalPhotoButton.selected = (_isSelectOriginalPhoto && _originalPhotoButton.enabled);
     _originalPhotoLable.hidden = (!_originalPhotoButton.isSelected);
     if (_isSelectOriginalPhoto) [self getSelectedPhotoBytes];
@@ -324,15 +399,13 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)pushPhotoPrevireViewController:(TZPhotoPreviewController *)photoPreviewVc {
     photoPreviewVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
-    photoPreviewVc.selectedPhotoArr = self.selectedPhotoArr;
-    photoPreviewVc.returnNewSelectedPhotoArrBlock = ^(NSMutableArray *newSelectedPhotoArr,BOOL isSelectOriginalPhoto) {
-        _selectedPhotoArr = newSelectedPhotoArr;
+    photoPreviewVc.backButtonClickBlock = ^(BOOL isSelectOriginalPhoto) {
         _isSelectOriginalPhoto = isSelectOriginalPhoto;
+        [self checkSelectedModels];
         [_collectionView reloadData];
         [self refreshBottomToolBarStatus];
     };
-    photoPreviewVc.okButtonClickBlock = ^(NSMutableArray *newSelectedPhotoArr,BOOL isSelectOriginalPhoto){
-        _selectedPhotoArr = newSelectedPhotoArr;
+    photoPreviewVc.okButtonClickBlock = ^(BOOL isSelectOriginalPhoto){
         _isSelectOriginalPhoto = isSelectOriginalPhoto;
         [self okButtonClick];
     };
@@ -340,7 +413,8 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)getSelectedPhotoBytes {
-    [[TZImageManager manager] getPhotosBytesWithArray:_selectedPhotoArr completion:^(NSString *totalBytes) {
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    [[TZImageManager manager] getPhotosBytesWithArray:imagePickerVc.selectedModels completion:^(NSString *totalBytes) {
         _originalPhotoLable.text = [NSString stringWithFormat:@"(%@)",totalBytes];
     }];
 }
@@ -352,6 +426,75 @@ static CGSize AssetGridThumbnailSize;
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     return newImage;
+}
+
+- (void)scrollCollectionViewToBottom {
+    if (_shouldScrollToBottom && _photoArr.count > 0) {
+        NSInteger item = _photoArr.count - 1;
+        if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"]) {
+            if (_tzImagePickerVc.allowPickingImage) {
+                item += 1;
+            }
+        }
+        [_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
+        _shouldScrollToBottom = NO;
+    }
+}
+
+- (void)checkSelectedModels {
+    for (TZAssetModel *model in _photoArr) {
+        model.isSelected = NO;
+        NSMutableArray *selectedAssets = [NSMutableArray array];
+        for (TZAssetModel *model in _tzImagePickerVc.selectedModels) {
+            [selectedAssets addObject:model.asset];
+        }
+        if ([selectedAssets containsObject:model.asset]) {
+            model.isSelected = YES;
+        }
+    }
+}
+
+#pragma mark - UIImagePickerControllerDelegate
+
+- (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    [picker dismissViewControllerAnimated:YES completion:nil];
+    NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
+    if ([type isEqualToString:@"public.image"]) {
+        TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+        [imagePickerVc showProgressHUD];
+        UIImage *image = [info objectForKey:UIImagePickerControllerEditedImage];
+        UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+    }
+}
+
+- (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo {
+    if (error) {
+        [_tzImagePickerVc hideProgressHUD];
+        [_tzImagePickerVc showAlertWithTitle:error.localizedDescription];
+    } else {
+        [[TZImageManager manager] getCameraRollAlbum:_tzImagePickerVc.allowPickingVideo allowPickingImage:_tzImagePickerVc.allowPickingImage completion:^(TZAlbumModel *model) {
+            _model = model;
+            [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:_tzImagePickerVc.allowPickingVideo allowPickingImage:_tzImagePickerVc.allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
+                [_tzImagePickerVc hideProgressHUD];
+            
+                TZAssetModel *model = [models lastObject];
+                [_photoArr addObject:model];
+                if (_tzImagePickerVc.selectedModels.count < _tzImagePickerVc.maxImagesCount) {
+                    model.isSelected = YES;
+                    [_tzImagePickerVc.selectedModels addObject:model];
+                    [self refreshBottomToolBarStatus];
+                }
+                [_collectionView reloadData];
+                
+                _shouldScrollToBottom = YES;
+                [self scrollCollectionViewToBottom];
+            }];
+        }];
+    }
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 #pragma mark - Asset Caching

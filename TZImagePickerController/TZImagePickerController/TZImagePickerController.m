@@ -78,13 +78,15 @@
     if (self) {
         self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
         self.pickerDelegate = delegate;
+        self.selectedModels = [NSMutableArray array];
+        
         // Allow user picking original photo and video, you also can set No after this method
         // 默认准许用户选择原图和视频, 你也可以在这个方法后置为NO
-        _allowPickingOriginalPhoto = YES;
-        _allowPickingVideo = YES;
-        _allowPickingImage = YES;
-        _timeout = 15;
-        _photoWidth = 828.0;
+        self.allowPickingOriginalPhoto = YES;
+        self.allowPickingVideo = YES;
+        self.allowPickingImage = YES;
+        self.timeout = 15;
+        self.photoWidth = 828.0;
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
@@ -188,6 +190,30 @@
     }
 }
 
+- (void)setSelectedAssets:(NSArray *)selectedAssets {
+    _selectedAssets = selectedAssets;
+    _selectedModels = [NSMutableArray array];
+    for (id asset in selectedAssets) {
+        TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhoto];
+        model.isSelected = YES;
+        [_selectedModels addObject:model];
+    }
+}
+
+- (void)setAllowPickingImage:(BOOL)allowPickingImage {
+    _allowPickingImage = allowPickingImage;
+    NSString *allowPickingImageStr = _allowPickingImage ? @"1" : @"0";
+    [[NSUserDefaults standardUserDefaults] setObject:allowPickingImageStr forKey:@"tz_allowPickingImage"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)setAllowPickingVideo:(BOOL)allowPickingVideo {
+    _allowPickingVideo = allowPickingVideo;
+    NSString *allowPickingVideoStr = _allowPickingVideo ? @"1" : @"0";
+    [[NSUserDefaults standardUserDefaults] setObject:allowPickingVideoStr forKey:@"tz_allowPickingVideo"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
     if (iOS7Later) viewController.automaticallyAdjustsScrollViewInsets = NO;
     if (_timer) { [_timer invalidate]; _timer = nil;}
@@ -228,24 +254,36 @@
     [super viewWillAppear:animated];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     [imagePickerVc hideProgressHUD];
-    if (_albumArr) return;
-    [self configTableView];
+    if (_albumArr) {
+        for (TZAlbumModel *albumModel in _albumArr) {
+            albumModel.selectedModels = imagePickerVc.selectedModels;
+        }
+        [_tableView reloadData];
+    } else {
+        [self configTableView];
+    }
 }
 
 - (void)configTableView {
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo allowPickingImage:imagePickerVc.allowPickingImage completion:^(NSArray<TZAlbumModel *> *models) {
         _albumArr = [NSMutableArray arrayWithArray:models];
-        
-        CGFloat top = 44;
-        if (iOS7Later) top += 20;
-        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, self.view.tz_height - top) style:UITableViewStylePlain];
-        _tableView.rowHeight = 70;
-        _tableView.tableFooterView = [[UIView alloc] init];
-        _tableView.dataSource = self;
-        _tableView.delegate = self;
-        [_tableView registerClass:[TZAlbumCell class] forCellReuseIdentifier:@"TZAlbumCell"];
-        [self.view addSubview:_tableView];
+        for (TZAlbumModel *albumModel in _albumArr) {
+            albumModel.selectedModels = imagePickerVc.selectedModels;
+        }
+        if (!_tableView) {
+            CGFloat top = 44;
+            if (iOS7Later) top += 20;
+            _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, self.view.tz_height - top) style:UITableViewStylePlain];
+            _tableView.rowHeight = 70;
+            _tableView.tableFooterView = [[UIView alloc] init];
+            _tableView.dataSource = self;
+            _tableView.delegate = self;
+            [_tableView registerClass:[TZAlbumCell class] forCellReuseIdentifier:@"TZAlbumCell"];
+            [self.view addSubview:_tableView];
+        } else {
+            [_tableView reloadData];
+        }
     }];
 }
 
@@ -270,13 +308,20 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     TZAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TZAlbumCell"];
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    cell.selectedCountButton.backgroundColor = imagePickerVc.oKButtonTitleColorNormal;
     cell.model = _albumArr[indexPath.row];
+    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
-    photoPickerVc.model = _albumArr[indexPath.row];
+    TZAlbumModel *model = _albumArr[indexPath.row];
+    photoPickerVc.model = model;
+    [photoPickerVc setBackButtonClickHandle:^(TZAlbumModel *model) {
+        [_albumArr replaceObjectAtIndex:indexPath.row withObject:model];
+    }];
     [self.navigationController pushViewController:photoPickerVc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }

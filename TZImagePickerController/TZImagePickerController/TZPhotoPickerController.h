@@ -12,5 +12,6 @@
 @interface TZPhotoPickerController : UIViewController
 
 @property (nonatomic, strong) TZAlbumModel *model;
+@property (nonatomic, copy) void (^backButtonClickHandle)(TZAlbumModel *model);
 
 @end

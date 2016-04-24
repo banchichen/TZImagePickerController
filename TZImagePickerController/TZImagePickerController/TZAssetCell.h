@@ -18,7 +18,7 @@ typedef enum : NSUInteger {
 @class TZAssetModel;
 @interface TZAssetCell : UICollectionViewCell
 
-@property (weak, nonatomic) IBOutlet UIButton *selectPhotoButton;
+@property (weak, nonatomic) UIButton *selectPhotoButton;
 @property (nonatomic, strong) TZAssetModel *model;
 @property (nonatomic, copy) void (^didSelectPhotoBlock)(BOOL);
 @property (nonatomic, assign) TZAssetCellType type;
@@ -31,5 +31,13 @@ typedef enum : NSUInteger {
 @interface TZAlbumCell : UITableViewCell
 
 @property (nonatomic, strong) TZAlbumModel *model;
+@property (weak, nonatomic) UIButton *selectedCountButton;
+
+@end
+
+
+@interface TZAssetCameraCell : UICollectionViewCell
+
+@property (nonatomic, strong) UIImageView *imageView;
 
 @end

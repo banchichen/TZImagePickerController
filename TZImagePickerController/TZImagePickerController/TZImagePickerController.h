@@ -16,6 +16,7 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "TZAssetModel.h"
 
 #define iOS7Later ([UIDevice currentDevice].systemVersion.floatValue >= 7.0f)
 #define iOS8Later ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
@@ -50,20 +51,30 @@
 /// 默认为YES，如果设置为NO,用户将不能选择发送图片
 @property(nonatomic, assign) BOOL allowPickingImage;
 
+/// The photos user have selected
+/// 用户选中过的图片数组
+@property (nonatomic, strong) NSArray *selectedAssets;
+@property (nonatomic, strong) NSMutableArray<TZAssetModel *> *selectedModels;
+
 - (void)showAlertWithTitle:(NSString *)title;
 - (void)showProgressHUD;
 - (void)hideProgressHUD;
+@property (nonatomic, assign) BOOL isSelectOriginalPhoto;
 
 /// Appearance / 外观颜色
 @property (nonatomic, strong) UIColor *oKButtonTitleColorNormal;
 @property (nonatomic, strong) UIColor *oKButtonTitleColorDisabled;
 
 // The picker should dismiss itself; when it dismissed these handle will be called.
-// The second array will be a empty array if user not picking original photo.
+// If isOriginalPhoto is YES, user picked the original photo.
+// You can get original photo with asset, by the method [[TZImageManager manager] getOriginalPhotoWithAsset:completion:].
+// The UIImage Object in photos default width is 828px, you can set it by photoWidth property.
 // 这个照片选择器会自己dismiss，当选择器dismiss的时候，会执行下面的handle
-// 如果用户没有选择发送原图,第二个数组将是空数组
-@property (nonatomic, copy) void (^didFinishPickingPhotosHandle)(NSArray<UIImage *> *photos,NSArray *assets);
-@property (nonatomic, copy) void (^didFinishPickingPhotosWithInfosHandle)(NSArray<UIImage *> *photos,NSArray *assets,NSArray<NSDictionary *> *infos);
+// 如果isSelectOriginalPhoto为YES，表明用户选择了原图
+// 你可以通过一个asset获得原图，通过这个方法：[[TZImageManager manager] getOriginalPhotoWithAsset:completion:]
+// photos数组里的UIImage对象，默认是828像素宽，你可以通过设置photoWidth属性的值来改变它
+@property (nonatomic, copy) void (^didFinishPickingPhotosHandle)(NSArray<UIImage *> *photos,NSArray *assets,BOOL isSelectOriginalPhoto);
+@property (nonatomic, copy) void (^didFinishPickingPhotosWithInfosHandle)(NSArray<UIImage *> *photos,NSArray *assets,BOOL isSelectOriginalPhoto,NSArray<NSDictionary *> *infos);
 @property (nonatomic, copy) void (^imagePickerControllerDidCancelHandle)();
 // If user picking a video, this handle will be called.
 // If system version > iOS8,asset is kind of PHAsset class, else is ALAsset class.
@@ -79,11 +90,15 @@
 @protocol TZImagePickerControllerDelegate <NSObject>
 @optional
 // The picker should dismiss itself; when it dismissed these handle will be called.
-// Assets will be a empty array if user not picking original photo.
-// 这个照片选择器会自己dismiss，当选择器dismiss的时候，会执行下面的回调
-// 如果用户没有选择发送原图,Assets将是空数组
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets;
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets infos:(NSArray<NSDictionary *> *)infos;
+// If isOriginalPhoto is YES, user picked the original photo.
+// You can get original photo with asset, by the method [[TZImageManager manager] getOriginalPhotoWithAsset:completion:].
+// The UIImage Object in photos default width is 828px, you can set it by photoWidth property.
+// 这个照片选择器会自己dismiss，当选择器dismiss的时候，会执行下面的handle
+// 如果isSelectOriginalPhoto为YES，表明用户选择了原图
+// 你可以通过一个asset获得原图，通过这个方法：[[TZImageManager manager] getOriginalPhotoWithAsset:completion:]
+// photos数组里的UIImage对象，默认是828像素宽，你可以通过设置photoWidth属性的值来改变它
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto;
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto infos:(NSArray<NSDictionary *> *)infos;
 - (void)imagePickerControllerDidCancel:(TZImagePickerController *)picker;
 // If user picking a video, this callback will be called.
 // If system version > iOS8,asset is kind of PHAsset class, else is ALAsset class.

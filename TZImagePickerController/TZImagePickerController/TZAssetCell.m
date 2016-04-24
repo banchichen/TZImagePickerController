@@ -169,11 +169,18 @@
     [[TZImageManager manager] getPostImageWithAlbumModel:model completion:^(UIImage *postImage) {
         self.posterImageView.image = postImage;
     }];
+    if (model.selectedCount) {
+        self.selectedCountButton.hidden = NO;
+        [self.selectedCountButton setTitle:[NSString stringWithFormat:@"%zd",model.selectedCount] forState:UIControlStateNormal];
+    } else {
+        self.selectedCountButton.hidden = YES;
+    }
 }
 
 /// For fitting iOS6
 - (void)layoutSubviews {
     if (iOS7Later) [super layoutSubviews];
+    _selectedCountButton.frame = CGRectMake(self.tz_width - 24 - 30, 23, 24, 24);
 }
 
 - (void)layoutSublayersOfLayer:(CALayer *)layer {
@@ -217,6 +224,44 @@
         _arrowImageView = arrowImageView;
     }
     return _arrowImageView;
+}
+
+- (UIButton *)selectedCountButton {
+    if (_selectedCountButton == nil) {
+        UIButton *selectedCountButton = [[UIButton alloc] init];
+        selectedCountButton.layer.cornerRadius = 12;
+        selectedCountButton.clipsToBounds = YES;
+        selectedCountButton.backgroundColor = [UIColor redColor];
+        [selectedCountButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        selectedCountButton.titleLabel.font = [UIFont systemFontOfSize:15];
+        [self.contentView addSubview:selectedCountButton];
+        _selectedCountButton = selectedCountButton;
+    }
+    return _selectedCountButton;
+}
+
+@end
+
+
+
+@implementation TZAssetCameraCell
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor whiteColor];
+        _imageView = [[UIImageView alloc] init];
+        _imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
+        _imageView.contentMode = UIViewContentModeScaleAspectFill;
+        [self addSubview:_imageView];
+        self.clipsToBounds = YES;
+    }
+    return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _imageView.frame = self.bounds;
 }
 
 @end
