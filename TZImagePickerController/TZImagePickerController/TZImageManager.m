@@ -409,6 +409,58 @@
     }
 }
 
+#pragma mark - Export video
+
+- (void)getVideoOutputPathWithAsset:(id)asset completion:(void (^)(NSString *outputPath))completion {
+    if ([asset isKindOfClass:[PHAsset class]]) {
+        PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
+        options.version = PHVideoRequestOptionsVersionOriginal;
+        options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
+        options.networkAccessAllowed = YES;
+        [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:options resultHandler:^(AVAsset* avasset, AVAudioMix* audioMix, NSDictionary* info){
+            // NSLog(@"Info:\n%@",info);
+            AVURLAsset* myAsset = (AVURLAsset*)avasset;
+            // NSLog(@"AVAsset URL: %@",myAsset.URL);
+            
+            NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:myAsset];
+            // NSLog(@"%@",compatiblePresets);
+            
+            if ([compatiblePresets containsObject:AVAssetExportPresetHighestQuality]) {
+                AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:myAsset presetName:AVAssetExportPresetMediumQuality];
+                NSDateFormatter *formater = [[NSDateFormatter alloc] init];
+                [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss"];
+                NSString *outputPath = [NSHomeDirectory() stringByAppendingFormat:@"/tmp/output-%@.mp4", [formater stringFromDate:[NSDate date]]];
+                NSLog(@"video outputPath = %@",outputPath);
+                
+                exportSession.outputURL = [NSURL fileURLWithPath:outputPath];
+                exportSession.outputFileType = AVFileTypeMPEG4;
+                exportSession.shouldOptimizeForNetworkUse = YES;
+                [exportSession exportAsynchronouslyWithCompletionHandler:^(void) {
+                    switch (exportSession.status) {
+                        case AVAssetExportSessionStatusUnknown:
+                            NSLog(@"AVAssetExportSessionStatusUnknown"); break;
+                        case AVAssetExportSessionStatusWaiting:
+                            NSLog(@"AVAssetExportSessionStatusWaiting"); break;
+                        case AVAssetExportSessionStatusExporting:
+                            NSLog(@"AVAssetExportSessionStatusExporting"); break;
+                        case AVAssetExportSessionStatusCompleted:
+                            NSLog(@"AVAssetExportSessionStatusCompleted");
+                            if (completion) {
+                                completion(outputPath);
+                            }
+                            break;
+                        case AVAssetExportSessionStatusFailed:
+                            NSLog(@"AVAssetExportSessionStatusFailed"); break;
+                        default: break;
+                    }
+                }];
+            }
+        }];
+    } else {
+        NSLog(@"iOS8以前的系统，导出视频代码暂未更新...");
+    }
+}
+
 #pragma mark - Private Method
 
 - (TZAlbumModel *)modelWithResult:(id)result name:(NSString *)name{
@@ -434,6 +486,8 @@
         else if ([name rangeOfString:@"Selfies"].location != NSNotFound) newName = @"自拍";
         else if ([name rangeOfString:@"shots"].location != NSNotFound)   newName = @"截屏";
         else if ([name rangeOfString:@"Videos"].location != NSNotFound)  newName = @"视频";
+        else if ([name rangeOfString:@"Panoramas"].location != NSNotFound)  newName = @"全景照片";
+        else if ([name rangeOfString:@"Favorites"].location != NSNotFound)  newName = @"个人收藏";
         else newName = name;
         return newName;
     } else {
@@ -442,11 +496,15 @@
 }
 
 - (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size {
-    UIGraphicsBeginImageContext(size);
-    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return newImage;
+    if (image.size.width > size.width) {
+        UIGraphicsBeginImageContext(size);
+        [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
+        UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        return newImage;
+    } else {
+        return image;
+    }
 }
 
 - (UIImage *)fixOrientation:(UIImage *)aImage {

@@ -11,6 +11,10 @@
 @interface TZTestCell : UICollectionViewCell
 
 @property (nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, strong) UIButton *deleteBtn;
+@property (nonatomic, assign) NSInteger row;
+
+- (UIView *)snapshotView;
 
 @end
 
