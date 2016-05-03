@@ -69,7 +69,7 @@ static CGSize AssetGridThumbnailSize;
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = _model.name;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStylePlain target:self action:@selector(cancel)];
-    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"]) {
+    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] ) {
         [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:_tzImagePickerVc.allowPickingVideo allowPickingImage:_tzImagePickerVc.allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
             _photoArr = [NSMutableArray arrayWithArray:models];
             [self initSubviews];
@@ -111,7 +111,7 @@ static CGSize AssetGridThumbnailSize;
     _collectionView.alwaysBounceHorizontal = NO;
     if (iOS7Later) _collectionView.contentInset = UIEdgeInsetsMake(0, 0, 0, 2);
     _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, -2);
-    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ) {
+    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] ) {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 4) / 4) * self.view.tz_width);
     } else {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 3) / 4) * self.view.tz_width);
@@ -283,7 +283,7 @@ static CGSize AssetGridThumbnailSize;
 #pragma mark - UICollectionViewDataSource && Delegate
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"]) {
+    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] ) {
         if (_tzImagePickerVc.allowPickingImage) {
             return _photoArr.count + 1;
         }
@@ -431,7 +431,7 @@ static CGSize AssetGridThumbnailSize;
 - (void)scrollCollectionViewToBottom {
     if (_shouldScrollToBottom && _photoArr.count > 0) {
         NSInteger item = _photoArr.count - 1;
-        if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"]) {
+        if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] ) {
             if (_tzImagePickerVc.allowPickingImage) {
                 item += 1;
             }

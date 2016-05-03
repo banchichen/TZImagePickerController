@@ -5,6 +5,12 @@
 
 #import <UIKit/UIKit.h>
 
+/*
+ 此类来源于DeveloperLx的优秀开源项目：LxGridView
+ github链接：https://github.com/DeveloperLx/LxGridView
+ 我对这个类的代码做了一些修改；
+ 感谢DeveloperLx的优秀代码~
+ */
 
 @interface LxGridViewFlowLayout : UICollectionViewFlowLayout
 

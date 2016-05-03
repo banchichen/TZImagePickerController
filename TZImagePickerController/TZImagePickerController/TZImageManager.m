@@ -56,7 +56,7 @@
         
         PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
         for (PHAssetCollection *collection in smartAlbums) {
-            if ([collection.localizedTitle isEqualToString:@"Camera Roll"] || [collection.localizedTitle isEqualToString:@"相机胶卷"]) {
+            if ([collection.localizedTitle isEqualToString:@"Camera Roll"] || [collection.localizedTitle isEqualToString:@"相机胶卷"] ||  [collection.localizedTitle isEqualToString:@"所有照片"]) {
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 model = [self modelWithResult:fetchResult name:collection.localizedTitle];
                 if (completion) completion(model);
@@ -68,7 +68,7 @@
             
             if ([group numberOfAssets] < 1) return;
             NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-            if ([name isEqualToString:@"Camera Roll"] || [name isEqualToString:@"相机胶卷"]) {
+            if ([name isEqualToString:@"Camera Roll"] || [name isEqualToString:@"相机胶卷"] || [name isEqualToString:@"所有照片"]) {
                 model = [self modelWithResult:group name:name];
                 if (completion) completion(model);
                 *stop = YES;
