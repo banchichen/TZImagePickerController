@@ -47,12 +47,12 @@ static CGSize AssetGridThumbnailSize;
         _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
         _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
         UIBarButtonItem *tzBarItem, *BarItem;
-        if (iOS8Later) {
-            tzBarItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
-            BarItem = [UIBarButtonItem appearanceWhenContainedIn:[UIImagePickerController class], nil];
-        } else {
+        if (iOS9Later) {
             tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
             BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
+        } else {
+            tzBarItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
+            BarItem = [UIBarButtonItem appearanceWhenContainedIn:[UIImagePickerController class], nil];
         }
         NSDictionary *titleTextAttributes = [tzBarItem titleTextAttributesForState:UIControlStateNormal];
         [BarItem setTitleTextAttributes:titleTextAttributes forState:UIControlStateNormal];
