@@ -235,9 +235,8 @@
 
 @interface TZAlbumPickerController ()<UITableViewDataSource,UITableViewDelegate> {
     UITableView *_tableView;
-    NSMutableArray *_albumArr;
 }
-
+@property (nonatomic, strong) NSMutableArray *albumArr;
 @end
 
 @implementation TZAlbumPickerController
@@ -319,8 +318,9 @@
     TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
     TZAlbumModel *model = _albumArr[indexPath.row];
     photoPickerVc.model = model;
+    __weak typeof(self) weakSelf = self;
     [photoPickerVc setBackButtonClickHandle:^(TZAlbumModel *model) {
-        [_albumArr replaceObjectAtIndex:indexPath.row withObject:model];
+        [weakSelf.albumArr replaceObjectAtIndex:indexPath.row withObject:model];
     }];
     [self.navigationController pushViewController:photoPickerVc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:NO];

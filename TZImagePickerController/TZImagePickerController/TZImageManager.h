@@ -37,6 +37,9 @@
 - (void)getPhotoWithAsset:(id)asset photoWidth:(CGFloat)photoWidth completion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion;
 - (void)getOriginalPhotoWithAsset:(id)asset completion:(void (^)(UIImage *photo,NSDictionary *info))completion;
 
+/// Save photo 保存照片
+- (void)savePhotoWithImage:(UIImage *)image completion:(void (^)())completion;
+
 /// Get video 获得视频
 - (void)getVideoWithAsset:(id)asset completion:(void (^)(AVPlayerItem * playerItem, NSDictionary * info))completion;
 

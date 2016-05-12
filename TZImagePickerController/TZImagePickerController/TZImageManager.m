@@ -65,7 +65,6 @@
         }
     } else {
         [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-            
             if ([group numberOfAssets] < 1) return;
             NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
             if ([name isEqualToString:@"Camera Roll"] || [name isEqualToString:@"相机胶卷"] || [name isEqualToString:@"所有照片"]) {
@@ -159,8 +158,13 @@
         if (completion) completion(photoArr);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *group = (ALAssetsGroup *)result;
-        if (!allowPickingVideo) [group setAssetsFilter:[ALAssetsFilter allPhotos]];
-        if (!allowPickingImage) [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+        if (allowPickingImage && allowPickingVideo) {
+            [group setAssetsFilter:[ALAssetsFilter allAssets]];
+        } else if (allowPickingVideo) {
+            [group setAssetsFilter:[ALAssetsFilter allVideos]];
+        } else if (allowPickingImage) {
+            [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+        }
         [group enumerateAssetsUsingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
             if (result == nil) {
                 if (completion) completion(photoArr);
@@ -170,11 +174,6 @@
                 [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
                 return;
             }
-            if (!allowPickingImage){
-                [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
-                return;
-            }
-            
             /// Allow picking video
             if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
                 type = TZAssetModelMediaTypeVideo;
@@ -209,8 +208,13 @@
         if (completion) completion(model);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *group = (ALAssetsGroup *)result;
-        if (!allowPickingVideo) [group setAssetsFilter:[ALAssetsFilter allPhotos]];
-        if (!allowPickingImage) [group setAssetsFilter:[ALAssetsFilter allVideos]];
+        if (allowPickingImage && allowPickingVideo) {
+            [group setAssetsFilter:[ALAssetsFilter allAssets]];
+        } else if (allowPickingVideo) {
+            [group setAssetsFilter:[ALAssetsFilter allVideos]];
+        } else if (allowPickingImage) {
+            [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+        }
         NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:index];
         [group enumerateAssetsAtIndexes:indexSet options:NSEnumerationConcurrent usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
             TZAssetModel *model;
@@ -220,12 +224,6 @@
                 if (completion) completion(model);
                 return;
             }
-            if (!allowPickingImage){
-                model = [TZAssetModel modelWithAsset:result type:type];
-                if (completion) completion(model);
-                return;
-            }
-            
             /// Allow picking video
             if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
                 type = TZAssetModelMediaTypeVideo;
@@ -389,6 +387,35 @@
                 if (completion) completion(originalImage,nil);
             });
         });
+    }
+}
+
+#pragma mark - Save photo
+
+- (void)savePhotoWithImage:(UIImage *)image completion:(void (^)())completion {
+    NSData *data = UIImageJPEGRepresentation(image, 0.9);
+    if (iOS8Later) {
+        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+            [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:data options:nil];
+        } completionHandler:^(BOOL success, NSError * _Nullable error) {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                if (success && completion) {
+                    completion();
+                } else if (error) {
+                    NSLog(@"保存照片出错:%@",error.localizedDescription);
+                }
+            });
+        }];
+    } else {
+        [self.assetLibrary writeImageToSavedPhotosAlbum:image.CGImage orientation:ALAssetOrientationUp completionBlock:^(NSURL *assetURL, NSError *error) {
+            if (error) {
+                NSLog(@"保存图片失败:%@",error.localizedDescription);
+            } else {
+                if (completion) {
+                    completion();
+                }
+            }
+        }];
     }
 }
 

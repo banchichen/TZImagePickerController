@@ -75,15 +75,17 @@
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row == _selectedPhotos.count) { [self pickPhotoButtonClick:nil];}
+    if (indexPath.row == _selectedPhotos.count) {
+        [self pickPhotoButtonClick:nil];
+    }
 }
 
 - (void)collectionView:(UICollectionView *)collectionView itemAtIndexPath:(NSIndexPath *)sourceIndexPath didMoveToIndexPath:(NSIndexPath *)destinationIndexPath {
     if (sourceIndexPath.item >= _selectedPhotos.count || destinationIndexPath.item >= _selectedPhotos.count) return;
     UIImage *image = _selectedPhotos[sourceIndexPath.item];
     if (image) {
-        [_selectedPhotos removeObjectAtIndex:sourceIndexPath.item];
-        [_selectedPhotos insertObject:image atIndex:destinationIndexPath.item];
+        [_selectedPhotos exchangeObjectAtIndex:sourceIndexPath.item withObjectAtIndex:destinationIndexPath.item];
+        [_selectedAssets exchangeObjectAtIndex:sourceIndexPath.item withObjectAtIndex:destinationIndexPath.item];
         [_collectionView reloadData];
     }
 }
@@ -149,17 +151,16 @@
 /// User finish picking video,
 /// 用户选择好了视频
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
-    [_selectedPhotos addObjectsFromArray:@[coverImage]];
+    _selectedPhotos = [NSMutableArray arrayWithArray:@[coverImage]];
+    _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
     _layout.itemCount = _selectedPhotos.count;
-    /* 
     // open this code to send video / 打开这段代码发送视频
-    [[TZImageManager manager] getVideoOutputPathWithAsset:asset completion:^(NSString *outputPath) {
-        NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
+    // [[TZImageManager manager] getVideoOutputPathWithAsset:asset completion:^(NSString *outputPath) {
+        // NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
         // Export completed, send video here, send by outputPath or NSData
         // 导出完成，在这里写上传代码，通过路径或者通过NSData上传
         
-    }];
-     */
+    // }];
     [_collectionView reloadData];
     _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
 }
