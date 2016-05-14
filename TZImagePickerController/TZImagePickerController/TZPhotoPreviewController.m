@@ -16,6 +16,8 @@
 @interface TZPhotoPreviewController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIScrollViewDelegate> {
     UICollectionView *_collectionView;
     BOOL _isHideNaviBar;
+    NSArray *_photosTemp;
+    NSArray *_assetsTemp;
     
     UIView *_naviBar;
     UIButton *_backButton;
@@ -37,9 +39,19 @@
     [super viewDidLoad];
     __weak typeof(self) weakSelf = self;
     _tzImagePickerVc = (TZImagePickerController *)weakSelf.navigationController;
+    if (!self.models.count) {
+        self.models = [NSMutableArray arrayWithArray:_tzImagePickerVc.selectedModels];
+        _assetsTemp = [NSMutableArray arrayWithArray:_tzImagePickerVc.selectedAssets];
+        self.isSelectOriginalPhoto = _tzImagePickerVc.isSelectOriginalPhoto;
+    }
     [self configCollectionView];
     [self configCustomNaviBar];
     [self configBottomToolBar];
+}
+
+- (void)setPhotos:(NSMutableArray *)photos {
+    _photos = photos;
+    _photosTemp = [NSArray arrayWithArray:photos];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -149,7 +161,7 @@
     _collectionView.scrollsToTop = NO;
     _collectionView.showsHorizontalScrollIndicator = NO;
     _collectionView.contentOffset = CGPointMake(0, 0);
-    _collectionView.contentSize = CGSizeMake(self.view.tz_width * _photoArr.count, self.view.tz_height);
+    _collectionView.contentSize = CGSizeMake(self.view.tz_width * _models.count, self.view.tz_height);
     [self.view addSubview:_collectionView];
     [_collectionView registerClass:[TZPhotoPreviewCell class] forCellWithReuseIdentifier:@"TZPhotoPreviewCell"];
 }
@@ -157,7 +169,7 @@
 #pragma mark - Click Event
 
 - (void)select:(UIButton *)selectButton {
-    TZAssetModel *model = _photoArr[_currentIndex];
+    TZAssetModel *model = _models[_currentIndex];
     if (!selectButton.isSelected) {
         // 1. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
         if (_tzImagePickerVc.selectedModels.count >= _tzImagePickerVc.maxImagesCount) {
@@ -166,6 +178,10 @@
         // 2. if not over the maxImagesCount / 如果没有超过最大个数限制
         } else {
             [_tzImagePickerVc.selectedModels addObject:model];
+            if (self.photos) {
+                [self.tzImagePickerVc.selectedAssets addObject:_assetsTemp[_currentIndex]];
+                [self.photos addObject:_photosTemp[_currentIndex]];
+            }
             if (model.type == TZAssetModelMediaTypeVideo) {
                 [_tzImagePickerVc showAlertWithTitle:@"多选状态下选择视频，默认将视频当图片发送"];
             }
@@ -175,6 +191,10 @@
         for (TZAssetModel *model_item in selectedModels) {
             if ([model.asset isEqual:model_item.asset]) {
                 [self.tzImagePickerVc.selectedModels removeObject:model_item];
+                if (self.photos) {
+                    [self.tzImagePickerVc.selectedAssets removeObject:_assetsTemp[_currentIndex]];
+                    [self.photos removeObject:_photosTemp[_currentIndex]];
+                }
             }
         }
     }
@@ -187,6 +207,10 @@
 }
 
 - (void)back {
+    if (self.navigationController.childViewControllers.count < 2) {
+        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+        return;
+    }
     [self.navigationController popViewControllerAnimated:YES];
     if (self.backButtonClickBlock) {
         self.backButtonClickBlock(_isSelectOriginalPhoto);
@@ -195,11 +219,14 @@
 
 - (void)okButtonClick {
     if (_tzImagePickerVc.selectedModels.count == 0) {
-        TZAssetModel *model = _photoArr[_currentIndex];
+        TZAssetModel *model = _models[_currentIndex];
         [_tzImagePickerVc.selectedModels addObject:model];
     }
     if (self.okButtonClickBlock) {
         self.okButtonClickBlock(_isSelectOriginalPhoto);
+    }
+    if (self.okButtonClickBlockWithPreviewType) {
+        self.okButtonClickBlockWithPreviewType(self.photos,self.tzImagePickerVc.selectedAssets,self.isSelectOriginalPhoto);
     }
 }
 
@@ -224,12 +251,12 @@
 #pragma mark - UICollectionViewDataSource && Delegate
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
-    return _photoArr.count;
+    return _models.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TZPhotoPreviewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZPhotoPreviewCell" forIndexPath:indexPath];
-    cell.model = _photoArr[indexPath.row];
+    cell.model = _models[indexPath.row];
     
     __block BOOL _weakIsHideNaviBar = _isHideNaviBar;
     __weak typeof(_naviBar) weakNaviBar = _naviBar;
@@ -248,7 +275,7 @@
 #pragma mark - Private Method
 
 - (void)refreshNaviBarAndBottomBarState {
-    TZAssetModel *model = _photoArr[_currentIndex];
+    TZAssetModel *model = _models[_currentIndex];
     _selectButton.selected = model.isSelected;
     _numberLable.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
     _numberImageView.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar);
@@ -271,7 +298,7 @@
 }
 
 - (void)showPhotoBytes {
-    [[TZImageManager manager] getPhotosBytesWithArray:@[_photoArr[_currentIndex]] completion:^(NSString *totalBytes) {
+    [[TZImageManager manager] getPhotosBytesWithArray:@[_models[_currentIndex]] completion:^(NSString *totalBytes) {
         _originalPhotoLable.text = [NSString stringWithFormat:@"(%@)",totalBytes];
     }];
 }

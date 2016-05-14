@@ -18,6 +18,7 @@
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate> {
     NSMutableArray *_selectedPhotos;
     NSMutableArray *_selectedAssets;
+    BOOL _isSelectOriginalPhoto;
 
     CGFloat _itemWH;
     CGFloat _margin;
@@ -77,6 +78,19 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == _selectedPhotos.count) {
         [self pickPhotoButtonClick:nil];
+    } else { // preview photos / 预览照片
+        TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.row];
+        imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
+        // imagePickerVc.allowPickingOriginalPhoto = NO;
+        [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+            _selectedPhotos = [NSMutableArray arrayWithArray:photos];
+            _selectedAssets = [NSMutableArray arrayWithArray:assets];
+            _isSelectOriginalPhoto = isSelectOriginalPhoto;
+            _layout.itemCount = _selectedPhotos.count;
+            [_collectionView reloadData];
+            _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
+         }];
+        [self presentViewController:imagePickerVc animated:YES completion:nil];
     }
 }
 
@@ -107,6 +121,7 @@
 
 - (IBAction)pickPhotoButtonClick:(UIButton *)sender {
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+    imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
     imagePickerVc.selectedAssets = _selectedAssets; // optional, 可选的
 
     // You can get the photos by block, the same as by delegate.
@@ -143,6 +158,7 @@
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
     _selectedPhotos = [NSMutableArray arrayWithArray:photos];
     _selectedAssets = [NSMutableArray arrayWithArray:assets];
+    _isSelectOriginalPhoto = isSelectOriginalPhoto;
     _layout.itemCount = _selectedPhotos.count;
     [_collectionView reloadData];
     _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));

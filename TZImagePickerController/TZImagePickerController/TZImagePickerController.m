@@ -108,6 +108,29 @@
     return self;
 }
 
+/// This init method just for previewing photos / 用这个初始化方法以预览图片
+- (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index{
+    TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
+    self = [super initWithRootViewController:previewVc];
+    if (self) {
+        self.selectedAssets = selectedAssets;
+        self.allowPickingOriginalPhoto = YES;
+        self.timeout = 15;
+        self.photoWidth = 828.0;
+        self.maxImagesCount = selectedAssets.count;
+        
+        previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
+        previewVc.currentIndex = index;
+        [previewVc setOkButtonClickBlockWithPreviewType:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+            if (self.didFinishPickingPhotosHandle) {
+                self.didFinishPickingPhotosHandle(photos,assets,isSelectOriginalPhoto);
+            }
+            [self dismissViewControllerAnimated:YES completion:nil];
+        }];
+    }
+    return self;
+}
+
 - (void)observeAuthrizationStatusChange {
     if ([[TZImageManager manager] authorizationStatusAuthorized]) {
         [self pushToPhotoPickerVc];
@@ -190,7 +213,7 @@
     }
 }
 
-- (void)setSelectedAssets:(NSArray *)selectedAssets {
+- (void)setSelectedAssets:(NSMutableArray *)selectedAssets {
     _selectedAssets = selectedAssets;
     _selectedModels = [NSMutableArray array];
     for (id asset in selectedAssets) {

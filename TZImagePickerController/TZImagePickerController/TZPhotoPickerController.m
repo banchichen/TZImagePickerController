@@ -16,7 +16,7 @@
 #import "TZVideoPlayerController.h"
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
-    NSMutableArray *_photoArr;
+    NSMutableArray *_models;
     
     UIButton *_previewButton;
     UIButton *_okButton;
@@ -68,11 +68,11 @@ static CGSize AssetGridThumbnailSize;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"取消" style:UIBarButtonItemStylePlain target:self action:@selector(cancel)];
     if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] || !iOS8Later) {
         [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
-            _photoArr = [NSMutableArray arrayWithArray:models];
+            _models = [NSMutableArray arrayWithArray:models];
             [self initSubviews];
         }];
     } else {
-        _photoArr = [NSMutableArray arrayWithArray:_model.models];
+        _models = [NSMutableArray arrayWithArray:_model.models];
         [self initSubviews];
     }
     // [self resetCachedAssets];
@@ -228,9 +228,7 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)previewButtonClick {
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-    photoPreviewVc.photoArr = [NSArray arrayWithArray:tzImagePickerVc.selectedModels];
     [self pushPhotoPrevireViewController:photoPreviewVc];
 }
 
@@ -287,22 +285,22 @@ static CGSize AssetGridThumbnailSize;
     if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] ) {
         TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
         if (tzImagePickerVc.allowPickingImage) {
-            return _photoArr.count + 1;
+            return _models.count + 1;
         }
     }
-    return _photoArr.count;
+    return _models.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     // the cell lead to take a picture / 去拍照的cell
-    if (indexPath.row >= _photoArr.count) {
+    if (indexPath.row >= _models.count) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
         cell.imageView.image = [UIImage imageNamedFromMyBundle:@"takePicture.png"];
         return cell;
     }
     // the cell dipaly photo or video / 展示照片或视频的cell
     TZAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCell" forIndexPath:indexPath];
-    TZAssetModel *model = _photoArr[indexPath.row];
+    TZAssetModel *model = _models[indexPath.row];
     cell.model = model;
     
     __weak typeof(cell) weakCell = cell;
@@ -339,11 +337,11 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     // take a picture / 去拍照
-    if (indexPath.row >= _photoArr.count) {
+    if (indexPath.row >= _models.count) {
         [self takePicture]; return;
     }
     // preview phote or video / 预览照片或视频
-    TZAssetModel *model = _photoArr[indexPath.row];
+    TZAssetModel *model = _models[indexPath.row];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (model.type == TZAssetModelMediaTypeVideo) {
         if (tzImagePickerVc.selectedModels.count > 0) {
@@ -356,8 +354,8 @@ static CGSize AssetGridThumbnailSize;
         }
     } else {
         TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-        photoPreviewVc.photoArr = _photoArr;
         photoPreviewVc.currentIndex = indexPath.row;
+        photoPreviewVc.models = _models;
         [self pushPhotoPrevireViewController:photoPreviewVc];
     }
 }
@@ -426,6 +424,9 @@ static CGSize AssetGridThumbnailSize;
 
 /// Scale image / 缩放图片
 - (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size {
+    if (image.size.width < size.width) {
+        return image;
+    }
     UIGraphicsBeginImageContext(size);
     [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
     UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -434,8 +435,8 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)scrollCollectionViewToBottom {
-    if (_shouldScrollToBottom && _photoArr.count > 0) {
-        NSInteger item = _photoArr.count - 1;
+    if (_shouldScrollToBottom && _models.count > 0) {
+        NSInteger item = _models.count - 1;
         if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] ) {
             TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
             if (tzImagePickerVc.allowPickingImage) {
@@ -448,7 +449,7 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)checkSelectedModels {
-    for (TZAssetModel *model in _photoArr) {
+    for (TZAssetModel *model in _models) {
         model.isSelected = NO;
         NSMutableArray *selectedAssets = [NSMutableArray array];
         TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -484,7 +485,7 @@ static CGSize AssetGridThumbnailSize;
             [tzImagePickerVc hideProgressHUD];
             
             TZAssetModel *model = [models lastObject];
-            [_photoArr addObject:model];
+            [_models addObject:model];
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
                 model.isSelected = YES;
                 [tzImagePickerVc.selectedModels addObject:model];
@@ -591,7 +592,7 @@ static CGSize AssetGridThumbnailSize;
     
     NSMutableArray *assets = [NSMutableArray arrayWithCapacity:indexPaths.count];
     for (NSIndexPath *indexPath in indexPaths) {
-        TZAssetModel *model = _photoArr[indexPath.item];
+        TZAssetModel *model = _models[indexPath.item];
         [assets addObject:model.asset];
     }
     

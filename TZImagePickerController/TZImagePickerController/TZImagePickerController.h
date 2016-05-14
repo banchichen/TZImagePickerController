@@ -28,6 +28,8 @@
 
 /// Use this init method / 用这个初始化方法
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate;
+/// This init method just for previewing photos / 用这个初始化方法以预览图片
+- (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index;
 
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
@@ -53,7 +55,7 @@
 
 /// The photos user have selected
 /// 用户选中过的图片数组
-@property (nonatomic, strong) NSArray *selectedAssets;
+@property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) NSMutableArray<TZAssetModel *> *selectedModels;
 
 - (void)showAlertWithTitle:(NSString *)title;
