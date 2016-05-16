@@ -30,7 +30,6 @@
     UIButton *_originalPhotoButton;
     UILabel *_originalPhotoLable;
 }
-@property (nonatomic, strong) TZImagePickerController *tzImagePickerVc;
 @end
 
 @implementation TZPhotoPreviewController
@@ -38,7 +37,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     __weak typeof(self) weakSelf = self;
-    _tzImagePickerVc = (TZImagePickerController *)weakSelf.navigationController;
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)weakSelf.navigationController;
     if (!self.models.count) {
         self.models = [NSMutableArray arrayWithArray:_tzImagePickerVc.selectedModels];
         _assetsTemp = [NSMutableArray arrayWithArray:_tzImagePickerVc.selectedAssets];
@@ -94,6 +93,7 @@
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     _toolBar.alpha = 0.7;
     
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_tzImagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
         _originalPhotoButton.frame = CGRectMake(5, 0, 120, 44);
@@ -169,6 +169,7 @@
 #pragma mark - Click Event
 
 - (void)select:(UIButton *)selectButton {
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     TZAssetModel *model = _models[_currentIndex];
     if (!selectButton.isSelected) {
         // 1. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
@@ -179,7 +180,7 @@
         } else {
             [_tzImagePickerVc.selectedModels addObject:model];
             if (self.photos) {
-                [self.tzImagePickerVc.selectedAssets addObject:_assetsTemp[_currentIndex]];
+                [_tzImagePickerVc.selectedAssets addObject:_assetsTemp[_currentIndex]];
                 [self.photos addObject:_photosTemp[_currentIndex]];
             }
             if (model.type == TZAssetModelMediaTypeVideo) {
@@ -187,12 +188,12 @@
             }
         }
     } else {
-        NSArray *selectedModels = [NSArray arrayWithArray:self.tzImagePickerVc.selectedModels];
+        NSArray *selectedModels = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
         for (TZAssetModel *model_item in selectedModels) {
             if ([model.asset isEqual:model_item.asset]) {
-                [self.tzImagePickerVc.selectedModels removeObject:model_item];
+                [_tzImagePickerVc.selectedModels removeObject:model_item];
                 if (self.photos) {
-                    [self.tzImagePickerVc.selectedAssets removeObject:_assetsTemp[_currentIndex]];
+                    [_tzImagePickerVc.selectedAssets removeObject:_assetsTemp[_currentIndex]];
                     [self.photos removeObject:_photosTemp[_currentIndex]];
                 }
             }
@@ -218,6 +219,7 @@
 }
 
 - (void)okButtonClick {
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_tzImagePickerVc.selectedModels.count == 0) {
         TZAssetModel *model = _models[_currentIndex];
         [_tzImagePickerVc.selectedModels addObject:model];
@@ -226,7 +228,7 @@
         self.okButtonClickBlock(_isSelectOriginalPhoto);
     }
     if (self.okButtonClickBlockWithPreviewType) {
-        self.okButtonClickBlockWithPreviewType(self.photos,self.tzImagePickerVc.selectedAssets,self.isSelectOriginalPhoto);
+        self.okButtonClickBlockWithPreviewType(self.photos,_tzImagePickerVc.selectedAssets,self.isSelectOriginalPhoto);
     }
 }
 
@@ -275,6 +277,7 @@
 #pragma mark - Private Method
 
 - (void)refreshNaviBarAndBottomBarState {
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     TZAssetModel *model = _models[_currentIndex];
     _selectButton.selected = model.isSelected;
     _numberLable.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
