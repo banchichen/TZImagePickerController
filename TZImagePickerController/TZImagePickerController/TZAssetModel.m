@@ -57,7 +57,7 @@
         [selectedAssets addObject:model.asset];
     }
     for (TZAssetModel *model in _models) {
-        if ([selectedAssets containsObject:model.asset]) {
+        if ([[TZImageManager manager] isAssetsArray:selectedAssets containAsset:model.asset]) {
             self.selectedCount ++;
         }
     }

@@ -394,9 +394,11 @@
 
 - (void)savePhotoWithImage:(UIImage *)image completion:(void (^)())completion {
     NSData *data = UIImageJPEGRepresentation(image, 0.9);
-    if (iOS8Later) {
+    if (iOS9Later) { // 这里有坑... iOS8系统下这个方法保存图片会失败
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-            [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:data options:nil];
+            PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
+            options.shouldMoveFile = YES;
+            [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:data options:options];
         } completionHandler:^(BOOL success, NSError * _Nullable error) {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 if (success && completion) {
@@ -407,7 +409,7 @@
             });
         }];
     } else {
-        [self.assetLibrary writeImageToSavedPhotosAlbum:image.CGImage orientation:ALAssetOrientationUp completionBlock:^(NSURL *assetURL, NSError *error) {
+        [self.assetLibrary writeImageToSavedPhotosAlbum:image.CGImage orientation:[self orientationFromImage:image] completionBlock:^(NSURL *assetURL, NSError *error) {
             if (error) {
                 NSLog(@"保存图片失败:%@",error.localizedDescription);
             } else {
@@ -488,6 +490,19 @@
     }
 }
 
+/// Judge is a assets array contain the asset 判断一个assets数组是否包含这个asset
+- (BOOL)isAssetsArray:(NSArray *)assets containAsset:(id)asset {
+    if (iOS8Later) {
+        return [assets containsObject:asset];
+    } else {
+        NSMutableArray *selectedAssetUrls = [NSMutableArray array];
+        for (ALAsset *asset_item in assets) {
+            [selectedAssetUrls addObject:[asset_item valueForProperty:ALAssetPropertyURLs]];
+        }
+        return [selectedAssetUrls containsObject:[asset valueForProperty:ALAssetPropertyURLs]];
+    }
+}
+
 #pragma mark - Private Method
 
 - (TZAlbumModel *)modelWithResult:(id)result name:(NSString *)name{
@@ -532,6 +547,11 @@
     } else {
         return image;
     }
+}
+
+- (ALAssetOrientation)orientationFromImage:(UIImage *)image {
+    NSInteger orientation = image.imageOrientation;
+    return orientation;
 }
 
 - (UIImage *)fixOrientation:(UIImage *)aImage {

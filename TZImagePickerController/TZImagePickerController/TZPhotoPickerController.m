@@ -456,7 +456,7 @@ static CGSize AssetGridThumbnailSize;
         for (TZAssetModel *model in tzImagePickerVc.selectedModels) {
             [selectedAssets addObject:model.asset];
         }
-        if ([selectedAssets containsObject:model.asset]) {
+        if ([[TZImageManager manager] isAssetsArray:selectedAssets containAsset:model.asset]) {
             model.isSelected = YES;
         }
     }
