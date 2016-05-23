@@ -35,9 +35,29 @@
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
-    [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        self.imageView.image = photo;
+    if (!iOS8Later) {
+        self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
+    }
+    PHImageRequestID imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        // Set the cell's thumbnail image if it's still showing the same asset.
+        if (!iOS8Later) {
+            self.imageView.image = photo; return;
+        }
+        if ([self.representedAssetIdentifier isEqualToString:[[TZImageManager manager] getAssetIdentifier:model.asset]]) {
+            self.imageView.image = photo;
+        } else {
+            NSLog(@"this cell is showing other asset");
+            [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+        }
+        if (!isDegraded) {
+            self.imageRequestID = 0;
+        }
     }];
+    if (imageRequestID && self.imageRequestID && imageRequestID != self.imageRequestID) {
+        [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+        NSLog(@"cancelImageRequest %d",self.imageRequestID);
+    }
+    self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
     self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamedFromMyBundle:@"photo_sel_photoPickerVc.png"] : [UIImage imageNamedFromMyBundle:@"photo_def_photoPickerVc.png"];
     self.type = TZAssetCellTypePhoto;

@@ -17,12 +17,21 @@
 
 @implementation TZImageManager
 
+static CGSize AssetGridThumbnailSize;
+
 + (instancetype)manager {
     static TZImageManager *manager;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         manager = [[self alloc] init];
         manager.cachingImageManager = [[PHCachingImageManager alloc] init];
+        manager.cachingImageManager.allowsCachingHighQualityImages = NO;
+        
+        CGFloat scale = [UIScreen mainScreen].scale;
+        CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+        CGFloat margin = 4;
+        CGFloat itemWH = (screenWidth - 2 * margin - 4) / 4 - margin;
+        AssetGridThumbnailSize = CGSizeMake(itemWH * scale, itemWH * scale);
     });
     return manager;
 }
@@ -298,20 +307,25 @@
 #pragma mark - Get Photo
 
 /// Get photo 获得照片本身
-- (void)getPhotoWithAsset:(id)asset completion:(void (^)(UIImage *, NSDictionary *, BOOL isDegraded))completion {
-    [self getPhotoWithAsset:asset photoWidth:[UIScreen mainScreen].bounds.size.width completion:completion];
+- (PHImageRequestID)getPhotoWithAsset:(id)asset completion:(void (^)(UIImage *, NSDictionary *, BOOL isDegraded))completion {
+    return [self getPhotoWithAsset:asset photoWidth:[UIScreen mainScreen].bounds.size.width completion:completion];
 }
 
-- (void)getPhotoWithAsset:(id)asset photoWidth:(CGFloat)photoWidth completion:(void (^)(UIImage *, NSDictionary *, BOOL isDegraded))completion {
+- (PHImageRequestID)getPhotoWithAsset:(id)asset photoWidth:(CGFloat)photoWidth completion:(void (^)(UIImage *, NSDictionary *, BOOL isDegraded))completion {
     if (photoWidth > 600) photoWidth = 600.0;
     if ([asset isKindOfClass:[PHAsset class]]) {
-        PHAsset *phAsset = (PHAsset *)asset;
-        CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
-        CGFloat multiple = [UIScreen mainScreen].scale;
-        CGFloat pixelWidth = photoWidth * multiple;
-        CGFloat pixelHeight = pixelWidth / aspectRatio;
-        
-        [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:CGSizeMake(pixelWidth, pixelHeight) contentMode:PHImageContentModeAspectFit options:nil resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+        CGSize imageSize;
+        if (photoWidth < 150) {
+            imageSize = AssetGridThumbnailSize;
+        } else {
+            PHAsset *phAsset = (PHAsset *)asset;
+            CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
+            CGFloat multiple = [UIScreen mainScreen].scale;
+            CGFloat pixelWidth = photoWidth * multiple;
+            CGFloat pixelHeight = pixelWidth / aspectRatio;
+            imageSize = CGSizeMake(pixelWidth, pixelHeight);
+        }
+       PHImageRequestID imageRequestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:imageSize contentMode:PHImageContentModeAspectFill options:nil resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && result) {
                 result = [self fixOrientation:result];
@@ -323,7 +337,7 @@
                 option.networkAccessAllowed = YES;
                 [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
                     UIImage *resultImage = [UIImage imageWithData:imageData scale:0.1];
-                    resultImage = [self scaleImage:resultImage toSize:CGSizeMake(pixelWidth, pixelHeight)];
+                    resultImage = [self scaleImage:resultImage toSize:imageSize];
                     if (resultImage) {
                         resultImage = [self fixOrientation:resultImage];
                         if (completion) completion(resultImage,info,[[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
@@ -331,24 +345,30 @@
                 }];
             }
         }];
+        return imageRequestID;
     } else if ([asset isKindOfClass:[ALAsset class]]) {
         ALAsset *alAsset = (ALAsset *)asset;
-        ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
-        CGImageRef thumbnailImageRef = alAsset.aspectRatioThumbnail;
-        UIImage *thumbnailImage = [UIImage imageWithCGImage:thumbnailImageRef scale:1.0 orientation:UIImageOrientationUp];
-        if (completion) completion(thumbnailImage,nil,YES);
-        
-        if (photoWidth == [UIScreen mainScreen].bounds.size.width) {
-            dispatch_async(dispatch_get_global_queue(0,0), ^{
-                CGImageRef fullScrennImageRef = [assetRep fullScreenImage];
-                UIImage *fullScrennImage = [UIImage imageWithCGImage:fullScrennImageRef scale:1.0 orientation:UIImageOrientationUp];
+        dispatch_async(dispatch_get_global_queue(0,0), ^{
+            CGImageRef thumbnailImageRef = alAsset.thumbnail;
+            UIImage *thumbnailImage = [UIImage imageWithCGImage:thumbnailImageRef scale:2.0 orientation:UIImageOrientationUp];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completion) completion(thumbnailImage,nil,YES);
                 
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    if (completion) completion(fullScrennImage,nil,NO);
-                });
+                if (photoWidth == [UIScreen mainScreen].bounds.size.width) {
+                    dispatch_async(dispatch_get_global_queue(0,0), ^{
+                        ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
+                        CGImageRef fullScrennImageRef = [assetRep fullScreenImage];
+                        UIImage *fullScrennImage = [UIImage imageWithCGImage:fullScrennImageRef scale:2.0 orientation:UIImageOrientationUp];
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            if (completion) completion(fullScrennImage,nil,NO);
+                        });
+                    });
+                }
             });
-        }
+        });
     }
+    return 0;
 }
 
 - (void)getPostImageWithAlbumModel:(TZAlbumModel *)model completion:(void (^)(UIImage *))completion {
@@ -500,6 +520,17 @@
             [selectedAssetUrls addObject:[asset_item valueForProperty:ALAssetPropertyURLs]];
         }
         return [selectedAssetUrls containsObject:[asset valueForProperty:ALAssetPropertyURLs]];
+    }
+}
+
+- (NSString *)getAssetIdentifier:(id)asset {
+    if (iOS8Later) {
+        PHAsset *phAsset = (PHAsset *)asset;
+        return phAsset.localIdentifier;
+    } else {
+        ALAsset *alAsset = (ALAsset *)asset;
+        NSURL *assetUrl = [alAsset valueForProperty:ALAssetPropertyAssetURL];
+        return assetUrl.absoluteString;
     }
 }
 

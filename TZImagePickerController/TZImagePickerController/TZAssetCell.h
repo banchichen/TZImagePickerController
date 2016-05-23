@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <Photos/Photos.h>
 
 typedef enum : NSUInteger {
     TZAssetCellTypePhoto = 0,
@@ -22,7 +23,8 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) TZAssetModel *model;
 @property (nonatomic, copy) void (^didSelectPhotoBlock)(BOOL);
 @property (nonatomic, assign) TZAssetCellType type;
-
+@property (nonatomic, copy) NSString *representedAssetIdentifier;
+@property (nonatomic, assign) PHImageRequestID imageRequestID;
 @end
 
 

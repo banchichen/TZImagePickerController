@@ -592,8 +592,10 @@ static CGSize AssetGridThumbnailSize;
     
     NSMutableArray *assets = [NSMutableArray arrayWithCapacity:indexPaths.count];
     for (NSIndexPath *indexPath in indexPaths) {
-        TZAssetModel *model = _models[indexPath.item];
-        [assets addObject:model.asset];
+        if (indexPath.item < _models.count) {
+            TZAssetModel *model = _models[indexPath.item];
+            [assets addObject:model.asset];
+        }
     }
     
     return assets;
