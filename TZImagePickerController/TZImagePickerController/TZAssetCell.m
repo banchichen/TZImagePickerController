@@ -35,7 +35,7 @@
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
-    if (!iOS8Later) {
+    if (iOS8Later) {
         self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
     }
     PHImageRequestID imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
