@@ -113,7 +113,7 @@
     TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
     self = [super initWithRootViewController:previewVc];
     if (self) {
-        self.selectedAssets = selectedAssets;
+        self.selectedAssets = [NSMutableArray arrayWithArray:selectedAssets];
         self.allowPickingOriginalPhoto = YES;
         self.timeout = 15;
         self.photoWidth = 828.0;
