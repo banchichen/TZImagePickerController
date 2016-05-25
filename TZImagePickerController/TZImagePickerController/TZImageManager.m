@@ -27,7 +27,8 @@ static CGSize AssetGridThumbnailSize;
         manager.cachingImageManager = [[PHCachingImageManager alloc] init];
         manager.cachingImageManager.allowsCachingHighQualityImages = NO;
         
-        CGFloat scale = [UIScreen mainScreen].scale;
+        // 测试发现，如果scale在plus真机上取到3.0，内存会增大特别多。故这里写死成2.0
+        CGFloat scale = 2.0;
         CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
         CGFloat margin = 4;
         CGFloat itemWH = (screenWidth - 2 * margin - 4) / 4 - margin;
@@ -320,7 +321,7 @@ static CGSize AssetGridThumbnailSize;
         } else {
             PHAsset *phAsset = (PHAsset *)asset;
             CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
-            CGFloat multiple = [UIScreen mainScreen].scale;
+            CGFloat multiple = 2.0;
             CGFloat pixelWidth = photoWidth * multiple;
             CGFloat pixelHeight = pixelWidth / aspectRatio;
             imageSize = CGSizeMake(pixelWidth, pixelHeight);
