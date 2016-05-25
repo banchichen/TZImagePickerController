@@ -87,6 +87,7 @@
         self.allowPickingImage = YES;
         self.timeout = 15;
         self.photoWidth = 828.0;
+        self.photoPreviewMaxWidth = 540;
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
@@ -118,6 +119,7 @@
         self.timeout = 15;
         self.photoWidth = 828.0;
         self.maxImagesCount = selectedAssets.count;
+        self.photoPreviewMaxWidth = 540;
         
         previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
         previewVc.currentIndex = index;
@@ -212,6 +214,16 @@
     } else if (_timeout > 60) {
         _timeout = 60;
     }
+}
+
+- (void)setPhotoPreviewMaxWidth:(CGFloat)photoPreviewMaxWidth {
+    _photoPreviewMaxWidth = photoPreviewMaxWidth;
+    if (photoPreviewMaxWidth > 800) {
+        _photoPreviewMaxWidth = 800;
+    } else if (photoPreviewMaxWidth < 500) {
+        _photoPreviewMaxWidth = 500;
+    }
+    [TZImageManager manager].photoPreviewMaxWidth = _photoPreviewMaxWidth;
 }
 
 - (void)setSelectedAssets:(NSMutableArray *)selectedAssets {

@@ -18,6 +18,8 @@
 @implementation TZImageManager
 
 static CGSize AssetGridThumbnailSize;
+static CGFloat TZScreenWidth;
+static CGFloat TZScreenScale;
 
 + (instancetype)manager {
     static TZImageManager *manager;
@@ -27,12 +29,15 @@ static CGSize AssetGridThumbnailSize;
         manager.cachingImageManager = [[PHCachingImageManager alloc] init];
         manager.cachingImageManager.allowsCachingHighQualityImages = NO;
         
+        TZScreenWidth = [UIScreen mainScreen].bounds.size.width;
         // 测试发现，如果scale在plus真机上取到3.0，内存会增大特别多。故这里写死成2.0
-        CGFloat scale = 2.0;
-        CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+        TZScreenScale = 2.0;
+        if (TZScreenWidth > 600) {
+            TZScreenScale = 1.0;
+        }
         CGFloat margin = 4;
-        CGFloat itemWH = (screenWidth - 2 * margin - 4) / 4 - margin;
-        AssetGridThumbnailSize = CGSizeMake(itemWH * scale, itemWH * scale);
+        CGFloat itemWH = (TZScreenWidth - 2 * margin - 4) / 4 - margin;
+        AssetGridThumbnailSize = CGSizeMake(itemWH * TZScreenScale, itemWH * TZScreenScale);
     });
     return manager;
 }
@@ -309,21 +314,23 @@ static CGSize AssetGridThumbnailSize;
 
 /// Get photo 获得照片本身
 - (PHImageRequestID)getPhotoWithAsset:(id)asset completion:(void (^)(UIImage *, NSDictionary *, BOOL isDegraded))completion {
-    return [self getPhotoWithAsset:asset photoWidth:[UIScreen mainScreen].bounds.size.width completion:completion];
+    CGFloat fullScreenWidth = TZScreenWidth;
+    if (fullScreenWidth > _photoPreviewMaxWidth) {
+        fullScreenWidth = _photoPreviewMaxWidth;
+    }
+    return [self getPhotoWithAsset:asset photoWidth:fullScreenWidth completion:completion];
 }
 
 - (PHImageRequestID)getPhotoWithAsset:(id)asset photoWidth:(CGFloat)photoWidth completion:(void (^)(UIImage *, NSDictionary *, BOOL isDegraded))completion {
-    if (photoWidth > 600) photoWidth = 600.0;
     if ([asset isKindOfClass:[PHAsset class]]) {
         CGSize imageSize;
-        if (photoWidth < 150) {
+        if (photoWidth < TZScreenWidth && photoWidth < _photoPreviewMaxWidth) {
             imageSize = AssetGridThumbnailSize;
         } else {
             PHAsset *phAsset = (PHAsset *)asset;
             CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
-            CGFloat multiple = 2.0;
-            CGFloat pixelWidth = photoWidth * multiple;
-            CGFloat pixelHeight = pixelWidth / aspectRatio;
+            CGFloat pixelWidth = photoWidth * TZScreenScale;
+            CGFloat pixelHeight = photoWidth / aspectRatio;
             imageSize = CGSizeMake(pixelWidth, pixelHeight);
         }
        PHImageRequestID imageRequestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:imageSize contentMode:PHImageContentModeAspectFill options:nil resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
@@ -355,7 +362,7 @@ static CGSize AssetGridThumbnailSize;
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completion) completion(thumbnailImage,nil,YES);
                 
-                if (photoWidth == [UIScreen mainScreen].bounds.size.width) {
+                if (photoWidth == TZScreenWidth || photoWidth == _photoPreviewMaxWidth) {
                     dispatch_async(dispatch_get_global_queue(0,0), ^{
                         ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
                         CGImageRef fullScrennImageRef = [assetRep fullScreenImage];

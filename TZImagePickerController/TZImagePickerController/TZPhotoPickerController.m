@@ -124,6 +124,9 @@ static CGSize AssetGridThumbnailSize;
     [self scrollCollectionViewToBottom];
     // Determine the size of the thumbnails to request from the PHCachingImageManager
     CGFloat scale = 2.0;
+    if ([UIScreen mainScreen].bounds.size.width > 600) {
+        scale = 1.0;
+    }
     CGSize cellSize = ((UICollectionViewFlowLayout *)_collectionView.collectionViewLayout).itemSize;
     AssetGridThumbnailSize = CGSizeMake(cellSize.width * scale, cellSize.height * scale);
 }

@@ -37,6 +37,9 @@
 /// Default is 828px / 默认828像素宽
 @property (nonatomic, assign) CGFloat photoWidth;
 
+/// Default is 520px / 默认540像素宽
+@property (nonatomic, assign) CGFloat photoPreviewMaxWidth;
+
 /// Default is 15, While fetching photo, HUD will dismiss automatic if timeout;
 /// 超时时间，默认为15秒，当取图片时间超过15秒还没有取成功时，会自动dismiss HUD；
 @property (nonatomic, assign) NSInteger timeout;
