@@ -111,7 +111,7 @@
         imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         imageView.clipsToBounds = YES;
-        [self.contentView addSubview:imageView];
+        [self.contentView insertSubview:imageView atIndex:0];
         _imageView = imageView;
     }
     return _imageView;
