@@ -35,6 +35,7 @@
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
+    [self selectPhotoButton];
     if (iOS8Later) {
         self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
     }
