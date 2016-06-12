@@ -56,6 +56,10 @@
 /// 默认为YES，如果设置为NO,用户将不能选择发送图片
 @property(nonatomic, assign) BOOL allowPickingImage;
 
+/// Default is YES.if set NO, user can't take picture.
+/// 默认为YES，如果设置为NO,拍照按钮将隐藏,用户将不能在选择器中拍照
+@property(nonatomic, assign) BOOL allowTakePicture;
+
 /// The photos user have selected
 /// 用户选中过的图片数组
 @property (nonatomic, strong) NSMutableArray *selectedAssets;

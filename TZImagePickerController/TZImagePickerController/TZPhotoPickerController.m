@@ -109,7 +109,9 @@ static CGSize AssetGridThumbnailSize;
     _collectionView.alwaysBounceHorizontal = NO;
     if (iOS7Later) _collectionView.contentInset = UIEdgeInsetsMake(0, 0, 0, 2);
     _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, -2);
-    if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] ) {
+    
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"]) && tzImagePickerVc.allowTakePicture ) {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 4) / 4) * self.view.tz_width);
     } else {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 3) / 4) * self.view.tz_width);
@@ -287,7 +289,7 @@ static CGSize AssetGridThumbnailSize;
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] ) {
         TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-        if (tzImagePickerVc.allowPickingImage) {
+        if (tzImagePickerVc.allowPickingImage && tzImagePickerVc.allowTakePicture) {
             return _models.count + 1;
         }
     }
@@ -442,7 +444,7 @@ static CGSize AssetGridThumbnailSize;
         NSInteger item = _models.count - 1;
         if ([_model.name isEqualToString:@"相机胶卷"] || [_model.name isEqualToString:@"Camera Roll"] ||  [_model.name isEqualToString:@"所有照片"] ) {
             TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-            if (tzImagePickerVc.allowPickingImage) {
+            if (tzImagePickerVc.allowPickingImage && tzImagePickerVc.allowTakePicture) {
                 item += 1;
             }
         }

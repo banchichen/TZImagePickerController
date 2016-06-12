@@ -123,7 +123,8 @@
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
     imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
     imagePickerVc.selectedAssets = _selectedAssets; // optional, 可选的
-
+    // imagePickerVc.allowTakePicture = NO; // 隐藏拍照按钮
+    
     // You can get the photos by block, the same as by delegate.
     // 你可以通过block或者代理，来得到用户选择的照片.
     [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {

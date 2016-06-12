@@ -85,6 +85,7 @@
         self.allowPickingOriginalPhoto = YES;
         self.allowPickingVideo = YES;
         self.allowPickingImage = YES;
+        self.allowTakePicture = YES;
         self.timeout = 15;
         self.photoWidth = 828.0;
         self.photoPreviewMaxWidth = 540;
