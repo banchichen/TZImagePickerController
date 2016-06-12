@@ -336,6 +336,8 @@ static CGFloat TZScreenScale;
             CGFloat pixelHeight = photoWidth / aspectRatio;
             imageSize = CGSizeMake(pixelWidth, pixelHeight);
         }
+        // 修复获取图片时出现的瞬间内存过高问题
+        // 下面两行代码，来自hsjcom，他的github是：https://github.com/hsjcom 表示感谢
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.resizeMode = PHImageRequestOptionsResizeModeFast;
         PHImageRequestID imageRequestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:imageSize contentMode:PHImageContentModeAspectFill options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
