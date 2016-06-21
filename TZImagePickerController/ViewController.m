@@ -25,6 +25,13 @@
     LxGridViewFlowLayout *_layout;
 }
 @property (nonatomic, strong) UICollectionView *collectionView;
+// 6个设置开关
+@property (weak, nonatomic) IBOutlet UISwitch *showTakePhotoBtnSwitch;  ///< 在内部显示拍照按钮
+@property (weak, nonatomic) IBOutlet UISwitch *sortAscendingSwitch;     ///< 照片排列按修改时间升序
+@property (weak, nonatomic) IBOutlet UISwitch *allowPickingVideoSwitch; ///< 允许选择视频
+@property (weak, nonatomic) IBOutlet UISwitch *allowPickingImageSwitch; ///< 允许选择图片
+@property (weak, nonatomic) IBOutlet UISwitch *allowPickingOriginalPhotoSwitch; ///< 允许选择原图
+@property (weak, nonatomic) IBOutlet UISwitch *showSheetSwitch; ///< 显示一个sheet,把拍照按钮放在外面
 @end
 
 @implementation ViewController
@@ -44,11 +51,11 @@
     _layout.itemSize = CGSizeMake(_itemWH, _itemWH);
     _layout.minimumInteritemSpacing = _margin;
     _layout.minimumLineSpacing = _margin;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(_margin, 120, self.view.tz_width - 2 * _margin, 400) collectionViewLayout:_layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 300, self.view.tz_width, self.view.tz_height - 300) collectionViewLayout:_layout];
     CGFloat rgb = 244 / 255.0;
+    _collectionView.alwaysBounceVertical = YES;
     _collectionView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
-    _collectionView.contentInset = UIEdgeInsetsMake(4, 0, 0, 2);
-    _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, -2);
+    _collectionView.contentInset = UIEdgeInsetsMake(4, 4, 4, 4);
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
     [self.view addSubview:_collectionView];
@@ -77,7 +84,7 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == _selectedPhotos.count) {
-        [self pickPhotoButtonClick:nil];
+        [self pushImagePickerController];
     } else { // preview photos / 预览照片
         TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.row];
         imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
@@ -104,6 +111,41 @@
     }
 }
 
+- (void)pushImagePickerController {
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+    
+#pragma mark - 四类个性化设置，这些参数都可以不传，此时会走默认设置
+    imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
+
+    // 1.如果你需要将拍照按钮放在外面，不要传这个参数
+    imagePickerVc.selectedAssets = _selectedAssets; // optional, 可选的
+    imagePickerVc.allowTakePicture = self.showTakePhotoBtnSwitch.isOn; // 在内部显示拍照按钮
+    
+    // 2. Set the appearance
+    // 2. 在这里设置imagePickerVc的外观
+    // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];
+    // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
+    // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
+    
+    // 3. Set allow picking video & photo & originalPhoto or not
+    // 3. 设置是否可以选择视频/图片/原图
+    imagePickerVc.allowPickingVideo = self.allowPickingVideoSwitch.isOn;
+    imagePickerVc.allowPickingImage = self.allowPickingImageSwitch.isOn;
+    imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;
+    
+    // 4. 照片排列按修改时间升序
+    imagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
+#pragma mark - 到这里为止
+    
+    // You can get the photos by block, the same as by delegate.
+    // 你可以通过block或者代理，来得到用户选择的照片.
+    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+        
+    }];
+    
+    [self presentViewController:imagePickerVc animated:YES completion:nil];
+}
+
 #pragma mark Click Event
 
 - (void)deleteBtnClik:(UIButton *)sender {
@@ -119,35 +161,29 @@
     }];
 }
 
-- (IBAction)pickPhotoButtonClick:(UIButton *)sender {
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
-    imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
-    
-    // tip：如果你需要将拍照放在外面，不要传这个参数
-    imagePickerVc.selectedAssets = _selectedAssets; // optional, 可选的
-    // imagePickerVc.allowTakePicture = NO; // 隐藏拍照按钮
-    
-    // You can get the photos by block, the same as by delegate.
-    // 你可以通过block或者代理，来得到用户选择的照片.
-    [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-    
-    }];
-    
-    // Set the appearance
-    // 在这里设置imagePickerVc的外观
-    // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];
-    // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
-    // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
-    
-    // Set allow picking video & photo & originalPhoto or not
-    // 设置是否可以选择视频/图片/原图
-    // imagePickerVc.allowPickingVideo = NO;
-    // imagePickerVc.allowPickingImage = NO;
-    // imagePickerVc.allowPickingOriginalPhoto = NO;
-    
-    imagePickerVc.sortAscendingByModificationDate = NO;
-    
-    [self presentViewController:imagePickerVc animated:YES completion:nil];
+- (IBAction)showTakePhotoBtnSwitchClick:(UISwitch *)sender {
+    if (sender.isOn) {
+        [_showSheetSwitch setOn:NO animated:YES];
+        [_allowPickingImageSwitch setOn:YES animated:YES];
+    }
+}
+
+- (IBAction)showSheetSwitchClick:(UISwitch *)sender {
+    if (sender.isOn) {
+        [_showTakePhotoBtnSwitch setOn:NO animated:YES];
+    }
+}
+
+- (IBAction)allowPickingOriginPhotoSwitchClick:(UISwitch *)sender {
+    if (sender.isOn) {
+        [_allowPickingImageSwitch setOn:YES animated:YES];
+    }
+}
+
+- (IBAction)allowPickingImageSwitchClick:(UISwitch *)sender {
+    if (!sender.isOn) {
+        [_allowPickingOriginalPhotoSwitch setOn:NO animated:YES];
+    }
 }
 
 #pragma mark TZImagePickerControllerDelegate
@@ -158,8 +194,14 @@
     // NSLog(@"cancel");
 }
 
-/// User finish picking photo，if assets are not empty, user picking original photo.
-/// 用户选择好了图片，如果assets非空，则用户选择了原图。
+// The picker should dismiss itself; when it dismissed these handle will be called.
+// If isOriginalPhoto is YES, user picked the original photo.
+// You can get original photo with asset, by the method [[TZImageManager manager] getOriginalPhotoWithAsset:completion:].
+// The UIImage Object in photos default width is 828px, you can set it by photoWidth property.
+// 这个照片选择器会自己dismiss，当选择器dismiss的时候，会执行下面的代理方法
+// 如果isSelectOriginalPhoto为YES，表明用户选择了原图
+// 你可以通过一个asset获得原图，通过这个方法：[[TZImageManager manager] getOriginalPhotoWithAsset:completion:]
+// photos数组里的UIImage对象，默认是828像素宽，你可以通过设置photoWidth属性的值来改变它
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
     _selectedPhotos = [NSMutableArray arrayWithArray:photos];
     _selectedAssets = [NSMutableArray arrayWithArray:assets];
@@ -169,8 +211,10 @@
     _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
 }
 
-/// User finish picking video,
-/// 用户选择好了视频
+// If user picking a video, this callback will be called.
+// If system version > iOS8,asset is kind of PHAsset class, else is ALAsset class.
+// 如果用户选择了一个视频，下面的handle会被执行
+// 如果系统版本大于iOS8，asset是PHAsset类的对象，否则是ALAsset类的对象
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
     _selectedPhotos = [NSMutableArray arrayWithArray:@[coverImage]];
     _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
