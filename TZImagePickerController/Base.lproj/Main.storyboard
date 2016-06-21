@@ -113,10 +113,10 @@
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="uHt-bT-lBZ">
                                                 <rect key="frame" x="225" y="6" width="51" height="31"/>
                                                 <connections>
-                                                    <action selector="showSheetSwitchClick:" destination="BYZ-38-t0r" eventType="valueChanged" id="sRv-xW-VSh"/>
+                                                    <action selector="showSheetSwitchClick:" destination="BYZ-38-t0r" eventType="valueChanged" id="kmV-vK-SDz"/>
                                                 </connections>
                                             </switch>
-                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="把拍照按钮放在外面(未实现)" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jop-5R-ioj">
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="把拍照按钮放在外面" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jop-5R-ioj">
                                                 <rect key="frame" x="0.0" y="0.0" width="200" height="44"/>
                                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
