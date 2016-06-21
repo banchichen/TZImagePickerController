@@ -183,6 +183,7 @@
 - (IBAction)allowPickingImageSwitchClick:(UISwitch *)sender {
     if (!sender.isOn) {
         [_allowPickingOriginalPhotoSwitch setOn:NO animated:YES];
+        [_showTakePhotoBtnSwitch setOn:NO animated:YES];
     }
 }
 
