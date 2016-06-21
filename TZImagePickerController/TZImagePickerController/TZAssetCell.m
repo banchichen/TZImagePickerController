@@ -115,6 +115,7 @@
         _imageView = imageView;
         
         [self.contentView bringSubviewToFront:_selectImageView];
+        [self.contentView bringSubviewToFront:_bottomView];
     }
     return _imageView;
 }

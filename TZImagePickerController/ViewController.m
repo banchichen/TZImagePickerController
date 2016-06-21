@@ -14,6 +14,7 @@
 #import <Photos/Photos.h>
 #import "LxGridViewFlowLayout.h"
 #import "TZImageManager.h"
+#import "TZVideoPlayerController.h"
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate> {
     NSMutableArray *_selectedPhotos;
@@ -70,11 +71,13 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TZTestCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZTestCell" forIndexPath:indexPath];
+    cell.videoImageView.hidden = YES;
     if (indexPath.row == _selectedPhotos.count) {
         cell.imageView.image = [UIImage imageNamed:@"AlbumAddBtn.png"];
         cell.deleteBtn.hidden = YES;
     } else {
         cell.imageView.image = _selectedPhotos[indexPath.row];
+        cell.asset = _selectedAssets[indexPath.row];
         cell.deleteBtn.hidden = NO;
     }
     cell.deleteBtn.tag = indexPath.row;
@@ -85,19 +88,35 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     if (indexPath.row == _selectedPhotos.count) {
         [self pushImagePickerController];
-    } else { // preview photos / 预览照片
-        TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.row];
-        imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
-        // imagePickerVc.allowPickingOriginalPhoto = NO;
-        [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-            _selectedPhotos = [NSMutableArray arrayWithArray:photos];
-            _selectedAssets = [NSMutableArray arrayWithArray:assets];
-            _isSelectOriginalPhoto = isSelectOriginalPhoto;
-            _layout.itemCount = _selectedPhotos.count;
-            [_collectionView reloadData];
-            _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
-         }];
-        [self presentViewController:imagePickerVc animated:YES completion:nil];
+    } else { // preview photos or video / 预览照片或者视频
+        id asset = _selectedAssets[indexPath.row];
+        BOOL isVideo = NO;
+        if ([asset isKindOfClass:[PHAsset class]]) {
+            PHAsset *phAsset = asset;
+            isVideo = phAsset.mediaType == PHAssetMediaTypeVideo;
+        } else if ([asset isKindOfClass:[ALAsset class]]) {
+            ALAsset *alAsset = asset;
+            isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+        }
+        if (isVideo) { // perview video / 预览视频
+            TZVideoPlayerController *vc = [[TZVideoPlayerController alloc] init];
+            TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypeVideo timeLength:@""];
+            vc.model = model;
+            [self presentViewController:vc animated:YES completion:nil];
+        } else { // preview photos / 预览照片
+            TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.row];
+            imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;
+            imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
+            [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+                _selectedPhotos = [NSMutableArray arrayWithArray:photos];
+                _selectedAssets = [NSMutableArray arrayWithArray:assets];
+                _isSelectOriginalPhoto = isSelectOriginalPhoto;
+                _layout.itemCount = _selectedPhotos.count;
+                [_collectionView reloadData];
+                _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
+            }];
+            [self presentViewController:imagePickerVc animated:YES completion:nil];
+        }
     }
 }
 
@@ -113,7 +132,7 @@
 
 - (void)pushImagePickerController {
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
-    
+
 #pragma mark - 四类个性化设置，这些参数都可以不传，此时会走默认设置
     imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
 
@@ -142,6 +161,7 @@
     [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
         
     }];
+    
     
     [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
@@ -184,6 +204,13 @@
     if (!sender.isOn) {
         [_allowPickingOriginalPhotoSwitch setOn:NO animated:YES];
         [_showTakePhotoBtnSwitch setOn:NO animated:YES];
+        [_allowPickingVideoSwitch setOn:YES animated:YES];
+    }
+}
+
+- (IBAction)allowPickingVideoSwitchClick:(UISwitch *)sender {
+    if (!sender.isOn) {
+        [_allowPickingImageSwitch setOn:YES animated:YES];
     }
 }
 
