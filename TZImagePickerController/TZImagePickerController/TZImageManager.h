@@ -23,6 +23,10 @@
 /// Default is 600px / 默认600像素宽
 @property (nonatomic, assign) CGFloat photoPreviewMaxWidth;
 
+/// Sort photos ascending by modificationDate，Default is YES
+/// 对照片排序，按修改时间升序，默认是YES。如果设置为NO,最新的照片会显示在最前面，内部的拍照按钮会排在第一个
+@property (nonatomic, assign) BOOL sortAscendingByModificationDate;
+
 /// Return YES if Authorized 返回YES如果得到了授权
 - (BOOL)authorizationStatusAuthorized;
 

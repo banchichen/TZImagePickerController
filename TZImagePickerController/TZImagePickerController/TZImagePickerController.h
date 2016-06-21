@@ -34,6 +34,10 @@
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
 
+/// Sort photos ascending by modificationDate，Default is YES
+/// 对照片排序，按修改时间升序，默认是YES。如果设置为NO,最新的照片会显示在最前面，内部的拍照按钮会排在第一个
+@property (nonatomic, assign) BOOL sortAscendingByModificationDate;
+
 /// Default is 828px / 默认828像素宽
 @property (nonatomic, assign) CGFloat photoWidth;
 

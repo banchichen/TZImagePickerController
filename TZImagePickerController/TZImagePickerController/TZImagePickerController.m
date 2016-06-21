@@ -89,6 +89,7 @@
         self.timeout = 15;
         self.photoWidth = 828.0;
         self.photoPreviewMaxWidth = 600;
+        self.sortAscendingByModificationDate = YES;
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
@@ -148,6 +149,7 @@
     _pushToPhotoPickerVc = YES;
     if (_pushToPhotoPickerVc) {
         TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
+        photoPickerVc.isFirstAppear = YES;
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
@@ -249,6 +251,11 @@
     NSString *allowPickingVideoStr = _allowPickingVideo ? @"1" : @"0";
     [[NSUserDefaults standardUserDefaults] setObject:allowPickingVideoStr forKey:@"tz_allowPickingVideo"];
     [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
+- (void)setSortAscendingByModificationDate:(BOOL)sortAscendingByModificationDate {
+    _sortAscendingByModificationDate = sortAscendingByModificationDate;
+    [TZImageManager manager].sortAscendingByModificationDate = sortAscendingByModificationDate;
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {

@@ -122,6 +122,8 @@
 - (IBAction)pickPhotoButtonClick:(UIButton *)sender {
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
     imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
+    
+    // tip：如果你需要将拍照放在外面，不要传这个参数
     imagePickerVc.selectedAssets = _selectedAssets; // optional, 可选的
     // imagePickerVc.allowTakePicture = NO; // 隐藏拍照按钮
     
@@ -142,6 +144,8 @@
     // imagePickerVc.allowPickingVideo = NO;
     // imagePickerVc.allowPickingImage = NO;
     // imagePickerVc.allowPickingOriginalPhoto = NO;
+    
+    imagePickerVc.sortAscendingByModificationDate = NO;
     
     [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
