@@ -117,7 +117,7 @@
     self = [super initWithRootViewController:previewVc];
     if (self) {
         self.selectedAssets = [NSMutableArray arrayWithArray:selectedAssets];
-        self.allowPickingOriginalPhoto = YES;
+        self.allowPickingOriginalPhoto = self.allowPickingOriginalPhoto;
         self.timeout = 15;
         self.photoWidth = 828.0;
         self.maxImagesCount = selectedAssets.count;

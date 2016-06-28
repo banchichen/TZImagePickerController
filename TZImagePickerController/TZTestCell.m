@@ -8,6 +8,9 @@
 
 #import "TZTestCell.h"
 #import "UIView+Layout.h"
+#import <Photos/Photos.h>
+#import <AssetsLibrary/AssetsLibrary.h>
+#import "TZImagePickerController/TZImagePickerController.h"
 
 @implementation TZTestCell
 
@@ -20,6 +23,12 @@
         _imageView.contentMode = UIViewContentModeScaleAspectFill;
         [self addSubview:_imageView];
         self.clipsToBounds = YES;
+        
+        _videoImageView = [[UIImageView alloc] init];
+        _videoImageView.image = [UIImage imageNamedFromMyBundle:@"MMVideoPreviewPlay"];
+        _videoImageView.contentMode = UIViewContentModeScaleAspectFill;
+        _videoImageView.hidden = YES;
+        [self addSubview:_videoImageView];
         
         _deleteBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [_deleteBtn setImage:[UIImage imageNamed:@"photo_delete"] forState:UIControlStateNormal];
@@ -34,7 +43,20 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     _imageView.frame = self.bounds;
+    CGFloat width = self.tz_width / 3.0;
+    _videoImageView.frame = CGRectMake(width, width, width, width);
 }
+
+- (void)setAsset:(id)asset {
+    _asset = asset;
+    if ([asset isKindOfClass:[PHAsset class]]) {
+        PHAsset *phAsset = asset;
+        _videoImageView.hidden = phAsset.mediaType != PHAssetMediaTypeVideo;
+    } else if ([asset isKindOfClass:[ALAsset class]]) {
+        ALAsset *alAsset = asset;
+        _videoImageView.hidden = ![[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+    }
+ }
 
 - (void)setRow:(NSInteger)row {
     _row = row;
