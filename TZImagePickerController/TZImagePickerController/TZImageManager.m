@@ -491,7 +491,7 @@ static CGFloat TZScreenScale;
 
 #pragma mark - Export video
 
-/// Export Video / 导出视频，暂仅仅支持iOS8.0+
+/// Export Video / 导出视频
 - (void)getVideoOutputPathWithAsset:(id)asset completion:(void (^)(NSString *outputPath))completion {
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
@@ -500,45 +500,67 @@ static CGFloat TZScreenScale;
         options.networkAccessAllowed = YES;
         [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:options resultHandler:^(AVAsset* avasset, AVAudioMix* audioMix, NSDictionary* info){
             // NSLog(@"Info:\n%@",info);
-            AVURLAsset* myAsset = (AVURLAsset*)avasset;
+            AVURLAsset *videoAsset = (AVURLAsset*)avasset;
             // NSLog(@"AVAsset URL: %@",myAsset.URL);
-            
-            NSArray *compatiblePresets = [AVAssetExportSession exportPresetsCompatibleWithAsset:myAsset];
-            // NSLog(@"%@",compatiblePresets);
-            
-            if ([compatiblePresets containsObject:AVAssetExportPresetHighestQuality]) {
-                AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:myAsset presetName:AVAssetExportPresetMediumQuality];
-                NSDateFormatter *formater = [[NSDateFormatter alloc] init];
-                [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss"];
-                NSString *outputPath = [NSHomeDirectory() stringByAppendingFormat:@"/tmp/output-%@.mp4", [formater stringFromDate:[NSDate date]]];
-                NSLog(@"video outputPath = %@",outputPath);
-                
-                exportSession.outputURL = [NSURL fileURLWithPath:outputPath];
-                exportSession.outputFileType = AVFileTypeMPEG4;
-                exportSession.shouldOptimizeForNetworkUse = YES;
-                [exportSession exportAsynchronouslyWithCompletionHandler:^(void) {
-                    switch (exportSession.status) {
-                        case AVAssetExportSessionStatusUnknown:
-                            NSLog(@"AVAssetExportSessionStatusUnknown"); break;
-                        case AVAssetExportSessionStatusWaiting:
-                            NSLog(@"AVAssetExportSessionStatusWaiting"); break;
-                        case AVAssetExportSessionStatusExporting:
-                            NSLog(@"AVAssetExportSessionStatusExporting"); break;
-                        case AVAssetExportSessionStatusCompleted:
-                            NSLog(@"AVAssetExportSessionStatusCompleted");
-                            if (completion) {
-                                completion(outputPath);
-                            }
-                            break;
-                        case AVAssetExportSessionStatusFailed:
-                            NSLog(@"AVAssetExportSessionStatusFailed"); break;
-                        default: break;
+            [self startExportVideoWithVideoAsset:videoAsset completion:completion];
+        }];
+    } else if ([asset isKindOfClass:[ALAsset class]]) {
+        NSURL *videoURL =[asset valueForProperty:ALAssetPropertyAssetURL]; // ALAssetPropertyURLs
+        AVURLAsset *videoAsset = [[AVURLAsset alloc]initWithURL:videoURL options:nil];
+        [self startExportVideoWithVideoAsset:videoAsset completion:completion];
+    }
+}
+
+- (void)startExportVideoWithVideoAsset:(AVURLAsset *)videoAsset completion:(void (^)(NSString *outputPath))completion {
+    // Find compatible presets by video asset.
+    NSArray *presets = [AVAssetExportSession exportPresetsCompatibleWithAsset:videoAsset];
+    
+    // Begin to compress video
+    // Now we just compress to low resolution if it supports
+    // If you need to upload to the server, but server does't support to upload by streaming,
+    // You can compress the resolution to lower. Or you can support more higher resolution.
+    if ([presets containsObject:AVAssetExportPreset640x480]) {
+        AVAssetExportSession *session = [[AVAssetExportSession alloc]initWithAsset:videoAsset presetName:AVAssetExportPreset640x480];
+        
+        NSDateFormatter *formater = [[NSDateFormatter alloc] init];
+        [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss"];
+        NSString *outputPath = [NSHomeDirectory() stringByAppendingFormat:@"/tmp/output-%@.mp4", [formater stringFromDate:[NSDate date]]];
+        NSLog(@"video outputPath = %@",outputPath);
+        session.outputURL = [NSURL fileURLWithPath:outputPath];
+        
+        // Optimize for network use.
+        session.shouldOptimizeForNetworkUse = true;
+        
+        NSArray *supportedTypeArray = session.supportedFileTypes;
+        if ([supportedTypeArray containsObject:AVFileTypeMPEG4]) {
+            session.outputFileType = AVFileTypeMPEG4;
+        } else if (supportedTypeArray.count == 0) {
+            NSLog(@"No supported file types 视频类型暂不支持导出");
+            return;
+        } else {
+            session.outputFileType = [supportedTypeArray objectAtIndex:0];
+        }
+        
+        // Begin to export video to the output path asynchronously.
+        [session exportAsynchronouslyWithCompletionHandler:^(void) {
+            switch (session.status) {
+                case AVAssetExportSessionStatusUnknown:
+                    NSLog(@"AVAssetExportSessionStatusUnknown"); break;
+                case AVAssetExportSessionStatusWaiting:
+                    NSLog(@"AVAssetExportSessionStatusWaiting"); break;
+                case AVAssetExportSessionStatusExporting:
+                    NSLog(@"AVAssetExportSessionStatusExporting"); break;
+                case AVAssetExportSessionStatusCompleted:
+                    NSLog(@"AVAssetExportSessionStatusCompleted");
+                    if (completion) {
+                        completion(outputPath);
                     }
-                }];
+                    break;
+                case AVAssetExportSessionStatusFailed:
+                    NSLog(@"AVAssetExportSessionStatusFailed"); break;
+                default: break;
             }
         }];
-    } else {
-        NSLog(@"iOS8以前的系统，导出视频代码暂未更新...");
     }
 }
 
