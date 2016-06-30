@@ -224,10 +224,18 @@ static CGFloat TZScreenScale;
 }
 
 ///  Get asset at index 获得下标为index的单个照片
+///  if index beyond bounds, return nil in callback 果索引越界, 在回调中返回 nil
 - (void)getAssetFromFetchResult:(id)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAssetModel *))completion {
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
-        PHAsset *asset = fetchResult[index];
+        PHAsset *asset;
+        @try {
+            asset = fetchResult[index];
+        }
+        @catch (NSException* e) {
+            if (completion) completion(nil);
+            return;
+        }
         
         TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
         if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
@@ -251,26 +259,36 @@ static CGFloat TZScreenScale;
             [group setAssetsFilter:[ALAssetsFilter allPhotos]];
         }
         NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:index];
-        [group enumerateAssetsAtIndexes:indexSet options:NSEnumerationConcurrent usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
-            TZAssetModel *model;
-            TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
-            if (!allowPickingVideo){
-                model = [TZAssetModel modelWithAsset:result type:type];
+        
+        @try {
+            [group enumerateAssetsAtIndexes:indexSet options:NSEnumerationConcurrent usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+                
+                if (!result) return;
+                
+                TZAssetModel *model;
+                TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
+                if (!allowPickingVideo){
+                    model = [TZAssetModel modelWithAsset:result type:type];
+                    if (completion) completion(model);
+                    return;
+                }
+                /// Allow picking video
+                if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
+                    type = TZAssetModelMediaTypeVideo;
+                    NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
+                    NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
+                    timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
+                    model = [TZAssetModel modelWithAsset:result type:type timeLength:timeLength];
+                } else {
+                    model = [TZAssetModel modelWithAsset:result type:type];
+                }
                 if (completion) completion(model);
-                return;
-            }
-            /// Allow picking video
-            if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
-                type = TZAssetModelMediaTypeVideo;
-                NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
-                NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
-                timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-                model = [TZAssetModel modelWithAsset:result type:type timeLength:timeLength];
-            } else {
-                model = [TZAssetModel modelWithAsset:result type:type];
-            }
-            if (completion) completion(model);
-        }];
+            }];
+
+        }
+        @catch (NSException* e) {
+            if (completion) completion(nil);
+        }
     }
 }
 
