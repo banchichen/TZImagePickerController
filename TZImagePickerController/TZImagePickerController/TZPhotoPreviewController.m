@@ -196,6 +196,7 @@
                     [_tzImagePickerVc.selectedAssets removeObject:_assetsTemp[_currentIndex]];
                     [self.photos removeObject:_photosTemp[_currentIndex]];
                 }
+                break;
             }
         }
     }
@@ -246,8 +247,17 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     CGPoint offSet = scrollView.contentOffset;
-    _currentIndex = (offSet.x + (self.view.tz_width * 0.5)) / self.view.tz_width;
-    [self refreshNaviBarAndBottomBarState];
+    CGFloat offSetWidth = offSet.x;
+    if ((offSetWidth + (self.view.tz_width * 0.5)) < scrollView.contentSize.width) {
+        offSetWidth = offSetWidth +  (self.view.tz_width * 0.5);
+    }
+    
+    NSInteger currentIndex = offSetWidth / self.view.tz_width;
+    
+    if (_currentIndex != currentIndex) {
+        _currentIndex = currentIndex;
+        [self refreshNaviBarAndBottomBarState];
+    }
 }
 
 #pragma mark - UICollectionViewDataSource && Delegate
