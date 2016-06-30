@@ -29,6 +29,8 @@
     UILabel *_numberLable;
     UIButton *_originalPhotoButton;
     UILabel *_originalPhotoLable;
+    
+    CGFloat _minimumLineSpacing;
 }
 @end
 
@@ -43,6 +45,7 @@
         _assetsTemp = [NSMutableArray arrayWithArray:_tzImagePickerVc.selectedAssets];
         self.isSelectOriginalPhoto = _tzImagePickerVc.isSelectOriginalPhoto;
     }
+    _minimumLineSpacing = 20;
     [self configCollectionView];
     [self configCustomNaviBar];
     [self configBottomToolBar];
@@ -57,7 +60,7 @@
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES];
     if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = YES;
-    if (_currentIndex) [_collectionView setContentOffset:CGPointMake((self.view.tz_width) * _currentIndex, 0) animated:NO];
+    if (_currentIndex) [_collectionView setContentOffset:CGPointMake((self.view.tz_width + _minimumLineSpacing) * _currentIndex, 0) animated:NO];
     [self refreshNaviBarAndBottomBarState];
 }
 
@@ -152,12 +155,11 @@
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     layout.itemSize = CGSizeMake(self.view.tz_width, self.view.tz_height);
     layout.minimumInteritemSpacing = 0;
-    layout.minimumLineSpacing = 0;
+    layout.minimumLineSpacing = _minimumLineSpacing;
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, self.view.tz_width , self.view.tz_height) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor blackColor];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
-    _collectionView.pagingEnabled = YES;
     _collectionView.scrollsToTop = NO;
     _collectionView.showsHorizontalScrollIndicator = NO;
     _collectionView.contentOffset = CGPointMake(0, 0);
@@ -248,11 +250,11 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     CGPoint offSet = scrollView.contentOffset;
     CGFloat offSetWidth = offSet.x;
-    if ((offSetWidth + (self.view.tz_width * 0.5)) < scrollView.contentSize.width) {
-        offSetWidth = offSetWidth +  (self.view.tz_width * 0.5);
+    if ((offSetWidth + ((self.view.tz_width + _minimumLineSpacing) * 0.5)) < scrollView.contentSize.width + _minimumLineSpacing) {
+        offSetWidth = offSetWidth +  ((self.view.tz_width + _minimumLineSpacing) * 0.5);
     }
     
-    NSInteger currentIndex = offSetWidth / self.view.tz_width;
+    NSInteger currentIndex = offSetWidth / (self.view.tz_width + _minimumLineSpacing);
     
     if (_currentIndex != currentIndex) {
         _currentIndex = currentIndex;
@@ -284,18 +286,41 @@
     return cell;
 }
 
-- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
-{
+- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[TZPhotoPreviewCell class]]) {
         [(TZPhotoPreviewCell *)cell recoverSubviews];
     }
 }
 
-- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
-{
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[TZPhotoPreviewCell class]]) {
         [(TZPhotoPreviewCell *)cell recoverSubviews];
     }
+}
+
+- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset {
+    CGFloat contentOffsetX = scrollView.contentOffset.x;
+    NSInteger MAX_INDEX = (scrollView.contentSize.width + _minimumLineSpacing)/(self.view.tz_width + _minimumLineSpacing) - 1;
+    NSInteger MIN_INDEX = 0;
+    
+    NSInteger index = contentOffsetX/(self.view.tz_width + _minimumLineSpacing);
+    
+    if (velocity.x > 0.4 && contentOffsetX < (*targetContentOffset).x) {
+        index = index + 1;
+    }
+    else if (velocity.x < -0.4 && contentOffsetX > (*targetContentOffset).x) {
+        index = index;
+    }
+    else if (contentOffsetX > (index + 0.5) * (self.view.tz_width + _minimumLineSpacing)) {
+        index = index + 1;
+    }
+    
+    if (index > MAX_INDEX) index = MAX_INDEX;
+    if (index < MIN_INDEX) index = MIN_INDEX;
+    
+    CGPoint newTargetContentOffset= CGPointMake(index * (self.view.tz_width + _minimumLineSpacing), 0);
+    *targetContentOffset = CGPointMake(scrollView.contentOffset.x, 0);
+    [scrollView setContentOffset:newTargetContentOffset animated:YES];
 }
 
 #pragma mark - Private Method
