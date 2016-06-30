@@ -274,6 +274,20 @@
     return cell;
 }
 
+- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell isKindOfClass:[TZPhotoPreviewCell class]]) {
+        [(TZPhotoPreviewCell *)cell recoverSubviews];
+    }
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([cell isKindOfClass:[TZPhotoPreviewCell class]]) {
+        [(TZPhotoPreviewCell *)cell recoverSubviews];
+    }
+}
+
 #pragma mark - Private Method
 
 - (void)refreshNaviBarAndBottomBarState {
