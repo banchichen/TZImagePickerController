@@ -269,8 +269,19 @@
         [backButton setTitle:@"返回" forState:UIControlStateNormal];
         backButton.titleLabel.font = [UIFont systemFontOfSize:15];
         [backButton addTarget:self action:@selector(popViewControllerAnimated:) forControlEvents:UIControlEventTouchUpInside];
-        viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
+        UIBarButtonItem* backButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
+        backButtonItem.style = UIBarButtonItemStyleBordered;
+        self.topViewController.navigationItem.backBarButtonItem = backButtonItem;
+        
+        /**
+         另外一种只有箭头的返回键
+         
+         UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStyleBordered target:nil action:nil];
+         self.topViewController.navigationItem.backBarButtonItem = backItem;
+         
+        */
     }
+    
     [super pushViewController:viewController animated:animated];
 }
 
