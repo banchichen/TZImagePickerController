@@ -26,7 +26,7 @@
     if (self) {
         self.backgroundColor = [UIColor blackColor];
         _scrollView = [[UIScrollView alloc] init];
-        _scrollView.frame = CGRectMake(0, 0, self.width, self.height);
+        _scrollView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
         _scrollView.bouncesZoom = YES;
         _scrollView.maximumZoomScale = 2.5;
         _scrollView.minimumZoomScale = 1.0;
@@ -63,32 +63,32 @@
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
     [_scrollView setZoomScale:1.0 animated:NO];
-    [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info) {
+    [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         self.imageView.image = photo;
         [self resizeSubviews];
     }];
 }
 
 - (void)resizeSubviews {
-    _imageContainerView.origin = CGPointZero;
-    _imageContainerView.width = self.width;
+    _imageContainerView.tz_origin = CGPointZero;
+    _imageContainerView.tz_width = self.tz_width;
     
     UIImage *image = _imageView.image;
-    if (image.size.height / image.size.width > self.height / self.width) {
-        _imageContainerView.height = floor(image.size.height / (image.size.width / self.width));
+    if (image.size.height / image.size.width > self.tz_height / self.tz_width) {
+        _imageContainerView.tz_height = floor(image.size.height / (image.size.width / self.tz_width));
     } else {
-        CGFloat height = image.size.height / image.size.width * self.width;
-        if (height < 1 || isnan(height)) height = self.height;
+        CGFloat height = image.size.height / image.size.width * self.tz_width;
+        if (height < 1 || isnan(height)) height = self.tz_height;
         height = floor(height);
-        _imageContainerView.height = height;
-        _imageContainerView.centerY = self.height / 2;
+        _imageContainerView.tz_height = height;
+        _imageContainerView.tz_centerY = self.tz_height / 2;
     }
-    if (_imageContainerView.height > self.height && _imageContainerView.height - self.height <= 1) {
-        _imageContainerView.height = self.height;
+    if (_imageContainerView.tz_height > self.tz_height && _imageContainerView.tz_height - self.tz_height <= 1) {
+        _imageContainerView.tz_height = self.tz_height;
     }
-    _scrollView.contentSize = CGSizeMake(self.width, MAX(_imageContainerView.height, self.height));
+    _scrollView.contentSize = CGSizeMake(self.tz_width, MAX(_imageContainerView.tz_height, self.tz_height));
     [_scrollView scrollRectToVisible:self.bounds animated:NO];
-    _scrollView.alwaysBounceVertical = _imageContainerView.height <= self.height ? NO : YES;
+    _scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
     _imageView.frame = _imageContainerView.bounds;
 }
 
@@ -119,10 +119,9 @@
 }
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView {
-    CGFloat offsetX = (scrollView.width > scrollView.contentSize.width) ? (scrollView.width - scrollView.contentSize.width) * 0.5 : 0.0;
-    CGFloat offsetY = (scrollView.height > scrollView.contentSize.height) ? (scrollView.height - scrollView.contentSize.height) * 0.5 : 0.0;
+    CGFloat offsetX = (scrollView.tz_width > scrollView.contentSize.width) ? (scrollView.tz_width - scrollView.contentSize.width) * 0.5 : 0.0;
+    CGFloat offsetY = (scrollView.tz_height > scrollView.contentSize.height) ? (scrollView.tz_height - scrollView.contentSize.height) * 0.5 : 0.0;
     self.imageContainerView.center = CGPointMake(scrollView.contentSize.width * 0.5 + offsetX, scrollView.contentSize.height * 0.5 + offsetY);
 }
-
 
 @end
