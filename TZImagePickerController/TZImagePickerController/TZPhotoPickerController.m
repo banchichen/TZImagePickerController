@@ -14,6 +14,7 @@
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
+#import <AssetsLibrary/AssetsLibrary.h>
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_models;
@@ -317,7 +318,17 @@ static CGSize AssetGridThumbnailSize;
             model.isSelected = NO;
             NSArray *selectedModels = [NSArray arrayWithArray:tzImagePickerVc.selectedModels];
             for (TZAssetModel *model_item in selectedModels) {
-                if ([model.asset isEqual:model_item.asset]) {
+                BOOL compare = NO;
+                if ([model_item.asset isKindOfClass:[PHAsset class]]) {
+                    if ([model.asset isEqual:model_item.asset]) {
+                        compare = YES;
+                    }
+                } else if ([model_item.asset isKindOfClass:[ALAsset class]]) {
+                    if ([[(ALAsset *)model_item.asset valueForProperty:ALAssetPropertyURLs] isEqual:[(ALAsset *)model.asset valueForProperty:ALAssetPropertyURLs]]) {
+                        compare = YES;
+                    }
+                }
+                if (compare) {
                     [tzImagePickerVc.selectedModels removeObject:model_item];
                 }
             }
