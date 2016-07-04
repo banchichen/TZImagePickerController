@@ -31,7 +31,7 @@
 - (void)awakeFromNib {
     self.timeLength.font = [UIFont boldSystemFontOfSize:11];
 }
- */
+*/
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
@@ -114,6 +114,8 @@
         imageView.clipsToBounds = YES;
         [self.contentView addSubview:imageView];
         _imageView = imageView;
+        
+        [self.contentView bringSubviewToFront:_selectImageView];
     }
     return _imageView;
 }

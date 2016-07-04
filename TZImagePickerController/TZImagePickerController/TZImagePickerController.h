@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//
+//  version 1.4.5
 
 /*
  经过测试，比起xib的方式，把TZAssetCell改用纯代码的方式来写，滑动帧数明显提高了（约提高10帧左右）
@@ -37,7 +37,7 @@
 /// Default is 828px / 默认828像素宽
 @property (nonatomic, assign) CGFloat photoWidth;
 
-/// Default is 520px / 默认540像素宽
+/// Default is 600px / 默认600像素宽
 @property (nonatomic, assign) CGFloat photoPreviewMaxWidth;
 
 /// Default is 15, While fetching photo, HUD will dismiss automatic if timeout;
@@ -55,6 +55,10 @@
 /// Default is YES.if set NO, user can't picking image.
 /// 默认为YES，如果设置为NO,用户将不能选择发送图片
 @property(nonatomic, assign) BOOL allowPickingImage;
+
+/// Default is YES.if set NO, user can't take picture.
+/// 默认为YES，如果设置为NO,拍照按钮将隐藏,用户将不能在选择器中拍照
+@property(nonatomic, assign) BOOL allowTakePicture;
 
 /// The photos user have selected
 /// 用户选中过的图片数组

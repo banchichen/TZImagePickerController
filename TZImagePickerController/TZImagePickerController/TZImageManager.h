@@ -20,7 +20,7 @@
 
 @property (nonatomic, assign) BOOL shouldFixOrientation;
 
-/// Default is 540px / 默认540像素宽
+/// Default is 600px / 默认600像素宽
 @property (nonatomic, assign) CGFloat photoPreviewMaxWidth;
 
 /// Return YES if Authorized 返回YES如果得到了授权

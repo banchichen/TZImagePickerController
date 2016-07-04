@@ -85,9 +85,10 @@
         self.allowPickingOriginalPhoto = YES;
         self.allowPickingVideo = YES;
         self.allowPickingImage = YES;
+        self.allowTakePicture = YES;
         self.timeout = 15;
         self.photoWidth = 828.0;
-        self.photoPreviewMaxWidth = 540;
+        self.photoPreviewMaxWidth = 600;
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
@@ -119,7 +120,7 @@
         self.timeout = 15;
         self.photoWidth = 828.0;
         self.maxImagesCount = selectedAssets.count;
-        self.photoPreviewMaxWidth = 540;
+        self.photoPreviewMaxWidth = 600;
         
         previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
         previewVc.currentIndex = index;
