@@ -192,7 +192,7 @@
     } else {
         NSArray *selectedModels = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
         for (TZAssetModel *model_item in selectedModels) {
-            if ([model.asset isEqual:model_item.asset]) {
+            if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
                 [_tzImagePickerVc.selectedModels removeObject:model_item];
                 if (self.photos) {
                     [_tzImagePickerVc.selectedAssets removeObject:_assetsTemp[_currentIndex]];
