@@ -337,8 +337,9 @@ static CGSize AssetGridThumbnailSize;
             for (TZAssetModel *model_item in selectedModels) {
                 if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
                     [tzImagePickerVc.selectedModels removeObject:model_item];
+                    break;
                 }
-                break;
+                //break;// loop只运行了一次， 导致数组大于1时，不能正确删除，并引发一系列BUG
             }
             [weakSelf refreshBottomToolBarStatus];
         } else {
