@@ -339,7 +339,6 @@ static CGSize AssetGridThumbnailSize;
                     [tzImagePickerVc.selectedModels removeObject:model_item];
                     break;
                 }
-                //break;// loop只运行了一次， 导致数组大于1时，不能正确删除，并引发一系列BUG
             }
             [weakSelf refreshBottomToolBarStatus];
         } else {
