@@ -142,6 +142,13 @@
         [_tipLable removeFromSuperview];
         [_timer invalidate];
         _timer = nil;
+        
+        if ([UIDevice currentDevice].systemVersion.floatValue >= 8.0 && [UIDevice currentDevice].systemVersion.floatValue < 9.0) {
+            //iOS8需要授权成功才能赋值allowsCachingHighQualityImages,否则会闪退
+            if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized) {
+                [TZImageManager manager].cachingImageManager.allowsCachingHighQualityImages = NO;
+            }
+        } 
     }
 }
 
