@@ -142,6 +142,9 @@
         [_tipLable removeFromSuperview];
         [_timer invalidate];
         _timer = nil;
+        if (iOS8Later) {
+            [TZImageManager manager].cachingImageManager.allowsCachingHighQualityImages = NO;
+        }
     }
 }
 
