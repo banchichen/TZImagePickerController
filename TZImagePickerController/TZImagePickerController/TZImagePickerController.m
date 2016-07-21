@@ -105,6 +105,9 @@
             
             _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:YES];
         } else {
+            if (iOS8Later) {
+                [TZImageManager manager].cachingImageManager.allowsCachingHighQualityImages = NO;
+            }
             [self pushToPhotoPickerVc];
         }
     }
