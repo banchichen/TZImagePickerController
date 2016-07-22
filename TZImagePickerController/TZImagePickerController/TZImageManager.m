@@ -580,12 +580,14 @@ static CGFloat TZScreenScale;
                     NSLog(@"AVAssetExportSessionStatusWaiting"); break;
                 case AVAssetExportSessionStatusExporting:
                     NSLog(@"AVAssetExportSessionStatusExporting"); break;
-                case AVAssetExportSessionStatusCompleted:
+                case AVAssetExportSessionStatusCompleted: {
                     NSLog(@"AVAssetExportSessionStatusCompleted");
-                    if (completion) {
-                        completion(outputPath);
-                    }
-                    break;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (completion) {
+                            completion(outputPath);
+                        }
+                    });
+                }  break;
                 case AVAssetExportSessionStatusFailed:
                     NSLog(@"AVAssetExportSessionStatusFailed"); break;
                 default: break;
