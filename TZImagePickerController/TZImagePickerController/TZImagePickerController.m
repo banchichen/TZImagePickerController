@@ -30,13 +30,17 @@
 
 @implementation TZImagePickerController
 
+- (void)dealloc {
+    NSLog(@"TZImagePickerController Dealloc");
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationBar.translucent = YES;
     [TZImageManager manager].shouldFixOrientation = NO;
-
+    
     // Default appearance, you can reset these after this method
     // 默认的外观，你可以在这个方法后重置
     self.oKButtonTitleColorNormal   = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0];
@@ -47,7 +51,7 @@
         self.navigationBar.tintColor = [UIColor whiteColor];
         self.automaticallyAdjustsScrollViewInsets = NO;
     }
-        
+    
     UIBarButtonItem *barItem;
     if (iOS9Later) {
         barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
@@ -150,9 +154,10 @@
     if (_pushToPhotoPickerVc) {
         TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
         photoPickerVc.isFirstAppear = YES;
+        __weak typeof(self) weakSelf = self;
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
-            [self pushViewController:photoPickerVc animated:YES];
+            [weakSelf pushViewController:photoPickerVc animated:YES];
             _pushToPhotoPickerVc = NO;
         }];
     }
@@ -172,7 +177,7 @@
     if (!_progressHUD) {
         _progressHUD = [UIButton buttonWithType:UIButtonTypeCustom];
         [_progressHUD setBackgroundColor:[UIColor clearColor]];
-
+        
         _HUDContainer = [[UIView alloc] init];
         _HUDContainer.frame = CGRectMake((self.view.tz_width - 120) / 2, (self.view.tz_height - 90) / 2, 120, 90);
         _HUDContainer.layer.cornerRadius = 8;
@@ -198,8 +203,9 @@
     [[UIApplication sharedApplication].keyWindow addSubview:_progressHUD];
     
     // if over time, dismiss HUD automatic
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.timeout * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self hideProgressHUD];
+        [weakSelf hideProgressHUD];
     });
 }
 
@@ -269,29 +275,17 @@
         [backButton setTitle:@"返回" forState:UIControlStateNormal];
         backButton.titleLabel.font = [UIFont systemFontOfSize:15];
         [backButton addTarget:self action:@selector(popViewControllerAnimated:) forControlEvents:UIControlEventTouchUpInside];
-        UIBarButtonItem* backButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
-        backButtonItem.style = UIBarButtonItemStyleBordered;
-        self.topViewController.navigationItem.backBarButtonItem = backButtonItem;
-        
-        /**
-         另外一种只有箭头的返回键
-         
-         UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStyleBordered target:nil action:nil];
-         self.topViewController.navigationItem.backBarButtonItem = backItem;
-         
-        */
+        viewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:backButton];
     }
-    
     [super pushViewController:viewController animated:animated];
 }
 
 @end
 
 
-@interface TZAlbumPickerController ()<UITableViewDataSource,UITableViewDelegate> {
-    UITableView *_tableView;
-}
+@interface TZAlbumPickerController ()<UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic, strong) NSMutableArray *albumArr;
+@property (nonatomic, strong) UITableView *tableView;
 @end
 
 @implementation TZAlbumPickerController
@@ -320,23 +314,25 @@
 
 - (void)configTableView {
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    __weak typeof(self) weakSelf = self;
     [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo allowPickingImage:imagePickerVc.allowPickingImage completion:^(NSArray<TZAlbumModel *> *models) {
-        _albumArr = [NSMutableArray arrayWithArray:models];
-        for (TZAlbumModel *albumModel in _albumArr) {
+        
+        weakSelf.albumArr = [NSMutableArray arrayWithArray:models];
+        for (TZAlbumModel *albumModel in weakSelf.albumArr) {
             albumModel.selectedModels = imagePickerVc.selectedModels;
         }
-        if (!_tableView) {
+        if (!weakSelf.tableView) {
             CGFloat top = 44;
             if (iOS7Later) top += 20;
-            _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, self.view.tz_height - top) style:UITableViewStylePlain];
-            _tableView.rowHeight = 70;
-            _tableView.tableFooterView = [[UIView alloc] init];
-            _tableView.dataSource = self;
-            _tableView.delegate = self;
-            [_tableView registerClass:[TZAlbumCell class] forCellReuseIdentifier:@"TZAlbumCell"];
-            [self.view addSubview:_tableView];
+            weakSelf.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, weakSelf.view.tz_width, weakSelf.view.tz_height - top) style:UITableViewStylePlain];
+            weakSelf.tableView.rowHeight = 70;
+            weakSelf.tableView.tableFooterView = [[UIView alloc] init];
+            weakSelf.tableView.dataSource = weakSelf;
+            weakSelf.tableView.delegate = weakSelf;
+            [weakSelf.tableView registerClass:[TZAlbumCell class] forCellReuseIdentifier:@"TZAlbumCell"];
+            [weakSelf.view addSubview:_tableView];
         } else {
-            [_tableView reloadData];
+            [weakSelf.tableView reloadData];
         }
     }];
 }
