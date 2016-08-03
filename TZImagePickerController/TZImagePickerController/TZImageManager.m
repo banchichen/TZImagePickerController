@@ -72,7 +72,7 @@ static CGFloat TZScreenScale;
         
         PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
         for (PHAssetCollection *collection in smartAlbums) {
-            if ([collection.localizedTitle isEqualToString:@"Camera Roll"] || [collection.localizedTitle isEqualToString:@"相机胶卷"] ||  [collection.localizedTitle isEqualToString:@"所有照片"] || [collection.localizedTitle isEqualToString:@"All Photos"]) {
+            if ([self isCameraRollCollection:collection.localizedTitle]) {
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 model = [self modelWithResult:fetchResult name:collection.localizedTitle];
                 if (completion) completion(model);
@@ -83,7 +83,7 @@ static CGFloat TZScreenScale;
         [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
             if ([group numberOfAssets] < 1) return;
             NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-            if ([name isEqualToString:@"Camera Roll"] || [name isEqualToString:@"相机胶卷"] || [name isEqualToString:@"所有照片"] || [name isEqualToString:@"All Photos"]) {
+            if ([self isCameraRollCollection:name]) {
                 model = [self modelWithResult:group name:name];
                 if (completion) completion(model);
                 *stop = YES;
@@ -113,7 +113,7 @@ static CGFloat TZScreenScale;
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
             if (fetchResult.count < 1) continue;
             if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
-            if ([collection.localizedTitle isEqualToString:@"Camera Roll"] || [collection.localizedTitle isEqualToString:@"相机胶卷"] || [collection.localizedTitle isEqualToString:@"所有照片"] || [collection.localizedTitle isEqualToString:@"All Photos"]) {
+            if ([self isCameraRollCollection:collection.localizedTitle]) {
                 [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
             } else {
                 [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
@@ -124,7 +124,7 @@ static CGFloat TZScreenScale;
         for (PHAssetCollection *collection in albums) {
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
             if (fetchResult.count < 1) continue;
-            if ([collection.localizedTitle isEqualToString:@"My Photo Stream"] || [collection.localizedTitle isEqualToString:@"我的照片流"]) {
+            if ([self isMyPhotoSteam:collection.localizedTitle]) {
                 if (albumArr.count) {
                     [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:1];
                 } else {
@@ -142,9 +142,9 @@ static CGFloat TZScreenScale;
             }
             if ([group numberOfAssets] < 1) return;
             NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-            if ([name isEqualToString:@"Camera Roll"] || [name isEqualToString:@"相机胶卷"] || [name isEqualToString:@"所有照片"] || [name isEqualToString:@"All Photos"]) {
+            if ([self isCameraRollCollection:name]) {
                 [albumArr insertObject:[self modelWithResult:group name:name] atIndex:0];
-            } else if ([name isEqualToString:@"My Photo Stream"] || [name isEqualToString:@"我的照片流"]) {
+            } else if ([self isMyPhotoSteam:name]) {
                 if (albumArr.count) {
                     [albumArr insertObject:[self modelWithResult:group name:name] atIndex:1];
                 } else {
@@ -747,6 +747,14 @@ static CGFloat TZScreenScale;
     CGContextRelease(ctx);
     CGImageRelease(cgimg);
     return img;
+}
+
+- (BOOL)isCameraRollCollection:(NSString *)collectionTitle {
+    return [collectionTitle isEqualToString:@"Camera Roll"] || [collectionTitle isEqualToString:@"相机胶卷"] || [collectionTitle isEqualToString:@"所有照片"] || [collectionTitle isEqualToString:@"All Photos"];
+}
+
+- (BOOL)isMyPhotoSteam:(NSString *)collectionTitle {
+    return [collectionTitle isEqualToString:@"My Photo Stream"] || [collectionTitle isEqualToString:@"我的照片流"];
 }
 
 @end
