@@ -169,31 +169,15 @@ static CGFloat TZScreenScale;
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         [fetchResult enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             PHAsset *asset = (PHAsset *)obj;
-            TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
-            if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
-            else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
-            else if (asset.mediaType == PHAssetMediaTypeImage) {
-                if (iOS9_1Later) {
-                    // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
-                }
+            TZAssetModel *model = [self assetModelFromPHAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+            if(model) {
+                [photoArr addObject:model];
             }
-            if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return;
-            if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return;
-            
-            NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
-            timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-            [photoArr addObject:[TZAssetModel modelWithAsset:asset type:type timeLength:timeLength]];
         }];
         if (completion) completion(photoArr);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *group = (ALAssetsGroup *)result;
-        if (allowPickingImage && allowPickingVideo) {
-            [group setAssetsFilter:[ALAssetsFilter allAssets]];
-        } else if (allowPickingVideo) {
-            [group setAssetsFilter:[ALAssetsFilter allVideos]];
-        } else if (allowPickingImage) {
-            [group setAssetsFilter:[ALAssetsFilter allPhotos]];
-        }
+        [self setFilterForAssetsGroup:group allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
         ALAssetsGroupEnumerationResultsBlock resultBlock = ^(ALAsset *result, NSUInteger index, BOOL *stop)  {
             if (result == nil) {
                 if (completion) completion(photoArr);
@@ -205,11 +189,7 @@ static CGFloat TZScreenScale;
             }
             /// Allow picking video
             if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
-                type = TZAssetModelMediaTypeVideo;
-                NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
-                NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
-                timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-                [photoArr addObject:[TZAssetModel modelWithAsset:result type:type timeLength:timeLength]];
+                [photoArr addObject:[self videoAssetModelWithDuration:result]];
             } else {
                 [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
             }
@@ -240,27 +220,11 @@ static CGFloat TZScreenScale;
             return;
         }
         
-        TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
-        if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
-        else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
-        else if (asset.mediaType == PHAssetMediaTypeImage) {
-            if (iOS9_1Later) {
-                // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
-            }
-        }
-        NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
-        timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-        TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+        TZAssetModel *model = [self assetModelFromPHAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
         if (completion) completion(model);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *group = (ALAssetsGroup *)result;
-        if (allowPickingImage && allowPickingVideo) {
-            [group setAssetsFilter:[ALAssetsFilter allAssets]];
-        } else if (allowPickingVideo) {
-            [group setAssetsFilter:[ALAssetsFilter allVideos]];
-        } else if (allowPickingImage) {
-            [group setAssetsFilter:[ALAssetsFilter allPhotos]];
-        }
+        [self setFilterForAssetsGroup:group allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
         NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:index];
         
         @try {
@@ -277,11 +241,7 @@ static CGFloat TZScreenScale;
                 }
                 /// Allow picking video
                 if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
-                    type = TZAssetModelMediaTypeVideo;
-                    NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
-                    NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
-                    timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-                    model = [TZAssetModel modelWithAsset:result type:type timeLength:timeLength];
+                    model = [self videoAssetModelWithDuration:result];
                 } else {
                     model = [TZAssetModel modelWithAsset:result type:type];
                 }
@@ -758,6 +718,41 @@ static CGFloat TZScreenScale;
 
 - (BOOL)isMyPhotoSteam:(NSString *)collectionTitle {
     return [collectionTitle isEqualToString:@"My Photo Stream"] || [collectionTitle isEqualToString:@"我的照片流"];
+}
+
+- (TZAssetModel *)assetModelFromPHAsset:(PHAsset *)asset allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+    TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
+    if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
+    else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
+    else if (asset.mediaType == PHAssetMediaTypeImage) {
+        if (iOS9_1Later) {
+            // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
+        }
+    }
+    if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return nil;
+    if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return nil;
+    
+    NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
+    timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
+    return [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+}
+
+- (void)setFilterForAssetsGroup:(ALAssetsGroup *)group allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+    if (allowPickingImage && allowPickingVideo) {
+        [group setAssetsFilter:[ALAssetsFilter allAssets]];
+    } else if (allowPickingVideo) {
+        [group setAssetsFilter:[ALAssetsFilter allVideos]];
+    } else if (allowPickingImage) {
+        [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+    }
+}
+
+- (TZAssetModel *)videoAssetModelWithDuration:(ALAsset *)asset {
+    TZAssetModelMediaType type = TZAssetModelMediaTypeVideo;
+    NSTimeInterval duration = [[asset valueForProperty:ALAssetPropertyDuration] integerValue];
+    NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
+    timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
+    return [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
 }
 
 @end
