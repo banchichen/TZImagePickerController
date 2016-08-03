@@ -61,39 +61,17 @@ static CGFloat TZScreenScale;
 
 /// Get Album 获得相册/相册数组
 - (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAlbumModel *))completion{
-    __block TZAlbumModel *model;
-    if (iOS8Later) {
-        PHFetchOptions *option = [[PHFetchOptions alloc] init];
-        if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
-        if (!allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
-                                                    PHAssetMediaTypeVideo];
-        // option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
-        option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
-        
-        PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
-        for (PHAssetCollection *collection in smartAlbums) {
-            if ([self isCameraRollCollection:collection.localizedTitle]) {
-                PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-                model = [self modelWithResult:fetchResult name:collection.localizedTitle];
-                if (completion) completion(model);
-                break;
-            }
-        }
-    } else {
-        [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-            if ([group numberOfAssets] < 1) return;
-            NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-            if ([self isCameraRollCollection:name]) {
-                model = [self modelWithResult:group name:name];
-                if (completion) completion(model);
-                *stop = YES;
-            }
-        } failureBlock:nil];
-    }
+    NSArray<TZAlbumModel *> *albumArr = [self getAlbumWithOption:YES allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+    if (completion && albumArr.count > 0) completion(albumArr[0]);
 }
 
 - (void)getAllAlbums:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAlbumModel *> *))completion{
-    NSMutableArray *albumArr = [NSMutableArray array];
+    NSArray<TZAlbumModel *> *albumArr = [self getAlbumWithOption:NO allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+    if (completion && albumArr.count > 0) completion(albumArr);
+}
+
+- (NSArray<TZAlbumModel *> *)getAlbumWithOption:(BOOL)isCameraRollOnly allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+    NSMutableArray<TZAlbumModel *> *albumArr = [NSMutableArray array];
     if (iOS8Later) {
         PHFetchOptions *option = [[PHFetchOptions alloc] init];
         if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
@@ -108,53 +86,78 @@ static CGFloat TZScreenScale;
         if (iOS9Later) {
             smartAlbumSubtype = PHAssetCollectionSubtypeSmartAlbumUserLibrary | PHAssetCollectionSubtypeSmartAlbumRecentlyAdded | PHAssetCollectionSubtypeSmartAlbumScreenshots | PHAssetCollectionSubtypeSmartAlbumSelfPortraits | PHAssetCollectionSubtypeSmartAlbumVideos;
         }
-        PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:smartAlbumSubtype options:nil];
-        for (PHAssetCollection *collection in smartAlbums) {
-            PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            if (fetchResult.count < 1) continue;
-            if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
-            if ([self isCameraRollCollection:collection.localizedTitle]) {
-                [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
-            } else {
-                [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
-            }
+        PHFetchResult *smartAlbums = nil;
+        if (isCameraRollOnly) {
+            smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
+        } else {
+            smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:smartAlbumSubtype options:nil];
         }
         
-        PHFetchResult *albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular | PHAssetCollectionSubtypeAlbumSyncedAlbum options:nil];
-        for (PHAssetCollection *collection in albums) {
-            PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            if (fetchResult.count < 1) continue;
-            if ([self isMyPhotoSteam:collection.localizedTitle]) {
-                if (albumArr.count) {
-                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:1];
+        for (PHAssetCollection *collection in smartAlbums) {
+            if (isCameraRollOnly) {
+                if ([self isCameraRollCollection:collection.localizedTitle]) {
+                    PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
+                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+                    break;
+                }
+            } else {
+                PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
+                if (fetchResult.count < 1) continue;
+                if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
+                if ([self isCameraRollCollection:collection.localizedTitle]) {
+                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
                 } else {
                     [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
                 }
-            } else {
-                [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
             }
         }
-        if (completion && albumArr.count > 0) completion(albumArr);
+        
+        if (!isCameraRollOnly) {
+            PHFetchResult *albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular | PHAssetCollectionSubtypeAlbumSyncedAlbum options:nil];
+            for (PHAssetCollection *collection in albums) {
+                PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
+                if (fetchResult.count < 1) continue;
+                if ([self isMyPhotoSteam:collection.localizedTitle]) {
+                    if (albumArr.count) {
+                        [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:1];
+                    } else {
+                        [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+                    }
+                } else {
+                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+                }
+            }
+        }
     } else {
         [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
             if (group == nil) {
-                if (completion && albumArr.count > 0) completion(albumArr);
+                *stop = YES;
+                return;
             }
+            
             if ([group numberOfAssets] < 1) return;
             NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-            if ([self isCameraRollCollection:name]) {
-                [albumArr insertObject:[self modelWithResult:group name:name] atIndex:0];
-            } else if ([self isMyPhotoSteam:name]) {
-                if (albumArr.count) {
-                    [albumArr insertObject:[self modelWithResult:group name:name] atIndex:1];
+            if (isCameraRollOnly) {
+                if ([self isCameraRollCollection:name]) {
+                    [albumArr addObject:[self modelWithResult:group name:name]];
+                    *stop = YES;
+                }
+            } else {
+                if ([self isCameraRollCollection:name]) {
+                    [albumArr insertObject:[self modelWithResult:group name:name] atIndex:0];
+                } else if ([self isMyPhotoSteam:name]) {
+                    if (albumArr.count) {
+                        [albumArr insertObject:[self modelWithResult:group name:name] atIndex:1];
+                    } else {
+                        [albumArr addObject:[self modelWithResult:group name:name]];
+                    }
                 } else {
                     [albumArr addObject:[self modelWithResult:group name:name]];
                 }
-            } else {
-                [albumArr addObject:[self modelWithResult:group name:name]];
             }
         } failureBlock:nil];
     }
+    return albumArr;
 }
 
 #pragma mark - Get Assets
