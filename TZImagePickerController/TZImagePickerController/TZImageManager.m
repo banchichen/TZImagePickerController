@@ -61,39 +61,17 @@ static CGFloat TZScreenScale;
 
 /// Get Album 获得相册/相册数组
 - (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAlbumModel *))completion{
-    __block TZAlbumModel *model;
-    if (iOS8Later) {
-        PHFetchOptions *option = [[PHFetchOptions alloc] init];
-        if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
-        if (!allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
-                                                    PHAssetMediaTypeVideo];
-        // option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
-        option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
-        
-        PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
-        for (PHAssetCollection *collection in smartAlbums) {
-            if ([collection.localizedTitle isEqualToString:@"Camera Roll"] || [collection.localizedTitle isEqualToString:@"相机胶卷"] ||  [collection.localizedTitle isEqualToString:@"所有照片"] || [collection.localizedTitle isEqualToString:@"All Photos"]) {
-                PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-                model = [self modelWithResult:fetchResult name:collection.localizedTitle];
-                if (completion) completion(model);
-                break;
-            }
-        }
-    } else {
-        [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
-            if ([group numberOfAssets] < 1) return;
-            NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-            if ([name isEqualToString:@"Camera Roll"] || [name isEqualToString:@"相机胶卷"] || [name isEqualToString:@"所有照片"] || [name isEqualToString:@"All Photos"]) {
-                model = [self modelWithResult:group name:name];
-                if (completion) completion(model);
-                *stop = YES;
-            }
-        } failureBlock:nil];
-    }
+    NSArray<TZAlbumModel *> *albumArr = [self getAlbumWithOption:YES allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+    if (completion && albumArr.count > 0) completion(albumArr[0]);
 }
 
 - (void)getAllAlbums:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAlbumModel *> *))completion{
-    NSMutableArray *albumArr = [NSMutableArray array];
+    NSArray<TZAlbumModel *> *albumArr = [self getAlbumWithOption:NO allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+    if (completion && albumArr.count > 0) completion(albumArr);
+}
+
+- (NSArray<TZAlbumModel *> *)getAlbumWithOption:(BOOL)isCameraRollOnly allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+    NSMutableArray<TZAlbumModel *> *albumArr = [NSMutableArray array];
     if (iOS8Later) {
         PHFetchOptions *option = [[PHFetchOptions alloc] init];
         if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
@@ -108,53 +86,78 @@ static CGFloat TZScreenScale;
         if (iOS9Later) {
             smartAlbumSubtype = PHAssetCollectionSubtypeSmartAlbumUserLibrary | PHAssetCollectionSubtypeSmartAlbumRecentlyAdded | PHAssetCollectionSubtypeSmartAlbumScreenshots | PHAssetCollectionSubtypeSmartAlbumSelfPortraits | PHAssetCollectionSubtypeSmartAlbumVideos;
         }
-        PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:smartAlbumSubtype options:nil];
-        for (PHAssetCollection *collection in smartAlbums) {
-            PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            if (fetchResult.count < 1) continue;
-            if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
-            if ([collection.localizedTitle isEqualToString:@"Camera Roll"] || [collection.localizedTitle isEqualToString:@"相机胶卷"] || [collection.localizedTitle isEqualToString:@"所有照片"] || [collection.localizedTitle isEqualToString:@"All Photos"]) {
-                [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
-            } else {
-                [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
-            }
+        PHFetchResult *smartAlbums = nil;
+        if (isCameraRollOnly) {
+            smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
+        } else {
+            smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:smartAlbumSubtype options:nil];
         }
         
-        PHFetchResult *albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular | PHAssetCollectionSubtypeAlbumSyncedAlbum options:nil];
-        for (PHAssetCollection *collection in albums) {
-            PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            if (fetchResult.count < 1) continue;
-            if ([collection.localizedTitle isEqualToString:@"My Photo Stream"] || [collection.localizedTitle isEqualToString:@"我的照片流"]) {
-                if (albumArr.count) {
-                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:1];
+        for (PHAssetCollection *collection in smartAlbums) {
+            if (isCameraRollOnly) {
+                if ([self isCameraRollCollection:collection.localizedTitle]) {
+                    PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
+                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+                    break;
+                }
+            } else {
+                PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
+                if (fetchResult.count < 1) continue;
+                if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
+                if ([self isCameraRollCollection:collection.localizedTitle]) {
+                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
                 } else {
                     [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
                 }
-            } else {
-                [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
             }
         }
-        if (completion && albumArr.count > 0) completion(albumArr);
+        
+        if (!isCameraRollOnly) {
+            PHFetchResult *albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular | PHAssetCollectionSubtypeAlbumSyncedAlbum options:nil];
+            for (PHAssetCollection *collection in albums) {
+                PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
+                if (fetchResult.count < 1) continue;
+                if ([self isMyPhotoSteam:collection.localizedTitle]) {
+                    if (albumArr.count) {
+                        [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:1];
+                    } else {
+                        [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+                    }
+                } else {
+                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+                }
+            }
+        }
     } else {
         [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
             if (group == nil) {
-                if (completion && albumArr.count > 0) completion(albumArr);
+                *stop = YES;
+                return;
             }
+            
             if ([group numberOfAssets] < 1) return;
             NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-            if ([name isEqualToString:@"Camera Roll"] || [name isEqualToString:@"相机胶卷"] || [name isEqualToString:@"所有照片"] || [name isEqualToString:@"All Photos"]) {
-                [albumArr insertObject:[self modelWithResult:group name:name] atIndex:0];
-            } else if ([name isEqualToString:@"My Photo Stream"] || [name isEqualToString:@"我的照片流"]) {
-                if (albumArr.count) {
-                    [albumArr insertObject:[self modelWithResult:group name:name] atIndex:1];
+            if (isCameraRollOnly) {
+                if ([self isCameraRollCollection:name]) {
+                    [albumArr addObject:[self modelWithResult:group name:name]];
+                    *stop = YES;
+                }
+            } else {
+                if ([self isCameraRollCollection:name]) {
+                    [albumArr insertObject:[self modelWithResult:group name:name] atIndex:0];
+                } else if ([self isMyPhotoSteam:name]) {
+                    if (albumArr.count) {
+                        [albumArr insertObject:[self modelWithResult:group name:name] atIndex:1];
+                    } else {
+                        [albumArr addObject:[self modelWithResult:group name:name]];
+                    }
                 } else {
                     [albumArr addObject:[self modelWithResult:group name:name]];
                 }
-            } else {
-                [albumArr addObject:[self modelWithResult:group name:name]];
             }
         } failureBlock:nil];
     }
+    return albumArr;
 }
 
 #pragma mark - Get Assets
@@ -166,31 +169,15 @@ static CGFloat TZScreenScale;
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         [fetchResult enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             PHAsset *asset = (PHAsset *)obj;
-            TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
-            if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
-            else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
-            else if (asset.mediaType == PHAssetMediaTypeImage) {
-                if (iOS9_1Later) {
-                    // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
-                }
+            TZAssetModel *model = [self assetModelFromPHAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+            if(model) {
+                [photoArr addObject:model];
             }
-            if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return;
-            if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return;
-            
-            NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
-            timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-            [photoArr addObject:[TZAssetModel modelWithAsset:asset type:type timeLength:timeLength]];
         }];
         if (completion) completion(photoArr);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *group = (ALAssetsGroup *)result;
-        if (allowPickingImage && allowPickingVideo) {
-            [group setAssetsFilter:[ALAssetsFilter allAssets]];
-        } else if (allowPickingVideo) {
-            [group setAssetsFilter:[ALAssetsFilter allVideos]];
-        } else if (allowPickingImage) {
-            [group setAssetsFilter:[ALAssetsFilter allPhotos]];
-        }
+        [self setFilterForAssetsGroup:group allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
         ALAssetsGroupEnumerationResultsBlock resultBlock = ^(ALAsset *result, NSUInteger index, BOOL *stop)  {
             if (result == nil) {
                 if (completion) completion(photoArr);
@@ -202,11 +189,7 @@ static CGFloat TZScreenScale;
             }
             /// Allow picking video
             if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
-                type = TZAssetModelMediaTypeVideo;
-                NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
-                NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
-                timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-                [photoArr addObject:[TZAssetModel modelWithAsset:result type:type timeLength:timeLength]];
+                [photoArr addObject:[self videoAssetModelWithDuration:result]];
             } else {
                 [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
             }
@@ -237,27 +220,11 @@ static CGFloat TZScreenScale;
             return;
         }
         
-        TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
-        if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
-        else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
-        else if (asset.mediaType == PHAssetMediaTypeImage) {
-            if (iOS9_1Later) {
-                // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
-            }
-        }
-        NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
-        timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-        TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+        TZAssetModel *model = [self assetModelFromPHAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
         if (completion) completion(model);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *group = (ALAssetsGroup *)result;
-        if (allowPickingImage && allowPickingVideo) {
-            [group setAssetsFilter:[ALAssetsFilter allAssets]];
-        } else if (allowPickingVideo) {
-            [group setAssetsFilter:[ALAssetsFilter allVideos]];
-        } else if (allowPickingImage) {
-            [group setAssetsFilter:[ALAssetsFilter allPhotos]];
-        }
+        [self setFilterForAssetsGroup:group allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
         NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:index];
         
         @try {
@@ -274,11 +241,7 @@ static CGFloat TZScreenScale;
                 }
                 /// Allow picking video
                 if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
-                    type = TZAssetModelMediaTypeVideo;
-                    NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
-                    NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
-                    timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-                    model = [TZAssetModel modelWithAsset:result type:type timeLength:timeLength];
+                    model = [self videoAssetModelWithDuration:result];
                 } else {
                     model = [TZAssetModel modelWithAsset:result type:type];
                 }
@@ -747,6 +710,49 @@ static CGFloat TZScreenScale;
     CGContextRelease(ctx);
     CGImageRelease(cgimg);
     return img;
+}
+
+- (BOOL)isCameraRollCollection:(NSString *)collectionTitle {
+    return [collectionTitle isEqualToString:@"Camera Roll"] || [collectionTitle isEqualToString:@"相机胶卷"] || [collectionTitle isEqualToString:@"所有照片"] || [collectionTitle isEqualToString:@"All Photos"];
+}
+
+- (BOOL)isMyPhotoSteam:(NSString *)collectionTitle {
+    return [collectionTitle isEqualToString:@"My Photo Stream"] || [collectionTitle isEqualToString:@"我的照片流"];
+}
+
+- (TZAssetModel *)assetModelFromPHAsset:(PHAsset *)asset allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+    TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
+    if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
+    else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
+    else if (asset.mediaType == PHAssetMediaTypeImage) {
+        if (iOS9_1Later) {
+            // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
+        }
+    }
+    if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return nil;
+    if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return nil;
+    
+    NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
+    timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
+    return [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+}
+
+- (void)setFilterForAssetsGroup:(ALAssetsGroup *)group allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+    if (allowPickingImage && allowPickingVideo) {
+        [group setAssetsFilter:[ALAssetsFilter allAssets]];
+    } else if (allowPickingVideo) {
+        [group setAssetsFilter:[ALAssetsFilter allVideos]];
+    } else if (allowPickingImage) {
+        [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+    }
+}
+
+- (TZAssetModel *)videoAssetModelWithDuration:(ALAsset *)asset {
+    TZAssetModelMediaType type = TZAssetModelMediaTypeVideo;
+    NSTimeInterval duration = [[asset valueForProperty:ALAssetPropertyDuration] integerValue];
+    NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
+    timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
+    return [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
 }
 
 @end
