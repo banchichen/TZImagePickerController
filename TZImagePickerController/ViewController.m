@@ -41,7 +41,7 @@
 - (UIImagePickerController *)imagePickerVc {
     if (_imagePickerVc == nil) {
         _imagePickerVc = [[UIImagePickerController alloc] init];
-        _imagePickerVc.delegate = self;
+        _imagePickerVc.delegate = self; // *** 这句代码多余的？？？？***
         // set appearance / 改变相册选择页的导航栏外观
         _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
         _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
@@ -50,8 +50,11 @@
             tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
             BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
         } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
             tzBarItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
             BarItem = [UIBarButtonItem appearanceWhenContainedIn:[UIImagePickerController class], nil];
+#pragma clang diagnostic pop
         }
         NSDictionary *titleTextAttributes = [tzBarItem titleTextAttributesForState:UIControlStateNormal];
         [BarItem setTitleTextAttributes:titleTextAttributes forState:UIControlStateNormal];
@@ -111,7 +114,10 @@
     if (indexPath.row == _selectedPhotos.count) {
         BOOL showSheet = self.showSheetSwitch.isOn;
         if (showSheet) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
             UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"拍照",@"去相册选择", nil];
+#pragma clang diagnostic pop
             [sheet showInView:self.view];
         } else {
             [self pushImagePickerController];
@@ -122,9 +128,12 @@
         if ([asset isKindOfClass:[PHAsset class]]) {
             PHAsset *phAsset = asset;
             isVideo = phAsset.mediaType == PHAssetMediaTypeVideo;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         } else if ([asset isKindOfClass:[ALAsset class]]) {
             ALAsset *alAsset = asset;
             isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+#pragma clang diagnostic pop
         }
         if (isVideo) { // perview video / 预览视频
             TZVideoPlayerController *vc = [[TZVideoPlayerController alloc] init];
@@ -201,8 +210,11 @@
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     if ((authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied) && iOS8Later) {
         // 无权限 做一个友好的提示
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
         [alert show];
+#define push @#clang diagnostic pop
     } else { // 调用相机
         UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
         if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
@@ -249,7 +261,10 @@
 
 #pragma mark - UIActionSheetDelegate
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+#pragma clang diagnostic pop
     if (buttonIndex == 0) { // take photo / 去拍照
         [self takePhoto];
     } else if (buttonIndex == 1) {
@@ -259,7 +274,10 @@
 
 #pragma mark - UIAlertViewDelegate
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
+#pragma clang diagnostic pop
     if (buttonIndex == 1) { // 去设置界面，开启相机访问权限
         if (iOS8Later) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
