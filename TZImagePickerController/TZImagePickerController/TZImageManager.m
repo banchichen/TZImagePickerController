@@ -411,7 +411,7 @@ static CGFloat TZScreenScale;
             PHAsset *phAsset = (PHAsset *)asset;
             CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
             CGFloat pixelWidth = photoWidth * TZScreenScale;
-            CGFloat pixelHeight = photoWidth / aspectRatio;
+            CGFloat pixelHeight = pixelWidth / aspectRatio;
             imageSize = CGSizeMake(pixelWidth, pixelHeight);
         }
         // 修复获取图片时出现的瞬间内存过高问题
