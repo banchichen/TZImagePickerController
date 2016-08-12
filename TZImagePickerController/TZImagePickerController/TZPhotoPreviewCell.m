@@ -26,7 +26,7 @@
     if (self) {
         self.backgroundColor = [UIColor blackColor];
         _scrollView = [[UIScrollView alloc] init];
-        _scrollView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
+        _scrollView.frame = CGRectMake(10, 0, self.tz_width - 20, self.tz_height);
         _scrollView.bouncesZoom = YES;
         _scrollView.maximumZoomScale = 2.5;
         _scrollView.minimumZoomScale = 1.0;
@@ -76,13 +76,13 @@
 
 - (void)resizeSubviews {
     _imageContainerView.tz_origin = CGPointZero;
-    _imageContainerView.tz_width = self.tz_width;
+    _imageContainerView.tz_width = self.scrollView.tz_width;
     
     UIImage *image = _imageView.image;
-    if (image.size.height / image.size.width > self.tz_height / self.tz_width) {
-        _imageContainerView.tz_height = floor(image.size.height / (image.size.width / self.tz_width));
+    if (image.size.height / image.size.width > self.tz_height / self.scrollView.tz_width) {
+        _imageContainerView.tz_height = floor(image.size.height / (image.size.width / self.scrollView.tz_width));
     } else {
-        CGFloat height = image.size.height / image.size.width * self.tz_width;
+        CGFloat height = image.size.height / image.size.width * self.scrollView.tz_width;
         if (height < 1 || isnan(height)) height = self.tz_height;
         height = floor(height);
         _imageContainerView.tz_height = height;
@@ -91,7 +91,7 @@
     if (_imageContainerView.tz_height > self.tz_height && _imageContainerView.tz_height - self.tz_height <= 1) {
         _imageContainerView.tz_height = self.tz_height;
     }
-    _scrollView.contentSize = CGSizeMake(self.tz_width, MAX(_imageContainerView.tz_height, self.tz_height));
+    _scrollView.contentSize = CGSizeMake(self.scrollView.tz_width, MAX(_imageContainerView.tz_height, self.tz_height));
     [_scrollView scrollRectToVisible:self.bounds animated:NO];
     _scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
     _imageView.frame = _imageContainerView.bounds;

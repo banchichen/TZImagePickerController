@@ -78,8 +78,7 @@ static CGFloat TZScreenScale;
                                                     PHAssetMediaTypeVideo];
         // option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
-        
-        PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
+        PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
         for (PHAssetCollection *collection in smartAlbums) {
             if ([collection.localizedTitle isEqualToString:@"Camera Roll"] || [collection.localizedTitle isEqualToString:@"相机胶卷"] ||  [collection.localizedTitle isEqualToString:@"所有照片"] || [collection.localizedTitle isEqualToString:@"All Photos"]) {
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
@@ -89,7 +88,6 @@ static CGFloat TZScreenScale;
             }
         }
     } else {
-
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
@@ -112,16 +110,11 @@ static CGFloat TZScreenScale;
         if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
         if (!allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
                                                     PHAssetMediaTypeVideo];
-        
         // option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
+        PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
+        PHFetchResult *topLevelUserCollections = [PHCollectionList fetchTopLevelUserCollectionsWithOptions:nil];
         
-        PHAssetCollectionSubtype smartAlbumSubtype = PHAssetCollectionSubtypeSmartAlbumUserLibrary | PHAssetCollectionSubtypeSmartAlbumRecentlyAdded | PHAssetCollectionSubtypeSmartAlbumVideos;
-        // For iOS 9, We need to show ScreenShots Album && SelfPortraits Album
-        if (iOS9Later) {
-            smartAlbumSubtype = PHAssetCollectionSubtypeSmartAlbumUserLibrary | PHAssetCollectionSubtypeSmartAlbumRecentlyAdded | PHAssetCollectionSubtypeSmartAlbumScreenshots | PHAssetCollectionSubtypeSmartAlbumSelfPortraits | PHAssetCollectionSubtypeSmartAlbumVideos;
-        }
-        PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:smartAlbumSubtype options:nil];
         for (PHAssetCollection *collection in smartAlbums) {
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
             if (fetchResult.count < 1) continue;
@@ -132,20 +125,10 @@ static CGFloat TZScreenScale;
                 [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
             }
         }
-        
-        PHFetchResult *albums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumRegular | PHAssetCollectionSubtypeAlbumSyncedAlbum options:nil];
-        for (PHAssetCollection *collection in albums) {
+        for (PHAssetCollection *collection in topLevelUserCollections) {
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
             if (fetchResult.count < 1) continue;
-            if ([collection.localizedTitle isEqualToString:@"My Photo Stream"] || [collection.localizedTitle isEqualToString:@"我的照片流"]) {
-                if (albumArr.count) {
-                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:1];
-                } else {
-                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
-                }
-            } else {
-                [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
-            }
+            [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
         }
         if (completion && albumArr.count > 0) completion(albumArr);
     } else {
