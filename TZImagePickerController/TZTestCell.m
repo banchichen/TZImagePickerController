@@ -52,9 +52,12 @@
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHAsset *phAsset = asset;
         _videoImageView.hidden = phAsset.mediaType != PHAssetMediaTypeVideo;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     } else if ([asset isKindOfClass:[ALAsset class]]) {
         ALAsset *alAsset = asset;
         _videoImageView.hidden = ![[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+#pragma clang diagnostic pop
     }
  }
 
