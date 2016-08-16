@@ -58,8 +58,8 @@
 #pragma clang diagnostic pop
     }
     NSMutableDictionary *textAttrs = [NSMutableDictionary dictionary];
-    textAttrs[NSForegroundColorAttributeName] = [UIColor whiteColor];
-    textAttrs[NSFontAttributeName] = [UIFont systemFontOfSize:15];
+    textAttrs[NSForegroundColorAttributeName] = self.barItemTextColor;
+    textAttrs[NSFontAttributeName] = self.barItemTextFont;
     [barItem setTitleTextAttributes:textAttrs forState:UIControlStateNormal];
 }
 
@@ -96,6 +96,10 @@
         self.photoWidth = 828.0;
         self.photoPreviewMaxWidth = 600;
         self.sortAscendingByModificationDate = YES;
+        self.autoDismiss = YES;
+        self.barItemTextFont = [UIFont systemFontOfSize:15];
+        self.barItemTextColor = [UIColor whiteColor];
+        [self configDefaultImageName];
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
@@ -128,6 +132,9 @@
         self.photoWidth = 828.0;
         self.maxImagesCount = selectedAssets.count;
         self.photoPreviewMaxWidth = 600;
+        self.barItemTextFont = [UIFont systemFontOfSize:15];
+        self.barItemTextColor = [UIColor whiteColor];
+        [self configDefaultImageName];
         
         previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
         previewVc.currentIndex = index;
@@ -140,6 +147,16 @@
         }];
     }
     return self;
+}
+
+- (void)configDefaultImageName {
+    self.takePictureImageName = @"takePicture.png";
+    self.photoSelImageName = @"photo_sel_photoPickerVc.png";
+    self.photoDefImageName = @"photo_def_photoPickerVc.png";
+    self.photoNumberIconImageName = @"photo_number_icon.png";
+    self.photoPreviewOriginDefImageName = @"preview_original_def.png";
+    self.photoOriginDefImageName = @"photo_original_def.png";
+    self.photoOriginSelImageName = @"photo_original_sel.png";
 }
 
 - (void)observeAuthrizationStatusChange {
@@ -288,13 +305,10 @@
         
         /**
          另外一种只有箭头的返回键
-         
          UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:@"" style:UIBarButtonItemStyleBordered target:nil action:nil];
          self.topViewController.navigationItem.backBarButtonItem = backItem;
-         
         */
     }
-    
     [super pushViewController:viewController animated:animated];
 }
 
@@ -357,8 +371,10 @@
 #pragma mark - Click Event
 
 - (void)cancel {
-    [self.navigationController dismissViewControllerAnimated:YES completion:nil];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (imagePickerVc.autoDismiss) {
+        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+    }
     if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
         [imagePickerVc.pickerDelegate imagePickerControllerDidCancel:imagePickerVc];
     }
@@ -405,6 +421,9 @@
         return image;
     } else {
         image = [UIImage imageNamed:[@"Frameworks/TZImagePickerController.framework/TZImagePickerController.bundle" stringByAppendingPathComponent:name]];
+        if (!image) {
+            image = [UIImage imageNamed:name];
+        }
         return image;
     }
 }

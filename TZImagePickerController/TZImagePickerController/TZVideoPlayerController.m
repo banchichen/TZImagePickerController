@@ -118,7 +118,9 @@
         imagePickerVc.didFinishPickingVideoHandle(_cover,_model.asset);
     }
     if (self.navigationController) {
-        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+        if (imagePickerVc.autoDismiss) {
+            [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+        }
     } else {
         [self dismissViewControllerAnimated:YES completion:nil];
     }

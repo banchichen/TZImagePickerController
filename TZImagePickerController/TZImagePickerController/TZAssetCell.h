@@ -25,6 +25,10 @@ typedef enum : NSUInteger {
 @property (nonatomic, assign) TZAssetCellType type;
 @property (nonatomic, copy) NSString *representedAssetIdentifier;
 @property (nonatomic, assign) PHImageRequestID imageRequestID;
+
+@property (nonatomic, copy) NSString *photoSelImageName;
+@property (nonatomic, copy) NSString *photoDefImageName;
+
 @end
 
 
