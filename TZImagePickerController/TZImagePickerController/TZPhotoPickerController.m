@@ -15,7 +15,7 @@
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
 
-@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate> {
+@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate, UICollectionViewDelegateFlowLayout> {
     NSMutableArray *_models;
     
     UIButton *_previewButton;
@@ -64,6 +64,7 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+//    self.view.translatesAutoresizingMaskIntoConstraints = NO;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
@@ -106,16 +107,28 @@ static CGSize AssetGridThumbnailSize;
     }
 }
 
+#pragma mark - UICollectionViewDelegateFlowLayout
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+    
+    CGFloat itemWH = (self.view.tz_width - 12)/4 - 4;
+    return CGSizeMake(itemWH, itemWH);
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section {
+    return 4;
+}
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section {
+    return 4;
+}
+
 - (void)configCollectionView {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    CGFloat margin = 4;
-    CGFloat itemWH = (self.view.tz_width - 2 * margin - 4) / 4 - margin;
-    layout.itemSize = CGSizeMake(itemWH, itemWH);
-    layout.minimumInteritemSpacing = margin;
-    layout.minimumLineSpacing = margin;
-    CGFloat top = margin + 44;
+
+    CGFloat top = 4 + 44;
     if (iOS7Later) top += 20;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(margin, top, self.view.tz_width - 2 * margin, self.view.tz_height - 50 - top) collectionViewLayout:layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+    _collectionView.translatesAutoresizingMaskIntoConstraints = NO;
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
@@ -132,6 +145,9 @@ static CGSize AssetGridThumbnailSize;
     [self.view addSubview:_collectionView];
     [_collectionView registerClass:[TZAssetCell class] forCellWithReuseIdentifier:@"TZAssetCell"];
     [_collectionView registerClass:[TZAssetCameraCell class] forCellWithReuseIdentifier:@"TZAssetCameraCell"];
+    
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_collectionView]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_collectionView)]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-64-[_collectionView]-50-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_collectionView)]];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -155,7 +171,8 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)configBottomToolBar {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50, self.view.tz_width, 50)];
+    UIView *bottomToolBar = [[UIView alloc] init];
+    bottomToolBar.translatesAutoresizingMaskIntoConstraints = NO;
     CGFloat rgb = 253 / 255.0;
     bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     
@@ -194,7 +211,7 @@ static CGSize AssetGridThumbnailSize;
     }
     
     _okButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _okButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 3, 44, 44);
+    _okButton.translatesAutoresizingMaskIntoConstraints = NO;
     _okButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_okButton setTitle:@"确定" forState:UIControlStateNormal];
@@ -203,24 +220,20 @@ static CGSize AssetGridThumbnailSize;
     [_okButton setTitleColor:tzImagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     _okButton.enabled = tzImagePickerVc.selectedModels.count;
     
-    _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoNumberIconImageName]];
-    _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 24, 12, 26, 26);
-    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
-    _numberImageView.backgroundColor = [UIColor clearColor];
-    
     _numberLable = [[UILabel alloc] init];
-    _numberLable.frame = _numberImageView.frame;
-    _numberLable.font = [UIFont systemFontOfSize:16];
+    _numberLable.translatesAutoresizingMaskIntoConstraints = NO;
+    _numberLable.backgroundColor = [UIColor colorWithRed:0.07 green:0.73 blue:0.02 alpha:1.0];
     _numberLable.textColor = [UIColor whiteColor];
     _numberLable.textAlignment = NSTextAlignmentCenter;
     _numberLable.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
     _numberLable.hidden = tzImagePickerVc.selectedModels.count <= 0;
-    _numberLable.backgroundColor = [UIColor clearColor];
+    _numberLable.clipsToBounds = YES;
+    _numberLable.layer.cornerRadius = 13;
     
     UIView *divide = [[UIView alloc] init];
+    divide.translatesAutoresizingMaskIntoConstraints = NO;
     CGFloat rgb2 = 222 / 255.0;
     divide.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
-    divide.frame = CGRectMake(0, 0, self.view.tz_width, 1);
 
     [bottomToolBar addSubview:divide];
     [bottomToolBar addSubview:_previewButton];
@@ -230,6 +243,16 @@ static CGSize AssetGridThumbnailSize;
     [self.view addSubview:bottomToolBar];
     [self.view addSubview:_originalPhotoButton];
     [_originalPhotoButton addSubview:_originalPhotoLable];
+    
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[bottomToolBar]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(bottomToolBar)]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[bottomToolBar(50)]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(bottomToolBar)]];
+    
+    [bottomToolBar addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[_numberLable(26)]-10-[_okButton(44)]-10-|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_okButton,_numberLable)]];
+    [bottomToolBar addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-14-[_numberLable(26)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_numberLable)]];
+    [bottomToolBar addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[_okButton]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(_okButton)]];
+    
+    [bottomToolBar addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[divide]|" options:0 metrics:nil views:NSDictionaryOfVariableBindings(divide)]];
+    [bottomToolBar addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[divide(1)]" options:0 metrics:nil views:NSDictionaryOfVariableBindings(divide)]];
 }
 
 #pragma mark - Click Event
