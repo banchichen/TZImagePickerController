@@ -97,22 +97,23 @@
     
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_tzImagePickerVc.allowPickingOriginalPhoto) {
+        NSString *fullImageText = [NSBundle tz_localizedStringForKey:@"Full image"];
+        CGFloat fullImageWidth = [fullImageText boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        _originalPhotoButton.frame = CGRectMake(5, 0, 120, 44);
-        _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, -8, 0, 0);
-        _originalPhotoButton.contentEdgeInsets = UIEdgeInsetsMake(0, -50, 0, 0);
+        _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
+        _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 0);
         _originalPhotoButton.backgroundColor = [UIColor clearColor];
         [_originalPhotoButton addTarget:self action:@selector(originalPhotoButtonClick) forControlEvents:UIControlEventTouchUpInside];
         _originalPhotoButton.titleLabel.font = [UIFont systemFontOfSize:13];
-        [_originalPhotoButton setTitle:@"原图" forState:UIControlStateNormal];
-        [_originalPhotoButton setTitle:@"原图" forState:UIControlStateSelected];
+        [_originalPhotoButton setTitle:fullImageText forState:UIControlStateNormal];
+        [_originalPhotoButton setTitle:fullImageText forState:UIControlStateSelected];
         [_originalPhotoButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
         [_originalPhotoButton setTitleColor:[UIColor whiteColor] forState:UIControlStateSelected];
         [_originalPhotoButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoPreviewOriginDefImageName] forState:UIControlStateNormal];
         [_originalPhotoButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoOriginSelImageName] forState:UIControlStateSelected];
         
         _originalPhotoLable = [[UILabel alloc] init];
-        _originalPhotoLable.frame = CGRectMake(60, 0, 70, 44);
+        _originalPhotoLable.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
         _originalPhotoLable.textAlignment = NSTextAlignmentLeft;
         _originalPhotoLable.font = [UIFont systemFontOfSize:13];
         _originalPhotoLable.textColor = [UIColor whiteColor];
@@ -124,7 +125,7 @@
     _okButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
     _okButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
-    [_okButton setTitle:@"确定" forState:UIControlStateNormal];
+    [_okButton setTitle:[NSBundle tz_localizedStringForKey:@"Done"] forState:UIControlStateNormal];
     [_okButton setTitleColor:_tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoNumberIconImageName]];
@@ -176,7 +177,8 @@
     if (!selectButton.isSelected) {
         // 1. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
         if (_tzImagePickerVc.selectedModels.count >= _tzImagePickerVc.maxImagesCount) {
-            [_tzImagePickerVc showAlertWithTitle:[NSString stringWithFormat:@"你最多只能选择%zd张照片",_tzImagePickerVc.maxImagesCount]];
+            NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], _tzImagePickerVc.maxImagesCount];
+            [_tzImagePickerVc showAlertWithTitle:title];
             return;
         // 2. if not over the maxImagesCount / 如果没有超过最大个数限制
         } else {
@@ -186,7 +188,7 @@
                 [self.photos addObject:_photosTemp[_currentIndex]];
             }
             if (model.type == TZAssetModelMediaTypeVideo) {
-                [_tzImagePickerVc showAlertWithTitle:@"多选状态下选择视频，默认将视频当图片发送"];
+                [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Select the video when in multi state, we will handle the video as a photo"]];
             }
         }
     } else {
@@ -298,7 +300,7 @@
 #pragma mark - Private Method
 
 - (void)dealloc {
-    NSLog(@"dealloc");
+    // NSLog(@"dealloc");
 }
 
 - (void)refreshNaviBarAndBottomBarState {

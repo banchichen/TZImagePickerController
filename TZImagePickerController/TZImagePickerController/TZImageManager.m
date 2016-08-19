@@ -681,7 +681,7 @@ static CGFloat TZScreenScale;
 - (TZAlbumModel *)modelWithResult:(id)result name:(NSString *)name{
     TZAlbumModel *model = [[TZAlbumModel alloc] init];
     model.result = result;
-    model.name = [self getNewAlbumName:name];
+    model.name = name;
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         model.count = fetchResult.count;
@@ -693,24 +693,6 @@ static CGFloat TZScreenScale;
 #pragma clang diagnostic pop
     }
     return model;
-}
-
-- (NSString *)getNewAlbumName:(NSString *)name {
-    if (iOS8Later) {
-        NSString *newName;
-        if ([name rangeOfString:@"Roll"].location != NSNotFound)         newName = @"相机胶卷";
-        else if ([name rangeOfString:@"Stream"].location != NSNotFound)  newName = @"我的照片流";
-        else if ([name rangeOfString:@"Added"].location != NSNotFound)   newName = @"最近添加";
-        else if ([name rangeOfString:@"Selfies"].location != NSNotFound) newName = @"自拍";
-        else if ([name rangeOfString:@"shots"].location != NSNotFound)   newName = @"截屏";
-        else if ([name rangeOfString:@"Videos"].location != NSNotFound)  newName = @"视频";
-        else if ([name rangeOfString:@"Panoramas"].location != NSNotFound)  newName = @"全景照片";
-        else if ([name rangeOfString:@"Favorites"].location != NSNotFound)  newName = @"个人收藏";
-        else newName = name;
-        return newName;
-    } else {
-        return name;
-    }
 }
 
 - (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size {

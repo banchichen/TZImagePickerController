@@ -30,7 +30,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor blackColor];
-    self.navigationItem.title = @"视频预览";
+    self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Preview"];
     [self configMoviePlayer];
 }
 
@@ -53,7 +53,7 @@
 }
 
 /// Show progress，do it next time / 给播放器添加进度更新,下次加上
--(void)addProgressObserver{
+- (void)addProgressObserver{
     AVPlayerItem *playerItem = _player.currentItem;
     UIProgressView *progress = _progress;
     [_player addPeriodicTimeObserverForInterval:CMTimeMake(1.0, 1.0) queue:dispatch_get_main_queue() usingBlock:^(CMTime time) {
@@ -84,7 +84,7 @@
     _okButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
     _okButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
-    [_okButton setTitle:@"确定" forState:UIControlStateNormal];
+    [_okButton setTitle:[NSBundle tz_localizedStringForKey:@"Done"] forState:UIControlStateNormal];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     
