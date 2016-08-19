@@ -14,7 +14,11 @@
 + (instancetype)tz_imagePickerBundle {
     static NSBundle *tzBundle = nil;
     if (tzBundle == nil) {
-        tzBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"TZImagePickerController" ofType:@"bundle"]];
+        NSString *path = [[NSBundle mainBundle] pathForResource:@"TZImagePickerController" ofType:@"bundle"];
+        if (!path) {
+            path = [[NSBundle mainBundle] pathForResource:@"TZImagePickerController" ofType:@"bundle" inDirectory:@"Frameworks/TZImagePickerController.framework/"];
+        }
+        tzBundle = [NSBundle bundleWithPath:path];
     }
     return tzBundle;
 }
