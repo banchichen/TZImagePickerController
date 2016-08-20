@@ -131,16 +131,16 @@
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoNumberIconImageName]];
     _numberImageView.backgroundColor = [UIColor clearColor];
-    _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 24, 9, 26, 26);
-    _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 1;
+    _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 28, 7, 30, 30);
+    _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 0;
     
     _numberLable = [[UILabel alloc] init];
     _numberLable.frame = _numberImageView.frame;
-    _numberLable.font = [UIFont systemFontOfSize:16];
+    _numberLable.font = [UIFont systemFontOfSize:15];
     _numberLable.textColor = [UIColor whiteColor];
     _numberLable.textAlignment = NSTextAlignmentCenter;
     _numberLable.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
-    _numberLable.hidden = _tzImagePickerVc.selectedModels.count <= 1;
+    _numberLable.hidden = _tzImagePickerVc.selectedModels.count <= 0;
     _numberLable.backgroundColor = [UIColor clearColor];
 
     [_originalPhotoButton addSubview:_originalPhotoLable];

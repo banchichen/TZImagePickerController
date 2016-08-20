@@ -212,15 +212,17 @@ static CGSize AssetGridThumbnailSize;
     _okButton.enabled = tzImagePickerVc.selectedModels.count;
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoNumberIconImageName]];
-    _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 24, 12, 26, 26);
+    _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 28, 10, 30, 30);
+    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberImageView.backgroundColor = [UIColor clearColor];
     
     _numberLable = [[UILabel alloc] init];
     _numberLable.frame = _numberImageView.frame;
-    _numberLable.font = [UIFont systemFontOfSize:16];
+    _numberLable.font = [UIFont systemFontOfSize:15];
     _numberLable.textColor = [UIColor whiteColor];
     _numberLable.textAlignment = NSTextAlignmentCenter;
     _numberLable.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
+    _numberLable.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberLable.backgroundColor = [UIColor clearColor];
     
     UIView *divide = [[UIView alloc] init];
