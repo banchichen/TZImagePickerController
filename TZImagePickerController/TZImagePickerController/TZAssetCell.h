@@ -29,6 +29,8 @@ typedef enum : NSUInteger {
 @property (nonatomic, copy) NSString *photoSelImageName;
 @property (nonatomic, copy) NSString *photoDefImageName;
 
+@property (nonatomic, assign) NSInteger maxImagesCount;
+
 @end
 
 

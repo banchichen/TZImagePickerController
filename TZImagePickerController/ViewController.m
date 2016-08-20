@@ -34,6 +34,7 @@
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingImageSwitch; ///< 允许选择图片
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingOriginalPhotoSwitch; ///< 允许选择原图
 @property (weak, nonatomic) IBOutlet UISwitch *showSheetSwitch; ///< 显示一个sheet,把拍照按钮放在外面
+@property (weak, nonatomic) IBOutlet UITextField *maxCountTF; ///< 照片最大可选张数，设置为1即为单选模式
 @end
 
 @implementation ViewController
@@ -77,13 +78,14 @@
     _layout.itemSize = CGSizeMake(_itemWH, _itemWH);
     _layout.minimumInteritemSpacing = _margin;
     _layout.minimumLineSpacing = _margin;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 300, self.view.tz_width, self.view.tz_height - 300) collectionViewLayout:_layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 344, self.view.tz_width, self.view.tz_height - 344) collectionViewLayout:_layout];
     CGFloat rgb = 244 / 255.0;
     _collectionView.alwaysBounceVertical = YES;
     _collectionView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     _collectionView.contentInset = UIEdgeInsetsMake(4, 4, 4, 4);
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
+    _collectionView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
     [self.view addSubview:_collectionView];
     [_collectionView registerClass:[TZTestCell class] forCellWithReuseIdentifier:@"TZTestCell"];
 }
@@ -170,13 +172,18 @@
 #pragma mark - TZImagePickerController
 
 - (void)pushImagePickerController {
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+    if (self.maxCountTF.text.integerValue <= 0) {
+        return;
+    }
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue delegate:self];
 
 #pragma mark - 四类个性化设置，这些参数都可以不传，此时会走默认设置
     imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
 
-    // 1.如果你需要将拍照按钮放在外面，不要传这个参数
-    imagePickerVc.selectedAssets = _selectedAssets; // optional, 可选的
+    if (self.maxCountTF.text.integerValue > 1) {
+        // 1.如果你需要将拍照按钮放在外面，不要传这个参数
+        imagePickerVc.selectedAssets = _selectedAssets; // optional, 可选的
+    }
     imagePickerVc.allowTakePicture = self.showTakePhotoBtnSwitch.isOn; // 在内部显示拍照按钮
     
     // 2. Set the appearance
@@ -380,6 +387,10 @@
     if (!sender.isOn) {
         [_allowPickingImageSwitch setOn:YES animated:YES];
     }
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [self.view endEditing:YES];
 }
 
 @end

@@ -107,6 +107,8 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)configCollectionView {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     CGFloat margin = 4;
     CGFloat itemWH = (self.view.tz_width - 2 * margin - 4) / 4 - margin;
@@ -115,7 +117,8 @@ static CGSize AssetGridThumbnailSize;
     layout.minimumLineSpacing = margin;
     CGFloat top = margin + 44;
     if (iOS7Later) top += 20;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(margin, top, self.view.tz_width - 2 * margin, self.view.tz_height - 50 - top) collectionViewLayout:layout];
+    CGFloat collectionViewHeight = tzImagePickerVc.maxImagesCount > 1 ? self.view.tz_height - 50 - top : self.view.tz_height - top;
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(margin, top, self.view.tz_width - 2 * margin, collectionViewHeight) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
@@ -123,7 +126,6 @@ static CGSize AssetGridThumbnailSize;
     if (iOS7Later) _collectionView.contentInset = UIEdgeInsetsMake(0, 0, 0, 2);
     _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, -2);
     
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_showTakePhotoBtn && tzImagePickerVc.allowTakePicture ) {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 4) / 4) * self.view.tz_width);
     } else {
@@ -155,6 +157,8 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)configBottomToolBar {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (tzImagePickerVc.maxImagesCount <= 1) return;
+    
     UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50, self.view.tz_width, 50)];
     CGFloat rgb = 253 / 255.0;
     bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
@@ -163,6 +167,7 @@ static CGSize AssetGridThumbnailSize;
     CGFloat previewWidth = [previewText boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width;
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _previewButton.frame = CGRectMake(10, 3, previewWidth + 2, 44);
+    _previewButton.tz_width = tzImagePickerVc.maxImagesCount <= 1 ? 0 : previewWidth + 2;
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];
     _previewButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_previewButton setTitle:previewText forState:UIControlStateNormal];
@@ -208,7 +213,6 @@ static CGSize AssetGridThumbnailSize;
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoNumberIconImageName]];
     _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 24, 12, 26, 26);
-    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberImageView.backgroundColor = [UIColor clearColor];
     
     _numberLable = [[UILabel alloc] init];
@@ -217,7 +221,6 @@ static CGSize AssetGridThumbnailSize;
     _numberLable.textColor = [UIColor whiteColor];
     _numberLable.textAlignment = NSTextAlignmentCenter;
     _numberLable.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
-    _numberLable.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberLable.backgroundColor = [UIColor clearColor];
     
     UIView *divide = [[UIView alloc] init];
@@ -336,6 +339,7 @@ static CGSize AssetGridThumbnailSize;
         model = _models[indexPath.row - 1];
     }
     cell.model = model;
+    cell.maxImagesCount = tzImagePickerVc.maxImagesCount;
     
     __weak typeof(cell) weakCell = cell;
     __weak typeof(self) weakSelf = self;
@@ -560,6 +564,12 @@ static CGSize AssetGridThumbnailSize;
                 assetModel = [models firstObject];
                 [_models insertObject:assetModel atIndex:0];
             }
+            
+            if (tzImagePickerVc.maxImagesCount <= 1) {
+                [tzImagePickerVc.selectedModels addObject:assetModel];
+                [self okButtonClick]; return;
+            }
+            
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
                 assetModel.isSelected = YES;
                 [tzImagePickerVc.selectedModels addObject:assetModel];

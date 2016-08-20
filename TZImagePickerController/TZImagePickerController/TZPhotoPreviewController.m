@@ -83,6 +83,7 @@
     [_selectButton setImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoDefImageName] forState:UIControlStateNormal];
     [_selectButton setImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoSelImageName] forState:UIControlStateSelected];
     [_selectButton addTarget:self action:@selector(select:) forControlEvents:UIControlEventTouchUpInside];
+    _selectButton.hidden = tzImagePickerVc.maxImagesCount == 1;
     
     [_naviBar addSubview:_selectButton];
     [_naviBar addSubview:_backButton];
@@ -131,7 +132,7 @@
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoNumberIconImageName]];
     _numberImageView.backgroundColor = [UIColor clearColor];
     _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 24, 9, 26, 26);
-    _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 0;
+    _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 1;
     
     _numberLable = [[UILabel alloc] init];
     _numberLable.frame = _numberImageView.frame;
@@ -139,7 +140,7 @@
     _numberLable.textColor = [UIColor whiteColor];
     _numberLable.textAlignment = NSTextAlignmentCenter;
     _numberLable.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
-    _numberLable.hidden = _tzImagePickerVc.selectedModels.count <= 0;
+    _numberLable.hidden = _tzImagePickerVc.selectedModels.count <= 1;
     _numberLable.backgroundColor = [UIColor clearColor];
 
     [_originalPhotoButton addSubview:_originalPhotoLable];
