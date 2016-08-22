@@ -17,6 +17,7 @@
 @interface TZImagePickerController () {
     NSTimer *_timer;
     UILabel *_tipLable;
+    UIButton *_settingBtn;
     BOOL _pushToPhotoPickerVc;
     
     UIButton *_progressHUD;
@@ -103,7 +104,7 @@
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
-            _tipLable.frame = CGRectMake(8, 0, self.view.tz_width - 16, 300);
+            _tipLable.frame = CGRectMake(8, 120, self.view.tz_width - 16, 60);
             _tipLable.textAlignment = NSTextAlignmentCenter;
             _tipLable.numberOfLines = 0;
             _tipLable.font = [UIFont systemFontOfSize:16];
@@ -113,6 +114,13 @@
             NSString *tipText = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Allow %@ to access your album in \"Settings -> Privacy -> Photos\""],appName];
             _tipLable.text = tipText;
             [self.view addSubview:_tipLable];
+            
+            _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+            [_settingBtn setTitle:[NSBundle tz_localizedStringForKey:@"Setting"] forState:UIControlStateNormal];
+            _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
+            _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+            [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+            [self.view addSubview:_settingBtn];
             
             _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:YES];
         } else {
@@ -164,6 +172,7 @@
     if ([[TZImageManager manager] authorizationStatusAuthorized]) {
         [self pushToPhotoPickerVc];
         [_tipLable removeFromSuperview];
+        [_settingBtn removeFromSuperview];
         [_timer invalidate];
         _timer = nil;
     }
@@ -283,6 +292,14 @@
 - (void)setSortAscendingByModificationDate:(BOOL)sortAscendingByModificationDate {
     _sortAscendingByModificationDate = sortAscendingByModificationDate;
     [TZImageManager manager].sortAscendingByModificationDate = sortAscendingByModificationDate;
+}
+
+- (void)settingBtnClick {
+    if (iOS8Later) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    } else {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Privacy&path=PHOTOS"]];
+    }
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {

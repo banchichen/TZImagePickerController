@@ -418,7 +418,7 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)takePhoto {
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied) && iOS8Later) {
+    if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied) && iOS7Later) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
         // 无权限 做一个友好的提示
@@ -531,7 +531,7 @@ static CGSize AssetGridThumbnailSize;
         if (iOS8Later) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
         } else {
-            // [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Privacy&path=Photos"]];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"prefs:root=Privacy&path=CAMERA"]];
         }
     }
 }
@@ -545,8 +545,10 @@ static CGSize AssetGridThumbnailSize;
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
         [imagePickerVc showProgressHUD];
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-        [[TZImageManager manager] savePhotoWithImage:image completion:^{
-            [self reloadPhotoArray];
+        [[TZImageManager manager] savePhotoWithImage:image completion:^(NSError *error){
+            if (!error) {
+                [self reloadPhotoArray];
+            }
         }];
     }
 }

@@ -45,7 +45,7 @@
 - (void)getOriginalPhotoWithAsset:(id)asset completion:(void (^)(UIImage *photo,NSDictionary *info))completion;
 
 /// Save photo 保存照片
-- (void)savePhotoWithImage:(UIImage *)image completion:(void (^)())completion;
+- (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(NSError *error))completion;
 
 /// Get video 获得视频
 - (void)getVideoWithAsset:(id)asset completion:(void (^)(AVPlayerItem * playerItem, NSDictionary * info))completion;

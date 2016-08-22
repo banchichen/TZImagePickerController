@@ -509,7 +509,7 @@ static CGFloat TZScreenScale;
 
 #pragma mark - Save photo
 
-- (void)savePhotoWithImage:(UIImage *)image completion:(void (^)())completion {
+- (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(NSError *error))completion {
     NSData *data = UIImageJPEGRepresentation(image, 0.9);
     if (iOS9Later) { // 这里有坑... iOS8系统下这个方法保存图片会失败
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
@@ -519,9 +519,12 @@ static CGFloat TZScreenScale;
         } completionHandler:^(BOOL success, NSError * _Nullable error) {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 if (success && completion) {
-                    completion();
+                    completion(nil);
                 } else if (error) {
                     NSLog(@"保存照片出错:%@",error.localizedDescription);
+                    if (completion) {
+                        completion(error);
+                    }
                 }
             });
         }];
@@ -532,9 +535,12 @@ static CGFloat TZScreenScale;
 #pragma clang diagnostic pop
             if (error) {
                 NSLog(@"保存图片失败:%@",error.localizedDescription);
+                if (completion) {
+                    completion(error);
+                }
             } else {
                 if (completion) {
-                    completion();
+                    completion(nil);
                 }
             }
         }];
