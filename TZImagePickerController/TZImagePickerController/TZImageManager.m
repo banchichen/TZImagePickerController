@@ -513,6 +513,37 @@ static CGFloat TZScreenScale;
     }
 }
 
+- (void)getOriginalPhotoDataWithAsset:(id)asset completion:(void (^)(NSData *data,NSDictionary *info))completion {
+    if ([asset isKindOfClass:[PHAsset class]]) {
+        PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
+        option.networkAccessAllowed = YES;
+        [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+            BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
+            if (downloadFinined && imageData) {
+                if (completion) completion(imageData,info);
+            }
+        }];
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    } else if ([asset isKindOfClass:[ALAsset class]]) {
+        ALAsset *alAsset = (ALAsset *)asset;
+        ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
+#pragma clang diagnostic pop
+        
+        dispatch_async(dispatch_get_global_queue(0,0), ^{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            CGImageRef originalImageRef = [assetRep fullResolutionImage];
+#pragma clang diagnostic pop
+            UIImage *originalImage = [UIImage imageWithCGImage:originalImageRef scale:1.0 orientation:UIImageOrientationUp];
+            NSData *data = UIImageJPEGRepresentation(originalImage, 0.9);
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (completion) completion(data,nil);
+            });
+        });
+    }
+}
+
 #pragma mark - Save photo
 
 - (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(NSError *error))completion {
