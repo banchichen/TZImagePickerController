@@ -27,6 +27,9 @@
     
     UIStatusBarStyle _originStatusBarStyle;
 }
+/// Default is 4, Use in photos collectionView in TZPhotoPickerController
+/// 默认4列, TZPhotoPickerController中的照片collectionView
+@property (nonatomic, assign) NSInteger columnNumber;
 @end
 
 @implementation TZImagePickerController
@@ -80,7 +83,12 @@
 }
 
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate {
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:4 delegate:delegate];
+}
+
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate {
     TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
+    albumPickerVc.columnNumber = columnNumber;
     self = [super initWithRootViewController:albumPickerVc];
     if (self) {
         self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
@@ -100,6 +108,7 @@
         self.autoDismiss = YES;
         self.barItemTextFont = [UIFont systemFontOfSize:15];
         self.barItemTextColor = [UIColor whiteColor];
+        self.columnNumber = columnNumber;
         [self configDefaultImageName];
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
@@ -183,6 +192,7 @@
     if (_pushToPhotoPickerVc) {
         TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
         photoPickerVc.isFirstAppear = YES;
+        photoPickerVc.columnNumber = self.columnNumber;
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
@@ -253,6 +263,19 @@
     } else if (_timeout > 60) {
         _timeout = 60;
     }
+}
+
+- (void)setColumnNumber:(NSInteger)columnNumber {
+    _columnNumber = columnNumber;
+    if (columnNumber <= 2) {
+        _columnNumber = 2;
+    } else if (columnNumber >= 6) {
+        _columnNumber = 6;
+    }
+    
+    TZAlbumPickerController *albumPickerVc = [self.childViewControllers firstObject];
+    albumPickerVc.columnNumber = _columnNumber;
+    [TZImageManager manager].columnNumber = _columnNumber;
 }
 
 - (void)setPhotoPreviewMaxWidth:(CGFloat)photoPreviewMaxWidth {
@@ -418,6 +441,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
+    photoPickerVc.columnNumber = self.columnNumber;
     TZAlbumModel *model = _albumArr[indexPath.row];
     photoPickerVc.model = model;
     __weak typeof(self) weakSelf = self;

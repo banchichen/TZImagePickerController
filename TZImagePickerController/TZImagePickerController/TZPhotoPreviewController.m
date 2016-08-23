@@ -46,6 +46,7 @@
     [self configCollectionView];
     [self configCustomNaviBar];
     [self configBottomToolBar];
+    self.view.clipsToBounds = YES;
 }
 
 - (void)setPhotos:(NSMutableArray *)photos {

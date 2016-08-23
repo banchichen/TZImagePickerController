@@ -110,26 +110,25 @@ static CGSize AssetGridThumbnailSize;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
 
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    CGFloat margin = 4;
-    CGFloat itemWH = (self.view.tz_width - 2 * margin - 4) / 4 - margin;
+    CGFloat margin = 5;
+    CGFloat itemWH = (self.view.tz_width - (self.columnNumber + 1) * margin) / self.columnNumber;
     layout.itemSize = CGSizeMake(itemWH, itemWH);
     layout.minimumInteritemSpacing = margin;
     layout.minimumLineSpacing = margin;
-    CGFloat top = margin + 44;
+    CGFloat top = 44;
     if (iOS7Later) top += 20;
     CGFloat collectionViewHeight = tzImagePickerVc.maxImagesCount > 1 ? self.view.tz_height - 50 - top : self.view.tz_height - top;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(margin, top, self.view.tz_width - 2 * margin, collectionViewHeight) collectionViewLayout:layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, collectionViewHeight) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
     _collectionView.alwaysBounceHorizontal = NO;
-    if (iOS7Later) _collectionView.contentInset = UIEdgeInsetsMake(0, 0, 0, 2);
-    _collectionView.scrollIndicatorInsets = UIEdgeInsetsMake(0, 0, 0, -2);
+    _collectionView.contentInset = UIEdgeInsetsMake(margin, margin, margin, margin);
     
     if (_showTakePhotoBtn && tzImagePickerVc.allowTakePicture ) {
-        _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 4) / 4) * self.view.tz_width);
+        _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber) / self.columnNumber) * self.view.tz_width);
     } else {
-        _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + 3) / 4) * self.view.tz_width);
+        _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber - 1) / self.columnNumber) * self.view.tz_width);
     }
     [self.view addSubview:_collectionView];
     [_collectionView registerClass:[TZAssetCell class] forCellWithReuseIdentifier:@"TZAssetCell"];

@@ -35,6 +35,7 @@
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingOriginalPhotoSwitch; ///< 允许选择原图
 @property (weak, nonatomic) IBOutlet UISwitch *showSheetSwitch; ///< 显示一个sheet,把拍照按钮放在外面
 @property (weak, nonatomic) IBOutlet UITextField *maxCountTF; ///< 照片最大可选张数，设置为1即为单选模式
+@property (weak, nonatomic) IBOutlet UITextField *columnNumberTF;
 @end
 
 @implementation ViewController
@@ -175,14 +176,14 @@
     if (self.maxCountTF.text.integerValue <= 0) {
         return;
     }
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue delegate:self];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self];
 
 #pragma mark - 四类个性化设置，这些参数都可以不传，此时会走默认设置
     imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
 
     if (self.maxCountTF.text.integerValue > 1) {
-        // 1.如果你需要将拍照按钮放在外面，不要传这个参数
-        imagePickerVc.selectedAssets = _selectedAssets; // optional, 可选的
+        // 1.设置目前已经选中的图片数组
+        imagePickerVc.selectedAssets = _selectedAssets; // 目前已经选中的图片数组
     }
     imagePickerVc.allowTakePicture = self.showTakePhotoBtnSwitch.isOn; // 在内部显示拍照按钮
     

@@ -29,20 +29,26 @@ static CGFloat TZScreenScale;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         manager = [[self alloc] init];
-        manager.cachingImageManager = [[PHCachingImageManager alloc] init];
-        // manager.cachingImageManager.allowsCachingHighQualityImages = YES;
-        
+        if (iOS8Later) {
+            manager.cachingImageManager = [[PHCachingImageManager alloc] init];
+            // manager.cachingImageManager.allowsCachingHighQualityImages = YES;
+        }
+   
         TZScreenWidth = [UIScreen mainScreen].bounds.size.width;
         // 测试发现，如果scale在plus真机上取到3.0，内存会增大特别多。故这里写死成2.0
         TZScreenScale = 2.0;
         if (TZScreenWidth > 700) {
             TZScreenScale = 1.5;
         }
-        CGFloat margin = 4;
-        CGFloat itemWH = (TZScreenWidth - 2 * margin - 4) / 4 - margin;
-        AssetGridThumbnailSize = CGSizeMake(itemWH * TZScreenScale, itemWH * TZScreenScale);
     });
     return manager;
+}
+
+- (void)setColumnNumber:(NSInteger)columnNumber {
+    _columnNumber = columnNumber;
+    CGFloat margin = 4;
+    CGFloat itemWH = (TZScreenWidth - 2 * margin - 4) / columnNumber - margin;
+    AssetGridThumbnailSize = CGSizeMake(itemWH * TZScreenScale, itemWH * TZScreenScale);
 }
 
 #pragma clang diagnostic push
