@@ -60,5 +60,6 @@
 - (BOOL)isAssetsArray:(NSArray *)assets containAsset:(id)asset;
 
 - (NSString *)getAssetIdentifier:(id)asset;
+- (BOOL)isCameraRollAlbum:(NSString *)albumName;
 
 @end

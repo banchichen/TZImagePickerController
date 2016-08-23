@@ -71,8 +71,12 @@
 
 - (void)setMaxImagesCount:(NSInteger)maxImagesCount {
     _maxImagesCount = maxImagesCount;
-    self.selectPhotoButton.hidden = maxImagesCount == 1;
-    self.selectImageView.hidden = maxImagesCount == 1;
+    if (!self.selectPhotoButton.hidden) {
+        self.selectPhotoButton.hidden = maxImagesCount == 1;
+    }
+    if (!self.selectImageView.hidden) {
+        self.selectImageView.hidden = maxImagesCount == 1;
+    }
 }
 
 - (void)setType:(TZAssetCellType)type {
