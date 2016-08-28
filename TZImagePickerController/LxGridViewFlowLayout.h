@@ -15,7 +15,6 @@
 @interface LxGridViewFlowLayout : UICollectionViewFlowLayout
 
 @property (nonatomic,assign) BOOL panGestureRecognizerEnable;
-@property (nonatomic, assign) NSInteger itemCount;
 
 @end
 

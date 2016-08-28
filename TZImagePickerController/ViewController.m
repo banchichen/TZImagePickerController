@@ -23,7 +23,6 @@
 
     CGFloat _itemWH;
     CGFloat _margin;
-    LxGridViewFlowLayout *_layout;
 }
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
 @property (nonatomic, strong) UICollectionView *collectionView;
@@ -77,13 +76,13 @@
 }
 
 - (void)configCollectionView {
-    _layout = [[LxGridViewFlowLayout alloc] init];
+    LxGridViewFlowLayout *layout = [[LxGridViewFlowLayout alloc] init];
     _margin = 4;
     _itemWH = (self.view.tz_width - 2 * _margin - 4) / 3 - _margin;
-    _layout.itemSize = CGSizeMake(_itemWH, _itemWH);
-    _layout.minimumInteritemSpacing = _margin;
-    _layout.minimumLineSpacing = _margin;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 344, self.view.tz_width, self.view.tz_height - 344) collectionViewLayout:_layout];
+    layout.itemSize = CGSizeMake(_itemWH, _itemWH);
+    layout.minimumInteritemSpacing = _margin;
+    layout.minimumLineSpacing = _margin;
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 344, self.view.tz_width, self.view.tz_height - 344) collectionViewLayout:layout];
     CGFloat rgb = 244 / 255.0;
     _collectionView.alwaysBounceVertical = YES;
     _collectionView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
@@ -155,7 +154,6 @@
                 _selectedPhotos = [NSMutableArray arrayWithArray:photos];
                 _selectedAssets = [NSMutableArray arrayWithArray:assets];
                 _isSelectOriginalPhoto = isSelectOriginalPhoto;
-                _layout.itemCount = _selectedPhotos.count;
                 [_collectionView reloadData];
                 _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
             }];
@@ -164,14 +162,25 @@
     }
 }
 
+- (BOOL)collectionView:(UICollectionView *)collectionView canMoveItemAtIndexPath:(NSIndexPath *)indexPath {
+    return indexPath.item < _selectedPhotos.count;
+}
+
+- (BOOL)collectionView:(UICollectionView *)collectionView itemAtIndexPath:(NSIndexPath *)sourceIndexPath canMoveToIndexPath:(NSIndexPath *)destinationIndexPath {
+    return (sourceIndexPath.item < _selectedPhotos.count && destinationIndexPath.item < _selectedPhotos.count);
+}
+
 - (void)collectionView:(UICollectionView *)collectionView itemAtIndexPath:(NSIndexPath *)sourceIndexPath didMoveToIndexPath:(NSIndexPath *)destinationIndexPath {
-    if (sourceIndexPath.item >= _selectedPhotos.count || destinationIndexPath.item >= _selectedPhotos.count) return;
+    
     UIImage *image = _selectedPhotos[sourceIndexPath.item];
-    if (image) {
-        [_selectedPhotos exchangeObjectAtIndex:sourceIndexPath.item withObjectAtIndex:destinationIndexPath.item];
-        [_selectedAssets exchangeObjectAtIndex:sourceIndexPath.item withObjectAtIndex:destinationIndexPath.item];
-        [_collectionView reloadData];
-    }
+    [_selectedPhotos removeObjectAtIndex:sourceIndexPath.item];
+    [_selectedPhotos insertObject:image atIndex:destinationIndexPath.item];
+    
+    id asset = _selectedAssets[sourceIndexPath.item];
+    [_selectedAssets removeObjectAtIndex:sourceIndexPath.item];
+    [_selectedAssets insertObject:asset atIndex:destinationIndexPath.item];
+    
+    [_collectionView reloadData];
 }
 
 #pragma mark - TZImagePickerController
@@ -333,7 +342,6 @@
     _selectedPhotos = [NSMutableArray arrayWithArray:photos];
     _selectedAssets = [NSMutableArray arrayWithArray:assets];
     _isSelectOriginalPhoto = isSelectOriginalPhoto;
-    _layout.itemCount = _selectedPhotos.count;
     [_collectionView reloadData];
     // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
 }
@@ -345,7 +353,6 @@
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
     _selectedPhotos = [NSMutableArray arrayWithArray:@[coverImage]];
     _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
-    _layout.itemCount = _selectedPhotos.count;
     // open this code to send video / 打开这段代码发送视频
     // [[TZImageManager manager] getVideoOutputPathWithAsset:asset completion:^(NSString *outputPath) {
         // NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
@@ -362,7 +369,6 @@
 - (void)deleteBtnClik:(UIButton *)sender {
     [_selectedPhotos removeObjectAtIndex:sender.tag];
     [_selectedAssets removeObjectAtIndex:sender.tag];
-    _layout.itemCount = _selectedPhotos.count;
     
     [_collectionView performBatchUpdates:^{
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:sender.tag inSection:0];
