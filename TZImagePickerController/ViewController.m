@@ -72,6 +72,10 @@
     [self configCollectionView];
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return NO;
+}
+
 - (void)configCollectionView {
     _layout = [[LxGridViewFlowLayout alloc] init];
     _margin = 4;

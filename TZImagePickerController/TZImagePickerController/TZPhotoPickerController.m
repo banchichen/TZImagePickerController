@@ -106,6 +106,10 @@ static CGSize AssetGridThumbnailSize;
     }
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return NO;
+}
+
 - (void)configCollectionView {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
 

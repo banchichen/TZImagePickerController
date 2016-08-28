@@ -68,6 +68,10 @@
     if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = NO;
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return YES;
+}
+
 - (void)configCustomNaviBar {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
 
