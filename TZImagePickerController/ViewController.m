@@ -76,6 +76,7 @@
 }
 
 - (void)configCollectionView {
+    // 如不需要长按排序效果，将LxGridViewFlowLayout类改成UICollectionViewFlowLayout即可
     LxGridViewFlowLayout *layout = [[LxGridViewFlowLayout alloc] init];
     _margin = 4;
     _itemWH = (self.view.tz_width - 2 * _margin - 4) / 3 - _margin;
@@ -162,6 +163,9 @@
     }
 }
 
+#pragma mark - LxGridViewDataSource
+
+/// 以下三个方法为长按排序相关代码
 - (BOOL)collectionView:(UICollectionView *)collectionView canMoveItemAtIndexPath:(NSIndexPath *)indexPath {
     return indexPath.item < _selectedPhotos.count;
 }
@@ -171,7 +175,6 @@
 }
 
 - (void)collectionView:(UICollectionView *)collectionView itemAtIndexPath:(NSIndexPath *)sourceIndexPath didMoveToIndexPath:(NSIndexPath *)destinationIndexPath {
-    
     UIImage *image = _selectedPhotos[sourceIndexPath.item];
     [_selectedPhotos removeObjectAtIndex:sourceIndexPath.item];
     [_selectedPhotos insertObject:image atIndex:destinationIndexPath.item];
