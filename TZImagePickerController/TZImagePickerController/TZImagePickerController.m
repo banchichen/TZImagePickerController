@@ -148,7 +148,6 @@
         self.allowPickingOriginalPhoto = self.allowPickingOriginalPhoto;
         self.timeout = 15;
         self.photoWidth = 828.0;
-        self.maxImagesCount = selectedAssets.count;
         self.photoPreviewMaxWidth = 600;
         self.barItemTextFont = [UIFont systemFontOfSize:15];
         self.barItemTextColor = [UIColor whiteColor];
