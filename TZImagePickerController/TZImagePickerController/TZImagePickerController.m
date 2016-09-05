@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.6.3 - 2016.08.29
+//  version 1.6.4 - 2016.09.05
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -51,7 +51,19 @@
         self.navigationBar.tintColor = [UIColor whiteColor];
         self.automaticallyAdjustsScrollViewInsets = NO;
     }
-        
+}
+
+- (void)setBarItemTextFont:(UIFont *)barItemTextFont {
+    _barItemTextFont = barItemTextFont;
+    [self configBarButtonItemAppearance];
+}
+
+- (void)setBarItemTextColor:(UIColor *)barItemTextColor {
+    _barItemTextColor = barItemTextColor;
+    [self configBarButtonItemAppearance];
+}
+
+- (void)configBarButtonItemAppearance {
     UIBarButtonItem *barItem;
     if (iOS9Later) {
         barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
