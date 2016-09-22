@@ -87,7 +87,7 @@ static CGFloat TZScreenScale;
         PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
         for (PHAssetCollection *collection in smartAlbums) {
             // 有可能是PHCollectionList类的的对象，过滤掉
-            if (![collection isKindOfClass:[PHAssetCollection class]]) return;
+            if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
             if ([self isCameraRollAlbum:collection.localizedTitle]) {
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 model = [self modelWithResult:fetchResult name:collection.localizedTitle];
@@ -125,7 +125,7 @@ static CGFloat TZScreenScale;
         
         for (PHAssetCollection *collection in smartAlbums) {
             // 有可能是PHCollectionList类的的对象，过滤掉
-            if (![collection isKindOfClass:[PHAssetCollection class]]) return;
+            if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
             if (fetchResult.count < 1) continue;
             if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
@@ -137,7 +137,7 @@ static CGFloat TZScreenScale;
         }
         for (PHAssetCollection *collection in topLevelUserCollections) {
             // 有可能是PHCollectionList类的的对象，过滤掉
-            if (![collection isKindOfClass:[PHAssetCollection class]]) return;
+            if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
             if (fetchResult.count < 1) continue;
             [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
