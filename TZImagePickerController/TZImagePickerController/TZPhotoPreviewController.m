@@ -231,6 +231,7 @@
 
 - (void)okButtonClick {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    // 如果没有选中过照片 点击确定时选中当前预览的照片
     if (_tzImagePickerVc.selectedModels.count == 0) {
         TZAssetModel *model = _models[_currentIndex];
         [_tzImagePickerVc.selectedModels addObject:model];
@@ -249,7 +250,13 @@
     _originalPhotoLable.hidden = !_originalPhotoButton.isSelected;
     if (_isSelectOriginalPhoto) {
         [self showPhotoBytes];
-        if (!_selectButton.isSelected) [self select:_selectButton];
+        if (!_selectButton.isSelected) {
+            // 如果当前已选择照片张数 < 最大可选张数 && 最大可选张数大于1，就选中该张图
+            TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+            if (_tzImagePickerVc.selectedModels.count < _tzImagePickerVc.maxImagesCount && _tzImagePickerVc.maxImagesCount > 1) {
+                [self select:_selectButton];
+            }
+        }
     }
 }
 
