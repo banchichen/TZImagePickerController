@@ -201,9 +201,27 @@
         NSArray *selectedModels = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
         for (TZAssetModel *model_item in selectedModels) {
             if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
-                [_tzImagePickerVc.selectedModels removeObject:model_item];
+                // 1.6.7版本更新:防止有多个一样的model,一次性被移除了
+                NSArray *selectedModelsTmp = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
+                for (NSInteger i = 0; i < selectedModelsTmp.count; i++) {
+                    TZAssetModel *model = selectedModelsTmp[i];
+                    if ([model isEqual:model_item]) {
+                        [_tzImagePickerVc.selectedModels removeObjectAtIndex:i];
+                        break;
+                    }
+                }
+                // [_tzImagePickerVc.selectedModels removeObject:model_item];
                 if (self.photos) {
-                    [_tzImagePickerVc.selectedAssets removeObject:_assetsTemp[_currentIndex]];
+                    // 1.6.7版本更新:防止有多个一样的asset,一次性被移除了
+                    NSArray *selectedAssetsTmp = [NSArray arrayWithArray:_tzImagePickerVc.selectedAssets];
+                    for (NSInteger i = 0; i < selectedAssetsTmp.count; i++) {
+                        id asset = selectedAssetsTmp[i];
+                        if ([asset isEqual:_assetsTemp[_currentIndex]]) {
+                            [_tzImagePickerVc.selectedAssets removeObjectAtIndex:i];
+                            break;
+                        }
+                    }
+                    // [_tzImagePickerVc.selectedAssets removeObject:_assetsTemp[_currentIndex]];
                     [self.photos removeObject:_photosTemp[_currentIndex]];
                 }
                 break;
