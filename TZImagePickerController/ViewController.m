@@ -193,7 +193,7 @@
     if (self.maxCountTF.text.integerValue <= 0) {
         return;
     }
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
     
 
 #pragma mark - 四类个性化设置，这些参数都可以不传，此时会走默认设置
@@ -219,6 +219,9 @@
     
     // 4. 照片排列按修改时间升序
     imagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
+    
+    imagePickerVc.minImagesCount = 3;
+    imagePickerVc.alwaysEnableDoneBtn = YES;
 #pragma mark - 到这里为止
     
     // You can get the photos by block, the same as by delegate.

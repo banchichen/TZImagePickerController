@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.6.7 - 2016.09.23
+//  version 1.6.8 - 2016.10.08
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -18,7 +18,8 @@
     NSTimer *_timer;
     UILabel *_tipLable;
     UIButton *_settingBtn;
-    BOOL _pushToPhotoPickerVc;
+    BOOL _pushPhotoPickerVc;
+    BOOL _didPushPhotoPickerVc;
     
     UIButton *_progressHUD;
     UIView *_HUDContainer;
@@ -95,10 +96,15 @@
 }
 
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate {
-    return [self initWithMaxImagesCount:maxImagesCount columnNumber:4 delegate:delegate];
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:4 delegate:delegate pushPhotoPickerVc:YES];
 }
 
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate {
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:columnNumber delegate:delegate pushPhotoPickerVc:YES];
+}
+
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc {
+    _pushPhotoPickerVc = pushPhotoPickerVc;
     TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
     albumPickerVc.columnNumber = columnNumber;
     self = [super initWithRootViewController:albumPickerVc];
@@ -145,7 +151,7 @@
             
             _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:YES];
         } else {
-            [self pushToPhotoPickerVc];
+            [self pushPhotoPickerVc];
         }
     }
     return self;
@@ -190,7 +196,6 @@
 
 - (void)observeAuthrizationStatusChange {
     if ([[TZImageManager manager] authorizationStatusAuthorized]) {
-        [self pushToPhotoPickerVc];
         [_tipLable removeFromSuperview];
         [_settingBtn removeFromSuperview];
         [_timer invalidate];
@@ -198,16 +203,17 @@
     }
 }
 
-- (void)pushToPhotoPickerVc {
-    _pushToPhotoPickerVc = YES;
-    if (_pushToPhotoPickerVc) {
+- (void)pushPhotoPickerVc {
+    _didPushPhotoPickerVc = NO;
+    // 1.6.8 判断是否需要push到照片选择页，如果_pushPhotoPickerVc为NO,则不push
+    if (!_didPushPhotoPickerVc && _pushPhotoPickerVc) {
         TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
         photoPickerVc.isFirstAppear = YES;
         photoPickerVc.columnNumber = self.columnNumber;
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
-            _pushToPhotoPickerVc = NO;
+            _didPushPhotoPickerVc = YES;
         }];
     }
 }
