@@ -18,3 +18,8 @@
 @property (nonatomic, copy) void (^backButtonClickHandle)(TZAlbumModel *model);
 
 @end
+
+
+@interface TZCollectionView : UICollectionView
+
+@end

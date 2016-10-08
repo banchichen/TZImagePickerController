@@ -30,7 +30,7 @@
 }
 @property CGRect previousPreheatRect;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
-@property (nonatomic, strong) UICollectionView *collectionView;
+@property (nonatomic, strong) TZCollectionView *collectionView;
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
 @end
 
@@ -122,7 +122,7 @@ static CGSize AssetGridThumbnailSize;
     CGFloat top = 44;
     if (iOS7Later) top += 20;
     CGFloat collectionViewHeight = tzImagePickerVc.maxImagesCount > 1 ? self.view.tz_height - 50 - top : self.view.tz_height - top;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, collectionViewHeight) collectionViewLayout:layout];
+    _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, collectionViewHeight) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
@@ -716,6 +716,19 @@ static CGSize AssetGridThumbnailSize;
         [indexPaths addObject:indexPath];
     }
     return indexPaths;
+}
+
+@end
+
+
+
+@implementation TZCollectionView
+
+- (BOOL)touchesShouldCancelInContentView:(UIView *)view {
+    if ( [view isKindOfClass:[UIControl class]]) {
+        return YES;
+    }
+    return [super touchesShouldCancelInContentView:view];
 }
 
 @end

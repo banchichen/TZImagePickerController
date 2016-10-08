@@ -106,11 +106,11 @@
 
 - (UIButton *)selectPhotoButton {
     if (_selectImageView == nil) {
-        UIButton *selectImageView = [[UIButton alloc] init];
-        selectImageView.frame = CGRectMake(self.tz_width - 44, 0, 44, 44);
-        [selectImageView addTarget:self action:@selector(selectPhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
-        [self.contentView addSubview:selectImageView];
-        _selectPhotoButton = selectImageView;
+        UIButton *selectPhotoButton = [[UIButton alloc] init];
+        selectPhotoButton.frame = CGRectMake(self.tz_width - 44, 0, 44, 44);
+        [selectPhotoButton addTarget:self action:@selector(selectPhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [self.contentView addSubview:selectPhotoButton];
+        _selectPhotoButton = selectPhotoButton;
     }
     return _selectPhotoButton;
 }
