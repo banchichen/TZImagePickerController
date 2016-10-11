@@ -200,6 +200,7 @@
         [_settingBtn removeFromSuperview];
         [_timer invalidate];
         _timer = nil;
+        [self pushPhotoPickerVc];
     }
 }
 
