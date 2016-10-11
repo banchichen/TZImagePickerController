@@ -352,6 +352,9 @@
     _isSelectOriginalPhoto = isSelectOriginalPhoto;
     [_collectionView reloadData];
     // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
+    
+    // 1.打印图片名字
+    [self printAssetsName:assets];
 }
 
 // If user picking a video, this callback will be called.
@@ -372,7 +375,7 @@
    // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
 }
 
-#pragma mark Click Event
+#pragma mark - Click Event
 
 - (void)deleteBtnClik:(UIButton *)sender {
     [_selectedPhotos removeObjectAtIndex:sender.tag];
@@ -422,6 +425,23 @@
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
     [self.view endEditing:YES];
+}
+
+#pragma mark - Private
+
+/// 打印图片名字
+- (void)printAssetsName:(NSArray *)assets {
+    NSString *fileName;
+    for (id asset in assets) {
+        if ([asset isKindOfClass:[PHAsset class]]) {
+            PHAsset *phAsset = (PHAsset *)asset;
+            fileName = [phAsset valueForKey:@"filename"];
+        } else if ([asset isKindOfClass:[ALAsset class]]) {
+            ALAsset *alAsset = (ALAsset *)asset;
+            fileName = alAsset.defaultRepresentation.filename;;
+        }
+        NSLog(@"图片名字:%@",fileName);
+    }
 }
 
 @end
