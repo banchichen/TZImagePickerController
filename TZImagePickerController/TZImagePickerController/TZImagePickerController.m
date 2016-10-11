@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.6.8 - 2016.10.08
+//  version 1.6.9 - 2016.10.11
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -436,6 +436,9 @@
     }
     if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
         [imagePickerVc.pickerDelegate imagePickerControllerDidCancel:imagePickerVc];
+    }
+    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(tz_imagePickerControllerDidCancel:)]) {
+        [imagePickerVc.pickerDelegate tz_imagePickerControllerDidCancel:imagePickerVc];
     }
     if (imagePickerVc.imagePickerControllerDidCancelHandle) {
         imagePickerVc.imagePickerControllerDidCancelHandle();

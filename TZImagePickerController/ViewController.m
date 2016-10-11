@@ -334,9 +334,9 @@
 
 /// User click cancel button
 /// 用户点击了取消
-// - (void)imagePickerControllerDidCancel:(TZImagePickerController *)picker {
+- (void)tz_imagePickerControllerDidCancel:(TZImagePickerController *)picker {
     // NSLog(@"cancel");
-// }
+ }
 
 // The picker should dismiss itself; when it dismissed these handle will be called.
 // If isOriginalPhoto is YES, user picked the original photo.
