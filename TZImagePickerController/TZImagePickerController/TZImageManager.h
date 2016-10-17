@@ -68,3 +68,8 @@
 - (BOOL)isCameraRollAlbum:(NSString *)albumName;
 
 @end
+
+
+//@interface TZSortDescriptor : NSSortDescriptor
+//
+//@end
