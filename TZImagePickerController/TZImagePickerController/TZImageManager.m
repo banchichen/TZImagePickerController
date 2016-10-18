@@ -61,12 +61,16 @@ static CGFloat TZScreenScale;
 
 /// Return YES if Authorized 返回YES如果得到了授权
 - (BOOL)authorizationStatusAuthorized {
+    return [self authorizationStatus] == 3;
+}
+
+- (NSInteger)authorizationStatus {
     if (iOS8Later) {
-        if ([PHPhotoLibrary authorizationStatus] == PHAuthorizationStatusAuthorized) return YES;
+        return [PHPhotoLibrary authorizationStatus];
     } else {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        if ([ALAssetsLibrary authorizationStatus] == ALAuthorizationStatusAuthorized) return YES;
+        return [ALAssetsLibrary authorizationStatus];
 #pragma clang diagnostic pop
     }
     return NO;
