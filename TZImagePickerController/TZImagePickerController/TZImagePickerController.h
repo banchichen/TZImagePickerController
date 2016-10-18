@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.6.10 - 2016.10.18
+//  version 1.7.0 - 2016.10.18
 
 /*
  经过测试，比起xib的方式，把TZAssetCell改用纯代码的方式来写，滑动帧数明显提高了（约提高10帧左右）
