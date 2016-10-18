@@ -356,6 +356,10 @@
     [super pushViewController:viewController animated:animated];
 }
 
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskPortrait;
+}
+
 @end
 
 
