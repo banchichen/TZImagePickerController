@@ -204,6 +204,13 @@ static CGFloat TZScreenScale;
             if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return;
             if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return;
             
+            if (self.hideWhenCanNotSelect) {
+                // 过滤掉尺寸不满足要求的图片
+                if (![self isPhotoSelectableWithAsset:asset]) {
+                    return;
+                }
+            }
+            
             NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
             timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
             [photoArr addObject:[TZAssetModel modelWithAsset:asset type:type timeLength:timeLength]];
@@ -241,6 +248,12 @@ static CGFloat TZScreenScale;
                 timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
                 [photoArr addObject:[TZAssetModel modelWithAsset:result type:type timeLength:timeLength]];
             } else {
+                if (self.hideWhenCanNotSelect) {
+                    // 过滤掉尺寸不满足要求的图片
+                    if (![self isPhotoSelectableWithAsset:result]) {
+                        return;
+                    }
+                }
                 [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
             }
         };
@@ -757,6 +770,28 @@ static CGFloat TZScreenScale;
         NSURL *assetUrl = [alAsset valueForProperty:ALAssetPropertyAssetURL];
 #pragma clang diagnostic pop
         return assetUrl.absoluteString;
+    }
+}
+
+/// 检查照片大小是否满足最小要求
+- (BOOL)isPhotoSelectableWithAsset:(id)asset {
+    CGSize photoSize = [self photoSizeWithAsset:asset];
+    if (self.minPhotoWidthSelectable > photoSize.width || self.minPhotoHeightSelectable > photoSize.height) {
+        return NO;
+    }
+    return YES;
+}
+
+- (CGSize)photoSizeWithAsset:(id)asset {
+    if (iOS8Later) {
+        PHAsset *phAsset = (PHAsset *)asset;
+        return CGSizeMake(phAsset.pixelWidth, phAsset.pixelHeight);
+    } else {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        ALAsset *alAsset = (ALAsset *)asset;
+#pragma clang diagnostic pop
+        return alAsset.defaultRepresentation.dimensions;
     }
 }
 

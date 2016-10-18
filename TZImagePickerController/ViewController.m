@@ -222,6 +222,9 @@
     
     // imagePickerVc.minImagesCount = 3;
     // imagePickerVc.alwaysEnableDoneBtn = YES;
+    
+    // imagePickerVc.minPhotoWidthSelectable = 3000;
+    // imagePickerVc.minPhotoHeightSelectable = 2000;
 #pragma mark - 到这里为止
     
     // You can get the photos by block, the same as by delegate.

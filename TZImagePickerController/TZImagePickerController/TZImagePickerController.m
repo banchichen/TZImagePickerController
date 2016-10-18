@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.0 - 2016.10.18
+//  version 1.7.1 - 2016.10.18
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -294,6 +294,21 @@
     TZAlbumPickerController *albumPickerVc = [self.childViewControllers firstObject];
     albumPickerVc.columnNumber = _columnNumber;
     [TZImageManager manager].columnNumber = _columnNumber;
+}
+
+- (void)setMinPhotoWidthSelectable:(NSInteger)minPhotoWidthSelectable {
+    _minPhotoWidthSelectable = minPhotoWidthSelectable;
+    [TZImageManager manager].minPhotoWidthSelectable = minPhotoWidthSelectable;
+}
+
+- (void)setMinPhotoHeightSelectable:(NSInteger)minPhotoHeightSelectable {
+    _minPhotoHeightSelectable = minPhotoHeightSelectable;
+    [TZImageManager manager].minPhotoHeightSelectable = minPhotoHeightSelectable;
+}
+
+- (void)setHideWhenCanNotSelect:(BOOL)hideWhenCanNotSelect {
+    _hideWhenCanNotSelect = hideWhenCanNotSelect;
+    [TZImageManager manager].hideWhenCanNotSelect = hideWhenCanNotSelect;
 }
 
 - (void)setPhotoPreviewMaxWidth:(CGFloat)photoPreviewMaxWidth {

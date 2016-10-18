@@ -67,6 +67,14 @@
         self.type = TZAssetCellTypeVideo;
         self.timeLength.text = model.timeLength;
     }
+    
+    // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
+    if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {
+        if (_selectImageView.hidden == NO) {
+            self.selectPhotoButton.hidden = YES;
+            _selectImageView.hidden = YES;
+        }
+    }
 }
 
 - (void)setMaxImagesCount:(NSInteger)maxImagesCount {

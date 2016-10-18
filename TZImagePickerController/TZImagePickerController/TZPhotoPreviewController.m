@@ -348,13 +348,26 @@
     
     // If is previewing video, hide original photo button
     // 如果正在预览的是视频，隐藏原图按钮
-    if (_isHideNaviBar) return;
-    if (model.type == TZAssetModelMediaTypeVideo) {
+    if (!_isHideNaviBar) {
+        if (model.type == TZAssetModelMediaTypeVideo) {
+            _originalPhotoButton.hidden = YES;
+            _originalPhotoLable.hidden = YES;
+        } else {
+            _originalPhotoButton.hidden = NO;
+            if (_isSelectOriginalPhoto)  _originalPhotoLable.hidden = NO;
+        }
+    }
+    
+    // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
+    _okButton.hidden = NO;
+    _selectButton.hidden = _tzImagePickerVc.maxImagesCount == 1;
+    if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {
+        _numberLable.hidden = YES;
+        _numberImageView.hidden = YES;
+        _selectButton.hidden = YES;
         _originalPhotoButton.hidden = YES;
         _originalPhotoLable.hidden = YES;
-    } else {
-        _originalPhotoButton.hidden = NO;
-        if (_isSelectOriginalPhoto)  _originalPhotoLable.hidden = NO;
+        _okButton.hidden = YES;
     }
 }
 
