@@ -121,7 +121,7 @@ static CGSize AssetGridThumbnailSize;
     layout.minimumLineSpacing = margin;
     CGFloat top = 44;
     if (iOS7Later) top += 20;
-    CGFloat collectionViewHeight = tzImagePickerVc.maxImagesCount > 1 ? self.view.tz_height - 50 - top : self.view.tz_height - top;
+    CGFloat collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - top : self.view.tz_height - top;
     _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, collectionViewHeight) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
@@ -160,7 +160,7 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)configBottomToolBar {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (tzImagePickerVc.maxImagesCount <= 1) return;
+    if (!tzImagePickerVc.showSelectBtn) return;
     
     UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50, self.view.tz_width, 50)];
     CGFloat rgb = 253 / 255.0;
@@ -170,7 +170,7 @@ static CGSize AssetGridThumbnailSize;
     CGFloat previewWidth = [previewText boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width;
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _previewButton.frame = CGRectMake(10, 3, previewWidth + 2, 44);
-    _previewButton.tz_width = tzImagePickerVc.maxImagesCount <= 1 ? 0 : previewWidth + 2;
+    _previewButton.tz_width = !tzImagePickerVc.showSelectBtn ? 0 : previewWidth + 2;
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];
     _previewButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_previewButton setTitle:previewText forState:UIControlStateNormal];
@@ -362,7 +362,7 @@ static CGSize AssetGridThumbnailSize;
         model = _models[indexPath.row - 1];
     }
     cell.model = model;
-    cell.maxImagesCount = tzImagePickerVc.maxImagesCount;
+    cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     
     __weak typeof(cell) weakCell = cell;
     __weak typeof(self) weakSelf = self;
@@ -482,15 +482,18 @@ static CGSize AssetGridThumbnailSize;
 - (void)pushPhotoPrevireViewController:(TZPhotoPreviewController *)photoPreviewVc {
     __weak typeof(self) weakSelf = self;
     photoPreviewVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
-    photoPreviewVc.backButtonClickBlock = ^(BOOL isSelectOriginalPhoto) {
+    [photoPreviewVc setBackButtonClickBlock:^(BOOL isSelectOriginalPhoto) {
         weakSelf.isSelectOriginalPhoto = isSelectOriginalPhoto;
         [weakSelf.collectionView reloadData];
         [weakSelf refreshBottomToolBarStatus];
-    };
-    photoPreviewVc.okButtonClickBlock = ^(BOOL isSelectOriginalPhoto){
+    }];
+    [photoPreviewVc setDoneButtonClickBlock:^(BOOL isSelectOriginalPhoto) {
         weakSelf.isSelectOriginalPhoto = isSelectOriginalPhoto;
         [weakSelf okButtonClick];
-    };
+    }];
+    [photoPreviewVc setDoneButtonClickBlockCropMode:^(UIImage *cropedImage, id asset) {
+        [weakSelf didGetAllPhotos:@[cropedImage] assets:@[asset] infoArr:nil];
+    }];
     [self.navigationController pushViewController:photoPreviewVc animated:YES];
 }
 

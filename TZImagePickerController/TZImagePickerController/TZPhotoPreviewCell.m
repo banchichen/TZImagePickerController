@@ -14,9 +14,6 @@
 @interface TZPhotoPreviewCell ()<UIGestureRecognizerDelegate,UIScrollViewDelegate> {
     CGFloat _aspectRatio;
 }
-@property (nonatomic, strong) UIScrollView *scrollView;
-@property (nonatomic, strong) UIImageView *imageView;
-@property (nonatomic, strong) UIView *imageContainerView;
 @end
 
 @implementation TZPhotoPreviewCell
@@ -43,10 +40,12 @@
         
         _imageContainerView = [[UIView alloc] init];
         _imageContainerView.clipsToBounds = YES;
+        _imageContainerView.contentMode = UIViewContentModeScaleAspectFill;
         [_scrollView addSubview:_imageContainerView];
         
         _imageView = [[UIImageView alloc] init];
         _imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
+        _imageView.contentMode = UIViewContentModeScaleAspectFill;
         _imageView.clipsToBounds = YES;
         [_imageContainerView addSubview:_imageView];
         
@@ -91,7 +90,12 @@
     if (_imageContainerView.tz_height > self.tz_height && _imageContainerView.tz_height - self.tz_height <= 1) {
         _imageContainerView.tz_height = self.tz_height;
     }
-    _scrollView.contentSize = CGSizeMake(self.scrollView.tz_width, MAX(_imageContainerView.tz_height, self.tz_height));
+    CGFloat contentSizeH = MAX(_imageContainerView.tz_height, self.tz_height);
+    if (_allowCrop) {
+        _scrollView.contentSize = CGSizeMake(self.scrollView.tz_width, contentSizeH);
+    } else {
+        _scrollView.contentSize = CGSizeMake(self.scrollView.tz_width, contentSizeH);
+    }
     [_scrollView scrollRectToVisible:self.bounds animated:NO];
     _scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
     _imageView.frame = _imageContainerView.bounds;
@@ -127,6 +131,10 @@
     CGFloat offsetX = (scrollView.tz_width > scrollView.contentSize.width) ? (scrollView.tz_width - scrollView.contentSize.width) * 0.5 : 0.0;
     CGFloat offsetY = (scrollView.tz_height > scrollView.contentSize.height) ? (scrollView.tz_height - scrollView.contentSize.height) * 0.5 : 0.0;
     self.imageContainerView.center = CGPointMake(scrollView.contentSize.width * 0.5 + offsetX, scrollView.contentSize.height * 0.5 + offsetY);
+}
+
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
+   
 }
 
 @end

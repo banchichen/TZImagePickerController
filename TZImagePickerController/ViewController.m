@@ -69,6 +69,7 @@
     _selectedPhotos = [NSMutableArray array];
     _selectedAssets = [NSMutableArray array];
     [self configCollectionView];
+    self.maxCountTF.text = @"1";
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -225,6 +226,13 @@
     
     // imagePickerVc.minPhotoWidthSelectable = 3000;
     // imagePickerVc.minPhotoHeightSelectable = 2000;
+    
+    /// 5. Single selection mode, valid when maxImagesCount = 1
+    /// 5. 单选模式,maxImagesCount为1时才生效
+    imagePickerVc.showSelectBtn = NO;
+    imagePickerVc.allowCrop = YES;
+    NSInteger cropWH = self.view.tz_width - 40;
+    imagePickerVc.cropRect = CGRectMake(20, (self.view.tz_height - cropWH) / 2 + 50, cropWH, cropWH - 100);
 #pragma mark - 到这里为止
     
     // You can get the photos by block, the same as by delegate.

@@ -77,13 +77,13 @@
     }
 }
 
-- (void)setMaxImagesCount:(NSInteger)maxImagesCount {
-    _maxImagesCount = maxImagesCount;
+- (void)setShowSelectBtn:(BOOL)showSelectBtn {
+    _showSelectBtn = showSelectBtn;
     if (!self.selectPhotoButton.hidden) {
-        self.selectPhotoButton.hidden = maxImagesCount == 1;
+        self.selectPhotoButton.hidden = !showSelectBtn;
     }
     if (!self.selectImageView.hidden) {
-        self.selectImageView.hidden = maxImagesCount == 1;
+        self.selectImageView.hidden = !showSelectBtn;
     }
 }
 

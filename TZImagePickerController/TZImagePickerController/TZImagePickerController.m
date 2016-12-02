@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.1 - 2016.10.18
+//  version 1.7.2 - 2016.12.2
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -174,7 +174,7 @@
         previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
         previewVc.currentIndex = index;
         __weak typeof(self) weakSelf = self;
-        [previewVc setOkButtonClickBlockWithPreviewType:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+        [previewVc setDoneButtonClickBlockWithPreviewType:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
             if (weakSelf.didFinishPickingPhotosHandle) {
                 weakSelf.didFinishPickingPhotosHandle(photos,assets,isSelectOriginalPhoto);
             }
@@ -272,6 +272,36 @@
         [_HUDIndicatorView stopAnimating];
         [_progressHUD removeFromSuperview];
     }
+}
+
+- (void)setMaxImagesCount:(NSInteger)maxImagesCount {
+    _maxImagesCount = maxImagesCount;
+    if (maxImagesCount > 1) {
+        _showSelectBtn = YES;
+    }
+}
+
+- (void)setShowSelectBtn:(BOOL)showSelectBtn {
+    _showSelectBtn = showSelectBtn;
+    // 多选模式下，不允许让showSelectBtn为NO
+    if (!showSelectBtn && _maxImagesCount > 1) {
+        _showSelectBtn = YES;
+    }
+}
+
+- (void)setAllowCrop:(BOOL)allowCrop {
+    _allowCrop = allowCrop;
+    if (allowCrop) { // 允许裁剪的时候，不能选原图
+        self.allowPickingOriginalPhoto = NO;
+    }
+}
+
+- (CGRect)cropRect {
+    if (_cropRect.size.width > 0) {
+        return _cropRect;
+    }
+    CGFloat cropViewWH = self.view.tz_width - 2;
+    return CGRectMake(1, (self.view.tz_height - self.view.tz_width) / 2, cropViewWH, cropViewWH);
 }
 
 - (void)setTimeout:(NSInteger)timeout {
@@ -440,6 +470,7 @@
     if (imagePickerVc.autoDismiss) {
         [self.navigationController dismissViewControllerAnimated:YES completion:nil];
     }
+    // 兼容旧版本
     if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
         [imagePickerVc.pickerDelegate imagePickerControllerDidCancel:imagePickerVc];
     }
