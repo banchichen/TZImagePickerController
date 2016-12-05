@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.2 - 2016.12.2
+//  version 1.7.2 - 2016.12.5
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -278,6 +278,7 @@
     _maxImagesCount = maxImagesCount;
     if (maxImagesCount > 1) {
         _showSelectBtn = YES;
+        _allowCrop = NO;
     }
 }
 
@@ -290,7 +291,7 @@
 }
 
 - (void)setAllowCrop:(BOOL)allowCrop {
-    _allowCrop = allowCrop;
+    _allowCrop = _maxImagesCount > 1 ? NO : allowCrop;
     if (allowCrop) { // 允许裁剪的时候，不能选原图
         self.allowPickingOriginalPhoto = NO;
     }
@@ -300,8 +301,8 @@
     if (_cropRect.size.width > 0) {
         return _cropRect;
     }
-    CGFloat cropViewWH = self.view.tz_width - 2;
-    return CGRectMake(1, (self.view.tz_height - self.view.tz_width) / 2, cropViewWH, cropViewWH);
+    CGFloat cropViewWH = self.view.tz_width;
+    return CGRectMake(0, (self.view.tz_height - self.view.tz_width) / 2, cropViewWH, cropViewWH);
 }
 
 - (void)setTimeout:(NSInteger)timeout {

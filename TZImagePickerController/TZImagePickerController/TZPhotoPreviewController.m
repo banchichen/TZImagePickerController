@@ -12,10 +12,10 @@
 #import "UIView+Layout.h"
 #import "TZImagePickerController.h"
 #import "TZImageManager.h"
+#import "TZImageCropManager.h"
 
 @interface TZPhotoPreviewController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIScrollViewDelegate> {
     UICollectionView *_collectionView;
-    BOOL _isHideNaviBar;
     NSArray *_photosTemp;
     NSArray *_assetsTemp;
     
@@ -29,9 +29,10 @@
     UILabel *_numberLable;
     UIButton *_originalPhotoButton;
     UILabel *_originalPhotoLable;
-    
-    UIView *_cropView;
 }
+@property (nonatomic, assign) BOOL isHideNaviBar;
+@property (nonatomic, strong) UIView *cropBgView;
+@property (nonatomic, strong) UIView *cropView;
 @end
 
 @implementation TZPhotoPreviewController
@@ -46,8 +47,8 @@
         self.isSelectOriginalPhoto = _tzImagePickerVc.isSelectOriginalPhoto;
     }
     [self configCollectionView];
-    [self configCustomNaviBar];
     [self configCropView];
+    [self configCustomNaviBar];
     [self configBottomToolBar];
     self.view.clipsToBounds = YES;
 }
@@ -181,33 +182,26 @@
 - (void)configCropView {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (!_tzImagePickerVc.showSelectBtn && _tzImagePickerVc.allowCrop) {
+        _cropBgView = [UIView new];
+        _cropBgView.userInteractionEnabled = NO;
+        static CGFloat rgb = 34 / 255.0;
+        _cropBgView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+        _cropBgView.alpha = 0.5;
+        _cropBgView.frame = self.view.bounds;
+        [self.view addSubview:_cropBgView];
+        [TZImageCropManager overlayClippingWithView:_cropBgView cropRect:_tzImagePickerVc.cropRect containerView:self.view];
+        
         _cropView = [UIView new];
         _cropView.userInteractionEnabled = NO;
-        static CGFloat rgb = 34 / 255.0;
-        _cropView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
-        _cropView.alpha = 0.5;
-        _cropView.frame = self.view.bounds;
+        _cropView.backgroundColor = [UIColor clearColor];
+        _cropView.frame = _tzImagePickerVc.cropRect;
+        _cropView.layer.borderColor = [UIColor whiteColor].CGColor;
+        _cropView.layer.borderWidth = 1.0;
         [self.view addSubview:_cropView];
-    
-        [self overlayClipping];
+        if (_tzImagePickerVc.cropViewSettingBlock) {
+            _tzImagePickerVc.cropViewSettingBlock(_cropView);
+        }
     }
-}
-
-- (void)overlayClipping {
-    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
-    CGMutablePathRef path = CGPathCreateMutable();
-    // Left side of _cropView
-    CGPathAddRect(path, nil, CGRectMake(0, 0, _tzImagePickerVc.cropRect.origin.x, _cropView.tz_height));
-    // Right side of _cropView
-    CGPathAddRect(path, nil, CGRectMake(CGRectGetMaxX(_tzImagePickerVc.cropRect), 0, _cropView.tz_width - _tzImagePickerVc.cropRect.origin.x - _tzImagePickerVc.cropRect.size.width, _cropView.tz_height));
-    // Top side of _cropView
-    CGPathAddRect(path, nil, CGRectMake(0, 0, _cropView.tz_width, _tzImagePickerVc.cropRect.origin.y));
-    // Bottom side _cropView
-    CGPathAddRect(path, nil, CGRectMake(0, CGRectGetMaxY(_tzImagePickerVc.cropRect), _cropView.tz_width, _cropView.tz_height - _tzImagePickerVc.cropRect.origin.y + _tzImagePickerVc.cropRect.size.height));
-    maskLayer.path = path;
-    _cropView.layer.mask = maskLayer;
-    CGPathRelease(path);
 }
 
 #pragma mark - Click Event
@@ -292,7 +286,7 @@
     if (_tzImagePickerVc.allowCrop) { // 裁剪状态
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:_currentIndex inSection:0];
         TZPhotoPreviewCell *cell = (TZPhotoPreviewCell *)[_collectionView cellForItemAtIndexPath:indexPath];
-        UIImage *cropedImage = [self cropImageView:cell.imageView toRect:_tzImagePickerVc.cropRect zoomScale:cell.scrollView.zoomScale];
+        UIImage *cropedImage = [TZImageCropManager cropImageView:cell.imageView toRect:_tzImagePickerVc.cropRect zoomScale:cell.scrollView.zoomScale containerView:self.view];
         if (self.doneButtonClickBlockCropMode) {
             TZAssetModel *model = _models[_currentIndex];
             self.doneButtonClickBlockCropMode(cropedImage,model.asset);
@@ -347,15 +341,15 @@
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     cell.cropRect = _tzImagePickerVc.cropRect;
     cell.allowCrop = _tzImagePickerVc.allowCrop;
+    __weak typeof(self) weakSelf = self;
     if (!cell.singleTapGestureBlock) {
-        __block BOOL _weakIsHideNaviBar = _isHideNaviBar;
         __weak typeof(_naviBar) weakNaviBar = _naviBar;
         __weak typeof(_toolBar) weakToolBar = _toolBar;
         cell.singleTapGestureBlock = ^(){
             // show or hide naviBar / 显示或隐藏导航栏
-            _weakIsHideNaviBar = !_weakIsHideNaviBar;
-            weakNaviBar.hidden = _weakIsHideNaviBar;
-            weakToolBar.hidden = _weakIsHideNaviBar;
+            weakSelf.isHideNaviBar = !weakSelf.isHideNaviBar;
+            weakNaviBar.hidden = weakSelf.isHideNaviBar;
+            weakToolBar.hidden = weakSelf.isHideNaviBar;
         };
     }
     return cell;
@@ -420,63 +414,6 @@
     [[TZImageManager manager] getPhotosBytesWithArray:@[_models[_currentIndex]] completion:^(NSString *totalBytes) {
         _originalPhotoLable.text = [NSString stringWithFormat:@"(%@)",totalBytes];
     }];
-}
-
-#pragma mark - Crop
-
-- (UIImage *)cropImageView:(UIImageView *)imageView toRect:(CGRect)rect zoomScale:(double)zoomScale {
-    CGAffineTransform transform = CGAffineTransformIdentity;
-    transform = CGAffineTransformScale(transform, zoomScale, zoomScale);
-    CGImageRef imageRef = [self newTransformedImage:transform
-                                        sourceImage:imageView.image.CGImage
-                                         sourceSize:imageView.image.size
-                                        outputWidth:imageView.image.size.width
-                                           cropSize:rect.size
-                                      imageViewSize:imageView.frame.size];
-    UIImage *cropedImage = [UIImage imageWithCGImage:imageRef];
-    CGImageRelease(imageRef);
-    return cropedImage;
-}
-
-- (CGImageRef)newTransformedImage:(CGAffineTransform)transform sourceImage:(CGImageRef)sourceImage sourceSize:(CGSize)sourceSize  outputWidth:(CGFloat)outputWidth cropSize:(CGSize)cropSize imageViewSize:(CGSize)imageViewSize {
-    CGImageRef source = [self newScaledImage:sourceImage toSize:sourceSize];
-    
-    CGFloat aspect = cropSize.height/cropSize.width;
-    CGSize outputSize = CGSizeMake(outputWidth, outputWidth*aspect);
-    
-    CGContextRef context = CGBitmapContextCreate(NULL, outputSize.width, outputSize.height, CGImageGetBitsPerComponent(source), 0, CGImageGetColorSpace(source), CGImageGetBitmapInfo(source));
-    CGContextSetFillColorWithColor(context, [[UIColor clearColor] CGColor]);
-    CGContextFillRect(context, CGRectMake(0, 0, outputSize.width, outputSize.height));
-    
-    CGAffineTransform uiCoords = CGAffineTransformMakeScale(outputSize.width / cropSize.width, outputSize.height / cropSize.height);
-    uiCoords = CGAffineTransformTranslate(uiCoords, cropSize.width/2.0, cropSize.height / 2.0);
-    uiCoords = CGAffineTransformScale(uiCoords, 1.0, -1.0);
-    CGContextConcatCTM(context, uiCoords);
-    
-    CGContextConcatCTM(context, transform);
-    CGContextScaleCTM(context, 1.0, -1.0);
-    
-    CGContextDrawImage(context, CGRectMake(-imageViewSize.width/2.0, -imageViewSize.height/2.0, imageViewSize.width, imageViewSize.height), source);
-    CGImageRef resultRef = CGBitmapContextCreateImage(context);
-    CGContextRelease(context);
-    CGImageRelease(source);
-    return resultRef;
-}
-
-- (CGImageRef)newScaledImage:(CGImageRef)source toSize:(CGSize)size {
-    CGSize srcSize = size;
-    CGColorSpaceRef rgbColorSpace = CGColorSpaceCreateDeviceRGB();
-    CGContextRef context = CGBitmapContextCreate(NULL, size.width, size.height, 8, 0, rgbColorSpace, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Big);
-    CGColorSpaceRelease(rgbColorSpace);
-    
-    CGContextSetInterpolationQuality(context, kCGInterpolationNone);
-    CGContextTranslateCTM(context, size.width/2, size.height/2);
-    
-    CGContextDrawImage(context, CGRectMake(-srcSize.width/2, -srcSize.height/2, srcSize.width, srcSize.height), source);
-    
-    CGImageRef resultRef = CGBitmapContextCreateImage(context);
-    CGContextRelease(context);
-    return resultRef;
 }
 
 @end
