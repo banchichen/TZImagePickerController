@@ -69,7 +69,6 @@
     _selectedPhotos = [NSMutableArray array];
     _selectedAssets = [NSMutableArray array];
     [self configCollectionView];
-    self.maxCountTF.text = @"1";
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -237,6 +236,10 @@
         cropView.layer.borderColor = [UIColor redColor].CGColor;
         cropView.layer.borderWidth = 2.0;
     }];
+    /*
+    [imagePickerVc setCropBgViewSettingBlock:^(UIView *cropBgView) {
+        cropBgView.alpha = 0.5;
+    }];*/
 #pragma mark - 到这里为止
     
     // You can get the photos by block, the same as by delegate.

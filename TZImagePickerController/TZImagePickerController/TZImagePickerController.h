@@ -97,7 +97,8 @@
 @property (nonatomic, assign) BOOL showSelectBtn; ///< 在单选模式下，照片列表页中，显示选择按钮,默认为NO
 @property (nonatomic, assign) BOOL allowCrop;     ///< 允许裁剪,默认为YES，showSelectBtn为NO才生效
 @property (nonatomic, assign) CGRect cropRect;    ///< 裁剪框的尺寸
-@property (nonatomic, copy) void (^cropViewSettingBlock)(UIView *cropView); ///< 自定义裁剪框的其他属性
+@property (nonatomic, copy) void (^cropViewSettingBlock)(UIView *cropView);     ///< 自定义裁剪框的其他属性
+@property (nonatomic, copy) void (^cropBgViewSettingBlock)(UIView *cropBgView); ///< 自定义裁剪框背景的其他属性
 
 - (void)showAlertWithTitle:(NSString *)title;
 - (void)showProgressHUD;
@@ -112,11 +113,18 @@
 @property (nonatomic, copy) NSString *photoPreviewOriginDefImageName;
 @property (nonatomic, copy) NSString *photoNumberIconImageName;
 
-/// Appearance / 外观颜色
+/// Appearance / 外观颜色 + 按钮文字
 @property (nonatomic, strong) UIColor *oKButtonTitleColorNormal;
 @property (nonatomic, strong) UIColor *oKButtonTitleColorDisabled;
 @property (nonatomic, strong) UIColor *barItemTextColor;
 @property (nonatomic, strong) UIFont *barItemTextFont;
+
+@property (nonatomic, copy) NSString *doneBtnTitleStr;
+@property (nonatomic, copy) NSString *cancelBtnTitleStr;
+@property (nonatomic, copy) NSString *previewBtnTitleStr;
+@property (nonatomic, copy) NSString *fullImageBtnTitleStr;
+@property (nonatomic, copy) NSString *settingBtnTitleStr;
+@property (nonatomic, copy) NSString *processHintStr;
 
 // The picker should dismiss itself; when it dismissed these handle will be called.
 // You can also set autoDismiss to NO, then the picker don't dismiss itself.

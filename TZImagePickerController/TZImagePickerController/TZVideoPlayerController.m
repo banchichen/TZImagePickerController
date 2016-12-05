@@ -30,7 +30,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor blackColor];
-    self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Preview"];
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    self.navigationItem.title = tzImagePickerVc.previewBtnTitleStr;
     [self configMoviePlayer];
 }
 
@@ -84,7 +85,8 @@
     _okButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
     _okButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
-    [_okButton setTitle:[NSBundle tz_localizedStringForKey:@"Done"] forState:UIControlStateNormal];
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    [_okButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     

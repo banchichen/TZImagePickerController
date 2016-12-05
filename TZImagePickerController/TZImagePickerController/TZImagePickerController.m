@@ -128,6 +128,7 @@
         self.barItemTextColor = [UIColor whiteColor];
         self.columnNumber = columnNumber;
         [self configDefaultImageName];
+        [self configDefaultBtnTitle];
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
@@ -143,7 +144,7 @@
             [self.view addSubview:_tipLable];
             
             _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-            [_settingBtn setTitle:[NSBundle tz_localizedStringForKey:@"Setting"] forState:UIControlStateNormal];
+            [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
             _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
             _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
             [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
@@ -170,7 +171,8 @@
         self.barItemTextFont = [UIFont systemFontOfSize:15];
         self.barItemTextColor = [UIColor whiteColor];
         [self configDefaultImageName];
-        
+        [self configDefaultBtnTitle];
+
         previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
         previewVc.currentIndex = index;
         __weak typeof(self) weakSelf = self;
@@ -192,6 +194,15 @@
     self.photoPreviewOriginDefImageName = @"preview_original_def.png";
     self.photoOriginDefImageName = @"photo_original_def.png";
     self.photoOriginSelImageName = @"photo_original_sel.png";
+}
+
+- (void)configDefaultBtnTitle {
+    self.doneBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Done"];
+    self.cancelBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Cancel"];
+    self.previewBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Preview"];
+    self.fullImageBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Full image"];
+    self.settingBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Setting"];
+    self.processHintStr = [NSBundle tz_localizedStringForKey:@"Processing..."];
 }
 
 - (void)observeAuthrizationStatusChange {
@@ -250,7 +261,7 @@
         _HUDLable = [[UILabel alloc] init];
         _HUDLable.frame = CGRectMake(0,40, 120, 50);
         _HUDLable.textAlignment = NSTextAlignmentCenter;
-        _HUDLable.text = @"正在处理...";
+        _HUDLable.text = self.processHintStr;
         _HUDLable.font = [UIFont systemFontOfSize:15];
         _HUDLable.textColor = [UIColor whiteColor];
         
@@ -421,7 +432,8 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Photos"];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] style:UIBarButtonItemStylePlain target:self action:@selector(cancel)];
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:self action:@selector(cancel)];
     [self configTableView];
     // 1.6.10 采用微信的方式，只在相册列表页定义backBarButtonItem为返回，其余的顺系统的做法
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
