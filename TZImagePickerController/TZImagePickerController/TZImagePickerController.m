@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.3 - 2016.12.6
+//  version 1.7.4 - 2016.12.6
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -300,6 +300,11 @@
     if (allowCrop) { // 允许裁剪的时候，不能选原图
         self.allowPickingOriginalPhoto = NO;
     }
+}
+
+- (void)setCircleCropRadius:(NSInteger)circleCropRadius {
+    _circleCropRadius = circleCropRadius;
+    _cropRect = CGRectMake(self.view.tz_width / 2 - circleCropRadius, self.view.tz_height / 2 - _circleCropRadius, _circleCropRadius * 2, _circleCropRadius * 2);
 }
 
 - (CGRect)cropRect {

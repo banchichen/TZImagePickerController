@@ -12,22 +12,19 @@
 @implementation TZImageCropManager
 
 /// 裁剪框背景的处理
-+ (void)overlayClippingWithView:(UIView *)view cropRect:(CGRect)cropRect containerView:(UIView *)containerView {
-    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
-    CGMutablePathRef path = CGPathCreateMutable();
-    
-    // Left side of _cropBgView
-    CGPathAddRect(path, nil, CGRectMake(0, 0, cropRect.origin.x, containerView.tz_height));
-    // Right side of _cropBgView
-    CGPathAddRect(path, nil, CGRectMake(CGRectGetMaxX(cropRect), 0, view.tz_width - cropRect.origin.x - cropRect.size.width, containerView.tz_height));
-    // Top side of _cropBgView
-    CGPathAddRect(path, nil, CGRectMake(0, 0, view.tz_width, cropRect.origin.y));
-    // Bottom side _cropBgView
-    CGPathAddRect(path, nil, CGRectMake(0, CGRectGetMaxY(cropRect), view.tz_width, containerView.tz_height - cropRect.origin.y + cropRect.size.height));
-    
-    maskLayer.path = path;
-    view.layer.mask = maskLayer;
-    CGPathRelease(path);
++ (void)overlayClippingWithView:(UIView *)view cropRect:(CGRect)cropRect containerView:(UIView *)containerView needCircleCrop:(BOOL)needCircleCrop {
+    UIBezierPath *path= [UIBezierPath bezierPathWithRect:[UIScreen mainScreen].bounds];
+    CAShapeLayer *layer = [CAShapeLayer layer];
+    if (needCircleCrop) { // 圆形裁剪框
+        [path appendPath:[UIBezierPath bezierPathWithArcCenter:containerView.center radius:cropRect.size.width / 2 startAngle:0 endAngle: 2 * M_PI clockwise:NO]];
+    } else { // 矩形裁剪框
+        [path appendPath:[UIBezierPath bezierPathWithRect:cropRect]];
+    }
+    layer.path = path.CGPath;
+    layer.fillRule = kCAFillRuleEvenOdd;
+    layer.fillColor = [[UIColor blackColor] CGColor];
+    layer.opacity = 0.5;
+    [view.layer addSublayer:layer];
 }
 
 /// 获得裁剪后的图片
@@ -46,7 +43,7 @@
     CGImageRef imageRef = [self newTransformedImage:transform
                                         sourceImage:imageView.image.CGImage
                                          sourceSize:imageView.image.size
-                                        outputWidth:imageView.image.size.width
+                                        outputWidth:rect.size.width * [UIScreen mainScreen].scale
                                            cropSize:rect.size
                                       imageViewSize:imageView.frame.size];
     UIImage *cropedImage = [UIImage imageWithCGImage:imageRef];
@@ -93,6 +90,22 @@
     CGImageRef resultRef = CGBitmapContextCreateImage(context);
     CGContextRelease(context);
     return resultRef;
+}
+
+/// 获取圆形图片
++ (UIImage *)circularClipImage:(UIImage *)image {
+    UIGraphicsBeginImageContextWithOptions(image.size, NO, [UIScreen mainScreen].scale);
+    
+    CGContextRef ctx = UIGraphicsGetCurrentContext();
+    CGRect rect = CGRectMake(0, 0, image.size.width, image.size.height);
+    CGContextAddEllipseInRect(ctx, rect);
+    CGContextClip(ctx);
+    
+    [image drawInRect:rect];
+    UIImage *circleImage = UIGraphicsGetImageFromCurrentImageContext();
+    
+    UIGraphicsEndImageContext();
+    return circleImage;
 }
 
 @end

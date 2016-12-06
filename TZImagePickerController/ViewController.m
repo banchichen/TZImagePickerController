@@ -223,15 +223,12 @@
     /// 5. 单选模式,maxImagesCount为1时才生效
     imagePickerVc.showSelectBtn = NO;
     imagePickerVc.allowCrop = YES;
-    // NSInteger cropWH = self.view.tz_width - 150;
-    // imagePickerVc.cropRect = CGRectMake(20, (self.view.tz_height - cropWH) / 2 + 50, cropWH, cropWH - 100);
+    imagePickerVc.needCircleCrop = YES;
+    imagePickerVc.circleCropRadius = 100;
+    /*
     [imagePickerVc setCropViewSettingBlock:^(UIView *cropView) {
         cropView.layer.borderColor = [UIColor redColor].CGColor;
         cropView.layer.borderWidth = 2.0;
-    }];
-    /*
-    [imagePickerVc setCropBgViewSettingBlock:^(UIView *cropBgView) {
-        cropBgView.alpha = 0.5;
     }];*/
 #pragma mark - 到这里为止
     

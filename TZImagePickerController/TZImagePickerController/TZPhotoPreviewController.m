@@ -183,15 +183,10 @@
     if (!_tzImagePickerVc.showSelectBtn && _tzImagePickerVc.allowCrop) {
         _cropBgView = [UIView new];
         _cropBgView.userInteractionEnabled = NO;
-        static CGFloat rgb = 34 / 255.0;
-        _cropBgView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
-        _cropBgView.alpha = 0.5;
+        _cropBgView.backgroundColor = [UIColor clearColor];
         _cropBgView.frame = self.view.bounds;
         [self.view addSubview:_cropBgView];
-        if (_tzImagePickerVc.cropBgViewSettingBlock) {
-            _tzImagePickerVc.cropBgViewSettingBlock(_cropBgView);
-        }
-        [TZImageCropManager overlayClippingWithView:_cropBgView cropRect:_tzImagePickerVc.cropRect containerView:self.view];
+        [TZImageCropManager overlayClippingWithView:_cropBgView cropRect:_tzImagePickerVc.cropRect containerView:self.view needCircleCrop:_tzImagePickerVc.needCircleCrop];
         
         _cropView = [UIView new];
         _cropView.userInteractionEnabled = NO;
@@ -199,6 +194,10 @@
         _cropView.frame = _tzImagePickerVc.cropRect;
         _cropView.layer.borderColor = [UIColor whiteColor].CGColor;
         _cropView.layer.borderWidth = 1.0;
+        if (_tzImagePickerVc.needCircleCrop) {
+            _cropView.layer.cornerRadius = _tzImagePickerVc.cropRect.size.width / 2;
+            _cropView.clipsToBounds = YES;
+        }
         [self.view addSubview:_cropView];
         if (_tzImagePickerVc.cropViewSettingBlock) {
             _tzImagePickerVc.cropViewSettingBlock(_cropView);
@@ -294,6 +293,9 @@
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:_currentIndex inSection:0];
         TZPhotoPreviewCell *cell = (TZPhotoPreviewCell *)[_collectionView cellForItemAtIndexPath:indexPath];
         UIImage *cropedImage = [TZImageCropManager cropImageView:cell.imageView toRect:_tzImagePickerVc.cropRect zoomScale:cell.scrollView.zoomScale containerView:self.view];
+        if (_tzImagePickerVc.needCircleCrop) {
+            cropedImage = [TZImageCropManager circularClipImage:cropedImage];
+        }
         if (self.doneButtonClickBlockCropMode) {
             TZAssetModel *model = _models[_currentIndex];
             self.doneButtonClickBlockCropMode(cropedImage,model.asset);
