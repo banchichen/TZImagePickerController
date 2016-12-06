@@ -33,6 +33,8 @@
 @property (nonatomic, assign) BOOL isHideNaviBar;
 @property (nonatomic, strong) UIView *cropBgView;
 @property (nonatomic, strong) UIView *cropView;
+
+@property (nonatomic, assign) double progress;
 @end
 
 @implementation TZPhotoPreviewController
@@ -80,13 +82,12 @@
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
 
     _naviBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.tz_width, 64)];
-    _naviBar.backgroundColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
-    _naviBar.alpha = 0.7;
+    _naviBar.backgroundColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:0.7];
     
     _backButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, 44, 44)];
     [_backButton setImage:[UIImage imageNamedFromMyBundle:@"navi_back.png"] forState:UIControlStateNormal];
     [_backButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-    [_backButton addTarget:self action:@selector(back) forControlEvents:UIControlEventTouchUpInside];
+    [_backButton addTarget:self action:@selector(backButtonClick) forControlEvents:UIControlEventTouchUpInside];
     
     _selectButton = [[UIButton alloc] initWithFrame:CGRectMake(self.view.tz_width - 54, 10, 42, 42)];
     [_selectButton setImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoDefImageName] forState:UIControlStateNormal];
@@ -102,8 +103,7 @@
 - (void)configBottomToolBar {
     _toolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 44, self.view.tz_width, 44)];
     static CGFloat rgb = 34 / 255.0;
-    _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
-    _toolBar.alpha = 0.7;
+    _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.7];
     
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_tzImagePickerVc.allowPickingOriginalPhoto) {
@@ -267,7 +267,7 @@
     [UIView showOscillatoryAnimationWithLayer:_numberImageView.layer type:TZOscillatoryAnimationToSmaller];
 }
 
-- (void)back {
+- (void)backButtonClick {
     if (self.navigationController.childViewControllers.count < 2) {
         [self.navigationController dismissViewControllerAnimated:YES completion:nil];
         return;
@@ -280,6 +280,11 @@
 
 - (void)doneButtonClick {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    // 如果图片正在从iCloud同步中,提醒用户
+    if (_progress > 0 && _progress < 1) {
+        [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]]; return;
+    }
+    
     // 如果没有选中过照片 点击确定时选中当前预览的照片
     if (_tzImagePickerVc.selectedModels.count == 0 && _tzImagePickerVc.minImagesCount <= 0) {
         TZAssetModel *model = _models[_currentIndex];
@@ -354,6 +359,9 @@
             weakToolBar.hidden = weakSelf.isHideNaviBar;
         };
     }
+    [cell setImageProgressUpdateBlock:^(double progress) {
+        weakSelf.progress = progress;
+    }];
     return cell;
 }
 
@@ -372,7 +380,7 @@
 #pragma mark - Private Method
 
 - (void)dealloc {
-    // NSLog(@"dealloc");
+    //NSLog(@"TZPhotoPreviewController dealloc");
 }
 
 - (void)refreshNaviBarAndBottomBarState {

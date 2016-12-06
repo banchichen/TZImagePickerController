@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.2 - 2016.12.5
+//  version 1.7.3 - 2016.12.6
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -35,6 +35,8 @@
 
 @implementation TZImagePickerController
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
@@ -69,10 +71,7 @@
     if (iOS9Later) {
         barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
     } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         barItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
-#pragma clang diagnostic pop
     }
     NSMutableDictionary *textAttrs = [NSMutableDictionary dictionary];
     textAttrs[NSForegroundColorAttributeName] = self.barItemTextColor;
@@ -83,10 +82,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     [UIApplication sharedApplication].statusBarStyle = iOS7Later ? UIStatusBarStyleLightContent : UIStatusBarStyleBlackOpaque;
-#pragma clang diagnostic pop
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -177,10 +173,11 @@
         previewVc.currentIndex = index;
         __weak typeof(self) weakSelf = self;
         [previewVc setDoneButtonClickBlockWithPreviewType:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-            if (weakSelf.didFinishPickingPhotosHandle) {
-                weakSelf.didFinishPickingPhotosHandle(photos,assets,isSelectOriginalPhoto);
-            }
-            [weakSelf dismissViewControllerAnimated:YES completion:nil];
+            [weakSelf dismissViewControllerAnimated:YES completion:^{
+                if (weakSelf.didFinishPickingPhotosHandle) {
+                    weakSelf.didFinishPickingPhotosHandle(photos,assets,isSelectOriginalPhoto);
+                }
+            }];
         }];
     }
     return self;
@@ -236,10 +233,7 @@
         [alertController addAction:[UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"OK"] style:UIAlertActionStyleDefault handler:nil]];
         [self presentViewController:alertController animated:YES completion:nil];
     } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         [[[UIAlertView alloc] initWithTitle:title message:nil delegate:nil cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"OK"] otherButtonTitles:nil, nil] show];
-#pragma clang diagnostic pop
     }
 }
 
@@ -417,6 +411,31 @@
     return UIInterfaceOrientationMaskPortrait;
 }
 
+#pragma mark - Public
+
+- (void)cancelButtonClick {
+    if (self.autoDismiss) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self callDelegateMethod];
+        }];
+    } else {
+        [self callDelegateMethod];
+    }
+}
+
+- (void)callDelegateMethod {
+    // 兼容旧版本
+    if ([self.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
+        [self.pickerDelegate imagePickerControllerDidCancel:self];
+    }
+    if ([self.pickerDelegate respondsToSelector:@selector(tz_imagePickerControllerDidCancel:)]) {
+        [self.pickerDelegate tz_imagePickerControllerDidCancel:self];
+    }
+    if (self.imagePickerControllerDidCancelHandle) {
+        self.imagePickerControllerDidCancelHandle();
+    }
+}
+
 @end
 
 
@@ -433,7 +452,7 @@
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Photos"];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:self action:@selector(cancel)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:imagePickerVc action:@selector(cancelButtonClick)];
     [self configTableView];
     // 1.6.10 采用微信的方式，只在相册列表页定义backBarButtonItem为返回，其余的顺系统的做法
     self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
@@ -476,25 +495,6 @@
     }];
 }
 
-#pragma mark - Click Event
-
-- (void)cancel {
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (imagePickerVc.autoDismiss) {
-        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-    }
-    // 兼容旧版本
-    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
-        [imagePickerVc.pickerDelegate imagePickerControllerDidCancel:imagePickerVc];
-    }
-    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(tz_imagePickerControllerDidCancel:)]) {
-        [imagePickerVc.pickerDelegate tz_imagePickerControllerDidCancel:imagePickerVc];
-    }
-    if (imagePickerVc.imagePickerControllerDidCancelHandle) {
-        imagePickerVc.imagePickerControllerDidCancelHandle();
-    }
-}
-
 #pragma mark - UITableViewDataSource && Delegate
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -522,6 +522,7 @@
     [self.navigationController pushViewController:photoPickerVc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
+#pragma clang diagnostic pop
 
 @end
 

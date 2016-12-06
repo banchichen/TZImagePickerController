@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.2 - 2016.12.5
+//  version 1.7.3 - 2016.12.6
 
 /*
  经过测试，比起xib的方式，把TZAssetCell改用纯代码的方式来写，滑动帧数明显提高了（约提高10帧左右）
@@ -125,6 +125,9 @@
 @property (nonatomic, copy) NSString *fullImageBtnTitleStr;
 @property (nonatomic, copy) NSString *settingBtnTitleStr;
 @property (nonatomic, copy) NSString *processHintStr;
+
+/// Public Method
+- (void)cancelButtonClick;
 
 // The picker should dismiss itself; when it dismissed these handle will be called.
 // You can also set autoDismiss to NO, then the picker don't dismiss itself.

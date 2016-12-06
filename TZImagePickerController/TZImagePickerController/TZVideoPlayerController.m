@@ -20,7 +20,7 @@
     UIImage *_cover;
     
     UIView *_toolBar;
-    UIButton *_okButton;
+    UIButton *_doneButton;
     UIProgressView *_progress;
 }
 @end
@@ -81,16 +81,16 @@
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     _toolBar.alpha = 0.7;
     
-    _okButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _okButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
-    _okButton.titleLabel.font = [UIFont systemFontOfSize:16];
-    [_okButton addTarget:self action:@selector(okButtonClick) forControlEvents:UIControlEventTouchUpInside];
+    _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
+    _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    [_okButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
+    [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    [_okButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+    [_doneButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     
-    [_toolBar addSubview:_okButton];
+    [_toolBar addSubview:_doneButton];
     [self.view addSubview:_toolBar];
 }
 
@@ -111,20 +111,28 @@
     }
 }
 
-- (void)okButtonClick {
+- (void)doneButtonClick {
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (self.navigationController) {
+        if (imagePickerVc.autoDismiss) {
+            [self.navigationController dismissViewControllerAnimated:YES completion:^{
+                [self callDelegateMethod];
+            }];
+        }
+    } else {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self callDelegateMethod];
+        }];
+    }
+}
+
+- (void)callDelegateMethod {
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
         [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingVideo:_cover sourceAssets:_model.asset];
     }
     if (imagePickerVc.didFinishPickingVideoHandle) {
         imagePickerVc.didFinishPickingVideoHandle(_cover,_model.asset);
-    }
-    if (self.navigationController) {
-        if (imagePickerVc.autoDismiss) {
-            [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-        }
-    } else {
-        [self dismissViewControllerAnimated:YES completion:nil];
     }
 }
 

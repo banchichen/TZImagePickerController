@@ -11,6 +11,7 @@
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import "TZImagePickerController.h"
+#import "TZProgressView.h"
 
 @interface TZAssetCell ()
 @property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
@@ -19,19 +20,11 @@
 @property (weak, nonatomic) UILabel *timeLength;
 
 @property (nonatomic, weak) UIImageView *viewImgView;
-
+@property (nonatomic, strong) TZProgressView *progressView;
+@property (nonatomic, assign) PHImageRequestID bigImageRequestID;
 @end
 
 @implementation TZAssetCell
-
-// Now we use code to create subViews for improve performance
-// 现在我们用代码来创建TZAssetCell和TZAlbumCell的子控件，以提高性能
-
-/*
-- (void)awakeFromNib {
-    self.timeLength.font = [UIFont boldSystemFontOfSize:11];
-}
-*/
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
@@ -39,6 +32,10 @@
         self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
     }
     PHImageRequestID imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        if (_progressView) {
+            self.progressView.hidden = YES;
+            self.imageView.alpha = 1.0;
+        }
         // Set the cell's thumbnail image if it's still showing the same asset.
         if (!iOS8Later) {
             self.imageView.image = photo; return;
@@ -52,7 +49,7 @@
         if (!isDegraded) {
             self.imageRequestID = 0;
         }
-    }];
+    } progressHandler:nil networkAccessAllowed:NO];
     if (imageRequestID && self.imageRequestID && imageRequestID != self.imageRequestID) {
         [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
         // NSLog(@"cancelImageRequest %d",self.imageRequestID);
@@ -74,6 +71,10 @@
             self.selectPhotoButton.hidden = YES;
             _selectImageView.hidden = YES;
         }
+    }
+    // 如果用户选中了该图片，提前获取一下大图
+    if (model.isSelected) {
+        [self fetchBigImage];
     }
 }
 
@@ -107,10 +108,40 @@
     self.selectImageView.image = sender.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
     if (sender.isSelected) {
         [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
+        // 用户选中了该图片，提前获取一下大图
+        [self fetchBigImage];
+    } else { // 取消选中，取消大图的获取
+        if (_bigImageRequestID && _progressView) {
+            [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
+            [self hideProgressView];
+        }
     }
 }
 
-#pragma mark - Lazy load 
+- (void)hideProgressView {
+    self.progressView.hidden = YES;
+    self.imageView.alpha = 1.0;
+}
+
+- (void)fetchBigImage {
+    _bigImageRequestID = [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        if (_progressView) {
+            [self hideProgressView];
+        }
+    } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+        if (_model.isSelected) {
+            progress = progress > 0.02 ? progress : 0.02;;
+            self.progressView.progress = progress;
+            self.progressView.hidden = NO;
+            self.imageView.alpha = 0.4;
+        } else {
+            *stop = YES;
+            [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        }
+    } networkAccessAllowed:YES];
+}
+
+#pragma mark - Lazy load
 
 - (UIButton *)selectPhotoButton {
     if (_selectImageView == nil) {
@@ -184,6 +215,18 @@
     return _timeLength;
 }
 
+- (TZProgressView *)progressView {
+    if (_progressView == nil) {
+        _progressView = [[TZProgressView alloc] init];
+        static CGFloat progressWH = 20;
+        CGFloat progressXY = (self.tz_width - progressWH) / 2;
+        _progressView.hidden = YES;
+        _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
+        [self addSubview:_progressView];
+    }
+    return _progressView;
+}
+
 @end
 
 @interface TZAlbumCell ()
@@ -193,12 +236,6 @@
 @end
 
 @implementation TZAlbumCell
-
-/*
-- (void)awakeFromNib {
-    self.posterImageView.clipsToBounds = YES;
-}
- */
 
 - (void)setModel:(TZAlbumModel *)model {
     _model = model;

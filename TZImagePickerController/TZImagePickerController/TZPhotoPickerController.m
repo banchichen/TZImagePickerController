@@ -38,6 +38,8 @@ static CGSize AssetGridThumbnailSize;
 
 @implementation TZPhotoPickerController
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (UIImagePickerController *)imagePickerVc {
     if (_imagePickerVc == nil) {
         _imagePickerVc = [[UIImagePickerController alloc] init];
@@ -50,11 +52,8 @@ static CGSize AssetGridThumbnailSize;
             tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
             BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
         } else {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
             tzBarItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
             BarItem = [UIBarButtonItem appearanceWhenContainedIn:[UIImagePickerController class], nil];
-#pragma clang diagnostic pop
         }
         NSDictionary *titleTextAttributes = [tzBarItem titleTextAttributesForState:UIControlStateNormal];
         [BarItem setTitleTextAttributes:titleTextAttributes forState:UIControlStateNormal];
@@ -69,7 +68,7 @@ static CGSize AssetGridThumbnailSize;
     _shouldScrollToBottom = YES;
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = _model.name;
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:self action:@selector(cancel)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
     _showTakePhotoBtn = (([[TZImageManager manager] isCameraRollAlbum:_model.name]) && tzImagePickerVc.allowTakePicture);
     if (!tzImagePickerVc.sortAscendingByModificationDate && _isFirstAppear && iOS8Later) {
         [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(TZAlbumModel *model) {
@@ -243,22 +242,6 @@ static CGSize AssetGridThumbnailSize;
 
 #pragma mark - Click Event
 
-- (void)cancel {
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (imagePickerVc.autoDismiss) {
-        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
-    }
-    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(tz_imagePickerControllerDidCancel:)]) {
-        [imagePickerVc.pickerDelegate tz_imagePickerControllerDidCancel:imagePickerVc];
-    }
-    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
-        [imagePickerVc.pickerDelegate imagePickerControllerDidCancel:imagePickerVc];
-    }
-    if (imagePickerVc.imagePickerControllerDidCancelHandle) {
-        imagePickerVc.imagePickerControllerDidCancelHandle();
-    }
-}
-
 - (void)previewButtonClick {
     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
     [self pushPhotoPrevireViewController:photoPreviewVc];
@@ -286,6 +269,7 @@ static CGSize AssetGridThumbnailSize;
     NSMutableArray *infoArr = [NSMutableArray array];
     for (NSInteger i = 0; i < tzImagePickerVc.selectedModels.count; i++) { [photos addObject:@1];[assets addObject:@1];[infoArr addObject:@1]; }
     
+    __block BOOL havenotShowAlert = YES;
     [TZImageManager manager].shouldFixOrientation = YES;
     for (NSInteger i = 0; i < tzImagePickerVc.selectedModels.count; i++) {
         TZAssetModel *model = tzImagePickerVc.selectedModels[i];
@@ -300,15 +284,38 @@ static CGSize AssetGridThumbnailSize;
 
             for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
             
-            [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
-        }];
+            if (havenotShowAlert) {
+                [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
+            }
+        } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+            // 如果图片正在从iCloud同步中,提醒用户
+            if (progress < 1 && havenotShowAlert) {
+                [tzImagePickerVc hideProgressHUD];
+                [tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]];
+                havenotShowAlert = NO;
+                return;
+            }
+        } networkAccessAllowed:YES];
     }
     if (tzImagePickerVc.selectedModels.count <= 0) {
         [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
     }
 }
 
-- (void)didGetAllPhotos:(NSArray *)photos assets:(NSArray *)assets infoArr:(NSArray *)infoArr{
+- (void)didGetAllPhotos:(NSArray *)photos assets:(NSArray *)assets infoArr:(NSArray *)infoArr {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    [tzImagePickerVc hideProgressHUD];
+    
+    if (tzImagePickerVc.autoDismiss) {
+        [self.navigationController dismissViewControllerAnimated:YES completion:^{
+            [self callDelegateMethodWithPhotos:photos assets:assets infoArr:infoArr];
+        }];
+    } else {
+        [self callDelegateMethodWithPhotos:photos assets:assets infoArr:infoArr];
+    }
+}
+
+- (void)callDelegateMethodWithPhotos:(NSArray *)photos assets:(NSArray *)assets infoArr:(NSArray *)infoArr {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:)]) {
         [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingPhotos:photos sourceAssets:assets isSelectOriginalPhoto:_isSelectOriginalPhoto];
@@ -321,11 +328,6 @@ static CGSize AssetGridThumbnailSize;
     }
     if (tzImagePickerVc.didFinishPickingPhotosWithInfosHandle) {
         tzImagePickerVc.didFinishPickingPhotosWithInfosHandle(photos,assets,_isSelectOriginalPhoto,infoArr);
-    }
-    [tzImagePickerVc hideProgressHUD];
-    
-    if (tzImagePickerVc.autoDismiss) {
-        [self.navigationController dismissViewControllerAnimated:YES completion:nil];
     }
 }
 
@@ -438,15 +440,12 @@ static CGSize AssetGridThumbnailSize;
 - (void)takePhoto {
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied) && iOS7Later) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         // 无权限 做一个友好的提示
         NSString *appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleDisplayName"];
         if (!appName) appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleName"];
         NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
         UIAlertView * alert = [[UIAlertView alloc]initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] otherButtonTitles:[NSBundle tz_localizedStringForKey:@"Setting"], nil];
         [alert show];
-#pragma clang diagnostic pop
     } else { // 调用相机
         TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
         UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
@@ -547,10 +546,7 @@ static CGSize AssetGridThumbnailSize;
 
 #pragma mark - UIAlertViewDelegate
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
-#pragma clang diagnostic pop
     if (buttonIndex == 1) { // 去设置界面，开启相机访问权限
         if (iOS8Later) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
@@ -581,11 +577,13 @@ static CGSize AssetGridThumbnailSize;
         } else {
             image = [info objectForKey:UIImagePickerControllerOriginalImage];
         }
-        [[TZImageManager manager] savePhotoWithImage:image completion:^(NSError *error){
-            if (!error) {
-                [self reloadPhotoArray];
-            }
-        }];
+        if (image) {
+            [[TZImageManager manager] savePhotoWithImage:image completion:^(NSError *error){
+                if (!error) {
+                    [self reloadPhotoArray];
+                }
+            }];
+        }
     }
 }
 
@@ -625,6 +623,10 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     [picker dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (void)dealloc {
+    //NSLog(@"TZPhotoPickerController dealloc");
 }
 
 #pragma mark - Asset Caching
@@ -735,6 +737,7 @@ static CGSize AssetGridThumbnailSize;
     }
     return indexPaths;
 }
+#pragma clang diagnostic pop
 
 @end
 

@@ -8,15 +8,17 @@
 
 #import <UIKit/UIKit.h>
 
-@class TZAssetModel;
+@class TZAssetModel,TZProgressView;
 @interface TZPhotoPreviewCell : UICollectionViewCell
 
 @property (nonatomic, strong) TZAssetModel *model;
 @property (nonatomic, copy) void (^singleTapGestureBlock)();
+@property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
 
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *imageContainerView;
+@property (nonatomic, strong) TZProgressView *progressView;
 
 @property (nonatomic, assign) BOOL allowCrop;
 @property (nonatomic, assign) CGRect cropRect;

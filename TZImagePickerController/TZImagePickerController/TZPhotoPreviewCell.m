@@ -10,6 +10,7 @@
 #import "TZAssetModel.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
+#import "TZProgressView.h"
 
 @interface TZPhotoPreviewCell ()<UIGestureRecognizerDelegate,UIScrollViewDelegate> {
     CGFloat _aspectRatio;
@@ -55,8 +56,21 @@
         tap2.numberOfTapsRequired = 2;
         [tap1 requireGestureRecognizerToFail:tap2];
         [self addGestureRecognizer:tap2];
+        
+        [self configProgressView];
     }
     return self;
+}
+
+
+- (void)configProgressView {
+    _progressView = [[TZProgressView alloc] init];
+    static CGFloat progressWH = 40;
+    CGFloat progressX = (self.tz_width - progressWH) / 2;
+    CGFloat progressY = (self.tz_height - progressWH) / 2;
+    _progressView.frame = CGRectMake(progressX, progressY, progressWH, progressWH);
+    _progressView.hidden = YES;
+    [self addSubview:_progressView];
 }
 
 - (void)setModel:(TZAssetModel *)model {
@@ -65,7 +79,19 @@
     [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         self.imageView.image = photo;
         [self resizeSubviews];
-    }];
+        _progressView.hidden = YES;
+        if (self.imageProgressUpdateBlock) {
+            self.imageProgressUpdateBlock(1);
+        }
+    } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+        _progressView.hidden = NO;
+        [self bringSubviewToFront:_progressView];
+        progress = progress > 0.02 ? progress : 0.02;;
+        _progressView.progress = progress;
+        if (self.imageProgressUpdateBlock) {
+            self.imageProgressUpdateBlock(progress);
+        }
+    } networkAccessAllowed:YES];
 }
 
 - (void)recoverSubviews {
