@@ -390,8 +390,8 @@
     TZAssetModel *model = _models[_currentIndex];
     _selectButton.selected = model.isSelected;
     _numberLable.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
-    _numberImageView.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar);
-    _numberLable.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar);
+    _numberImageView.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);
+    _numberLable.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);
     
     _originalPhotoButton.selected = _isSelectOriginalPhoto;
     _originalPhotoLable.hidden = !_originalPhotoButton.isSelected;

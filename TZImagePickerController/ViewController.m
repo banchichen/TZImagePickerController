@@ -15,6 +15,7 @@
 #import "LxGridViewFlowLayout.h"
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
+#import "TZPhotoPreviewController.h"
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
@@ -33,8 +34,10 @@
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingImageSwitch; ///< 允许选择图片
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingOriginalPhotoSwitch; ///< 允许选择原图
 @property (weak, nonatomic) IBOutlet UISwitch *showSheetSwitch; ///< 显示一个sheet,把拍照按钮放在外面
-@property (weak, nonatomic) IBOutlet UITextField *maxCountTF; ///< 照片最大可选张数，设置为1即为单选模式
+@property (weak, nonatomic) IBOutlet UITextField *maxCountTF;  ///< 照片最大可选张数，设置为1即为单选模式
 @property (weak, nonatomic) IBOutlet UITextField *columnNumberTF;
+@property (weak, nonatomic) IBOutlet UISwitch *allowCropSwitch;
+@property (weak, nonatomic) IBOutlet UISwitch *needCircleCropSwitch;
 @end
 
 @implementation ViewController
@@ -82,7 +85,7 @@
     layout.itemSize = CGSizeMake(_itemWH, _itemWH);
     layout.minimumInteritemSpacing = _margin;
     layout.minimumLineSpacing = _margin;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 344, self.view.tz_width, self.view.tz_height - 344) collectionViewLayout:layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 374, self.view.tz_width, self.view.tz_height - 374) collectionViewLayout:layout];
     CGFloat rgb = 244 / 255.0;
     _collectionView.alwaysBounceVertical = YES;
     _collectionView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
@@ -222,8 +225,8 @@
     /// 5. Single selection mode, valid when maxImagesCount = 1
     /// 5. 单选模式,maxImagesCount为1时才生效
     imagePickerVc.showSelectBtn = NO;
-    imagePickerVc.allowCrop = YES;
-    imagePickerVc.needCircleCrop = YES;
+    imagePickerVc.allowCrop = self.allowCropSwitch.isOn;
+    imagePickerVc.needCircleCrop = self.needCircleCropSwitch.isOn;
     imagePickerVc.circleCropRadius = 100;
     /*
     [imagePickerVc setCropViewSettingBlock:^(UIView *cropView) {
@@ -276,7 +279,7 @@
     [picker dismissViewControllerAnimated:YES completion:nil];
     NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
     if ([type isEqualToString:@"public.image"]) {
-        TZImagePickerController *tzImagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 delegate:self];
+        TZImagePickerController *tzImagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:self];
         tzImagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
         [tzImagePickerVc showProgressHUD];
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
@@ -293,14 +296,27 @@
                         if (tzImagePickerVc.sortAscendingByModificationDate) {
                             assetModel = [models lastObject];
                         }
-                        [_selectedAssets addObject:assetModel.asset];
-                        [_selectedPhotos addObject:image];
-                        [_collectionView reloadData];
+                        if (self.allowCropSwitch.isOn) { // 允许裁剪,去裁剪
+                            TZImagePickerController *imagePicker = [[TZImagePickerController alloc] initCropTypeWithAsset:assetModel.asset photo:image completion:^(UIImage *cropImage, id asset) {
+                                [self refreshCollectionViewWithAddedAsset:asset image:cropImage];
+                            }];
+                            imagePicker.needCircleCrop = self.needCircleCropSwitch.isOn;
+                            imagePicker.circleCropRadius = 100;
+                            [self presentViewController:imagePicker animated:YES completion:nil];
+                        } else {
+                            [self refreshCollectionViewWithAddedAsset:assetModel.asset image:image];
+                        }
                     }];
                 }];
             }
         }];
     }
+}
+
+- (void)refreshCollectionViewWithAddedAsset:(id)asset image:(UIImage *)image {
+    [_selectedAssets addObject:asset];
+    [_selectedPhotos addObject:image];
+    [_collectionView reloadData];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -432,6 +448,21 @@
 - (IBAction)allowPickingVideoSwitchClick:(UISwitch *)sender {
     if (!sender.isOn) {
         [_allowPickingImageSwitch setOn:YES animated:YES];
+    }
+}
+
+- (IBAction)allowCropSwitchClick:(UISwitch *)sender {
+    if (sender.isOn) {
+        self.maxCountTF.text = @"1";
+    } else {
+        [self.needCircleCropSwitch setOn:NO animated:YES];
+    }
+}
+
+- (IBAction)needCircleCropSwitchClick:(UISwitch *)sender {
+    if (sender.isOn) {
+        [self.allowCropSwitch setOn:YES animated:YES];
+        self.maxCountTF.text = @"1";
     }
 }
 

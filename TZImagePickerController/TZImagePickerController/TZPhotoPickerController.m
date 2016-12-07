@@ -447,7 +447,6 @@ static CGSize AssetGridThumbnailSize;
         UIAlertView * alert = [[UIAlertView alloc]initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] otherButtonTitles:[NSBundle tz_localizedStringForKey:@"Setting"], nil];
         [alert show];
     } else { // 调用相机
-        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
         UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
         if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
             self.imagePickerVc.sourceType = sourceType;

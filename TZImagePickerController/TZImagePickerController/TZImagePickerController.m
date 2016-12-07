@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.4 - 2016.12.6
+//  version 1.7.5 - 2016.12.7
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -115,16 +115,10 @@
         self.allowPickingVideo = YES;
         self.allowPickingImage = YES;
         self.allowTakePicture = YES;
-        self.timeout = 15;
-        self.photoWidth = 828.0;
-        self.photoPreviewMaxWidth = 600;
         self.sortAscendingByModificationDate = YES;
         self.autoDismiss = YES;
-        self.barItemTextFont = [UIFont systemFontOfSize:15];
-        self.barItemTextColor = [UIColor whiteColor];
         self.columnNumber = columnNumber;
-        [self configDefaultImageName];
-        [self configDefaultBtnTitle];
+        [self configDefaultSetting];
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLable = [[UILabel alloc] init];
@@ -161,13 +155,7 @@
     if (self) {
         self.selectedAssets = [NSMutableArray arrayWithArray:selectedAssets];
         self.allowPickingOriginalPhoto = self.allowPickingOriginalPhoto;
-        self.timeout = 15;
-        self.photoWidth = 828.0;
-        self.photoPreviewMaxWidth = 600;
-        self.barItemTextFont = [UIFont systemFontOfSize:15];
-        self.barItemTextColor = [UIColor whiteColor];
-        [self configDefaultImageName];
-        [self configDefaultBtnTitle];
+        [self configDefaultSetting];
 
         previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
         previewVc.currentIndex = index;
@@ -181,6 +169,42 @@
         }];
     }
     return self;
+}
+
+/// This init method for crop photo / 用这个初始化方法以裁剪图片
+- (instancetype)initCropTypeWithAsset:(id)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,id asset))completion {
+    TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
+    self = [super initWithRootViewController:previewVc];
+    if (self) {
+        self.maxImagesCount = 1;
+        self.allowCrop = YES;
+        self.selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
+        [self configDefaultSetting];
+        
+        previewVc.photos = [NSMutableArray arrayWithArray:@[photo]];
+        previewVc.isCropImage = YES;
+        previewVc.currentIndex = 0;
+        __weak typeof(self) weakSelf = self;
+        [previewVc setDoneButtonClickBlockCropMode:^(UIImage *cropImage, id asset) {
+            [weakSelf dismissViewControllerAnimated:YES completion:^{
+                if (completion) {
+                    completion(cropImage,asset);
+                }
+            }];
+        }];
+    }
+    return self;
+}
+
+- (void)configDefaultSetting {
+    self.timeout = 15;
+    self.photoWidth = 828.0;
+    self.photoPreviewMaxWidth = 600;
+    self.barItemTextFont = [UIFont systemFontOfSize:15];
+    self.barItemTextColor = [UIColor whiteColor];
+    
+    [self configDefaultImageName];
+    [self configDefaultBtnTitle];
 }
 
 - (void)configDefaultImageName {
