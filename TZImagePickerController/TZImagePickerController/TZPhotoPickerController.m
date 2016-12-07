@@ -454,7 +454,6 @@ static CGSize AssetGridThumbnailSize;
             if(iOS8Later) {
                 _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
             }
-            self.imagePickerVc.allowsEditing = tzImagePickerVc.allowCrop;
             [self presentViewController:_imagePickerVc animated:YES completion:nil];
         } else {
             NSLog(@"模拟器中无法打开照相机,请在真机中使用");
@@ -571,12 +570,7 @@ static CGSize AssetGridThumbnailSize;
     if ([type isEqualToString:@"public.image"]) {
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
         [imagePickerVc showProgressHUD];
-        UIImage *image;
-        if (imagePickerVc.allowCrop) {
-            image = [info objectForKey:UIImagePickerControllerEditedImage];
-        } else {
-            image = [info objectForKey:UIImagePickerControllerOriginalImage];
-        }
+        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
         if (image) {
             [[TZImageManager manager] savePhotoWithImage:image completion:^(NSError *error){
                 if (!error) {
@@ -604,8 +598,16 @@ static CGSize AssetGridThumbnailSize;
             }
             
             if (tzImagePickerVc.maxImagesCount <= 1) {
-                [tzImagePickerVc.selectedModels addObject:assetModel];
-                [self doneButtonClick]; return;
+                if (tzImagePickerVc.allowCrop) {
+                    TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+                    photoPreviewVc.currentIndex = _models.count - 1;
+                    photoPreviewVc.models = _models;
+                    [self pushPhotoPrevireViewController:photoPreviewVc];
+                } else {
+                    [tzImagePickerVc.selectedModels addObject:assetModel];
+                    [self doneButtonClick];
+                }
+                return;
             }
             
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
