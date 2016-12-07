@@ -165,10 +165,13 @@ static CGSize AssetGridThumbnailSize;
     CGFloat rgb = 253 / 255.0;
     bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     
-    CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width;
+    CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width + 2;
+    if (!tzImagePickerVc.allowPreview) {
+        previewWidth = 0.0;
+    }
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _previewButton.frame = CGRectMake(10, 3, previewWidth + 2, 44);
-    _previewButton.tz_width = !tzImagePickerVc.showSelectBtn ? 0 : previewWidth + 2;
+    _previewButton.frame = CGRectMake(10, 3, previewWidth, 44);
+    _previewButton.tz_width = !tzImagePickerVc.showSelectBtn ? 0 : previewWidth;
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];
     _previewButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_previewButton setTitle:tzImagePickerVc.previewBtnTitleStr forState:UIControlStateNormal];
@@ -363,6 +366,9 @@ static CGSize AssetGridThumbnailSize;
     }
     cell.model = model;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
+    if (!tzImagePickerVc.allowPreview) {
+        cell.selectPhotoButton.frame = cell.bounds;
+    }
     
     __weak typeof(cell) weakCell = cell;
     __weak typeof(self) weakSelf = self;

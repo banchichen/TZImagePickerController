@@ -77,6 +77,10 @@
 /// 默认为YES，如果设置为NO,拍照按钮将隐藏,用户将不能在选择器中拍照
 @property(nonatomic, assign) BOOL allowTakePicture;
 
+/// Default is YES.if set NO, user can't preview photo.
+/// 默认为YES，如果设置为NO,预览按钮将隐藏,用户将不能去预览照片
+@property (nonatomic, assign) BOOL allowPreview;
+
 /// Default is YES.if set NO, the picker don't dismiss itself.
 /// 默认为YES，如果设置为NO, 选择器将不会自己dismiss
 @property(nonatomic, assign) BOOL autoDismiss;

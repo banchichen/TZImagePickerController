@@ -233,6 +233,8 @@
         cropView.layer.borderColor = [UIColor redColor].CGColor;
         cropView.layer.borderWidth = 2.0;
     }];*/
+
+    //imagePickerVc.allowPreview = NO;
 #pragma mark - 到这里为止
     
     // You can get the photos by block, the same as by delegate.
@@ -434,6 +436,8 @@
 - (IBAction)allowPickingOriginPhotoSwitchClick:(UISwitch *)sender {
     if (sender.isOn) {
         [_allowPickingImageSwitch setOn:YES animated:YES];
+        [self.needCircleCropSwitch setOn:NO animated:YES];
+        [self.allowCropSwitch setOn:NO animated:YES];
     }
 }
 
@@ -454,6 +458,7 @@
 - (IBAction)allowCropSwitchClick:(UISwitch *)sender {
     if (sender.isOn) {
         self.maxCountTF.text = @"1";
+        [self.allowPickingOriginalPhotoSwitch setOn:NO animated:YES];
     } else {
         [self.needCircleCropSwitch setOn:NO animated:YES];
     }
@@ -463,6 +468,7 @@
     if (sender.isOn) {
         [self.allowCropSwitch setOn:YES animated:YES];
         self.maxCountTF.text = @"1";
+        [self.allowPickingOriginalPhotoSwitch setOn:NO animated:YES];
     }
 }
 

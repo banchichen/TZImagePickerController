@@ -202,6 +202,7 @@
     self.photoPreviewMaxWidth = 600;
     self.barItemTextFont = [UIFont systemFontOfSize:15];
     self.barItemTextColor = [UIColor whiteColor];
+    self.allowPreview = YES;
     
     [self configDefaultImageName];
     [self configDefaultBtnTitle];
