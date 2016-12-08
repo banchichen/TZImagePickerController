@@ -122,28 +122,22 @@ static CGFloat TZScreenScale;
         PHFetchResult *myPhotoStreamAlbum = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumMyPhotoStream options:nil];
         PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeAlbumRegular options:nil];
         PHFetchResult *topLevelUserCollections = [PHCollectionList fetchTopLevelUserCollectionsWithOptions:nil];
-        for (PHAssetCollection *collection in myPhotoStreamAlbum) {
-            PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            if (fetchResult.count < 1) continue;
-            [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
-        }
-        for (PHAssetCollection *collection in smartAlbums) {
-            // 有可能是PHCollectionList类的的对象，过滤掉
-            if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
-            PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            if (fetchResult.count < 1) continue;
-            if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
-            if ([self isCameraRollAlbum:collection.localizedTitle]) {
-                [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
-            } else {
-                [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+        PHFetchResult *syncedAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumSyncedAlbum options:nil];
+        PHFetchResult *sharedAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum subtype:PHAssetCollectionSubtypeAlbumCloudShared options:nil];
+        NSArray *allAlbums = @[myPhotoStreamAlbum,smartAlbums,topLevelUserCollections,syncedAlbums,sharedAlbums];
+        for (PHFetchResult *fetchResult in allAlbums) {
+            for (PHAssetCollection *collection in fetchResult) {
+                // 有可能是PHCollectionList类的的对象，过滤掉
+                if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
+                PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
+                if (fetchResult.count < 1) continue;
+                if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
+                if ([self isCameraRollAlbum:collection.localizedTitle]) {
+                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
+                } else {
+                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+                }
             }
-        }
-        for (PHAssetCollection *collection in topLevelUserCollections) {
-            if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
-            PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            if (fetchResult.count < 1) continue;
-            [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
         }
         if (completion && albumArr.count > 0) completion(albumArr);
     } else {

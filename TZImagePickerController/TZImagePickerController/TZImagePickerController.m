@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.5 - 2016.12.7
+//  version 1.7.6 - 2016.12.8
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
