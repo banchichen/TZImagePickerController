@@ -14,6 +14,7 @@
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
+#import "TZGifPhotoPreviewController.h"
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate> {
     NSMutableArray *_models;
@@ -364,6 +365,7 @@ static CGSize AssetGridThumbnailSize;
     } else {
         model = _models[indexPath.row - 1];
     }
+    cell.allowPickingGif = tzImagePickerVc.allowPickingGif;
     cell.model = model;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     if (!tzImagePickerVc.allowPreview) {
@@ -425,6 +427,10 @@ static CGSize AssetGridThumbnailSize;
             videoPlayerVc.model = model;
             [self.navigationController pushViewController:videoPlayerVc animated:YES];
         }
+    } else if (model.type == TZAssetModelMediaTypePhotoGif) {
+        TZGifPhotoPreviewController *gifPreviewVc = [[TZGifPhotoPreviewController alloc] init];
+        gifPreviewVc.model = model;
+        [self.navigationController pushViewController:gifPreviewVc animated:YES];
     } else {
         TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
         photoPreviewVc.currentIndex = index;

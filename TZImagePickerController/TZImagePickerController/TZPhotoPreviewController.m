@@ -292,7 +292,7 @@
     if (_tzImagePickerVc.allowCrop) { // 裁剪状态
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:_currentIndex inSection:0];
         TZPhotoPreviewCell *cell = (TZPhotoPreviewCell *)[_collectionView cellForItemAtIndexPath:indexPath];
-        UIImage *cropedImage = [TZImageCropManager cropImageView:cell.imageView toRect:_tzImagePickerVc.cropRect zoomScale:cell.scrollView.zoomScale containerView:self.view];
+        UIImage *cropedImage = [TZImageCropManager cropImageView:cell.previewView.imageView toRect:_tzImagePickerVc.cropRect zoomScale:cell.previewView.scrollView.zoomScale containerView:self.view];
         if (_tzImagePickerVc.needCircleCrop) {
             cropedImage = [TZImageCropManager circularClipImage:cropedImage];
         }

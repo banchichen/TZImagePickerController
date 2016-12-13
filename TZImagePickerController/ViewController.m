@@ -16,6 +16,7 @@
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
 #import "TZPhotoPreviewController.h"
+#import "TZGifPhotoPreviewController.h"
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
@@ -109,6 +110,7 @@
     if (indexPath.row == _selectedPhotos.count) {
         cell.imageView.image = [UIImage imageNamed:@"AlbumAddBtn.png"];
         cell.deleteBtn.hidden = YES;
+        cell.gifLable.hidden = YES;
     } else {
         cell.imageView.image = _selectedPhotos[indexPath.row];
         cell.asset = _selectedAssets[indexPath.row];
@@ -138,7 +140,12 @@
             ALAsset *alAsset = asset;
             isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
         }
-        if (isVideo) { // perview video / 预览视频
+        if ([[asset valueForKey:@"filename"] containsString:@"GIF"]) {
+            TZGifPhotoPreviewController *vc = [[TZGifPhotoPreviewController alloc] init];
+            TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhotoGif timeLength:@""];
+            vc.model = model;
+            [self presentViewController:vc animated:YES completion:nil];
+        } else if (isVideo) { // perview video / 预览视频
             TZVideoPlayerController *vc = [[TZVideoPlayerController alloc] init];
             TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypeVideo timeLength:@""];
             vc.model = model;
@@ -212,6 +219,7 @@
     imagePickerVc.allowPickingVideo = self.allowPickingVideoSwitch.isOn;
     imagePickerVc.allowPickingImage = self.allowPickingImageSwitch.isOn;
     imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;
+    imagePickerVc.allowPickingGif = YES;
     
     // 4. 照片排列按修改时间升序
     imagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
@@ -403,6 +411,14 @@
     // }];
     [_collectionView reloadData];
    // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
+}
+
+// If user picking a gif image, this callback will be called.
+// 如果用户选择了一个gif图片，下面的handle会被执行
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(id)asset {
+    _selectedPhotos = [NSMutableArray arrayWithArray:@[animatedImage]];
+    _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
+    [_collectionView reloadData];
 }
 
 #pragma mark - Click Event

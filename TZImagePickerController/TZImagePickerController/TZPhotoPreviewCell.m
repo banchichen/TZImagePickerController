@@ -11,10 +11,9 @@
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import "TZProgressView.h"
+#import "TZImageCropManager.h"
 
-@interface TZPhotoPreviewCell ()<UIGestureRecognizerDelegate,UIScrollViewDelegate> {
-    CGFloat _aspectRatio;
-}
+@interface TZPhotoPreviewCell ()
 @end
 
 @implementation TZPhotoPreviewCell
@@ -23,6 +22,54 @@
     self = [super initWithFrame:frame];
     if (self) {
         self.backgroundColor = [UIColor blackColor];
+        self.previewView = [[TZPhotoPreviewView alloc] initWithFrame:self.bounds];
+        __weak typeof(self) weakSelf = self;
+        [self.previewView setSingleTapGestureBlock:^{
+            if (weakSelf.singleTapGestureBlock) {
+                weakSelf.singleTapGestureBlock();
+            }
+        }];
+        [self.previewView setImageProgressUpdateBlock:^(double progress) {
+            if (weakSelf.imageProgressUpdateBlock) {
+                weakSelf.imageProgressUpdateBlock(progress);
+            }
+        }];
+        [self addSubview:self.previewView];
+    }
+    return self;
+}
+
+- (void)setModel:(TZAssetModel *)model {
+    _model = model;
+    _previewView.model = model;
+}
+
+- (void)recoverSubviews {
+    [_previewView recoverSubviews];
+}
+
+- (void)setAllowCrop:(BOOL)allowCrop {
+    _allowCrop = allowCrop;
+    _previewView.allowCrop = allowCrop;
+}
+
+- (void)setCropRect:(CGRect)cropRect {
+    _cropRect = cropRect;
+    _previewView.cropRect = cropRect;
+}
+
+@end
+
+
+@interface TZPhotoPreviewView ()<UIScrollViewDelegate>
+
+@end
+
+@implementation TZPhotoPreviewView
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
         _scrollView = [[UIScrollView alloc] init];
         _scrollView.frame = CGRectMake(10, 0, self.tz_width - 20, self.tz_height);
         _scrollView.bouncesZoom = YES;
@@ -62,7 +109,6 @@
     return self;
 }
 
-
 - (void)configProgressView {
     _progressView = [[TZProgressView alloc] init];
     static CGFloat progressWH = 40;
@@ -76,22 +122,31 @@
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
     [_scrollView setZoomScale:1.0 animated:NO];
-    [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        self.imageView.image = photo;
-        [self resizeSubviews];
-        _progressView.hidden = YES;
-        if (self.imageProgressUpdateBlock) {
-            self.imageProgressUpdateBlock(1);
-        }
-    } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-        _progressView.hidden = NO;
-        [self bringSubviewToFront:_progressView];
-        progress = progress > 0.02 ? progress : 0.02;;
-        _progressView.progress = progress;
-        if (self.imageProgressUpdateBlock) {
-            self.imageProgressUpdateBlock(progress);
-        }
-    } networkAccessAllowed:YES];
+    if (model.type == TZAssetModelMediaTypePhotoGif) {
+        [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.asset completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
+            if (!isDegraded) {
+                self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
+                [self resizeSubviews];
+            }
+        }];
+    } else {
+        [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+            self.imageView.image = photo;
+            [self resizeSubviews];
+            _progressView.hidden = YES;
+            if (self.imageProgressUpdateBlock) {
+                self.imageProgressUpdateBlock(1);
+            }
+        } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+            _progressView.hidden = NO;
+            [self bringSubviewToFront:_progressView];
+            progress = progress > 0.02 ? progress : 0.02;;
+            _progressView.progress = progress;
+            if (self.imageProgressUpdateBlock) {
+                self.imageProgressUpdateBlock(progress);
+            }
+        } networkAccessAllowed:YES];
+    }
 }
 
 - (void)recoverSubviews {

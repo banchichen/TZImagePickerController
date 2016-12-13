@@ -1,0 +1,99 @@
+//
+//  TZGifPhotoPreviewController.m
+//  TZImagePickerController
+//
+//  Created by ttouch on 2016/12/13.
+//  Copyright © 2016年 谭真. All rights reserved.
+//
+
+#import "TZGifPhotoPreviewController.h"
+#import "TZImagePickerController.h"
+#import "TZAssetModel.h"
+#import "UIView+Layout.h"
+#import "TZPhotoPreviewCell.h"
+
+@interface TZGifPhotoPreviewController () {
+    UIView *_toolBar;
+    UIButton *_doneButton;
+    UIProgressView *_progress;
+    
+    TZPhotoPreviewView *_previewView;
+}
+@end
+
+@implementation TZGifPhotoPreviewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor blackColor];
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    self.navigationItem.title = [NSString stringWithFormat:@"GIF%@",tzImagePickerVc.previewBtnTitleStr];
+    [self configPreviewView];
+    [self configBottomToolBar];
+}
+
+- (void)configPreviewView {
+    _previewView = [[TZPhotoPreviewView alloc] initWithFrame:self.view.bounds];
+    _previewView.scrollView.frame = self.view.bounds;
+    _previewView.model = self.model;
+    __weak typeof(self) weakSelf = self;
+    [_previewView setSingleTapGestureBlock:^{
+        [weakSelf signleTapAction];
+    }];
+    [self.view addSubview:_previewView];
+}
+
+- (void)configBottomToolBar {
+    _toolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 44, self.view.tz_width, 44)];
+    CGFloat rgb = 34 / 255.0;
+    _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+    _toolBar.alpha = 0.7;
+    
+    _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
+    _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    [_doneButton setTitleColor:imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+    
+    [_toolBar addSubview:_doneButton];
+    [self.view addSubview:_toolBar];
+}
+
+#pragma mark - Click Event
+
+- (void)signleTapAction {
+    _toolBar.hidden = !_toolBar.isHidden;
+    [self.navigationController setNavigationBarHidden:_toolBar.isHidden];
+    if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = _toolBar.isHidden;
+}
+
+- (void)doneButtonClick {
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (self.navigationController) {
+        if (imagePickerVc.autoDismiss) {
+            [self.navigationController dismissViewControllerAnimated:YES completion:^{
+                [self callDelegateMethod];
+            }];
+        }
+    } else {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self callDelegateMethod];
+        }];
+    }
+}
+
+- (void)callDelegateMethod {
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    UIImage *animatedImage = _previewView.imageView.image;
+    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingGifImage:sourceAssets:)]) {
+        [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingGifImage:animatedImage sourceAssets:_model.asset];
+    }
+    if (imagePickerVc.didFinishPickingGifImageHandle) {
+        imagePickerVc.didFinishPickingGifImageHandle(animatedImage,_model.asset);
+    }
+}
+
+@end

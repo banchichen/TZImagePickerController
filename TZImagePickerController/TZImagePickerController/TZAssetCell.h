@@ -12,6 +12,7 @@
 typedef enum : NSUInteger {
     TZAssetCellTypePhoto = 0,
     TZAssetCellTypeLivePhoto,
+    TZAssetCellTypePhotoGif,
     TZAssetCellTypeVideo,
     TZAssetCellTypeAudio,
 } TZAssetCellType;
@@ -23,6 +24,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) TZAssetModel *model;
 @property (nonatomic, copy) void (^didSelectPhotoBlock)(BOOL);
 @property (nonatomic, assign) TZAssetCellType type;
+@property (nonatomic, assign) BOOL allowPickingGif;
 @property (nonatomic, copy) NSString *representedAssetIdentifier;
 @property (nonatomic, assign) PHImageRequestID imageRequestID;
 

@@ -19,7 +19,7 @@
 @property (weak, nonatomic) UIView *bottomView;
 @property (weak, nonatomic) UILabel *timeLength;
 
-@property (nonatomic, weak) UIImageView *viewImgView;
+@property (nonatomic, weak) UIImageView *videoImgView;
 @property (nonatomic, strong) TZProgressView *progressView;
 @property (nonatomic, assign) PHImageRequestID bigImageRequestID;
 @end
@@ -57,14 +57,7 @@
     self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
     self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
-    self.type = TZAssetCellTypePhoto;
-    if (model.type == TZAssetModelMediaTypeLivePhoto)      self.type = TZAssetCellTypeLivePhoto;
-    else if (model.type == TZAssetModelMediaTypeAudio)     self.type = TZAssetCellTypeAudio;
-    else if (model.type == TZAssetModelMediaTypeVideo) {
-        self.type = TZAssetCellTypeVideo;
-        self.timeLength.text = model.timeLength;
-    }
-    
+    self.type = (NSInteger)model.type;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
     if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {
         if (_selectImageView.hidden == NO) {
@@ -90,14 +83,25 @@
 
 - (void)setType:(TZAssetCellType)type {
     _type = type;
-    if (type == TZAssetCellTypePhoto || type == TZAssetCellTypeLivePhoto) {
+    if (type == TZAssetCellTypePhoto || type == TZAssetCellTypeLivePhoto || (type == TZAssetCellTypePhotoGif && !self.allowPickingGif)) {
         _selectImageView.hidden = NO;
         _selectPhotoButton.hidden = NO;
         _bottomView.hidden = YES;
-    } else {
+    } else { // Video of Gif
         _selectImageView.hidden = YES;
         _selectPhotoButton.hidden = YES;
         _bottomView.hidden = NO;
+        if (type == TZAssetCellTypeVideo) {
+            self.timeLength.text = _model.timeLength;
+            self.videoImgView.hidden = NO;
+            _timeLength.tz_left = self.videoImgView.tz_right;
+            _timeLength.textAlignment = NSTextAlignmentRight;
+        } else {
+            self.timeLength.text = @"GIF";
+            self.videoImgView.hidden = YES;
+            _timeLength.tz_left = 5;
+            _timeLength.textAlignment = NSTextAlignmentLeft;
+        }
     }
 }
 
@@ -183,30 +187,30 @@
     if (_bottomView == nil) {
         UIView *bottomView = [[UIView alloc] init];
         bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
-        bottomView.backgroundColor = [UIColor blackColor];
-        bottomView.alpha = 0.8;
+        static NSInteger rgb = 0;
+        bottomView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.8];
         [self.contentView addSubview:bottomView];
         _bottomView = bottomView;
     }
     return _bottomView;
 }
 
-- (UIImageView *)viewImgView {
-    if (_viewImgView == nil) {
-        UIImageView *viewImgView = [[UIImageView alloc] init];
-        viewImgView.frame = CGRectMake(8, 0, 17, 17);
-        [viewImgView setImage:[UIImage imageNamedFromMyBundle:@"VideoSendIcon.png"]];
-        [self.bottomView addSubview:viewImgView];
-        _viewImgView = viewImgView;
+- (UIImageView *)videoImgView {
+    if (_videoImgView == nil) {
+        UIImageView *videoImgView = [[UIImageView alloc] init];
+        videoImgView.frame = CGRectMake(8, 0, 17, 17);
+        [videoImgView setImage:[UIImage imageNamedFromMyBundle:@"VideoSendIcon.png"]];
+        [self.bottomView addSubview:videoImgView];
+        _videoImgView = videoImgView;
     }
-    return _viewImgView;
+    return _videoImgView;
 }
 
 - (UILabel *)timeLength {
     if (_timeLength == nil) {
         UILabel *timeLength = [[UILabel alloc] init];
         timeLength.font = [UIFont boldSystemFontOfSize:11];
-        timeLength.frame = CGRectMake(self.viewImgView.tz_right, 0, self.tz_width - self.viewImgView.tz_right - 5, 17);
+        timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
         timeLength.textColor = [UIColor whiteColor];
         timeLength.textAlignment = NSTextAlignmentRight;
         [self.bottomView addSubview:timeLength];

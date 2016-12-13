@@ -170,28 +170,10 @@ static CGFloat TZScreenScale;
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         [fetchResult enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            PHAsset *asset = (PHAsset *)obj;
-            TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
-            if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
-            else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
-            else if (asset.mediaType == PHAssetMediaTypeImage) {
-                if (iOS9_1Later) {
-                    // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
-                }
+            TZAssetModel *model = [self assetModelWithAsset:obj allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+            if (model) {
+                [photoArr addObject:model];
             }
-            if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return;
-            if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return;
-            
-            if (self.hideWhenCanNotSelect) {
-                // 过滤掉尺寸不满足要求的图片
-                if (![self isPhotoSelectableWithAsset:asset]) {
-                    return;
-                }
-            }
-            
-            NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
-            timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-            [photoArr addObject:[TZAssetModel modelWithAsset:asset type:type timeLength:timeLength]];
         }];
         if (completion) completion(photoArr);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
@@ -207,26 +189,9 @@ static CGFloat TZScreenScale;
             if (result == nil) {
                 if (completion) completion(photoArr);
             }
-            TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
-            if (!allowPickingVideo){
-                [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
-                return;
-            }
-            /// Allow picking video
-            if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
-                type = TZAssetModelMediaTypeVideo;
-                NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
-                NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
-                timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-                [photoArr addObject:[TZAssetModel modelWithAsset:result type:type timeLength:timeLength]];
-            } else {
-                if (self.hideWhenCanNotSelect) {
-                    // 过滤掉尺寸不满足要求的图片
-                    if (![self isPhotoSelectableWithAsset:result]) {
-                        return;
-                    }
-                }
-                [photoArr addObject:[TZAssetModel modelWithAsset:result type:type]];
+            TZAssetModel *model = [self assetModelWithAsset:result allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+            if (model) {
+                [photoArr addObject:model];
             }
         };
         if (self.sortAscendingByModificationDate) {
@@ -242,7 +207,7 @@ static CGFloat TZScreenScale;
 }
 
 ///  Get asset at index 获得下标为index的单个照片
-///  if index beyond bounds, return nil in callback 果索引越界, 在回调中返回 nil
+///  if index beyond bounds, return nil in callback 如果索引越界, 在回调中返回 nil
 - (void)getAssetFromFetchResult:(id)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAssetModel *))completion {
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
@@ -254,18 +219,7 @@ static CGFloat TZScreenScale;
             if (completion) completion(nil);
             return;
         }
-        
-        TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
-        if (asset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
-        else if (asset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
-        else if (asset.mediaType == PHAssetMediaTypeImage) {
-            if (iOS9_1Later) {
-                // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
-            }
-        }
-        NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
-        timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-        TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+        TZAssetModel *model = [self assetModelWithAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
         if (completion) completion(model);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *group = (ALAssetsGroup *)result;
@@ -277,37 +231,70 @@ static CGFloat TZScreenScale;
             [group setAssetsFilter:[ALAssetsFilter allPhotos]];
         }
         NSIndexSet *indexSet = [NSIndexSet indexSetWithIndex:index];
-        
         @try {
             [group enumerateAssetsAtIndexes:indexSet options:NSEnumerationConcurrent usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
-                
                 if (!result) return;
-                
-                TZAssetModel *model;
-                TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
-                if (!allowPickingVideo){
-                    model = [TZAssetModel modelWithAsset:result type:type];
-                    if (completion) completion(model);
-                    return;
-                }
-                /// Allow picking video
-                if ([[result valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
-                    type = TZAssetModelMediaTypeVideo;
-                    NSTimeInterval duration = [[result valueForProperty:ALAssetPropertyDuration] integerValue];
-                    NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
-                    timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-                    model = [TZAssetModel modelWithAsset:result type:type timeLength:timeLength];
-                } else {
-                    model = [TZAssetModel modelWithAsset:result type:type];
-                }
+                TZAssetModel *model = [self assetModelWithAsset:result allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
                 if (completion) completion(model);
             }];
-
         }
         @catch (NSException* e) {
             if (completion) completion(nil);
         }
     }
+}
+
+- (TZAssetModel *)assetModelWithAsset:(id)asset allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+    TZAssetModel *model;
+    TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
+    if ([asset isKindOfClass:[PHAsset class]]) {
+        PHAsset *phAsset = (PHAsset *)asset;
+        if (phAsset.mediaType == PHAssetMediaTypeVideo)      type = TZAssetModelMediaTypeVideo;
+        else if (phAsset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
+        else if (phAsset.mediaType == PHAssetMediaTypeImage) {
+            if (iOS9_1Later) {
+                // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
+            }
+            // Gif
+            if ([[phAsset valueForKey:@"filename"] hasSuffix:@"GIF"]) {
+                type = TZAssetModelMediaTypePhotoGif;
+            }
+        }
+        if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return nil;
+        if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return nil;
+        
+        if (self.hideWhenCanNotSelect) {
+            // 过滤掉尺寸不满足要求的图片
+            if (![self isPhotoSelectableWithAsset:phAsset]) {
+                return nil;
+            }
+        }
+        NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",phAsset.duration] : @"";
+        timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
+        model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+    } else {
+        if (!allowPickingVideo){
+            model = [TZAssetModel modelWithAsset:asset type:type];
+            return model;
+        }
+        /// Allow picking video
+        if ([[asset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
+            type = TZAssetModelMediaTypeVideo;
+            NSTimeInterval duration = [[asset valueForProperty:ALAssetPropertyDuration] integerValue];
+            NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
+            timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
+            model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+        } else {
+            if (self.hideWhenCanNotSelect) {
+                // 过滤掉尺寸不满足要求的图片
+                if (![self isPhotoSelectableWithAsset:asset]) {
+                    return nil;
+                }
+            }
+            model = [TZAssetModel modelWithAsset:asset type:type];
+        }
+    }
+    return model;
 }
 
 - (NSString *)getNewTimeFromDurationSecond:(NSInteger)duration {
@@ -478,6 +465,14 @@ static CGFloat TZScreenScale;
 
 /// Get Original Photo / 获取原图
 - (void)getOriginalPhotoWithAsset:(id)asset completion:(void (^)(UIImage *photo,NSDictionary *info))completion {
+    [self getOriginalPhotoWithAsset:asset newCompletion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        if (completion) {
+            completion(photo,info);
+        }
+    }];
+}
+
+- (void)getOriginalPhotoWithAsset:(id)asset newCompletion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion {
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
         option.networkAccessAllowed = YES;
@@ -485,7 +480,8 @@ static CGFloat TZScreenScale;
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && result) {
                 result = [self fixOrientation:result];
-                if (completion) completion(result,info);
+                BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
+                if (completion) completion(result,info,isDegraded);
             }
         }];
     } else if ([asset isKindOfClass:[ALAsset class]]) {
@@ -497,34 +493,30 @@ static CGFloat TZScreenScale;
             UIImage *originalImage = [UIImage imageWithCGImage:originalImageRef scale:1.0 orientation:UIImageOrientationUp];
             
             dispatch_async(dispatch_get_main_queue(), ^{
-                if (completion) completion(originalImage,nil);
+                if (completion) completion(originalImage,nil,NO);
             });
         });
     }
 }
 
-- (void)getOriginalPhotoDataWithAsset:(id)asset completion:(void (^)(NSData *data,NSDictionary *info))completion {
+- (void)getOriginalPhotoDataWithAsset:(id)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion {
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
         option.networkAccessAllowed = YES;
         [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && imageData) {
-                if (completion) completion(imageData,info);
+                BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
+                if (completion) completion(imageData,info,isDegraded);
             }
         }];
     } else if ([asset isKindOfClass:[ALAsset class]]) {
         ALAsset *alAsset = (ALAsset *)asset;
         ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
-        
-        dispatch_async(dispatch_get_global_queue(0,0), ^{
-            CGImageRef originalImageRef = [assetRep fullResolutionImage];
-            UIImage *originalImage = [UIImage imageWithCGImage:originalImageRef scale:1.0 orientation:UIImageOrientationUp];
-            NSData *data = UIImageJPEGRepresentation(originalImage, 0.9);
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (completion) completion(data,nil);
-            });
-        });
+        Byte *imageBuffer = (Byte *)malloc(assetRep.size);
+        NSUInteger bufferSize = [assetRep getBytes:imageBuffer fromOffset:0.0 length:assetRep.size error:nil];
+        NSData *imageData = [NSData dataWithBytesNoCopy:imageBuffer length:bufferSize freeWhenDone:YES];
+        if (completion) completion(imageData,nil,NO);
     }
 }
 

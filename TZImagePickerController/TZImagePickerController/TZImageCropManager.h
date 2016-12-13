@@ -28,3 +28,12 @@
 + (UIImage *)circularClipImage:(UIImage *)image;
 
 @end
+
+
+@interface UIImage (TZGif)
+
+- (UIImage *)sd_tz_animatedImageByScalingAndCroppingToSize:(CGSize)size;
+
++ (UIImage *)sd_tz_animatedGIFWithData:(NSData *)data;
+
+@end
