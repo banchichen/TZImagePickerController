@@ -33,6 +33,7 @@
 @property (weak, nonatomic) IBOutlet UISwitch *sortAscendingSwitch;     ///< 照片排列按修改时间升序
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingVideoSwitch; ///< 允许选择视频
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingImageSwitch; ///< 允许选择图片
+@property (weak, nonatomic) IBOutlet UISwitch *allowPickingGifSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingOriginalPhotoSwitch; ///< 允许选择原图
 @property (weak, nonatomic) IBOutlet UISwitch *showSheetSwitch; ///< 显示一个sheet,把拍照按钮放在外面
 @property (weak, nonatomic) IBOutlet UITextField *maxCountTF;  ///< 照片最大可选张数，设置为1即为单选模式
@@ -86,7 +87,7 @@
     layout.itemSize = CGSizeMake(_itemWH, _itemWH);
     layout.minimumInteritemSpacing = _margin;
     layout.minimumLineSpacing = _margin;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 374, self.view.tz_width, self.view.tz_height - 374) collectionViewLayout:layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 409, self.view.tz_width, self.view.tz_height - 409) collectionViewLayout:layout];
     CGFloat rgb = 244 / 255.0;
     _collectionView.alwaysBounceVertical = YES;
     _collectionView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
@@ -116,6 +117,9 @@
         cell.asset = _selectedAssets[indexPath.row];
         cell.deleteBtn.hidden = NO;
     }
+    if (!self.allowPickingGifSwitch.isOn) {
+        cell.gifLable.hidden = YES;
+    }
     cell.deleteBtn.tag = indexPath.row;
     [cell.deleteBtn addTarget:self action:@selector(deleteBtnClik:) forControlEvents:UIControlEventTouchUpInside];
     return cell;
@@ -140,7 +144,7 @@
             ALAsset *alAsset = asset;
             isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
         }
-        if ([[asset valueForKey:@"filename"] containsString:@"GIF"]) {
+        if ([[asset valueForKey:@"filename"] containsString:@"GIF"] && self.allowPickingGifSwitch.isOn) {
             TZGifPhotoPreviewController *vc = [[TZGifPhotoPreviewController alloc] init];
             TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhotoGif timeLength:@""];
             vc.model = model;
@@ -219,7 +223,7 @@
     imagePickerVc.allowPickingVideo = self.allowPickingVideoSwitch.isOn;
     imagePickerVc.allowPickingImage = self.allowPickingImageSwitch.isOn;
     imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;
-    imagePickerVc.allowPickingGif = YES;
+    imagePickerVc.allowPickingGif = self.allowPickingGifSwitch.isOn;
     
     // 4. 照片排列按修改时间升序
     imagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
@@ -463,6 +467,10 @@
         [_showTakePhotoBtnSwitch setOn:NO animated:YES];
         [_allowPickingVideoSwitch setOn:YES animated:YES];
     }
+}
+
+- (IBAction)allowPickingGifSwitchClick:(UISwitch *)sender {
+    
 }
 
 - (IBAction)allowPickingVideoSwitchClick:(UISwitch *)sender {

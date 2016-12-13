@@ -35,6 +35,7 @@
 @property (nonatomic, assign) CGRect cropRect;
 
 @property (nonatomic, strong) TZAssetModel *model;
+@property (nonatomic, strong) id asset;
 @property (nonatomic, copy) void (^singleTapGestureBlock)();
 @property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
 

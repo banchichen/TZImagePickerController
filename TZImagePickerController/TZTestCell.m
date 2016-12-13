@@ -42,8 +42,8 @@
         _gifLable.textColor = [UIColor whiteColor];
         _gifLable.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.8];
         _gifLable.textAlignment = NSTextAlignmentCenter;
-        _gifLable.font = [UIFont systemFontOfSize:13];
-        _gifLable.frame = CGRectMake(self.tz_width - 25, self.tz_height - 12, 25, 12);
+        _gifLable.font = [UIFont systemFontOfSize:10];
+        _gifLable.frame = CGRectMake(self.tz_width - 25, self.tz_height - 14, 25, 14);
         [self addSubview:_gifLable];
     }
     return self;

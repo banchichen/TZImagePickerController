@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.6 - 2016.12.8
+//  version 1.7.7 - 2016.12.13
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -322,8 +322,9 @@
 
 - (void)setAllowCrop:(BOOL)allowCrop {
     _allowCrop = _maxImagesCount > 1 ? NO : allowCrop;
-    if (allowCrop) { // 允许裁剪的时候，不能选原图
+    if (allowCrop) { // 允许裁剪的时候，不能选原图和GIF
         self.allowPickingOriginalPhoto = NO;
+        self.allowPickingGif = NO;
     }
 }
 

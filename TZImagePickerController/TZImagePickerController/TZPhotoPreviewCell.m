@@ -41,7 +41,7 @@
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
-    _previewView.model = model;
+    _previewView.asset = model.asset;
 }
 
 - (void)recoverSubviews {
@@ -130,23 +130,28 @@
             }
         }];
     } else {
-        [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-            self.imageView.image = photo;
-            [self resizeSubviews];
-            _progressView.hidden = YES;
-            if (self.imageProgressUpdateBlock) {
-                self.imageProgressUpdateBlock(1);
-            }
-        } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-            _progressView.hidden = NO;
-            [self bringSubviewToFront:_progressView];
-            progress = progress > 0.02 ? progress : 0.02;;
-            _progressView.progress = progress;
-            if (self.imageProgressUpdateBlock) {
-                self.imageProgressUpdateBlock(progress);
-            }
-        } networkAccessAllowed:YES];
+        self.asset = model.asset;
     }
+}
+
+- (void)setAsset:(id)asset {
+    _asset = asset;
+    [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        self.imageView.image = photo;
+        [self resizeSubviews];
+        _progressView.hidden = YES;
+        if (self.imageProgressUpdateBlock) {
+            self.imageProgressUpdateBlock(1);
+        }
+    } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+        _progressView.hidden = NO;
+        [self bringSubviewToFront:_progressView];
+        progress = progress > 0.02 ? progress : 0.02;;
+        _progressView.progress = progress;
+        if (self.imageProgressUpdateBlock) {
+            self.imageProgressUpdateBlock(progress);
+        }
+    } networkAccessAllowed:YES];
 }
 
 - (void)recoverSubviews {

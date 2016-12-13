@@ -30,9 +30,9 @@
 @end
 
 
+/// 该分类的代码来自SDWebImage:https://github.com/rs/SDWebImage
+/// 为了防止冲突，我将分类名字和方法名字做了修改
 @interface UIImage (TZGif)
-
-- (UIImage *)sd_tz_animatedImageByScalingAndCroppingToSize:(CGSize)size;
 
 + (UIImage *)sd_tz_animatedGIFWithData:(NSData *)data;
 
