@@ -9,6 +9,7 @@
 #import "TZImageCropManager.h"
 #import "UIView+Layout.h"
 #import <ImageIO/ImageIO.h>
+#import "TZImageManager.h"
 
 @implementation TZImageCropManager
 
@@ -48,6 +49,7 @@
                                            cropSize:rect.size
                                       imageViewSize:imageView.frame.size];
     UIImage *cropedImage = [UIImage imageWithCGImage:imageRef];
+    cropedImage = [[TZImageManager manager] fixOrientation:cropedImage];
     CGImageRelease(imageRef);
     return cropedImage;
 }

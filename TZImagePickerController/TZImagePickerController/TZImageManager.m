@@ -262,6 +262,7 @@ static CGFloat TZScreenScale;
         }
         if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return nil;
         if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return nil;
+        if (!allowPickingImage && type == TZAssetModelMediaTypePhotoGif) return nil;
         
         if (self.hideWhenCanNotSelect) {
             // 过滤掉尺寸不满足要求的图片
@@ -634,8 +635,11 @@ static CGFloat TZScreenScale;
             [[NSFileManager defaultManager] createDirectoryAtPath:[NSHomeDirectory() stringByAppendingFormat:@"/tmp"] withIntermediateDirectories:YES attributes:nil error:nil];
         }
         
-        // 修正视频转向
-        session.videoComposition = [self fixedCompositionWithAsset:videoAsset];
+        AVMutableVideoComposition *videoComposition = [self fixedCompositionWithAsset:videoAsset];
+        if (videoComposition.renderSize.width) {
+            // 修正视频转向
+            session.videoComposition = videoComposition;
+        }
         
         // Begin to export video to the output path asynchronously.
         [session exportAsynchronouslyWithCompletionHandler:^(void) {

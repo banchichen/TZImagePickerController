@@ -466,11 +466,14 @@
         [_allowPickingOriginalPhotoSwitch setOn:NO animated:YES];
         [_showTakePhotoBtnSwitch setOn:NO animated:YES];
         [_allowPickingVideoSwitch setOn:YES animated:YES];
+        [_allowPickingGifSwitch setOn:NO animated:YES];
     }
 }
 
 - (IBAction)allowPickingGifSwitchClick:(UISwitch *)sender {
-    
+    if (sender.isOn) {
+        [_allowPickingImageSwitch setOn:YES animated:YES];
+    }
 }
 
 - (IBAction)allowPickingVideoSwitchClick:(UISwitch *)sender {

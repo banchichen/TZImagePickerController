@@ -85,6 +85,9 @@
 - (BOOL)isPhotoSelectableWithAsset:(id)asset;
 - (CGSize)photoSizeWithAsset:(id)asset;
 
+/// 修正图片转向
+- (UIImage *)fixOrientation:(UIImage *)aImage;
+
 @end
 
 

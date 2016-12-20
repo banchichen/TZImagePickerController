@@ -41,6 +41,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [TZImageManager manager].shouldFixOrientation = YES;
     __weak typeof(self) weakSelf = self;
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)weakSelf.navigationController;
     if (!self.models.count) {
@@ -72,6 +73,7 @@
     [super viewWillDisappear:animated];
     [self.navigationController setNavigationBarHidden:NO];
     if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = NO;
+    [TZImageManager manager].shouldFixOrientation = NO;
 }
 
 - (BOOL)prefersStatusBarHidden {

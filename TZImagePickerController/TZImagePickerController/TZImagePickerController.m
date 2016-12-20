@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.7 - 2016.12.13
+//  version 1.7.8 - 2016.12.20
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -500,6 +500,11 @@
         [_tableView reloadData];
     } else {
         [self configTableView];
+    }
+    if (imagePickerVc.allowTakePicture) {
+        self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Photos"];
+    } else if (imagePickerVc.allowPickingVideo) {
+        self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Videos"];
     }
 }
 
