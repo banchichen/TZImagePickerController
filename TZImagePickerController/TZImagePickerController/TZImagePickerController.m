@@ -516,8 +516,11 @@
             albumModel.selectedModels = imagePickerVc.selectedModels;
         }
         if (!_tableView) {
-            CGFloat top = 44;
-            if (iOS7Later) top += 20;
+            CGFloat top = 0;
+            if (self.navigationController.navigationBar.translucent) {
+                top = 44;
+                if (iOS7Later) top += 20;
+            }
             _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, self.view.tz_height - top) style:UITableViewStylePlain];
             _tableView.rowHeight = 70;
             _tableView.tableFooterView = [[UIView alloc] init];
