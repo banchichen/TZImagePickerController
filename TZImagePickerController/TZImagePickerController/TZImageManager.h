@@ -16,7 +16,7 @@
 
 @property (nonatomic, strong) PHCachingImageManager *cachingImageManager;
 
-+ (instancetype)manager;
++ (instancetype)manager NS_SWIFT_NAME(default());
 
 @property (nonatomic, assign) BOOL shouldFixOrientation;
 
