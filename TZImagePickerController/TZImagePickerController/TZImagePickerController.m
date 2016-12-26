@@ -49,11 +49,9 @@
     self.oKButtonTitleColorNormal   = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0];
     self.oKButtonTitleColorDisabled = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:0.5];
     
-    if (iOS7Later) {
-        self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
-        self.navigationBar.tintColor = [UIColor whiteColor];
-        self.automaticallyAdjustsScrollViewInsets = NO;
-    }
+    self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
+    self.navigationBar.tintColor = [UIColor whiteColor];
+    self.automaticallyAdjustsScrollViewInsets = NO;
 }
 
 - (void)setBarItemTextFont:(UIFont *)barItemTextFont {
@@ -82,7 +80,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    [UIApplication sharedApplication].statusBarStyle = iOS7Later ? UIStatusBarStyleLightContent : UIStatusBarStyleBlackOpaque;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -433,7 +431,7 @@
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    if (iOS7Later) viewController.automaticallyAdjustsScrollViewInsets = NO;
+    viewController.automaticallyAdjustsScrollViewInsets = NO;
     if (_timer) { [_timer invalidate]; _timer = nil;}
     [super pushViewController:viewController animated:animated];
 }
@@ -516,8 +514,7 @@
             albumModel.selectedModels = imagePickerVc.selectedModels;
         }
         if (!_tableView) {
-            CGFloat top = 44;
-            if (iOS7Later) top += 20;
+            CGFloat top = 44 + 20;
             _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, self.view.tz_height - top) style:UITableViewStylePlain];
             _tableView.rowHeight = 70;
             _tableView.tableFooterView = [[UIView alloc] init];
