@@ -437,9 +437,18 @@ static CGSize AssetGridThumbnailSize;
             [self.navigationController pushViewController:gifPreviewVc animated:YES];
         }
     } else {
+
         TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-        photoPreviewVc.currentIndex = index;
-        photoPreviewVc.models = _models;
+        
+        if (tzImagePickerVc.maxImagesCount <= 1 && tzImagePickerVc.allowCrop) {
+            // keep only one picture in preview viewcontroller when we're in cropping mode 单选切图情况下，preview只显示选中图片。
+            photoPreviewVc.currentIndex = 0;
+            photoPreviewVc.models = [NSMutableArray arrayWithObject:model];
+        } else {
+            photoPreviewVc.currentIndex = index;
+            photoPreviewVc.models = _models;
+        }
+
         [self pushPhotoPrevireViewController:photoPreviewVc];
     }
 }
@@ -616,8 +625,8 @@ static CGSize AssetGridThumbnailSize;
             if (tzImagePickerVc.maxImagesCount <= 1) {
                 if (tzImagePickerVc.allowCrop) {
                     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-                    photoPreviewVc.currentIndex = _models.count - 1;
-                    photoPreviewVc.models = _models;
+                    photoPreviewVc.currentIndex = 0;
+                    photoPreviewVc.models = [NSMutableArray arrayWithObject:assetModel];
                     [self pushPhotoPrevireViewController:photoPreviewVc];
                 } else {
                     [tzImagePickerVc.selectedModels addObject:assetModel];
