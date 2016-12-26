@@ -261,12 +261,12 @@
 
 /// For fitting iOS6
 - (void)layoutSubviews {
-    if (iOS7Later) [super layoutSubviews];
+    [super layoutSubviews];
     _selectedCountButton.frame = CGRectMake(self.tz_width - 24 - 30, 23, 24, 24);
 }
 
 - (void)layoutSublayersOfLayer:(CALayer *)layer {
-    if (iOS7Later) [super layoutSublayersOfLayer:layer];
+    [super layoutSublayersOfLayer:layer];
 }
 
 #pragma mark - Lazy load
