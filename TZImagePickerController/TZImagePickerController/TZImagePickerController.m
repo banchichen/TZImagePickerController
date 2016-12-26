@@ -56,6 +56,28 @@
     }
 }
 
+- (void)setNaviBgColor:(UIColor *)naviBgColor {
+    _naviBgColor = naviBgColor;
+    self.navigationBar.barTintColor = naviBgColor;
+}
+
+- (void)setNaviTitleColor:(UIColor *)naviTitleColor {
+    _naviTitleColor = naviTitleColor;
+    [self configNaviTitleAppearance];
+}
+
+- (void)setNaviTitleFont:(UIFont *)naviTitleFont {
+    _naviTitleFont = naviTitleFont;
+    [self configNaviTitleAppearance];
+}
+
+- (void)configNaviTitleAppearance {
+    NSMutableDictionary *textAttrs = [NSMutableDictionary dictionary];
+    textAttrs[NSForegroundColorAttributeName] = self.naviTitleColor;
+    textAttrs[NSFontAttributeName] = self.naviTitleFont;
+    self.navigationBar.titleTextAttributes = textAttrs;
+}
+
 - (void)setBarItemTextFont:(UIFont *)barItemTextFont {
     _barItemTextFont = barItemTextFont;
     [self configBarButtonItemAppearance];
@@ -200,6 +222,8 @@
     self.timeout = 15;
     self.photoWidth = 828.0;
     self.photoPreviewMaxWidth = 600;
+    self.naviTitleColor = [UIColor whiteColor];
+    self.naviTitleFont = [UIFont systemFontOfSize:17];
     self.barItemTextFont = [UIFont systemFontOfSize:15];
     self.barItemTextColor = [UIColor whiteColor];
     self.allowPreview = YES;
