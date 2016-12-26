@@ -16,7 +16,7 @@
 
 @interface TZImagePickerController () {
     NSTimer *_timer;
-    UILabel *_tipLable;
+    UILabel *_tipLabel;
     UIButton *_settingBtn;
     BOOL _pushPhotoPickerVc;
     BOOL _didPushPhotoPickerVc;
@@ -24,7 +24,7 @@
     UIButton *_progressHUD;
     UIView *_HUDContainer;
     UIActivityIndicatorView *_HUDIndicatorView;
-    UILabel *_HUDLable;
+    UILabel *_HUDLabel;
     
     UIStatusBarStyle _originStatusBarStyle;
 }
@@ -121,17 +121,17 @@
         [self configDefaultSetting];
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
-            _tipLable = [[UILabel alloc] init];
-            _tipLable.frame = CGRectMake(8, 120, self.view.tz_width - 16, 60);
-            _tipLable.textAlignment = NSTextAlignmentCenter;
-            _tipLable.numberOfLines = 0;
-            _tipLable.font = [UIFont systemFontOfSize:16];
-            _tipLable.textColor = [UIColor blackColor];
+            _tipLabel = [[UILabel alloc] init];
+            _tipLabel.frame = CGRectMake(8, 120, self.view.tz_width - 16, 60);
+            _tipLabel.textAlignment = NSTextAlignmentCenter;
+            _tipLabel.numberOfLines = 0;
+            _tipLabel.font = [UIFont systemFontOfSize:16];
+            _tipLabel.textColor = [UIColor blackColor];
             NSString *appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleDisplayName"];
             if (!appName) appName = [[NSBundle mainBundle].infoDictionary valueForKey:@"CFBundleName"];
             NSString *tipText = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Allow %@ to access your album in \"Settings -> Privacy -> Photos\""],appName];
-            _tipLable.text = tipText;
-            [self.view addSubview:_tipLable];
+            _tipLabel.text = tipText;
+            [self.view addSubview:_tipLabel];
             
             _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
             [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
@@ -229,7 +229,7 @@
 
 - (void)observeAuthrizationStatusChange {
     if ([[TZImageManager manager] authorizationStatusAuthorized]) {
-        [_tipLable removeFromSuperview];
+        [_tipLabel removeFromSuperview];
         [_settingBtn removeFromSuperview];
         [_timer invalidate];
         _timer = nil;
@@ -277,14 +277,14 @@
         _HUDIndicatorView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
         _HUDIndicatorView.frame = CGRectMake(45, 15, 30, 30);
         
-        _HUDLable = [[UILabel alloc] init];
-        _HUDLable.frame = CGRectMake(0,40, 120, 50);
-        _HUDLable.textAlignment = NSTextAlignmentCenter;
-        _HUDLable.text = self.processHintStr;
-        _HUDLable.font = [UIFont systemFontOfSize:15];
-        _HUDLable.textColor = [UIColor whiteColor];
+        _HUDLabel = [[UILabel alloc] init];
+        _HUDLabel.frame = CGRectMake(0,40, 120, 50);
+        _HUDLabel.textAlignment = NSTextAlignmentCenter;
+        _HUDLabel.text = self.processHintStr;
+        _HUDLabel.font = [UIFont systemFontOfSize:15];
+        _HUDLabel.textColor = [UIColor whiteColor];
         
-        [_HUDContainer addSubview:_HUDLable];
+        [_HUDContainer addSubview:_HUDLabel];
         [_HUDContainer addSubview:_HUDIndicatorView];
         [_progressHUD addSubview:_HUDContainer];
     }
