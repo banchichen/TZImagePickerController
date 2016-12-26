@@ -235,7 +235,7 @@
 
 @interface TZAlbumCell ()
 @property (weak, nonatomic) UIImageView *posterImageView;
-@property (weak, nonatomic) UILabel *titleLable;
+@property (weak, nonatomic) UILabel *titleLabel;
 @property (weak, nonatomic) UIImageView *arrowImageView;
 @end
 
@@ -247,7 +247,7 @@
     NSMutableAttributedString *nameString = [[NSMutableAttributedString alloc] initWithString:model.name attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor blackColor]}];
     NSAttributedString *countString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"  (%zd)",model.count] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor lightGrayColor]}];
     [nameString appendAttributedString:countString];
-    self.titleLable.attributedText = nameString;
+    self.titleLabel.attributedText = nameString;
     [[TZImageManager manager] getPostImageWithAlbumModel:model completion:^(UIImage *postImage) {
         self.posterImageView.image = postImage;
     }];
@@ -283,17 +283,17 @@
     return _posterImageView;
 }
 
-- (UILabel *)titleLable {
-    if (_titleLable == nil) {
-        UILabel *titleLable = [[UILabel alloc] init];
-        titleLable.font = [UIFont boldSystemFontOfSize:17];
-        titleLable.frame = CGRectMake(80, 0, self.tz_width - 80 - 50, self.tz_height);
-        titleLable.textColor = [UIColor blackColor];
-        titleLable.textAlignment = NSTextAlignmentLeft;
-        [self.contentView addSubview:titleLable];
-        _titleLable = titleLable;
+- (UILabel *)titleLabel {
+    if (_titleLabel == nil) {
+        UILabel *titleLabel = [[UILabel alloc] init];
+        titleLabel.font = [UIFont boldSystemFontOfSize:17];
+        titleLabel.frame = CGRectMake(80, 0, self.tz_width - 80 - 50, self.tz_height);
+        titleLabel.textColor = [UIColor blackColor];
+        titleLabel.textAlignment = NSTextAlignmentLeft;
+        [self.contentView addSubview:titleLabel];
+        _titleLabel = titleLabel;
     }
-    return _titleLable;
+    return _titleLabel;
 }
 
 - (UIImageView *)arrowImageView {

@@ -78,14 +78,14 @@
     }
     [_toolBar addSubview:_doneButton];
     
-    UILabel *byteLable = [[UILabel alloc] init];
-    byteLable.textColor = [UIColor whiteColor];
-    byteLable.font = [UIFont systemFontOfSize:13];
-    byteLable.frame = CGRectMake(10, 0, 100, 44);
+    UILabel *byteLabel = [[UILabel alloc] init];
+    byteLabel.textColor = [UIColor whiteColor];
+    byteLabel.font = [UIFont systemFontOfSize:13];
+    byteLabel.frame = CGRectMake(10, 0, 100, 44);
     [[TZImageManager manager] getPhotosBytesWithArray:@[_model] completion:^(NSString *totalBytes) {
-        byteLable.text = totalBytes;
+        byteLabel.text = totalBytes;
     }];
-    [_toolBar addSubview:byteLable];
+    [_toolBar addSubview:byteLabel];
     
     [self.view addSubview:_toolBar];
 }
