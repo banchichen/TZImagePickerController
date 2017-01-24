@@ -22,9 +22,9 @@
     UIButton *_previewButton;
     UIButton *_doneButton;
     UIImageView *_numberImageView;
-    UILabel *_numberLable;
+    UILabel *_numberLabel;
     UIButton *_originalPhotoButton;
-    UILabel *_originalPhotoLable;
+    UILabel *_originalPhotoLabel;
     
     BOOL _shouldScrollToBottom;
     BOOL _showTakePhotoBtn;
@@ -218,11 +218,11 @@ static CGSize AssetGridThumbnailSize;
         _originalPhotoButton.selected = _isSelectOriginalPhoto;
         _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
         
-        _originalPhotoLable = [[UILabel alloc] init];
-        _originalPhotoLable.frame = CGRectMake(fullImageWidth + 46, 0, 80, 50);
-        _originalPhotoLable.textAlignment = NSTextAlignmentLeft;
-        _originalPhotoLable.font = [UIFont systemFontOfSize:16];
-        _originalPhotoLable.textColor = [UIColor blackColor];
+        _originalPhotoLabel = [[UILabel alloc] init];
+        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 46, 0, 80, 50);
+        _originalPhotoLabel.textAlignment = NSTextAlignmentLeft;
+        _originalPhotoLabel.font = [UIFont systemFontOfSize:16];
+        _originalPhotoLabel.textColor = [UIColor blackColor];
         if (_isSelectOriginalPhoto) [self getSelectedPhotoBytes];
     }
     
@@ -241,14 +241,14 @@ static CGSize AssetGridThumbnailSize;
     _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberImageView.backgroundColor = [UIColor clearColor];
     
-    _numberLable = [[UILabel alloc] init];
-    _numberLable.frame = _numberImageView.frame;
-    _numberLable.font = [UIFont systemFontOfSize:15];
-    _numberLable.textColor = [UIColor whiteColor];
-    _numberLable.textAlignment = NSTextAlignmentCenter;
-    _numberLable.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
-    _numberLable.hidden = tzImagePickerVc.selectedModels.count <= 0;
-    _numberLable.backgroundColor = [UIColor clearColor];
+    _numberLabel = [[UILabel alloc] init];
+    _numberLabel.frame = _numberImageView.frame;
+    _numberLabel.font = [UIFont systemFontOfSize:15];
+    _numberLabel.textColor = [UIColor whiteColor];
+    _numberLabel.textAlignment = NSTextAlignmentCenter;
+    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
+    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    _numberLabel.backgroundColor = [UIColor clearColor];
     
     UIView *divide = [[UIView alloc] init];
     CGFloat rgb2 = 222 / 255.0;
@@ -259,10 +259,10 @@ static CGSize AssetGridThumbnailSize;
     [bottomToolBar addSubview:_previewButton];
     [bottomToolBar addSubview:_doneButton];
     [bottomToolBar addSubview:_numberImageView];
-    [bottomToolBar addSubview:_numberLable];
+    [bottomToolBar addSubview:_numberLabel];
     [self.view addSubview:bottomToolBar];
     [self.view addSubview:_originalPhotoButton];
-    [_originalPhotoButton addSubview:_originalPhotoLable];
+    [_originalPhotoButton addSubview:_originalPhotoLabel];
 }
 
 #pragma mark - Click Event
@@ -275,7 +275,7 @@ static CGSize AssetGridThumbnailSize;
 - (void)originalPhotoButtonClick {
     _originalPhotoButton.selected = !_originalPhotoButton.isSelected;
     _isSelectOriginalPhoto = _originalPhotoButton.isSelected;
-    _originalPhotoLable.hidden = !_originalPhotoButton.isSelected;
+    _originalPhotoLabel.hidden = !_originalPhotoButton.isSelected;
     if (_isSelectOriginalPhoto) [self getSelectedPhotoBytes];
 }
 
@@ -505,12 +505,12 @@ static CGSize AssetGridThumbnailSize;
     _doneButton.enabled = tzImagePickerVc.selectedModels.count > 0 || tzImagePickerVc.alwaysEnableDoneBtn;
     
     _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
-    _numberLable.hidden = tzImagePickerVc.selectedModels.count <= 0;
-    _numberLable.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
+    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
     
     _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
     _originalPhotoButton.selected = (_isSelectOriginalPhoto && _originalPhotoButton.enabled);
-    _originalPhotoLable.hidden = (!_originalPhotoButton.isSelected);
+    _originalPhotoLabel.hidden = (!_originalPhotoButton.isSelected);
     if (_isSelectOriginalPhoto) [self getSelectedPhotoBytes];
 }
 
@@ -535,7 +535,7 @@ static CGSize AssetGridThumbnailSize;
 - (void)getSelectedPhotoBytes {
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     [[TZImageManager manager] getPhotosBytesWithArray:imagePickerVc.selectedModels completion:^(NSString *totalBytes) {
-        _originalPhotoLable.text = [NSString stringWithFormat:@"(%@)",totalBytes];
+        _originalPhotoLabel.text = [NSString stringWithFormat:@"(%@)",totalBytes];
     }];
 }
 
