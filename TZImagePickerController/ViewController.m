@@ -111,14 +111,14 @@
     if (indexPath.row == _selectedPhotos.count) {
         cell.imageView.image = [UIImage imageNamed:@"AlbumAddBtn.png"];
         cell.deleteBtn.hidden = YES;
-        cell.gifLable.hidden = YES;
+        cell.gifLabel.hidden = YES;
     } else {
         cell.imageView.image = _selectedPhotos[indexPath.row];
         cell.asset = _selectedAssets[indexPath.row];
         cell.deleteBtn.hidden = NO;
     }
     if (!self.allowPickingGifSwitch.isOn) {
-        cell.gifLable.hidden = YES;
+        cell.gifLabel.hidden = YES;
     }
     cell.deleteBtn.tag = indexPath.row;
     [cell.deleteBtn addTarget:self action:@selector(deleteBtnClik:) forControlEvents:UIControlEventTouchUpInside];
