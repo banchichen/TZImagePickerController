@@ -547,14 +547,13 @@
                 top = 44;
                 if (iOS7Later) top += 20;
                 tableViewHeight = self.view.tz_height - top;
-            }
-            else {
+            } else {
                 CGFloat navigationHeight = 44;
                 if (iOS7Later) navigationHeight += 20;
                 tableViewHeight = self.view.tz_height - navigationHeight;
             }
-            
-            _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, self.view.tz_height - top) style:UITableViewStylePlain];
+
+            _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, tableViewHeight) style:UITableViewStylePlain];
             _tableView.rowHeight = 70;
             _tableView.tableFooterView = [[UIView alloc] init];
             _tableView.dataSource = self;
