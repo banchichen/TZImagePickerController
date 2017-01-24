@@ -119,9 +119,20 @@ static CGSize AssetGridThumbnailSize;
     layout.itemSize = CGSizeMake(itemWH, itemWH);
     layout.minimumInteritemSpacing = margin;
     layout.minimumLineSpacing = margin;
-    CGFloat top = 44;
-    if (iOS7Later) top += 20;
-    CGFloat collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - top : self.view.tz_height - top;
+    
+    CGFloat top = 0;
+    CGFloat collectionViewHeight = 0;
+    if (self.navigationController.navigationBar.isTranslucent) {
+        top = 44;
+        if (iOS7Later) top += 20;
+        collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - top : self.view.tz_height - top;;
+    }
+    else {
+        CGFloat navigationHeight = 44;
+        if (iOS7Later) navigationHeight += 20;
+        collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - navigationHeight : self.view.tz_height - navigationHeight;
+    }
+
     _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, collectionViewHeight) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
@@ -162,7 +173,17 @@ static CGSize AssetGridThumbnailSize;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (!tzImagePickerVc.showSelectBtn) return;
     
-    UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50, self.view.tz_width, 50)];
+    CGFloat yOffset = 0;
+    if (self.navigationController.navigationBar.isTranslucent) {
+        yOffset = self.view.tz_height - 50;
+    }
+    else {
+        CGFloat navigationHeight = 44;
+        if (iOS7Later) navigationHeight += 20;
+        yOffset = self.view.tz_height - 50 - navigationHeight;
+    }
+    
+    UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, yOffset, self.view.tz_width, 50)];
     CGFloat rgb = 253 / 255.0;
     bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     
