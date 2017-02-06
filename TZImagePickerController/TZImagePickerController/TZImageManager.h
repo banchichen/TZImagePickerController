@@ -39,7 +39,7 @@
 
 /// Return YES if Authorized 返回YES如果得到了授权
 - (BOOL)authorizationStatusAuthorized;
-- (NSInteger)authorizationStatus;
++ (NSInteger)authorizationStatus;
 
 /// Get Album 获得相册/相册数组
 - (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAlbumModel *model))completion;
