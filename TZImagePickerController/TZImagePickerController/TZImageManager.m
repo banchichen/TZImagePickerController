@@ -15,6 +15,8 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 @property (nonatomic, strong) ALAssetsLibrary *assetLibrary;
+@property (nonatomic, strong) NSString *assetNameRecentlyAdded;
+@property (nonatomic, strong) NSString *assetNameUserLibrary;
 @end
 
 @implementation TZImageManager
@@ -110,6 +112,13 @@ static CGFloat TZScreenScale;
         for (PHAssetCollection *collection in smartAlbums) {
             // 有可能是PHCollectionList类的的对象，过滤掉
             if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
+            if (collection.assetCollectionType == PHAssetCollectionTypeSmartAlbum) {
+                if (collection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumRecentlyAdded) {
+                    _assetNameRecentlyAdded = collection.localizedTitle;
+                } else if (collection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary) {
+                    _assetNameUserLibrary = collection.localizedTitle;
+                }
+            }
             if ([self isCameraRollAlbum:collection.localizedTitle]) {
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 model = [self modelWithResult:fetchResult name:collection.localizedTitle];
@@ -155,6 +164,15 @@ static CGFloat TZScreenScale;
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 if (fetchResult.count < 1) continue;
                 if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
+                if (collection.assetCollectionType == PHAssetCollectionTypeSmartAlbum) {
+                    if (collection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumRecentlyAdded) {
+                        _assetNameRecentlyAdded = collection.localizedTitle;
+                    } else if (collection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary) {
+                        _assetNameUserLibrary = collection.localizedTitle;
+                    } else if (collection.assetCollectionSubtype == 1000000201) {
+                        continue;   // 补充其他语言环境的"最近删除"
+                    }
+                }
                 if ([self isCameraRollAlbum:collection.localizedTitle]) {
                     [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
                 } else {
@@ -712,8 +730,14 @@ static CGFloat TZScreenScale;
     CGFloat version = versionStr.floatValue;
     // 目前已知8.0.0 - 8.0.2系统，拍照后的图片会保存在最近添加中
     if (version >= 800 && version <= 802) {
+        if (_assetNameRecentlyAdded) {
+            return [albumName isEqualToString:_assetNameRecentlyAdded];
+        }
         return [albumName isEqualToString:@"最近添加"] || [albumName isEqualToString:@"Recently Added"];
     } else {
+        if (_assetNameUserLibrary) {
+            return [albumName isEqualToString:_assetNameUserLibrary];
+        }
         return [albumName isEqualToString:@"Camera Roll"] || [albumName isEqualToString:@"相机胶卷"] || [albumName isEqualToString:@"所有照片"] || [albumName isEqualToString:@"All Photos"];
     }
 }
