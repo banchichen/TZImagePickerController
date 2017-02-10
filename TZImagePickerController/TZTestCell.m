@@ -8,6 +8,9 @@
 
 #import "TZTestCell.h"
 #import "UIView+Layout.h"
+#import <Photos/Photos.h>
+#import <AssetsLibrary/AssetsLibrary.h>
+#import "TZImagePickerController/TZImagePickerController.h"
 
 @implementation TZTestCell
 
@@ -17,9 +20,15 @@
         self.backgroundColor = [UIColor whiteColor];
         _imageView = [[UIImageView alloc] init];
         _imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
-        _imageView.contentMode = UIViewContentModeScaleAspectFill;
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
         [self addSubview:_imageView];
         self.clipsToBounds = YES;
+        
+        _videoImageView = [[UIImageView alloc] init];
+        _videoImageView.image = [UIImage imageNamedFromMyBundle:@"MMVideoPreviewPlay"];
+        _videoImageView.contentMode = UIViewContentModeScaleAspectFill;
+        _videoImageView.hidden = YES;
+        [self addSubview:_videoImageView];
         
         _deleteBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [_deleteBtn setImage:[UIImage imageNamed:@"photo_delete"] forState:UIControlStateNormal];
@@ -27,6 +36,15 @@
         _deleteBtn.imageEdgeInsets = UIEdgeInsetsMake(-10, 0, 0, -10);
         _deleteBtn.alpha = 0.6;
         [self addSubview:_deleteBtn];
+        
+        _gifLable = [[UILabel alloc] init];
+        _gifLable.text = @"GIF";
+        _gifLable.textColor = [UIColor whiteColor];
+        _gifLable.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.8];
+        _gifLable.textAlignment = NSTextAlignmentCenter;
+        _gifLable.font = [UIFont systemFontOfSize:10];
+        _gifLable.frame = CGRectMake(self.tz_width - 25, self.tz_height - 14, 25, 14);
+        [self addSubview:_gifLable];
     }
     return self;
 }
@@ -34,7 +52,22 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     _imageView.frame = self.bounds;
+    CGFloat width = self.tz_width / 3.0;
+    _videoImageView.frame = CGRectMake(width, width, width, width);
 }
+
+- (void)setAsset:(id)asset {
+    _asset = asset;
+    if ([asset isKindOfClass:[PHAsset class]]) {
+        PHAsset *phAsset = asset;
+        _videoImageView.hidden = phAsset.mediaType != PHAssetMediaTypeVideo;
+        _gifLable.hidden = ![[phAsset valueForKey:@"filename"] containsString:@"GIF"];
+    } else if ([asset isKindOfClass:[ALAsset class]]) {
+        ALAsset *alAsset = asset;
+        _videoImageView.hidden = ![[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+        _gifLable.hidden = YES;
+    }
+ }
 
 - (void)setRow:(NSInteger)row {
     _row = row;

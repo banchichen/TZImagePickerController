@@ -314,9 +314,6 @@ CG_INLINE CGPoint CGPointOffset(CGPoint point, CGFloat dx, CGFloat dy)
             if ((destinationIndexPath == nil) || [destinationIndexPath isEqual:sourceIndexPath]) {
                 return;
             }
-            if (sourceIndexPath.item >= self.itemCount || destinationIndexPath.item >= self.itemCount) {
-                return;
-            }
             
             if ([self.dataSource respondsToSelector:@selector(collectionView:itemAtIndexPath:canMoveToIndexPath:)] && [self.dataSource collectionView:self.collectionView itemAtIndexPath:sourceIndexPath canMoveToIndexPath:destinationIndexPath] == NO) {
                 return;
