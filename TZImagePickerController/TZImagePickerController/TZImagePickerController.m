@@ -9,7 +9,6 @@
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
 #import "TZPhotoPreviewController.h"
-#import "TZAssetModel.h"
 #import "TZAssetCell.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
@@ -416,7 +415,7 @@
     _selectedAssets = selectedAssets;
     _selectedModels = [NSMutableArray array];
     for (id asset in selectedAssets) {
-        TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhoto];
+        id<TZAssetModel> model = [[NSClassFromString(TZ_NAME_OF_ASSETMODELCLASS) alloc] initWithAsset:asset type:TZAssetModelMediaTypePhoto];
         model.isSelected = YES;
         [_selectedModels addObject:model];
     }

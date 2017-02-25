@@ -7,11 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TZAssetModelProtocol.h"
+@class TZProgressView,TZPhotoPreviewView;
 
-@class TZAssetModel,TZProgressView,TZPhotoPreviewView;
+
 @interface TZPhotoPreviewCell : UICollectionViewCell
 
-@property (nonatomic, strong) TZAssetModel *model;
+@property (nonatomic, strong) id<TZAssetModel> model;
 @property (nonatomic, copy) void (^singleTapGestureBlock)();
 @property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
 
@@ -34,7 +36,7 @@
 @property (nonatomic, assign) BOOL allowCrop;
 @property (nonatomic, assign) CGRect cropRect;
 
-@property (nonatomic, strong) TZAssetModel *model;
+@property (nonatomic, strong) id<TZAssetModel>  model;
 @property (nonatomic, strong) id asset;
 @property (nonatomic, copy) void (^singleTapGestureBlock)();
 @property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);

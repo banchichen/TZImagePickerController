@@ -7,10 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TZAssetModelProtocol.h"
 
-@class TZAssetModel;
+
 @interface TZVideoPlayerController : UIViewController
 
-@property (nonatomic, strong) TZAssetModel *model;
+@property (nonatomic, strong) id<TZAssetModel> model;
 
 @end

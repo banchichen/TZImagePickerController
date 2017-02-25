@@ -31,6 +31,7 @@
 		90CE84AE1C3A89EF003D0779 /* TZImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 90CE84AD1C3A89EF003D0779 /* TZImageManager.m */; };
 		90CE84B71C3BABB6003D0779 /* TZVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90CE84B61C3BABB6003D0779 /* TZVideoPlayerController.m */; };
 		90EBF5D61C2E298000CB9BCC /* UIView+Layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 90EBF5D51C2E298000CB9BCC /* UIView+Layout.m */; };
+		DEA5FB2F1E61AA3700A5E4EA /* TZAlbumModel.m in Sources */ = {isa = PBXBuildFile; fileRef = DEA5FB2E1E61AA3700A5E4EA /* TZAlbumModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,6 +101,9 @@
 		90CE84B61C3BABB6003D0779 /* TZVideoPlayerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZVideoPlayerController.m; sourceTree = "<group>"; };
 		90EBF5D41C2E298000CB9BCC /* UIView+Layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Layout.h"; sourceTree = "<group>"; };
 		90EBF5D51C2E298000CB9BCC /* UIView+Layout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Layout.m"; sourceTree = "<group>"; };
+		DEA5FB2C1E61AA0000A5E4EA /* TZAssetModelProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZAssetModelProtocol.h; sourceTree = "<group>"; };
+		DEA5FB2D1E61AA3700A5E4EA /* TZAlbumModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZAlbumModel.h; sourceTree = "<group>"; };
+		DEA5FB2E1E61AA3700A5E4EA /* TZAlbumModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZAlbumModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -211,8 +215,11 @@
 				900EEFFD1C2BD58B00EA709B /* TZPhotoPickerController.m */,
 				900EEFFF1C2BD7E400EA709B /* TZAssetCell.h */,
 				900EF0001C2BD7E400EA709B /* TZAssetCell.m */,
+				DEA5FB2C1E61AA0000A5E4EA /* TZAssetModelProtocol.h */,
 				900EF00D1C2C0B1100EA709B /* TZAssetModel.h */,
 				900EF00E1C2C0B1100EA709B /* TZAssetModel.m */,
+				DEA5FB2D1E61AA3700A5E4EA /* TZAlbumModel.h */,
+				DEA5FB2E1E61AA3700A5E4EA /* TZAlbumModel.m */,
 				900EF0101C2C107400EA709B /* TZPhotoPreviewController.h */,
 				900EF0111C2C107400EA709B /* TZPhotoPreviewController.m */,
 				900EF0131C2C134800EA709B /* TZPhotoPreviewCell.h */,
@@ -373,6 +380,7 @@
 				900EF00F1C2C0B1100EA709B /* TZAssetModel.m in Sources */,
 				900EEFFE1C2BD58B00EA709B /* TZPhotoPickerController.m in Sources */,
 				90EBF5D61C2E298000CB9BCC /* UIView+Layout.m in Sources */,
+				DEA5FB2F1E61AA3700A5E4EA /* TZAlbumModel.m in Sources */,
 				90CE84B71C3BABB6003D0779 /* TZVideoPlayerController.m in Sources */,
 				900EF0021C2BD7E400EA709B /* TZAssetCell.m in Sources */,
 				6DD0502B1DF659ED0057C78D /* TZProgressView.m in Sources */,

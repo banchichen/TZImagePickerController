@@ -10,9 +10,10 @@
 #import <MediaPlayer/MediaPlayer.h>
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
-#import "TZAssetModel.h"
+#import "TZAssetModelProtocol.h"
 #import "TZImagePickerController.h"
 #import "TZPhotoPreviewController.h"
+
 
 @interface TZVideoPlayerController () {
     AVPlayer *_player;

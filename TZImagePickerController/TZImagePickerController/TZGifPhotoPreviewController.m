@@ -8,7 +8,6 @@
 
 #import "TZGifPhotoPreviewController.h"
 #import "TZImagePickerController.h"
-#import "TZAssetModel.h"
 #import "UIView+Layout.h"
 #import "TZPhotoPreviewCell.h"
 #import "TZImageManager.h"

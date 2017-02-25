@@ -7,7 +7,6 @@
 //
 
 #import "TZAssetCell.h"
-#import "TZAssetModel.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import "TZImagePickerController.h"
@@ -26,7 +25,7 @@
 
 @implementation TZAssetCell
 
-- (void)setModel:(TZAssetModel *)model {
+- (void)setModel:(id<TZAssetModel>)model {
     _model = model;
     if (iOS8Later) {
         self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];

@@ -10,7 +10,7 @@
 #import "TZImagePickerController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZAssetCell.h"
-#import "TZAssetModel.h"
+#import "TZAssetModelProtocol.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
@@ -79,7 +79,7 @@ static CGSize AssetGridThumbnailSize;
         }];
     } else {
         if (_showTakePhotoBtn || !iOS8Later || _isFirstAppear) {
-            [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
+            [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(NSArray<id<TZAssetModel>> *models) {
                 _models = [NSMutableArray arrayWithArray:models];
                 [self initSubviews];
             }];
@@ -295,7 +295,7 @@ static CGSize AssetGridThumbnailSize;
     __block BOOL havenotShowAlert = YES;
     [TZImageManager manager].shouldFixOrientation = YES;
     for (NSInteger i = 0; i < tzImagePickerVc.selectedModels.count; i++) {
-        TZAssetModel *model = tzImagePickerVc.selectedModels[i];
+        id<TZAssetModel> model = tzImagePickerVc.selectedModels[i];
         [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
             if (isDegraded) return;
             if (photo) {
@@ -378,7 +378,7 @@ static CGSize AssetGridThumbnailSize;
     TZAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCell" forIndexPath:indexPath];
     cell.photoDefImageName = tzImagePickerVc.photoDefImageName;
     cell.photoSelImageName = tzImagePickerVc.photoSelImageName;
-    TZAssetModel *model;
+    id<TZAssetModel> model;
     if (tzImagePickerVc.sortAscendingByModificationDate || !_showTakePhotoBtn) {
         model = _models[indexPath.row];
     } else {
@@ -401,7 +401,7 @@ static CGSize AssetGridThumbnailSize;
             weakCell.selectPhotoButton.selected = NO;
             model.isSelected = NO;
             NSArray *selectedModels = [NSArray arrayWithArray:tzImagePickerVc.selectedModels];
-            for (TZAssetModel *model_item in selectedModels) {
+            for (id<TZAssetModel> model_item in selectedModels) {
                 if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
                     [tzImagePickerVc.selectedModels removeObject:model_item];
                     break;
@@ -436,7 +436,7 @@ static CGSize AssetGridThumbnailSize;
     if (!tzImagePickerVc.sortAscendingByModificationDate && _showTakePhotoBtn) {
         index = indexPath.row - 1;
     }
-    TZAssetModel *model = _models[index];
+    id<TZAssetModel> model = _models[index];
     if (model.type == TZAssetModelMediaTypeVideo) {
         if (tzImagePickerVc.selectedModels.count > 0) {
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -565,11 +565,11 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)checkSelectedModels {
-    for (TZAssetModel *model in _models) {
+    for (id<TZAssetModel> model in _models) {
         model.isSelected = NO;
         NSMutableArray *selectedAssets = [NSMutableArray array];
         TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-        for (TZAssetModel *model in tzImagePickerVc.selectedModels) {
+        for (id<TZAssetModel> model in tzImagePickerVc.selectedModels) {
             [selectedAssets addObject:model.asset];
         }
         if ([[TZImageManager manager] isAssetsArray:selectedAssets containAsset:model.asset]) {
@@ -620,10 +620,10 @@ static CGSize AssetGridThumbnailSize;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(TZAlbumModel *model) {
         _model = model;
-        [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
+        [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(NSArray<id<TZAssetModel> > *models) {
             [tzImagePickerVc hideProgressHUD];
             
-            TZAssetModel *assetModel;
+            id<TZAssetModel> assetModel;
             if (tzImagePickerVc.sortAscendingByModificationDate) {
                 assetModel = [models lastObject];
                 [_models addObject:assetModel];
@@ -756,7 +756,7 @@ static CGSize AssetGridThumbnailSize;
     NSMutableArray *assets = [NSMutableArray arrayWithCapacity:indexPaths.count];
     for (NSIndexPath *indexPath in indexPaths) {
         if (indexPath.item < _models.count) {
-            TZAssetModel *model = _models[indexPath.item];
+            id<TZAssetModel> model = _models[indexPath.item];
             [assets addObject:model.asset];
         }
     }

@@ -7,7 +7,6 @@
 //
 
 #import "TZPhotoPreviewCell.h"
-#import "TZAssetModel.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import "TZProgressView.h"
@@ -39,7 +38,7 @@
     return self;
 }
 
-- (void)setModel:(TZAssetModel *)model {
+- (void)setModel:(id<TZAssetModel>)model {
     _model = model;
     _previewView.asset = model.asset;
 }
@@ -119,7 +118,7 @@
     [self addSubview:_progressView];
 }
 
-- (void)setModel:(TZAssetModel *)model {
+- (void)setModel:(id<TZAssetModel>)model {
     _model = model;
     [_scrollView setZoomScale:1.0 animated:NO];
     if (model.type == TZAssetModelMediaTypePhotoGif) {

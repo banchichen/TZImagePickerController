@@ -8,6 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import <Photos/Photos.h>
+#import "TZAssetModelProtocol.h"
+#import "TZAlbumModel.h"
+
 
 typedef enum : NSUInteger {
     TZAssetCellTypePhoto = 0,
@@ -21,7 +24,7 @@ typedef enum : NSUInteger {
 @interface TZAssetCell : UICollectionViewCell
 
 @property (weak, nonatomic) UIButton *selectPhotoButton;
-@property (nonatomic, strong) TZAssetModel *model;
+@property (nonatomic, strong) id<TZAssetModel> model;
 @property (nonatomic, copy) void (^didSelectPhotoBlock)(BOOL);
 @property (nonatomic, assign) TZAssetCellType type;
 @property (nonatomic, assign) BOOL allowPickingGif;

@@ -8,7 +8,6 @@
 
 #import "TZPhotoPreviewController.h"
 #import "TZPhotoPreviewCell.h"
-#import "TZAssetModel.h"
 #import "UIView+Layout.h"
 #import "TZImagePickerController.h"
 #import "TZImageManager.h"
@@ -211,7 +210,7 @@
 
 - (void)select:(UIButton *)selectButton {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    TZAssetModel *model = _models[_currentIndex];
+    id<TZAssetModel> model = _models[_currentIndex];
     if (!selectButton.isSelected) {
         // 1. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
         if (_tzImagePickerVc.selectedModels.count >= _tzImagePickerVc.maxImagesCount) {
@@ -231,12 +230,12 @@
         }
     } else {
         NSArray *selectedModels = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
-        for (TZAssetModel *model_item in selectedModels) {
+        for (id<TZAssetModel> model_item in selectedModels) {
             if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
                 // 1.6.7版本更新:防止有多个一样的model,一次性被移除了
                 NSArray *selectedModelsTmp = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
                 for (NSInteger i = 0; i < selectedModelsTmp.count; i++) {
-                    TZAssetModel *model = selectedModelsTmp[i];
+                    id<TZAssetModel> model = selectedModelsTmp[i];
                     if ([model isEqual:model_item]) {
                         [_tzImagePickerVc.selectedModels removeObjectAtIndex:i];
                         break;
@@ -288,7 +287,7 @@
     
     // 如果没有选中过照片 点击确定时选中当前预览的照片
     if (_tzImagePickerVc.selectedModels.count == 0 && _tzImagePickerVc.minImagesCount <= 0) {
-        TZAssetModel *model = _models[_currentIndex];
+        id<TZAssetModel> model = _models[_currentIndex];
         [_tzImagePickerVc.selectedModels addObject:model];
     }
     if (_tzImagePickerVc.allowCrop) { // 裁剪状态
@@ -299,7 +298,7 @@
             cropedImage = [TZImageCropManager circularClipImage:cropedImage];
         }
         if (self.doneButtonClickBlockCropMode) {
-            TZAssetModel *model = _models[_currentIndex];
+            id<TZAssetModel> model = _models[_currentIndex];
             self.doneButtonClickBlockCropMode(cropedImage,model.asset);
         }
     } else if (self.doneButtonClickBlock) { // 非裁剪状态
@@ -389,7 +388,7 @@
 
 - (void)refreshNaviBarAndBottomBarState {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    TZAssetModel *model = _models[_currentIndex];
+    id<TZAssetModel> model = _models[_currentIndex];
     _selectButton.selected = model.isSelected;
     _numberLabel.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
     _numberImageView.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);

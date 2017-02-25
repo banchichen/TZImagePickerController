@@ -16,8 +16,10 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "TZAssetModel.h"
+#import "TZAssetModelProtocol.h"
 #import "NSBundle+TZImagePicker.h"
+#import "TZAssetModelProtocol.h"
+
 
 #define iOS7Later ([UIDevice currentDevice].systemVersion.floatValue >= 7.0f)
 #define iOS8Later ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
@@ -92,7 +94,7 @@
 /// The photos user have selected
 /// 用户选中过的图片数组
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
-@property (nonatomic, strong) NSMutableArray<TZAssetModel *> *selectedModels;
+@property (nonatomic, strong) NSMutableArray<id<TZAssetModel>> *selectedModels;
 
 /// Minimum selectable photo width, Default is 0
 /// 最小可选中的图片宽度，默认是0，小于这个宽度的图片不可选中
