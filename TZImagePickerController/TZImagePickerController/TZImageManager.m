@@ -344,18 +344,18 @@ static CGFloat TZScreenScale;
     __block NSInteger assetCount = 0;
     for (NSInteger i = 0; i < photos.count; i++) {
         id<TZAssetModel> model = photos[i];
-        if ([model.asset isKindOfClass:[PHAsset class]]) {
-            [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
-                if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
+        if ([model.tzAsset isKindOfClass:[PHAsset class]]) {
+            [[PHImageManager defaultManager] requestImageDataForAsset:model.tzAsset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+                if (model.tzType != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
                 assetCount ++;
                 if (assetCount >= photos.count) {
                     NSString *bytes = [self getBytesFromDataLength:dataLength];
                     if (completion) completion(bytes);
                 }
             }];
-        } else if ([model.asset isKindOfClass:[ALAsset class]]) {
-            ALAssetRepresentation *representation = [model.asset defaultRepresentation];
-            if (model.type != TZAssetModelMediaTypeVideo) dataLength += (NSInteger)representation.size;
+        } else if ([model.tzAsset isKindOfClass:[ALAsset class]]) {
+            ALAssetRepresentation *representation = [model.tzAsset defaultRepresentation];
+            if (model.tzType != TZAssetModelMediaTypeVideo) dataLength += (NSInteger)representation.size;
             if (i >= photos.count - 1) {
                 NSString *bytes = [self getBytesFromDataLength:dataLength];
                 if (completion) completion(bytes);

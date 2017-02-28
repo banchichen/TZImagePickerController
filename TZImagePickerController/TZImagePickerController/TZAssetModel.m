@@ -11,35 +11,33 @@
 
 @implementation TZAssetModel
 
-+ (instancetype)modelWithAsset:(id)asset type:(TZAssetModelMediaType)type {
-    return [[self alloc] initWithAsset:asset type:type];
++ (instancetype)modelWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType {
+    return [[self alloc] initWithAsset:tzAsset type:tzType];
 }
 
-- (instancetype)initWithAsset:(id)asset type:(TZAssetModelMediaType)type {
++ (instancetype)modelWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType timeLength:(NSString *)tzTimeLength {
+    return [[self alloc] initWithAsset:tzAsset type:tzType timeLength:tzTimeLength];
+}
+
+- (instancetype)initWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType {
     self = [super init];
     if (self) {
-        _asset = asset;
-        _isSelected = NO;
-        _type = type;
+        _tzAsset = tzAsset;
+        _tzSelected = NO;
+        _tzType = tzType;
     }
     return self;
 }
-
-+ (instancetype)modelWithAsset:(id)asset type:(TZAssetModelMediaType)type timeLength:(NSString *)timeLength {
-    return [[self alloc] initWithAsset:asset type:type timeLength:timeLength];
-}
-
-- (instancetype)initWithAsset:(id)asset type:(TZAssetModelMediaType)type timeLength:(NSString *)timeLength {
+- (instancetype)initWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType timeLength:(NSString *)tzTimeLength {
     self = [super init];
     if (self) {
-        _asset = asset;
-        _isSelected = NO;
-        _type = type;
-        _timeLength = timeLength;
+        _tzAsset = tzAsset;
+        _tzSelected = NO;
+        _tzType = tzType;
+        _tzTimeLength = tzTimeLength;
     }
     return self;
 }
-
 
 @end
 

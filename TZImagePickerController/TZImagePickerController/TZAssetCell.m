@@ -28,9 +28,9 @@
 - (void)setModel:(id<TZAssetModel>)model {
     _model = model;
     if (iOS8Later) {
-        self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
+        self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.tzAsset];
     }
-    PHImageRequestID imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+    PHImageRequestID imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.tzAsset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (_progressView) {
             self.progressView.hidden = YES;
             self.imageView.alpha = 1.0;
@@ -39,7 +39,7 @@
         if (!iOS8Later) {
             self.imageView.image = photo; return;
         }
-        if ([self.representedAssetIdentifier isEqualToString:[[TZImageManager manager] getAssetIdentifier:model.asset]]) {
+        if ([self.representedAssetIdentifier isEqualToString:[[TZImageManager manager] getAssetIdentifier:model.tzAsset]]) {
             self.imageView.image = photo;
         } else {
             // NSLog(@"this cell is showing other asset");
@@ -54,18 +54,18 @@
         // NSLog(@"cancelImageRequest %d",self.imageRequestID);
     }
     self.imageRequestID = imageRequestID;
-    self.selectPhotoButton.selected = model.isSelected;
+    self.selectPhotoButton.selected = model.isTZSelected;
     self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
-    self.type = (NSInteger)model.type;
+    self.type = (NSInteger)model.tzType;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
-    if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {
+    if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.tzAsset]) {
         if (_selectImageView.hidden == NO) {
             self.selectPhotoButton.hidden = YES;
             _selectImageView.hidden = YES;
         }
     }
     // 如果用户选中了该图片，提前获取一下大图
-    if (model.isSelected) {
+    if (model.isTZSelected) {
         [self fetchBigImage];
     }
 }
@@ -91,7 +91,7 @@
         _selectPhotoButton.hidden = YES;
         _bottomView.hidden = NO;
         if (type == TZAssetCellTypeVideo) {
-            self.timeLength.text = _model.timeLength;
+            self.timeLength.text = _model.tzTimeLength;
             self.videoImgView.hidden = NO;
             _timeLength.tz_left = self.videoImgView.tz_right;
             _timeLength.textAlignment = NSTextAlignmentRight;
@@ -127,12 +127,12 @@
 }
 
 - (void)fetchBigImage {
-    _bigImageRequestID = [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+    _bigImageRequestID = [[TZImageManager manager] getPhotoWithAsset:_model.tzAsset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (_progressView) {
             [self hideProgressView];
         }
     } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-        if (_model.isSelected) {
+        if (_model.isTZSelected) {
             progress = progress > 0.02 ? progress : 0.02;;
             self.progressView.progress = progress;
             self.progressView.hidden = NO;

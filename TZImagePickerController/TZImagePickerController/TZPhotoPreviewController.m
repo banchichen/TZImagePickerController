@@ -224,14 +224,14 @@
                 [_tzImagePickerVc.selectedAssets addObject:_assetsTemp[_currentIndex]];
                 [self.photos addObject:_photosTemp[_currentIndex]];
             }
-            if (model.type == TZAssetModelMediaTypeVideo) {
+            if (model.tzType == TZAssetModelMediaTypeVideo) {
                 [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Select the video when in multi state, we will handle the video as a photo"]];
             }
         }
     } else {
         NSArray *selectedModels = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
         for (id<TZAssetModel> model_item in selectedModels) {
-            if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
+            if ([[[TZImageManager manager] getAssetIdentifier:model.tzAsset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.tzAsset]]) {
                 // 1.6.7版本更新:防止有多个一样的model,一次性被移除了
                 NSArray *selectedModelsTmp = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
                 for (NSInteger i = 0; i < selectedModelsTmp.count; i++) {
@@ -259,9 +259,9 @@
             }
         }
     }
-    model.isSelected = !selectButton.isSelected;
+    model.tzSelected = !selectButton.isSelected;
     [self refreshNaviBarAndBottomBarState];
-    if (model.isSelected) {
+    if (model.isTZSelected) {
         [UIView showOscillatoryAnimationWithLayer:selectButton.imageView.layer type:TZOscillatoryAnimationToBigger];
     }
     [UIView showOscillatoryAnimationWithLayer:_numberImageView.layer type:TZOscillatoryAnimationToSmaller];
@@ -299,14 +299,22 @@
         }
         if (self.doneButtonClickBlockCropMode) {
             id<TZAssetModel> model = _models[_currentIndex];
-            self.doneButtonClickBlockCropMode(cropedImage,model.asset);
+            self.doneButtonClickBlockCropMode(cropedImage,model.tzAsset);
+        }
+        if (self.doneButtonClickModelBlockCropMode) {
+            id<TZAssetModel> model = _models[_currentIndex];
+            self.doneButtonClickModelBlockCropMode(cropedImage, model);
         }
     } else if (self.doneButtonClickBlock) { // 非裁剪状态
         self.doneButtonClickBlock(_isSelectOriginalPhoto);
     }
     if (self.doneButtonClickBlockWithPreviewType) {
-        self.doneButtonClickBlockWithPreviewType(self.photos,_tzImagePickerVc.selectedAssets,self.isSelectOriginalPhoto);
+        self.doneButtonClickBlockWithPreviewType(self.photos, _tzImagePickerVc.selectedAssets, self.isSelectOriginalPhoto);
     }
+    if (self.doneButtonClickModelBlockWithPreviewType) {
+        self.doneButtonClickModelBlockWithPreviewType(self.photos, _tzImagePickerVc.selectedModels, self.isSelectOriginalPhoto);
+    }
+    
 }
 
 - (void)originalPhotoButtonClick {
@@ -389,7 +397,7 @@
 - (void)refreshNaviBarAndBottomBarState {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     id<TZAssetModel> model = _models[_currentIndex];
-    _selectButton.selected = model.isSelected;
+    _selectButton.selected = model.isTZSelected;
     _numberLabel.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
     _numberImageView.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);
     _numberLabel.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);
@@ -401,7 +409,7 @@
     // If is previewing video, hide original photo button
     // 如果正在预览的是视频，隐藏原图按钮
     if (!_isHideNaviBar) {
-        if (model.type == TZAssetModelMediaTypeVideo) {
+        if (model.tzType == TZAssetModelMediaTypeVideo) {
             _originalPhotoButton.hidden = YES;
             _originalPhotoLabel.hidden = YES;
         } else {
@@ -413,7 +421,7 @@
     _doneButton.hidden = NO;
     _selectButton.hidden = !_tzImagePickerVc.showSelectBtn;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
-    if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {
+    if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.tzAsset]) {
         _numberLabel.hidden = YES;
         _numberImageView.hidden = YES;
         _selectButton.hidden = YES;

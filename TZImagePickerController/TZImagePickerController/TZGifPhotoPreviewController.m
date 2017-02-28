@@ -115,11 +115,18 @@
 - (void)callDelegateMethod {
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     UIImage *animatedImage = _previewView.imageView.image;
-    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingGifImage:sourceAssets:)]) {
-        [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingGifImage:animatedImage sourceAssets:_model.asset];
+    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingGifImage:sourceAsset:)]) {
+        [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingGifImage:animatedImage sourceAsset:_model.tzAsset];
     }
+    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingGifImage:sourceModel:)]) {
+        [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingGifImage:animatedImage sourceModel:_model];
+    }
+    
     if (imagePickerVc.didFinishPickingGifImageHandle) {
-        imagePickerVc.didFinishPickingGifImageHandle(animatedImage,_model.asset);
+        imagePickerVc.didFinishPickingGifImageHandle(animatedImage,_model.tzAsset);
+    }
+    if (imagePickerVc.didFinishPickingGifImageModelHandle) {
+        imagePickerVc.didFinishPickingGifImageModelHandle(animatedImage,_model);
     }
 }
 

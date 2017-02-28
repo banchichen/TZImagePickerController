@@ -22,7 +22,7 @@
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
-    NSMutableArray *_selectedAssets;
+    NSMutableArray *_selectedModels;
     BOOL _isSelectOriginalPhoto;
 
     CGFloat _itemWH;
@@ -73,7 +73,7 @@
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor whiteColor];
     _selectedPhotos = [NSMutableArray array];
-    _selectedAssets = [NSMutableArray array];
+    _selectedModels = [NSMutableArray array];
     [self configCollectionView];
 }
 
@@ -115,8 +115,9 @@
         cell.deleteBtn.hidden = YES;
         cell.gifLable.hidden = YES;
     } else {
+        id<TZAssetModel> model = _selectedModels[indexPath.row];
         cell.imageView.image = _selectedPhotos[indexPath.row];
-        cell.asset = _selectedAssets[indexPath.row];
+        cell.asset = model.tzAsset;
         cell.deleteBtn.hidden = NO;
     }
     if (!self.allowPickingGifSwitch.isOn) {
@@ -137,7 +138,8 @@
             [self pushImagePickerController];
         }
     } else { // preview photos or video / 预览照片或者视频
-        id asset = _selectedAssets[indexPath.row];
+        id<TZAssetModel> model = _selectedModels[indexPath.row];
+        id asset = model.tzAsset;
         BOOL isVideo = NO;
         if ([asset isKindOfClass:[PHAsset class]]) {
             PHAsset *phAsset = asset;
@@ -157,13 +159,18 @@
             vc.model = model;
             [self presentViewController:vc animated:YES completion:nil];
         } else { // preview photos / 预览照片
-            TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.row];
+            TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedModels:_selectedModels selectedPhotos:_selectedPhotos index:indexPath.row];
             imagePickerVc.maxImagesCount = self.maxCountTF.text.integerValue;
             imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;
             imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
+
             [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+                //仅仅作为展示API
+            }];
+            
+            [imagePickerVc setDidFinishPickingPhotoModelsHandle:^(NSArray<UIImage *> *photos, NSArray *models, BOOL isSelectOriginalPhoto) {
                 _selectedPhotos = [NSMutableArray arrayWithArray:photos];
-                _selectedAssets = [NSMutableArray arrayWithArray:assets];
+                _selectedModels = [NSMutableArray arrayWithArray:models];
                 _isSelectOriginalPhoto = isSelectOriginalPhoto;
                 [_collectionView reloadData];
                 _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
@@ -189,9 +196,9 @@
     [_selectedPhotos removeObjectAtIndex:sourceIndexPath.item];
     [_selectedPhotos insertObject:image atIndex:destinationIndexPath.item];
     
-    id asset = _selectedAssets[sourceIndexPath.item];
-    [_selectedAssets removeObjectAtIndex:sourceIndexPath.item];
-    [_selectedAssets insertObject:asset atIndex:destinationIndexPath.item];
+    id asset = _selectedModels[sourceIndexPath.item];
+    [_selectedModels removeObjectAtIndex:sourceIndexPath.item];
+    [_selectedModels insertObject:asset atIndex:destinationIndexPath.item];
     
     [_collectionView reloadData];
 }
@@ -210,7 +217,7 @@
 
     if (self.maxCountTF.text.integerValue > 1) {
         // 1.设置目前已经选中的图片数组
-        imagePickerVc.selectedAssets = _selectedAssets; // 目前已经选中的图片数组
+        imagePickerVc.selectedModels = _selectedModels; // 目前已经选中的图片数组
     }
     imagePickerVc.allowTakePicture = self.showTakePhotoBtnSwitch.isOn; // 在内部显示拍照按钮
     
@@ -255,6 +262,10 @@
     // You can get the photos by block, the same as by delegate.
     // 你可以通过block或者代理，来得到用户选择的照片.
     [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+        
+    }];
+    
+    [imagePickerVc setDidFinishPickingPhotoModelsHandle:^(NSArray<UIImage *> *photos, NSArray *models, BOOL isSelectOriginalPhoto) {
         
     }];
     
@@ -314,14 +325,14 @@
                             assetModel = [models lastObject];
                         }
                         if (self.allowCropSwitch.isOn) { // 允许裁剪,去裁剪
-                            TZImagePickerController *imagePicker = [[TZImagePickerController alloc] initCropTypeWithAsset:assetModel.asset photo:image completion:^(UIImage *cropImage, id asset) {
-                                [self refreshCollectionViewWithAddedAsset:asset image:cropImage];
+                            TZImagePickerController *imagePicker = [[TZImagePickerController alloc] initCropTypeWithModel:assetModel photo:image completion:^(UIImage *cropImage, id<TZAssetModel> tzAssetModel) {
+                                [self refreshCollectionViewWithAddedModel:tzAssetModel image:image];
                             }];
                             imagePicker.needCircleCrop = self.needCircleCropSwitch.isOn;
                             imagePicker.circleCropRadius = 100;
                             [self presentViewController:imagePicker animated:YES completion:nil];
                         } else {
-                            [self refreshCollectionViewWithAddedAsset:assetModel.asset image:image];
+                            [self refreshCollectionViewWithAddedModel:assetModel image:image];
                         }
                     }];
                 }];
@@ -330,8 +341,8 @@
     }
 }
 
-- (void)refreshCollectionViewWithAddedAsset:(id)asset image:(UIImage *)image {
-    [_selectedAssets addObject:asset];
+- (void)refreshCollectionViewWithAddedModel:(id<TZAssetModel>)model image:(UIImage *)image {
+    [_selectedModels addObject:model];
     [_selectedPhotos addObject:image];
     [_collectionView reloadData];
 }
@@ -391,48 +402,57 @@
 // 如果isSelectOriginalPhoto为YES，表明用户选择了原图
 // 你可以通过一个asset获得原图，通过这个方法：[[TZImageManager manager] getOriginalPhotoWithAsset:completion:]
 // photos数组里的UIImage对象，默认是828像素宽，你可以通过设置photoWidth属性的值来改变它
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
+
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray *)photos sourceModels:(NSArray *)tzAssetModels isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
     _selectedPhotos = [NSMutableArray arrayWithArray:photos];
-    _selectedAssets = [NSMutableArray arrayWithArray:assets];
+    _selectedModels = [NSMutableArray arrayWithArray:tzAssetModels];
     _isSelectOriginalPhoto = isSelectOriginalPhoto;
     [_collectionView reloadData];
     // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
-    
-    // 1.打印图片名字
-    [self printAssetsName:assets];
+}
+
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
+
 }
 
 // If user picking a video, this callback will be called.
 // If system version > iOS8,asset is kind of PHAsset class, else is ALAsset class.
 // 如果用户选择了一个视频，下面的handle会被执行
 // 如果系统版本大于iOS8，asset是PHAsset类的对象，否则是ALAsset类的对象
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceModel:(id<TZAssetModel>)tzAssetModel {
     _selectedPhotos = [NSMutableArray arrayWithArray:@[coverImage]];
-    _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
+    _selectedModels = [NSMutableArray arrayWithArray:@[tzAssetModel]];
     // open this code to send video / 打开这段代码发送视频
     // [[TZImageManager manager] getVideoOutputPathWithAsset:asset completion:^(NSString *outputPath) {
-        // NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
-        // Export completed, send video here, send by outputPath or NSData
-        // 导出完成，在这里写上传代码，通过路径或者通过NSData上传
+    // NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
+    // Export completed, send video here, send by outputPath or NSData
+    // 导出完成，在这里写上传代码，通过路径或者通过NSData上传
     
     // }];
     [_collectionView reloadData];
-   // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
+    // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
+}
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
+
 }
 
 // If user picking a gif image, this callback will be called.
 // 如果用户选择了一个gif图片，下面的handle会被执行
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(id)asset {
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceModel:(id<TZAssetModel>)tzAssetModel {
     _selectedPhotos = [NSMutableArray arrayWithArray:@[animatedImage]];
-    _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
+    _selectedModels = [NSMutableArray arrayWithArray:@[tzAssetModel]];
     [_collectionView reloadData];
+}
+
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(id)asset {
+
 }
 
 #pragma mark - Click Event
 
 - (void)deleteBtnClik:(UIButton *)sender {
     [_selectedPhotos removeObjectAtIndex:sender.tag];
-    [_selectedAssets removeObjectAtIndex:sender.tag];
+    [_selectedModels removeObjectAtIndex:sender.tag];
     
     [_collectionView performBatchUpdates:^{
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:sender.tag inSection:0];

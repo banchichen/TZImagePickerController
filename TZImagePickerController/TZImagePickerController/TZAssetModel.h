@@ -14,17 +14,16 @@
 
 @interface TZAssetModel : NSObject<TZAssetModel>
 
-@property (nonatomic, strong) id asset;             ///< PHAsset or ALAsset
-@property (nonatomic, assign) BOOL isSelected;      ///< The select status of a photo, default is No
-@property (nonatomic, assign) TZAssetModelMediaType type;
-@property (nonatomic, copy) NSString *timeLength;
+@property (nonatomic, strong) id tzAsset;             ///< PHAsset or ALAsset
+@property (nonatomic, assign, getter=isTZSelected) BOOL tzSelected;      ///< The select status of a photo, default is No
+@property (nonatomic, assign) TZAssetModelMediaType tzType;
+@property (nonatomic, copy) NSString *tzTimeLength;
 
 /// Init a photo dataModel With a asset
 /// 用一个PHAsset/ALAsset实例，初始化一个照片模型
-+ (instancetype)modelWithAsset:(id)asset type:(TZAssetModelMediaType)type;
-+ (instancetype)modelWithAsset:(id)asset type:(TZAssetModelMediaType)type timeLength:(NSString *)timeLength;
-- (instancetype)initWithAsset:(id)asset type:(TZAssetModelMediaType)type;
-- (instancetype)initWithAsset:(id)asset type:(TZAssetModelMediaType)type timeLength:(NSString *)timeLength;
++ (instancetype)modelWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType;
++ (instancetype)modelWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType timeLength:(NSString *)tzTimeLength;
+- (instancetype)initWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType;
+- (instancetype)initWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType timeLength:(NSString *)tzTimeLength;
 
 @end
-

@@ -35,10 +35,10 @@
     self.selectedCount = 0;
     NSMutableArray *selectedAssets = [NSMutableArray array];
     for (id<TZAssetModel> model in _selectedModels) {
-        [selectedAssets addObject:model.asset];
+        [selectedAssets addObject:model.tzAsset];
     }
     for (id<TZAssetModel> model in _models) {
-        if ([[TZImageManager manager] isAssetsArray:selectedAssets containAsset:model.asset]) {
+        if ([[TZImageManager manager] isAssetsArray:selectedAssets containAsset:model.tzAsset]) {
             self.selectedCount++;
         }
     }

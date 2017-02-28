@@ -40,7 +40,7 @@
 
 - (void)setModel:(id<TZAssetModel>)model {
     _model = model;
-    _previewView.asset = model.asset;
+    _previewView.asset = model.tzAsset;
 }
 
 - (void)recoverSubviews {
@@ -121,15 +121,15 @@
 - (void)setModel:(id<TZAssetModel>)model {
     _model = model;
     [_scrollView setZoomScale:1.0 animated:NO];
-    if (model.type == TZAssetModelMediaTypePhotoGif) {
-        [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.asset completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
+    if (model.tzType == TZAssetModelMediaTypePhotoGif) {
+        [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.tzAsset completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
             if (!isDegraded) {
                 self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
                 [self resizeSubviews];
             }
         }];
     } else {
-        self.asset = model.asset;
+        self.asset = model.tzAsset;
     }
 }
 
