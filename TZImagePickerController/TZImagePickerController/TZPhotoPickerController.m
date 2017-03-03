@@ -368,7 +368,7 @@ static CGSize AssetGridThumbnailSize;
         tzImagePickerVc.didFinishPickingPhotosHandle(photos,assets,_isSelectOriginalPhoto);
     }
     if (tzImagePickerVc.didFinishPickingPhotoModelsHandle) {
-        tzImagePickerVc.didFinishPickingPhotosHandle(photos, covertAssetsToTZAssetModels(assets), _isSelectOriginalPhoto);
+        tzImagePickerVc.didFinishPickingPhotoModelsHandle(photos, covertAssetsToTZAssetModels(assets), _isSelectOriginalPhoto);
     }
     if (tzImagePickerVc.didFinishPickingPhotosWithInfosHandle) {
         tzImagePickerVc.didFinishPickingPhotosWithInfosHandle(photos, assets, _isSelectOriginalPhoto, infoArr);
