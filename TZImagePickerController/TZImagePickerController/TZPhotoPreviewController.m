@@ -384,7 +384,7 @@
 #pragma mark - Private Method
 
 - (void)dealloc {
-    //NSLog(@"TZPhotoPreviewController dealloc");
+    NSLog(@"%@ dealloc",NSStringFromClass(self.class));
 }
 
 - (void)refreshNaviBarAndBottomBarState {

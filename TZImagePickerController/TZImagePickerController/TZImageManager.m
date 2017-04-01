@@ -29,7 +29,7 @@ static CGFloat TZScreenScale;
     dispatch_once(&onceToken, ^{
         manager = [[self alloc] init];
         if (iOS8Later) {
-            manager.cachingImageManager = [[PHCachingImageManager alloc] init];
+            // manager.cachingImageManager = [[PHCachingImageManager alloc] init];
             // manager.cachingImageManager.allowsCachingHighQualityImages = YES;
         }
    

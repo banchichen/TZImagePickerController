@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.7.8 - 2016.12.20
+//  version 1.7.9 - 2017.04.01
 
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
@@ -316,8 +316,9 @@
     [[UIApplication sharedApplication].keyWindow addSubview:_progressHUD];
     
     // if over time, dismiss HUD automatic
+    __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.timeout * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [self hideProgressHUD];
+        [weakSelf hideProgressHUD];
     });
 }
 
@@ -466,6 +467,10 @@
     return UIInterfaceOrientationMaskPortrait;
 }
 
+- (void)dealloc {
+    NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+}
+
 #pragma mark - Public
 
 - (void)cancelButtonClick {
@@ -479,10 +484,12 @@
 }
 
 - (void)callDelegateMethod {
+    /*
     // 兼容旧版本
     if ([self.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
         [self.pickerDelegate imagePickerControllerDidCancel:self];
     }
+     */
     if ([self.pickerDelegate respondsToSelector:@selector(tz_imagePickerControllerDidCancel:)]) {
         [self.pickerDelegate tz_imagePickerControllerDidCancel:self];
     }
@@ -564,6 +571,10 @@
             [_tableView reloadData];
         }
     }];
+}
+
+- (void)dealloc {
+    NSLog(@"%@ dealloc",NSStringFromClass(self.class));
 }
 
 #pragma mark - UITableViewDataSource && Delegate
