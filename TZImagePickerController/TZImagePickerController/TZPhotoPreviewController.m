@@ -384,7 +384,7 @@
 #pragma mark - Private Method
 
 - (void)dealloc {
-    NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+    // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
 }
 
 - (void)refreshNaviBarAndBottomBarState {

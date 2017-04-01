@@ -663,7 +663,7 @@ static CGSize AssetGridThumbnailSize;
 }
 
 - (void)dealloc {
-    NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+    // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
 }
 
 #pragma mark - Asset Caching

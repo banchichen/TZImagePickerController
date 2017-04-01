@@ -468,7 +468,7 @@
 }
 
 - (void)dealloc {
-    NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+    // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
 }
 
 #pragma mark - Public
@@ -574,7 +574,7 @@
 }
 
 - (void)dealloc {
-    NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+    // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
 }
 
 #pragma mark - UITableViewDataSource && Delegate
