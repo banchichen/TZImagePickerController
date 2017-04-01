@@ -11,56 +11,33 @@
 
 @implementation TZAssetModel
 
-+ (instancetype)modelWithAsset:(id)asset type:(TZAssetModelMediaType)type{
-    TZAssetModel *model = [[TZAssetModel alloc] init];
-    model.asset = asset;
-    model.isSelected = NO;
-    model.type = type;
-    return model;
++ (instancetype)modelWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType {
+    return [[self alloc] initWithAsset:tzAsset type:tzType];
 }
 
-+ (instancetype)modelWithAsset:(id)asset type:(TZAssetModelMediaType)type timeLength:(NSString *)timeLength {
-    TZAssetModel *model = [self modelWithAsset:asset type:type];
-    model.timeLength = timeLength;
-    return model;
++ (instancetype)modelWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType timeLength:(NSString *)tzTimeLength {
+    return [[self alloc] initWithAsset:tzAsset type:tzType timeLength:tzTimeLength];
+}
+
+- (instancetype)initWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType {
+    self = [super init];
+    if (self) {
+        _tzAsset = tzAsset;
+        _tzSelected = NO;
+        _tzType = tzType;
+    }
+    return self;
+}
+- (instancetype)initWithAsset:(id)tzAsset type:(TZAssetModelMediaType)tzType timeLength:(NSString *)tzTimeLength {
+    self = [super init];
+    if (self) {
+        _tzAsset = tzAsset;
+        _tzSelected = NO;
+        _tzType = tzType;
+        _tzTimeLength = tzTimeLength;
+    }
+    return self;
 }
 
 @end
 
-
-
-@implementation TZAlbumModel
-
-- (void)setResult:(id)result {
-    _result = result;
-    BOOL allowPickingImage = [[[NSUserDefaults standardUserDefaults] objectForKey:@"tz_allowPickingImage"] isEqualToString:@"1"];
-    BOOL allowPickingVideo = [[[NSUserDefaults standardUserDefaults] objectForKey:@"tz_allowPickingVideo"] isEqualToString:@"1"];
-    [[TZImageManager manager] getAssetsFromFetchResult:result allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
-        _models = models;
-        if (_selectedModels) {
-            [self checkSelectedModels];
-        }
-    }];
-}
-
-- (void)setSelectedModels:(NSArray *)selectedModels {
-    _selectedModels = selectedModels;
-    if (_models) {
-        [self checkSelectedModels];
-    }
-}
-
-- (void)checkSelectedModels {
-    self.selectedCount = 0;
-    NSMutableArray *selectedAssets = [NSMutableArray array];
-    for (TZAssetModel *model in _selectedModels) {
-        [selectedAssets addObject:model.asset];
-    }
-    for (TZAssetModel *model in _models) {
-        if ([[TZImageManager manager] isAssetsArray:selectedAssets containAsset:model.asset]) {
-            self.selectedCount ++;
-        }
-    }
-}
-
-@end

@@ -8,7 +8,6 @@
 
 #import "TZImageManager.h"
 #import <AssetsLibrary/AssetsLibrary.h>
-#import "TZAssetModel.h"
 #import "TZImagePickerController.h"
 
 @interface TZImageManager ()
@@ -188,12 +187,12 @@ static CGFloat TZScreenScale;
 #pragma mark - Get Assets
 
 /// Get Assets 获得照片数组
-- (void)getAssetsFromFetchResult:(id)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAssetModel *> *))completion {
+- (void)getAssetsFromFetchResult:(id)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<id<TZAssetModel>> *))completion {
     NSMutableArray *photoArr = [NSMutableArray array];
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         [fetchResult enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            TZAssetModel *model = [self assetModelWithAsset:obj allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+            id<TZAssetModel> model = [self assetModelWithAsset:obj allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
             if (model) {
                 [photoArr addObject:model];
             }
@@ -212,7 +211,7 @@ static CGFloat TZScreenScale;
             if (result == nil) {
                 if (completion) completion(photoArr);
             }
-            TZAssetModel *model = [self assetModelWithAsset:result allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+            id<TZAssetModel> model = [self assetModelWithAsset:result allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
             if (model) {
                 [photoArr addObject:model];
             }
@@ -231,7 +230,7 @@ static CGFloat TZScreenScale;
 
 ///  Get asset at index 获得下标为index的单个照片
 ///  if index beyond bounds, return nil in callback 如果索引越界, 在回调中返回 nil
-- (void)getAssetFromFetchResult:(id)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAssetModel *))completion {
+- (void)getAssetFromFetchResult:(id)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(id<TZAssetModel>))completion {
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         PHAsset *asset;
@@ -242,7 +241,7 @@ static CGFloat TZScreenScale;
             if (completion) completion(nil);
             return;
         }
-        TZAssetModel *model = [self assetModelWithAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+        id<TZAssetModel> model = [self assetModelWithAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
         if (completion) completion(model);
     } else if ([result isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *group = (ALAssetsGroup *)result;
@@ -257,7 +256,7 @@ static CGFloat TZScreenScale;
         @try {
             [group enumerateAssetsAtIndexes:indexSet options:NSEnumerationConcurrent usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
                 if (!result) return;
-                TZAssetModel *model = [self assetModelWithAsset:result allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+                id<TZAssetModel> model = [self assetModelWithAsset:result allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
                 if (completion) completion(model);
             }];
         }
@@ -267,8 +266,8 @@ static CGFloat TZScreenScale;
     }
 }
 
-- (TZAssetModel *)assetModelWithAsset:(id)asset allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
-    TZAssetModel *model;
+- (id<TZAssetModel>)assetModelWithAsset:(id)asset allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+    id<TZAssetModel> model;
     TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHAsset *phAsset = (PHAsset *)asset;
@@ -295,10 +294,10 @@ static CGFloat TZScreenScale;
         }
         NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",phAsset.duration] : @"";
         timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-        model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+        model = [[NSClassFromString(TZ_NAME_OF_ASSETMODELCLASS) alloc] initWithAsset:asset type:type timeLength:timeLength];
     } else {
         if (!allowPickingVideo){
-            model = [TZAssetModel modelWithAsset:asset type:type];
+            model = [[NSClassFromString(TZ_NAME_OF_ASSETMODELCLASS) alloc] initWithAsset:asset type:type];
             return model;
         }
         /// Allow picking video
@@ -307,7 +306,7 @@ static CGFloat TZScreenScale;
             NSTimeInterval duration = [[asset valueForProperty:ALAssetPropertyDuration] integerValue];
             NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
             timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
-            model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+            model = [[NSClassFromString(TZ_NAME_OF_ASSETMODELCLASS) alloc] initWithAsset:asset type:type timeLength:timeLength];
         } else {
             if (self.hideWhenCanNotSelect) {
                 // 过滤掉尺寸不满足要求的图片
@@ -315,7 +314,7 @@ static CGFloat TZScreenScale;
                     return nil;
                 }
             }
-            model = [TZAssetModel modelWithAsset:asset type:type];
+            model = [[NSClassFromString(TZ_NAME_OF_ASSETMODELCLASS) alloc] initWithAsset:asset type:type];
         }
     }
     return model;
@@ -344,19 +343,19 @@ static CGFloat TZScreenScale;
     __block NSInteger dataLength = 0;
     __block NSInteger assetCount = 0;
     for (NSInteger i = 0; i < photos.count; i++) {
-        TZAssetModel *model = photos[i];
-        if ([model.asset isKindOfClass:[PHAsset class]]) {
-            [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
-                if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
+        id<TZAssetModel> model = photos[i];
+        if ([model.tzAsset isKindOfClass:[PHAsset class]]) {
+            [[PHImageManager defaultManager] requestImageDataForAsset:model.tzAsset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+                if (model.tzType != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
                 assetCount ++;
                 if (assetCount >= photos.count) {
                     NSString *bytes = [self getBytesFromDataLength:dataLength];
                     if (completion) completion(bytes);
                 }
             }];
-        } else if ([model.asset isKindOfClass:[ALAsset class]]) {
-            ALAssetRepresentation *representation = [model.asset defaultRepresentation];
-            if (model.type != TZAssetModelMediaTypeVideo) dataLength += (NSInteger)representation.size;
+        } else if ([model.tzAsset isKindOfClass:[ALAsset class]]) {
+            ALAssetRepresentation *representation = [model.tzAsset defaultRepresentation];
+            if (model.tzType != TZAssetModelMediaTypeVideo) dataLength += (NSInteger)representation.size;
             if (i >= photos.count - 1) {
                 NSString *bytes = [self getBytesFromDataLength:dataLength];
                 if (completion) completion(bytes);

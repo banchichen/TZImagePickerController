@@ -9,7 +9,6 @@
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
 #import "TZPhotoPreviewController.h"
-#import "TZAssetModel.h"
 #import "TZAssetCell.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
@@ -193,6 +192,29 @@
     return self;
 }
 
+- (instancetype)initWithSelectedModels:(NSMutableArray *)tzAssetModels selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index {
+    TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
+    self = [super initWithRootViewController:previewVc];
+    if (self) {
+        self.selectedModels = [tzAssetModels mutableCopy];
+        self.allowPickingOriginalPhoto = self.allowPickingOriginalPhoto;
+        [self configDefaultSetting];
+        
+        previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
+        previewVc.currentIndex = index;
+        __weak typeof(self) weakSelf = self;
+        [previewVc setDoneButtonClickModelBlockWithPreviewType:^(NSArray<UIImage *> *photos, NSArray *models, BOOL isSelectOriginalPhoto) {
+            [weakSelf dismissViewControllerAnimated:YES completion:^{
+                if (weakSelf.didFinishPickingPhotoModelsHandle) {
+                    weakSelf.didFinishPickingPhotoModelsHandle(photos, models, isSelectOriginalPhoto);
+                }
+            }];
+        }];
+    }
+    return self;
+}
+
+
 /// This init method for crop photo / 用这个初始化方法以裁剪图片
 - (instancetype)initCropTypeWithAsset:(id)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,id asset))completion {
     TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
@@ -210,7 +232,31 @@
         [previewVc setDoneButtonClickBlockCropMode:^(UIImage *cropImage, id asset) {
             [weakSelf dismissViewControllerAnimated:YES completion:^{
                 if (completion) {
-                    completion(cropImage,asset);
+                    completion(cropImage, asset);
+                }
+            }];
+        }];
+    }
+    return self;
+}
+
+- (instancetype)initCropTypeWithModel:(id<TZAssetModel>)tzAssetModel photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,id<TZAssetModel> tzAssetModel))completion {
+    TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
+    self = [super initWithRootViewController:previewVc];
+    if (self) {
+        self.maxImagesCount = 1;
+        self.allowCrop = YES;
+        self.selectedModels = [NSMutableArray arrayWithArray:@[tzAssetModel]];
+        [self configDefaultSetting];
+        
+        previewVc.photos = [NSMutableArray arrayWithArray:@[photo]];
+        previewVc.isCropImage = YES;
+        previewVc.currentIndex = 0;
+        __weak typeof(self) weakSelf = self;
+        [previewVc setDoneButtonClickModelBlockCropMode:^(UIImage *cropImage, id<TZAssetModel> tzAssetModel) {
+            [weakSelf dismissViewControllerAnimated:YES completion:^{
+                if (completion) {
+                    completion(cropImage, tzAssetModel);
                 }
             }];
         }];
@@ -416,9 +462,18 @@
     _selectedAssets = selectedAssets;
     _selectedModels = [NSMutableArray array];
     for (id asset in selectedAssets) {
-        TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhoto];
-        model.isSelected = YES;
+        id<TZAssetModel> model = [[NSClassFromString(TZ_NAME_OF_ASSETMODELCLASS) alloc] initWithAsset:asset type:TZAssetModelMediaTypePhoto];
+        model.tzSelected = YES;
         [_selectedModels addObject:model];
+    }
+}
+
+- (void)setSelectedModels:(NSMutableArray *)selectedModels {
+    _selectedModels = selectedModels;
+    _selectedAssets = [NSMutableArray array];
+    for (id<TZAssetModel> model in selectedModels) {
+        model.tzSelected = YES;
+        [_selectedAssets addObject:model.tzAsset];
     }
 }
 
