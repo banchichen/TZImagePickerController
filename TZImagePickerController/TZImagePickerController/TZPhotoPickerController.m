@@ -635,7 +635,11 @@ static CGSize AssetGridThumbnailSize;
             if (tzImagePickerVc.maxImagesCount <= 1) {
                 if (tzImagePickerVc.allowCrop) {
                     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-                    photoPreviewVc.currentIndex = _models.count - 1;
+                    if (tzImagePickerVc.sortAscendingByModificationDate) {
+                        photoPreviewVc.currentIndex = _models.count - 1;
+                    }else{
+                        photoPreviewVc.currentIndex = 0;
+                    }
                     photoPreviewVc.models = _models;
                     [self pushPhotoPrevireViewController:photoPreviewVc];
                 } else {
