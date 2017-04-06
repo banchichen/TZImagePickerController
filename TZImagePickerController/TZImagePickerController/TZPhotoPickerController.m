@@ -112,7 +112,7 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)configCollectionView {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-
+    
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     CGFloat margin = 5;
     CGFloat itemWH = (self.view.tz_width - (self.columnNumber + 1) * margin) / self.columnNumber;
@@ -131,7 +131,7 @@ static CGSize AssetGridThumbnailSize;
         if (iOS7Later) navigationHeight += 20;
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - navigationHeight : self.view.tz_height - navigationHeight;
     }
-
+    
     _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, collectionViewHeight) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
@@ -252,7 +252,7 @@ static CGSize AssetGridThumbnailSize;
     CGFloat rgb2 = 222 / 255.0;
     divide.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
     divide.frame = CGRectMake(0, 0, self.view.tz_width, 1);
-
+    
     [bottomToolBar addSubview:divide];
     [bottomToolBar addSubview:_previewButton];
     [bottomToolBar addSubview:_doneButton];
@@ -304,7 +304,7 @@ static CGSize AssetGridThumbnailSize;
             }
             if (info)  [infoArr replaceObjectAtIndex:i withObject:info];
             [assets replaceObjectAtIndex:i withObject:model.asset];
-
+            
             for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
             
             if (havenotShowAlert) {
@@ -429,6 +429,12 @@ static CGSize AssetGridThumbnailSize;
     // take a photo / 去拍照
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn)  {
+        if (tzImagePickerVc.selectedModels.count == tzImagePickerVc.maxImagesCount) {
+            //            NSLog(@"最多了。。");
+            NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], tzImagePickerVc.maxImagesCount];
+            [tzImagePickerVc showAlertWithTitle:title];
+            return;
+        }
         [self takePhoto]; return;
     }
     // preview phote or video / 预览照片或视频
@@ -626,9 +632,11 @@ static CGSize AssetGridThumbnailSize;
             TZAssetModel *assetModel;
             if (tzImagePickerVc.sortAscendingByModificationDate) {
                 assetModel = [models lastObject];
+                assetModel.isSelected = YES;
                 [_models addObject:assetModel];
             } else {
                 assetModel = [models firstObject];
+                assetModel.isSelected = YES;
                 [_models insertObject:assetModel atIndex:0];
             }
             
@@ -644,13 +652,15 @@ static CGSize AssetGridThumbnailSize;
                     [self pushPhotoPrevireViewController:photoPreviewVc];
                 } else {
                     [tzImagePickerVc.selectedModels addObject:assetModel];
+                    [self refreshBottomToolBarStatus];
                     [self doneButtonClick];
                 }
+                [_collectionView reloadData];
                 return;
             }
             
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
-                assetModel.isSelected = YES;
+                //                assetModel.isSelected = YES;
                 [tzImagePickerVc.selectedModels addObject:assetModel];
                 [self refreshBottomToolBarStatus];
             }
@@ -709,13 +719,13 @@ static CGSize AssetGridThumbnailSize;
         
         // Update the assets the PHCachingImageManager is caching.
         [[TZImageManager manager].cachingImageManager startCachingImagesForAssets:assetsToStartCaching
-                                            targetSize:AssetGridThumbnailSize
-                                           contentMode:PHImageContentModeAspectFill
-                                               options:nil];
+                                                                       targetSize:AssetGridThumbnailSize
+                                                                      contentMode:PHImageContentModeAspectFill
+                                                                          options:nil];
         [[TZImageManager manager].cachingImageManager stopCachingImagesForAssets:assetsToStopCaching
-                                           targetSize:AssetGridThumbnailSize
-                                          contentMode:PHImageContentModeAspectFill
-                                              options:nil];
+                                                                      targetSize:AssetGridThumbnailSize
+                                                                     contentMode:PHImageContentModeAspectFill
+                                                                         options:nil];
         
         // Store the preheat rect to compare against in the future.
         self.previousPreheatRect = preheatRect;
