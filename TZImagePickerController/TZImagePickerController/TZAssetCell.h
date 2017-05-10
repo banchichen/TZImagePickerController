@@ -12,7 +12,6 @@
 typedef enum : NSUInteger {
     TZAssetCellTypePhoto = 0,
     TZAssetCellTypeLivePhoto,
-    TZAssetCellTypePhotoGif,
     TZAssetCellTypeVideo,
     TZAssetCellTypeAudio,
 } TZAssetCellType;
@@ -24,15 +23,14 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) TZAssetModel *model;
 @property (nonatomic, copy) void (^didSelectPhotoBlock)(BOOL);
 @property (nonatomic, assign) TZAssetCellType type;
-@property (nonatomic, assign) BOOL allowPickingGif;
 @property (nonatomic, copy) NSString *representedAssetIdentifier;
 @property (nonatomic, assign) PHImageRequestID imageRequestID;
+@property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
+@property (weak, nonatomic) UIImageView *selectImageView;
+@property (weak, nonatomic) UIView *bottomView;
+@property (weak, nonatomic) UILabel *timeLength;
 
-@property (nonatomic, copy) NSString *photoSelImageName;
-@property (nonatomic, copy) NSString *photoDefImageName;
-
-@property (nonatomic, assign) BOOL showSelectBtn;
-
+@property (nonatomic, weak) UIImageView *viewImgView;
 @end
 
 

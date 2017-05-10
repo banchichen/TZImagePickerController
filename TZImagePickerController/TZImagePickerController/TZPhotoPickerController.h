@@ -7,19 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "TZPhotoPreviewController.h"
 @class TZAlbumModel;
 @interface TZPhotoPickerController : UIViewController
 
 @property (nonatomic, assign) BOOL isFirstAppear;
-@property (nonatomic, assign) NSInteger columnNumber;
 @property (nonatomic, strong) TZAlbumModel *model;
 
 @property (nonatomic, copy) void (^backButtonClickHandle)(TZAlbumModel *model);
-
-@end
-
-
-@interface TZCollectionView : UICollectionView
-
+@property (nonatomic, strong) UIImageView *numberImageView;
+@property (nonatomic, strong) UILabel *numberLable;
+- (void)refreshBottomToolBarStatus;
+- (void)pushPhotoPrevireViewController:(TZPhotoPreviewController *)photoPreviewVc;
 @end
