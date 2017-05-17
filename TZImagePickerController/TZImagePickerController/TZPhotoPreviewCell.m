@@ -41,7 +41,11 @@
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
-    _previewView.asset = model.asset;
+        if (model.type != TZAssetModelMediaTypePhotoGif) {
+        _previewView.asset = model.asset;
+    } else {
+        [_previewView setGifAsset:model.asset];
+    }
 }
 
 - (void)recoverSubviews {
@@ -152,6 +156,16 @@
             self.imageProgressUpdateBlock(progress);
         }
     } networkAccessAllowed:YES];
+}
+
+- (void)setGifAsset:(id)asset {
+    _asset = asset;
+    [[TZImageManager manager] getOriginalPhotoDataWithAsset:asset completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
+        if (!isDegraded) {
+            self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
+            [self resizeSubviews];
+        }
+    }];
 }
 
 - (void)recoverSubviews {

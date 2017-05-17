@@ -115,6 +115,15 @@
 
 
 @implementation UIImage (TZGif)
++ (BOOL)isGIFImageData:(NSData *)data {
+    uint8_t c;
+    [data getBytes:&c length:1];
+    if (c == 0x47) {
+        return YES;
+    } else {
+        return NO;
+    }
+}
 
 + (UIImage *)sd_tz_animatedGIFWithData:(NSData *)data {
     if (!data) {
