@@ -39,5 +39,6 @@
 @property (nonatomic, copy) void (^singleTapGestureBlock)();
 @property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
 
+- (void)setGifAsset:(id)asset;
 - (void)recoverSubviews;
 @end

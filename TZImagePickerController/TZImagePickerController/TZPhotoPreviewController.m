@@ -413,6 +413,13 @@
     
     _doneButton.hidden = NO;
     _selectButton.hidden = !_tzImagePickerVc.showSelectBtn;
+    // 让GIF不能被选中
+    if (model.type == TZAssetModelMediaTypePhotoGif) {
+        _selectButton.hidden = YES;
+        _originalPhotoLabel.hidden = YES;
+        _originalPhotoButton.hidden = YES;
+    }
+    
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
     if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {
         _numberLabel.hidden = YES;
