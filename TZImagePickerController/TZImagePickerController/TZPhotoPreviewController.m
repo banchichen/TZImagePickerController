@@ -418,6 +418,7 @@
         _selectButton.hidden = YES;
         _originalPhotoLabel.hidden = YES;
         _originalPhotoButton.hidden = YES;
+        _doneButton.hidden = YES;
     }
     
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
