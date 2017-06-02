@@ -241,6 +241,7 @@
     imagePickerVc.allowCrop = self.allowCropSwitch.isOn;
     imagePickerVc.needCircleCrop = self.needCircleCropSwitch.isOn;
     imagePickerVc.circleCropRadius = 100;
+    imagePickerVc.isStatusBarDefault = NO;
     /*
      [imagePickerVc setCropViewSettingBlock:^(UIView *cropView) {
      cropView.layer.borderColor = [UIColor redColor].CGColor;
