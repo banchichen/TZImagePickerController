@@ -534,8 +534,9 @@ static CGFloat TZScreenScale;
 
 - (void)getOriginalPhotoDataWithAsset:(id)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion {
     if ([asset isKindOfClass:[PHAsset class]]) {
-        PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
+        PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.networkAccessAllowed = YES;
+        option.resizeMode = PHImageRequestOptionsResizeModeFast;
         [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && imageData) {
