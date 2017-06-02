@@ -21,7 +21,7 @@
 
 @property (nonatomic, weak) UIImageView *videoImgView;
 @property (nonatomic, strong) TZProgressView *progressView;
-@property (nonatomic, assign) PHImageRequestID bigImageRequestID;
+@property (nonatomic, assign) int32_t bigImageRequestID;
 @end
 
 @implementation TZAssetCell
@@ -31,7 +31,7 @@
     if (iOS8Later) {
         self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
     }
-    PHImageRequestID imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+    int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (_progressView) {
             self.progressView.hidden = YES;
             self.imageView.alpha = 1.0;

@@ -135,18 +135,27 @@
 }
 
 - (void)setAsset:(id)asset {
+    if (_asset && self.imageRequestID) {
+        [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+    }
+    
     _asset = asset;
-    [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+    self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        if (![asset isEqual:_asset]) return;
         self.imageView.image = photo;
         [self resizeSubviews];
         _progressView.hidden = YES;
         if (self.imageProgressUpdateBlock) {
             self.imageProgressUpdateBlock(1);
         }
+        if (!isDegraded) {
+            self.imageRequestID = 0;
+        }
     } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+        if (![asset isEqual:_asset]) return;
         _progressView.hidden = NO;
         [self bringSubviewToFront:_progressView];
-        progress = progress > 0.02 ? progress : 0.02;;
+        progress = progress > 0.02 ? progress : 0.02;
         _progressView.progress = progress;
         if (self.imageProgressUpdateBlock) {
             self.imageProgressUpdateBlock(progress);

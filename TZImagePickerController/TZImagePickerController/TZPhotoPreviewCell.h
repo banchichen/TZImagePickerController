@@ -39,5 +39,7 @@
 @property (nonatomic, copy) void (^singleTapGestureBlock)();
 @property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
 
+@property (nonatomic, assign) int32_t imageRequestID;
+
 - (void)recoverSubviews;
 @end
