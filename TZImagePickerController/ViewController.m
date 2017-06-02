@@ -22,7 +22,7 @@
     NSMutableArray *_selectedPhotos;
     NSMutableArray *_selectedAssets;
     BOOL _isSelectOriginalPhoto;
-
+    
     CGFloat _itemWH;
     CGFloat _margin;
 }
@@ -132,7 +132,7 @@
             UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"拍照",@"去相册选择", nil];
             [sheet showInView:self.view];
         } else {
-            [self pushImagePickerController];
+            [self pushTZImagePickerController];
         }
     } else { // preview photos or video / 预览照片或者视频
         id asset = _selectedAssets[indexPath.row];
@@ -196,16 +196,16 @@
 
 #pragma mark - TZImagePickerController
 
-- (void)pushImagePickerController {
+- (void)pushTZImagePickerController {
     if (self.maxCountTF.text.integerValue <= 0) {
         return;
     }
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
     
-
+    
 #pragma mark - 四类个性化设置，这些参数都可以不传，此时会走默认设置
     imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
-
+    
     if (self.maxCountTF.text.integerValue > 1) {
         // 1.设置目前已经选中的图片数组
         imagePickerVc.selectedAssets = _selectedAssets; // 目前已经选中的图片数组
@@ -242,11 +242,11 @@
     imagePickerVc.needCircleCrop = self.needCircleCropSwitch.isOn;
     imagePickerVc.circleCropRadius = 100;
     /*
-    [imagePickerVc setCropViewSettingBlock:^(UIView *cropView) {
-        cropView.layer.borderColor = [UIColor redColor].CGColor;
-        cropView.layer.borderWidth = 2.0;
-    }];*/
-
+     [imagePickerVc setCropViewSettingBlock:^(UIView *cropView) {
+     cropView.layer.borderColor = [UIColor redColor].CGColor;
+     cropView.layer.borderWidth = 2.0;
+     }];*/
+    
     //imagePickerVc.allowPreview = NO;
 #pragma mark - 到这里为止
     
@@ -267,26 +267,44 @@
         // 无相机权限 做一个友好的提示
         UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
         [alert show];
+    } else if (authStatus == AVAuthorizationStatusNotDetermined) {
+        // fix issue 466, 防止用户首次拍照拒绝授权时相机页黑屏
+        if (iOS7Later) {
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                if (granted) {
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        [self takePhoto];
+                    });
+                }
+            }];
+        } else {
+            [self takePhoto];
+        }
         // 拍照之前还需要检查相册权限
     } else if ([TZImageManager authorizationStatus] == 2) { // 已被拒绝，没有相册权限，将无法保存拍的照片
         UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法访问相册" message:@"请在iPhone的""设置-隐私-相册""中允许访问相册" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
         alert.tag = 1;
         [alert show];
-    } else if ([TZImageManager authorizationStatus] == 0) { // 正在弹框询问用户是否允许访问相册，监听权限状态
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            return [self takePhoto];
-        });
-    } else { // 调用相机
-        UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
-        if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
-            self.imagePickerVc.sourceType = sourceType;
-            if(iOS8Later) {
-                _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-            }
-            [self presentViewController:_imagePickerVc animated:YES completion:nil];
-        } else {
-            NSLog(@"模拟器中无法打开照相机,请在真机中使用");
+    } else if ([TZImageManager authorizationStatus] == 0) { // 未请求过相册权限
+        [[TZImageManager manager] requestAuthorizationWithCompletion:^{
+            [self takePhoto];
+        }];
+    } else {
+        [self pushImagePickerController];
+    }
+}
+
+// 调用相机
+- (void)pushImagePickerController {
+    UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
+    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+        self.imagePickerVc.sourceType = sourceType;
+        if(iOS8Later) {
+            _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
         }
+        [self presentViewController:_imagePickerVc animated:YES completion:nil];
+    } else {
+        NSLog(@"模拟器中无法打开照相机,请在真机中使用");
     }
 }
 
@@ -346,7 +364,7 @@
     if (buttonIndex == 0) { // take photo / 去拍照
         [self takePhoto];
     } else if (buttonIndex == 1) {
-        [self pushImagePickerController];
+        [self pushTZImagePickerController];
     }
 }
 
@@ -379,7 +397,7 @@
 /// 用户点击了取消
 - (void)tz_imagePickerControllerDidCancel:(TZImagePickerController *)picker {
     // NSLog(@"cancel");
- }
+}
 
 // The picker should dismiss itself; when it dismissed these handle will be called.
 // If isOriginalPhoto is YES, user picked the original photo.
@@ -409,13 +427,13 @@
     _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
     // open this code to send video / 打开这段代码发送视频
     // [[TZImageManager manager] getVideoOutputPathWithAsset:asset completion:^(NSString *outputPath) {
-        // NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
-        // Export completed, send video here, send by outputPath or NSData
-        // 导出完成，在这里写上传代码，通过路径或者通过NSData上传
+    // NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
+    // Export completed, send video here, send by outputPath or NSData
+    // 导出完成，在这里写上传代码，通过路径或者通过NSData上传
     
     // }];
     [_collectionView reloadData];
-   // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
+    // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
 }
 
 // If user picking a gif image, this callback will be called.

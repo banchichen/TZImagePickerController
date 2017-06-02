@@ -112,7 +112,7 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)configCollectionView {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-
+    
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     CGFloat margin = 5;
     CGFloat itemWH = (self.view.tz_width - (self.columnNumber + 1) * margin) / self.columnNumber;
@@ -131,7 +131,7 @@ static CGSize AssetGridThumbnailSize;
         if (iOS7Later) navigationHeight += 20;
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - navigationHeight : self.view.tz_height - navigationHeight;
     }
-
+    
     _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, collectionViewHeight) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
@@ -252,7 +252,7 @@ static CGSize AssetGridThumbnailSize;
     CGFloat rgb2 = 222 / 255.0;
     divide.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
     divide.frame = CGRectMake(0, 0, self.view.tz_width, 1);
-
+    
     [bottomToolBar addSubview:divide];
     [bottomToolBar addSubview:_previewButton];
     [bottomToolBar addSubview:_doneButton];
@@ -304,7 +304,7 @@ static CGSize AssetGridThumbnailSize;
             }
             if (info)  [infoArr replaceObjectAtIndex:i withObject:info];
             [assets replaceObjectAtIndex:i withObject:model.asset];
-
+            
             for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
             
             if (havenotShowAlert) {
@@ -473,6 +473,7 @@ static CGSize AssetGridThumbnailSize;
 
 #pragma mark - Private Method
 
+/// 拍照按钮点击事件
 - (void)takePhoto {
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied) && iOS7Later) {
@@ -482,17 +483,35 @@ static CGSize AssetGridThumbnailSize;
         NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
         UIAlertView * alert = [[UIAlertView alloc]initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] otherButtonTitles:[NSBundle tz_localizedStringForKey:@"Setting"], nil];
         [alert show];
-    } else { // 调用相机
-        UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
-        if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
-            self.imagePickerVc.sourceType = sourceType;
-            if(iOS8Later) {
-                _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-            }
-            [self presentViewController:_imagePickerVc animated:YES completion:nil];
+    } else if (authStatus == AVAuthorizationStatusNotDetermined) {
+        // fix issue 466, 防止用户首次拍照拒绝授权时相机页黑屏
+        if (iOS7Later) {
+            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+                if (granted) {
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        [self pushImagePickerController];
+                    });
+                }
+            }];
         } else {
-            NSLog(@"模拟器中无法打开照相机,请在真机中使用");
+            [self pushImagePickerController];
         }
+    } else {
+        [self pushImagePickerController];
+    }
+}
+
+// 调用相机
+- (void)pushImagePickerController {
+    UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
+    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
+        self.imagePickerVc.sourceType = sourceType;
+        if(iOS8Later) {
+            _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        }
+        [self presentViewController:_imagePickerVc animated:YES completion:nil];
+    } else {
+        NSLog(@"模拟器中无法打开照相机,请在真机中使用");
     }
 }
 
@@ -709,13 +728,13 @@ static CGSize AssetGridThumbnailSize;
         
         // Update the assets the PHCachingImageManager is caching.
         [[TZImageManager manager].cachingImageManager startCachingImagesForAssets:assetsToStartCaching
-                                            targetSize:AssetGridThumbnailSize
-                                           contentMode:PHImageContentModeAspectFill
-                                               options:nil];
+                                                                       targetSize:AssetGridThumbnailSize
+                                                                      contentMode:PHImageContentModeAspectFill
+                                                                          options:nil];
         [[TZImageManager manager].cachingImageManager stopCachingImagesForAssets:assetsToStopCaching
-                                           targetSize:AssetGridThumbnailSize
-                                          contentMode:PHImageContentModeAspectFill
-                                              options:nil];
+                                                                      targetSize:AssetGridThumbnailSize
+                                                                     contentMode:PHImageContentModeAspectFill
+                                                                         options:nil];
         
         // Store the preheat rect to compare against in the future.
         self.previousPreheatRect = preheatRect;
