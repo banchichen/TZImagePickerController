@@ -17,6 +17,7 @@
 #import "TZVideoPlayerController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZGifPhotoPreviewController.h"
+#import "TZLocationManager.h"
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
@@ -28,6 +29,7 @@
 }
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
 @property (nonatomic, strong) UICollectionView *collectionView;
+@property (strong, nonatomic) CLLocation *location;
 // 6个设置开关
 @property (weak, nonatomic) IBOutlet UISwitch *showTakePhotoBtnSwitch;  ///< 在内部显示拍照按钮
 @property (weak, nonatomic) IBOutlet UISwitch *sortAscendingSwitch;     ///< 照片排列按修改时间升序
@@ -297,6 +299,13 @@
 
 // 调用相机
 - (void)pushImagePickerController {
+    // 提前定位
+    [[TZLocationManager manager] startLocationWithSuccessBlock:^(CLLocation *location, CLLocation *oldLocation) {
+        _location = location;
+    } failureBlock:^(NSError *error) {
+        _location = nil;
+    }];
+    
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         self.imagePickerVc.sourceType = sourceType;
@@ -317,8 +326,9 @@
         tzImagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
         [tzImagePickerVc showProgressHUD];
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
+        
         // save photo and get asset / 保存图片，获取到asset
-        [[TZImageManager manager] savePhotoWithImage:image completion:^(NSError *error){
+        [[TZImageManager manager] savePhotoWithImage:image location:self.location completion:^(NSError *error){
             if (error) {
                 [tzImagePickerVc hideProgressHUD];
                 NSLog(@"图片保存失败 %@",error);
@@ -351,6 +361,11 @@
     [_selectedAssets addObject:asset];
     [_selectedPhotos addObject:image];
     [_collectionView reloadData];
+    
+    if ([asset isKindOfClass:[PHAsset class]]) {
+        PHAsset *phAsset = asset;
+        NSLog(@"location:%@",phAsset.location);
+    }
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
@@ -417,6 +432,12 @@
     
     // 1.打印图片名字
     [self printAssetsName:assets];
+    // 2.图片位置信息
+    if (iOS8Later) {
+        for (PHAsset *phAsset in assets) {
+            NSLog(@"location:%@",phAsset.location);
+        }
+    }
 }
 
 // If user picking a video, this callback will be called.

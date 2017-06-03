@@ -558,12 +558,21 @@ static CGFloat TZScreenScale;
 #pragma mark - Save photo
 
 - (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(NSError *error))completion {
+    [self savePhotoWithImage:image location:nil completion:completion];
+}
+
+- (void)savePhotoWithImage:(UIImage *)image location:(CLLocation *)location completion:(void (^)(NSError *error))completion {
     NSData *data = UIImageJPEGRepresentation(image, 0.9);
     if (iOS9Later) { // 这里有坑... iOS8系统下这个方法保存图片会失败 原来是因为PHAssetResourceType是iOS9之后的...
         [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
             PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
             options.shouldMoveFile = YES;
-            [[PHAssetCreationRequest creationRequestForAsset] addResourceWithType:PHAssetResourceTypePhoto data:data options:options];
+            PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];
+            [request addResourceWithType:PHAssetResourceTypePhoto data:data options:options];
+            if (location) {
+                request.location = location;
+            }
+            request.creationDate = [NSDate date];
         } completionHandler:^(BOOL success, NSError * _Nullable error) {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 if (success && completion) {

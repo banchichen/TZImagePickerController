@@ -66,6 +66,7 @@
 
 /// Save photo 保存照片
 - (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(NSError *error))completion;
+- (void)savePhotoWithImage:(UIImage *)image location:(CLLocation *)location completion:(void (^)(NSError *error))completion;
 
 /// Get video 获得视频
 - (void)getVideoWithAsset:(id)asset completion:(void (^)(AVPlayerItem * playerItem, NSDictionary * info))completion;

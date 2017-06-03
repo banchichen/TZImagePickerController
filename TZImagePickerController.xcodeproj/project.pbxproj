@@ -27,6 +27,7 @@
 		900EF00F1C2C0B1100EA709B /* TZAssetModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 900EF00E1C2C0B1100EA709B /* TZAssetModel.m */; };
 		900EF0121C2C107400EA709B /* TZPhotoPreviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 900EF0111C2C107400EA709B /* TZPhotoPreviewController.m */; };
 		900EF0161C2C134900EA709B /* TZPhotoPreviewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 900EF0141C2C134900EA709B /* TZPhotoPreviewCell.m */; };
+		902938D81EE2D02C000F2F8F /* TZLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 902938D71EE2D02C000F2F8F /* TZLocationManager.m */; };
 		9038D5911C3974F0007DE549 /* TZTestCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 9038D5901C3974F0007DE549 /* TZTestCell.m */; };
 		90CE84AE1C3A89EF003D0779 /* TZImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 90CE84AD1C3A89EF003D0779 /* TZImageManager.m */; };
 		90CE84B71C3BABB6003D0779 /* TZVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90CE84B61C3BABB6003D0779 /* TZVideoPlayerController.m */; };
@@ -92,6 +93,8 @@
 		900EF0111C2C107400EA709B /* TZPhotoPreviewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZPhotoPreviewController.m; sourceTree = "<group>"; };
 		900EF0131C2C134800EA709B /* TZPhotoPreviewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZPhotoPreviewCell.h; sourceTree = "<group>"; };
 		900EF0141C2C134900EA709B /* TZPhotoPreviewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZPhotoPreviewCell.m; sourceTree = "<group>"; };
+		902938D61EE2D02C000F2F8F /* TZLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZLocationManager.h; sourceTree = "<group>"; };
+		902938D71EE2D02C000F2F8F /* TZLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZLocationManager.m; sourceTree = "<group>"; };
 		9038D58F1C3974F0007DE549 /* TZTestCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZTestCell.h; sourceTree = "<group>"; };
 		9038D5901C3974F0007DE549 /* TZTestCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZTestCell.m; sourceTree = "<group>"; };
 		90CE84AC1C3A89EF003D0779 /* TZImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZImageManager.h; sourceTree = "<group>"; };
@@ -227,6 +230,8 @@
 				90CE84AD1C3A89EF003D0779 /* TZImageManager.m */,
 				6DC84D081DF5358500A107A9 /* TZImageCropManager.h */,
 				6DC84D091DF5358500A107A9 /* TZImageCropManager.m */,
+				902938D61EE2D02C000F2F8F /* TZLocationManager.h */,
+				902938D71EE2D02C000F2F8F /* TZLocationManager.m */,
 				90EBF5D41C2E298000CB9BCC /* UIView+Layout.h */,
 				90EBF5D51C2E298000CB9BCC /* UIView+Layout.m */,
 				6D5358CB1D64600F00928CC6 /* NSBundle+TZImagePicker.h */,
@@ -386,6 +391,7 @@
 				900EF0121C2C107400EA709B /* TZPhotoPreviewController.m in Sources */,
 				6D5358CD1D64600F00928CC6 /* NSBundle+TZImagePicker.m in Sources */,
 				900EEFF81C2BBF9500EA709B /* TZImagePickerController.m in Sources */,
+				902938D81EE2D02C000F2F8F /* TZLocationManager.m in Sources */,
 				6DC84D0A1DF5358500A107A9 /* TZImageCropManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

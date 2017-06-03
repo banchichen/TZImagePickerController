@@ -15,6 +15,7 @@
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
+#import "TZLocationManager.h"
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate> {
     NSMutableArray *_models;
@@ -33,6 +34,7 @@
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
 @property (nonatomic, strong) TZCollectionView *collectionView;
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
+@property (strong, nonatomic) CLLocation *location;
 @end
 
 static CGSize AssetGridThumbnailSize;
@@ -519,6 +521,13 @@ static CGSize AssetGridThumbnailSize;
 
 // 调用相机
 - (void)pushImagePickerController {
+    // 提前定位
+    [[TZLocationManager manager] startLocationWithSuccessBlock:^(CLLocation *location, CLLocation *oldLocation) {
+        _location = location;
+    } failureBlock:^(NSError *error) {
+        _location = nil;
+    }];
+    
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         self.imagePickerVc.sourceType = sourceType;
@@ -640,13 +649,14 @@ static CGSize AssetGridThumbnailSize;
     if ([type isEqualToString:@"public.image"]) {
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
         [imagePickerVc showProgressHUD];
-        UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
-        if (image) {
-            [[TZImageManager manager] savePhotoWithImage:image completion:^(NSError *error){
+        UIImage *photo = [info objectForKey:UIImagePickerControllerOriginalImage];
+        if (photo) {
+            [[TZImageManager manager] savePhotoWithImage:photo location:self.location completion:^(NSError *error){
                 if (!error) {
                     [self reloadPhotoArray];
                 }
             }];
+            self.location = nil;
         }
     }
 }
