@@ -612,7 +612,7 @@
     photoPickerVc.model = model;
     __weak typeof(self) weakSelf = self;
     [photoPickerVc setBackButtonClickHandle:^(TZAlbumModel *model) {
-        [weakSelf.albumArr replaceObjectAtIndex:indexPath.row withObject:model];
+        [weakSelf configTableView];
     }];
     [self.navigationController pushViewController:photoPickerVc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
