@@ -418,9 +418,13 @@ static CGFloat TZScreenScale;
             PHAsset *phAsset = (PHAsset *)asset;
             CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
             CGFloat pixelWidth = photoWidth * TZScreenScale * 1.5;
-            // 优化超宽图片的显示
+            // 超宽图片
             if (aspectRatio > 1) {
                 pixelWidth = pixelWidth * aspectRatio;
+            }
+            // 超高图片
+            if (aspectRatio < 0.2) {
+                pixelWidth = pixelWidth * 0.5;
             }
             CGFloat pixelHeight = pixelWidth / aspectRatio;
             imageSize = CGSizeMake(pixelWidth, pixelHeight);
