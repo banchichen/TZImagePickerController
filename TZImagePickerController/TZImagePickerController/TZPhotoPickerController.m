@@ -71,39 +71,52 @@ static CGSize AssetGridThumbnailSize;
     self.navigationItem.title = _model.name;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
     _showTakePhotoBtn = (([[TZImageManager manager] isCameraRollAlbum:_model.name]) && tzImagePickerVc.allowTakePicture);
-    if (!tzImagePickerVc.sortAscendingByModificationDate && _isFirstAppear && iOS8Later) {
-        [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(TZAlbumModel *model) {
-            _model = model;
-            _models = [NSMutableArray arrayWithArray:_model.models];
-            [self initSubviews];
-        }];
-    } else {
-        if (_showTakePhotoBtn || !iOS8Later || _isFirstAppear) {
-            [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
-                _models = [NSMutableArray arrayWithArray:models];
-                [self initSubviews];
-            }];
-        } else {
-            _models = [NSMutableArray arrayWithArray:_model.models];
-            [self initSubviews];
-        }
-    }
     // [self resetCachedAssets];
 }
 
+- (void)fetchAssetModels {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (_isFirstAppear) {
+        [tzImagePickerVc showProgressHUD];
+    }
+    dispatch_sync(dispatch_get_global_queue(0, 0), ^{
+        if (!tzImagePickerVc.sortAscendingByModificationDate && _isFirstAppear && iOS8Later) {
+            [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(TZAlbumModel *model) {
+                _model = model;
+                _models = [NSMutableArray arrayWithArray:_model.models];
+                [self initSubviews];
+            }];
+        } else {
+            if (_showTakePhotoBtn || !iOS8Later || _isFirstAppear) {
+                [[TZImageManager manager] getAssetsFromFetchResult:_model.result allowPickingVideo:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
+                    _models = [NSMutableArray arrayWithArray:models];
+                    [self initSubviews];
+                }];
+            } else {
+                _models = [NSMutableArray arrayWithArray:_model.models];
+                [self initSubviews];
+            }
+        }
+    });
+}
+
 - (void)initSubviews {
-    [self checkSelectedModels];
-    [self configCollectionView];
-    [self configBottomToolBar];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+        [tzImagePickerVc hideProgressHUD];
+        
+        [self checkSelectedModels];
+        [self configCollectionView];
+        [self configBottomToolBar];
+        
+        [self scrollCollectionViewToBottom];
+    });
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     tzImagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
-    if (self.backButtonClickHandle) {
-        self.backButtonClickHandle(_model);
-    }
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -151,7 +164,6 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [self scrollCollectionViewToBottom];
     // Determine the size of the thumbnails to request from the PHCachingImageManager
     CGFloat scale = 2.0;
     if ([UIScreen mainScreen].bounds.size.width > 600) {
@@ -159,6 +171,10 @@ static CGSize AssetGridThumbnailSize;
     }
     CGSize cellSize = ((UICollectionViewFlowLayout *)_collectionView.collectionViewLayout).itemSize;
     AssetGridThumbnailSize = CGSizeMake(cellSize.width * scale, cellSize.height * scale);
+    
+    if (!_models) {
+        [self fetchAssetModels];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
