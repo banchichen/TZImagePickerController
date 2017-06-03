@@ -429,6 +429,12 @@ static CGSize AssetGridThumbnailSize;
     // take a photo / 去拍照
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn)  {
+        if (tzImagePickerVc.selectedModels.count == tzImagePickerVc.maxImagesCount) {
+            //            NSLog(@"最多了。。");
+            NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], tzImagePickerVc.maxImagesCount];
+            [tzImagePickerVc showAlertWithTitle:title];
+            return;
+        }
         [self takePhoto]; return;
     }
     // preview phote or video / 预览照片或视频
@@ -645,9 +651,11 @@ static CGSize AssetGridThumbnailSize;
             TZAssetModel *assetModel;
             if (tzImagePickerVc.sortAscendingByModificationDate) {
                 assetModel = [models lastObject];
+                assetModel.isSelected = YES;
                 [_models addObject:assetModel];
             } else {
                 assetModel = [models firstObject];
+                assetModel.isSelected = YES;
                 [_models insertObject:assetModel atIndex:0];
             }
             
@@ -663,13 +671,15 @@ static CGSize AssetGridThumbnailSize;
                     [self pushPhotoPrevireViewController:photoPreviewVc];
                 } else {
                     [tzImagePickerVc.selectedModels addObject:assetModel];
+                    [self refreshBottomToolBarStatus];
                     [self doneButtonClick];
                 }
+                [_collectionView reloadData];
                 return;
             }
             
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
-                assetModel.isSelected = YES;
+                //                assetModel.isSelected = YES;
                 [tzImagePickerVc.selectedModels addObject:assetModel];
                 [self refreshBottomToolBarStatus];
             }
