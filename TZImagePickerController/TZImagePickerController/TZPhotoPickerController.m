@@ -123,9 +123,7 @@ static CGSize AssetGridThumbnailSize;
     CGFloat top = 0;
     CGFloat collectionViewHeight = 0;
     if (self.navigationController.navigationBar.isTranslucent) {
-        top = 44;
-        if (iOS7Later) top += 20;
-        collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - top : self.view.tz_height - top;;
+        collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 : self.view.tz_height;
     } else {
         CGFloat navigationHeight = 44;
         if (iOS7Later) navigationHeight += 20;

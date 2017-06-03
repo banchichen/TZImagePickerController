@@ -52,7 +52,6 @@
     if (iOS7Later) {
         self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
         self.navigationBar.tintColor = [UIColor whiteColor];
-        self.automaticallyAdjustsScrollViewInsets = NO;
     }
 }
 
@@ -464,7 +463,6 @@
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    if (iOS7Later) viewController.automaticallyAdjustsScrollViewInsets = NO;
     if (_timer) { [_timer invalidate]; _timer = nil;}
     [super pushViewController:viewController animated:animated];
 }
@@ -557,9 +555,7 @@
             CGFloat top = 0;
             CGFloat tableViewHeight = 0;
             if (self.navigationController.navigationBar.isTranslucent) {
-                top = 44;
-                if (iOS7Later) top += 20;
-                tableViewHeight = self.view.tz_height - top;
+                tableViewHeight = self.view.tz_height;
             } else {
                 CGFloat navigationHeight = 44;
                 if (iOS7Later) navigationHeight += 20;
