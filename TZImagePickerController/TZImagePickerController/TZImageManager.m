@@ -417,7 +417,11 @@ static CGFloat TZScreenScale;
         } else {
             PHAsset *phAsset = (PHAsset *)asset;
             CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
-            CGFloat pixelWidth = photoWidth * TZScreenScale;
+            CGFloat pixelWidth = photoWidth * TZScreenScale * 1.5;
+            // 优化超宽图片的显示
+            if (aspectRatio > 1) {
+                pixelWidth = pixelWidth * aspectRatio;
+            }
             CGFloat pixelHeight = pixelWidth / aspectRatio;
             imageSize = CGSizeMake(pixelWidth, pixelHeight);
         }

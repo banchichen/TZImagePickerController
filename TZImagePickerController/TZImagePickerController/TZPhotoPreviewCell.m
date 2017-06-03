@@ -79,7 +79,7 @@
         _scrollView.delegate = self;
         _scrollView.scrollsToTop = NO;
         _scrollView.showsHorizontalScrollIndicator = NO;
-        _scrollView.showsVerticalScrollIndicator = NO;
+        _scrollView.showsVerticalScrollIndicator = YES;
         _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         _scrollView.delaysContentTouches = NO;
         _scrollView.canCancelContentTouches = YES;
@@ -197,6 +197,15 @@
 - (void)setAllowCrop:(BOOL)allowCrop {
     _allowCrop = allowCrop;
     _scrollView.maximumZoomScale = allowCrop ? 4.0 : 2.5;
+    
+    if ([self.asset isKindOfClass:[PHAsset class]]) {
+        PHAsset *phAsset = (PHAsset *)self.asset;
+        CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
+        // 优化超宽图片的显示
+        if (aspectRatio > 1.5) {
+            self.scrollView.maximumZoomScale *= aspectRatio / 1.5;
+        }
+    }
 }
 
 - (void)refreshScrollViewContentSize {
