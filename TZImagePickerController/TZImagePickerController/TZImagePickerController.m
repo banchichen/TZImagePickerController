@@ -43,7 +43,7 @@
     self.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationBar.translucent = YES;
     [TZImageManager manager].shouldFixOrientation = NO;
-
+    
     // Default appearance, you can reset these after this method
     // 默认的外观，你可以在这个方法后重置
     self.oKButtonTitleColorNormal   = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0];
@@ -104,13 +104,13 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-
+    
     if (self.isStatusBarDefault) {
         [UIApplication sharedApplication].statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
     }else{
         [UIApplication sharedApplication].statusBarStyle = iOS7Later ? UIStatusBarStyleLightContent : UIStatusBarStyleBlackOpaque;
     }
-   
+    
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -184,7 +184,7 @@
         self.selectedAssets = [NSMutableArray arrayWithArray:selectedAssets];
         self.allowPickingOriginalPhoto = self.allowPickingOriginalPhoto;
         [self configDefaultSetting];
-
+        
         previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
         previewVc.currentIndex = index;
         __weak typeof(self) weakSelf = self;
@@ -280,6 +280,13 @@
             _didPushPhotoPickerVc = YES;
         }];
     }
+    
+    if (!_pushPhotoPickerVc) {
+        TZAlbumPickerController *albumPickerVc = (TZAlbumPickerController *)self.visibleViewController;
+        if ([albumPickerVc isKindOfClass:[TZAlbumPickerController class]]) {
+            [albumPickerVc configTableView];
+        }
+    }
 }
 
 - (void)showAlertWithTitle:(NSString *)title {
@@ -296,7 +303,7 @@
     if (!_progressHUD) {
         _progressHUD = [UIButton buttonWithType:UIButtonTypeCustom];
         [_progressHUD setBackgroundColor:[UIColor clearColor]];
-
+        
         _HUDContainer = [[UIView alloc] init];
         _HUDContainer.frame = CGRectMake((self.view.tz_width - 120) / 2, (self.view.tz_height - 90) / 2, 120, 90);
         _HUDContainer.layer.cornerRadius = 8;
@@ -491,10 +498,10 @@
 
 - (void)callDelegateMethod {
     /*
-    // 兼容旧版本
-    if ([self.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
+     // 兼容旧版本
+     if ([self.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidCancel:)]) {
         [self.pickerDelegate imagePickerControllerDidCancel:self];
-    }
+     }
      */
     if ([self.pickerDelegate respondsToSelector:@selector(tz_imagePickerControllerDidCancel:)]) {
         [self.pickerDelegate tz_imagePickerControllerDidCancel:self];
@@ -565,7 +572,7 @@
                 if (iOS7Later) navigationHeight += 20;
                 tableViewHeight = self.view.tz_height - navigationHeight;
             }
-
+            
             _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, tableViewHeight) style:UITableViewStylePlain];
             _tableView.rowHeight = 70;
             _tableView.tableFooterView = [[UIView alloc] init];

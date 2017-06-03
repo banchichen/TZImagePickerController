@@ -200,7 +200,7 @@
     if (self.maxCountTF.text.integerValue <= 0) {
         return;
     }
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:NO];
     
     
 #pragma mark - 四类个性化设置，这些参数都可以不传，此时会走默认设置
@@ -244,8 +244,8 @@
     imagePickerVc.isStatusBarDefault = NO;
     /*
      [imagePickerVc setCropViewSettingBlock:^(UIView *cropView) {
-     cropView.layer.borderColor = [UIColor redColor].CGColor;
-     cropView.layer.borderWidth = 2.0;
+         cropView.layer.borderColor = [UIColor redColor].CGColor;
+         cropView.layer.borderWidth = 2.0;
      }];*/
     
     //imagePickerVc.allowPreview = NO;

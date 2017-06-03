@@ -204,6 +204,7 @@
 
 @interface TZAlbumPickerController : UIViewController
 @property (nonatomic, assign) NSInteger columnNumber;
+- (void)configTableView;
 @end
 
 

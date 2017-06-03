@@ -509,6 +509,7 @@ static CGFloat TZScreenScale;
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
         option.networkAccessAllowed = YES;
+        option.resizeMode = PHImageRequestOptionsResizeModeFast;
         [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && result) {
@@ -598,8 +599,21 @@ static CGFloat TZScreenScale;
 
 /// Get Video / 获取视频
 - (void)getVideoWithAsset:(id)asset completion:(void (^)(AVPlayerItem * _Nullable, NSDictionary * _Nullable))completion {
+    [self getVideoWithAsset:asset progressHandler:nil completion:completion];
+}
+
+- (void)getVideoWithAsset:(id)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(AVPlayerItem * _Nullable, NSDictionary * _Nullable))completion {
     if ([asset isKindOfClass:[PHAsset class]]) {
-        [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:nil resultHandler:^(AVPlayerItem * _Nullable playerItem, NSDictionary * _Nullable info) {
+        PHVideoRequestOptions *option = [[PHVideoRequestOptions alloc] init];
+        option.networkAccessAllowed = YES;
+        option.progressHandler = ^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (progressHandler) {
+                    progressHandler(progress, error, stop, info);
+                }
+            });
+        };
+        [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:option resultHandler:^(AVPlayerItem * _Nullable playerItem, NSDictionary * _Nullable info) {
             if (completion) completion(playerItem,info);
         }];
     } else if ([asset isKindOfClass:[ALAsset class]]) {
@@ -677,21 +691,21 @@ static CGFloat TZScreenScale;
         // Begin to export video to the output path asynchronously.
         [session exportAsynchronouslyWithCompletionHandler:^(void) {
             switch (session.status) {
-                    case AVAssetExportSessionStatusUnknown:
+                case AVAssetExportSessionStatusUnknown:
                     NSLog(@"AVAssetExportSessionStatusUnknown"); break;
-                    case AVAssetExportSessionStatusWaiting:
+                case AVAssetExportSessionStatusWaiting:
                     NSLog(@"AVAssetExportSessionStatusWaiting"); break;
-                    case AVAssetExportSessionStatusExporting:
+                case AVAssetExportSessionStatusExporting:
                     NSLog(@"AVAssetExportSessionStatusExporting"); break;
-                    case AVAssetExportSessionStatusCompleted: {
-                        NSLog(@"AVAssetExportSessionStatusCompleted");
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            if (completion) {
-                                completion(outputPath);
-                            }
-                        });
-                    }  break;
-                    case AVAssetExportSessionStatusFailed:
+                case AVAssetExportSessionStatusCompleted: {
+                    NSLog(@"AVAssetExportSessionStatusCompleted");
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        if (completion) {
+                            completion(outputPath);
+                        }
+                    });
+                }  break;
+                case AVAssetExportSessionStatusFailed:
                     NSLog(@"AVAssetExportSessionStatusFailed"); break;
                 default: break;
             }
@@ -864,27 +878,27 @@ static CGFloat TZScreenScale;
     
     // No-op if the orientation is already correct
     if (aImage.imageOrientation == UIImageOrientationUp)
-    return aImage;
+        return aImage;
     
     // We need to calculate the proper transformation to make the image upright.
     // We do it in 2 steps: Rotate if Left/Right/Down, and then flip if Mirrored.
     CGAffineTransform transform = CGAffineTransformIdentity;
     
     switch (aImage.imageOrientation) {
-            case UIImageOrientationDown:
-            case UIImageOrientationDownMirrored:
+        case UIImageOrientationDown:
+        case UIImageOrientationDownMirrored:
             transform = CGAffineTransformTranslate(transform, aImage.size.width, aImage.size.height);
             transform = CGAffineTransformRotate(transform, M_PI);
             break;
             
-            case UIImageOrientationLeft:
-            case UIImageOrientationLeftMirrored:
+        case UIImageOrientationLeft:
+        case UIImageOrientationLeftMirrored:
             transform = CGAffineTransformTranslate(transform, aImage.size.width, 0);
             transform = CGAffineTransformRotate(transform, M_PI_2);
             break;
             
-            case UIImageOrientationRight:
-            case UIImageOrientationRightMirrored:
+        case UIImageOrientationRight:
+        case UIImageOrientationRightMirrored:
             transform = CGAffineTransformTranslate(transform, 0, aImage.size.height);
             transform = CGAffineTransformRotate(transform, -M_PI_2);
             break;
@@ -893,14 +907,14 @@ static CGFloat TZScreenScale;
     }
     
     switch (aImage.imageOrientation) {
-            case UIImageOrientationUpMirrored:
-            case UIImageOrientationDownMirrored:
+        case UIImageOrientationUpMirrored:
+        case UIImageOrientationDownMirrored:
             transform = CGAffineTransformTranslate(transform, aImage.size.width, 0);
             transform = CGAffineTransformScale(transform, -1, 1);
             break;
             
-            case UIImageOrientationLeftMirrored:
-            case UIImageOrientationRightMirrored:
+        case UIImageOrientationLeftMirrored:
+        case UIImageOrientationRightMirrored:
             transform = CGAffineTransformTranslate(transform, aImage.size.height, 0);
             transform = CGAffineTransformScale(transform, -1, 1);
             break;
@@ -916,10 +930,10 @@ static CGFloat TZScreenScale;
                                              CGImageGetBitmapInfo(aImage.CGImage));
     CGContextConcatCTM(ctx, transform);
     switch (aImage.imageOrientation) {
-            case UIImageOrientationLeft:
-            case UIImageOrientationLeftMirrored:
-            case UIImageOrientationRight:
-            case UIImageOrientationRightMirrored:
+        case UIImageOrientationLeft:
+        case UIImageOrientationLeftMirrored:
+        case UIImageOrientationRight:
+        case UIImageOrientationRightMirrored:
             // Grr...
             CGContextDrawImage(ctx, CGRectMake(0,0,aImage.size.height,aImage.size.width), aImage.CGImage);
             break;
