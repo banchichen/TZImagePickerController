@@ -287,14 +287,28 @@
     }
 }
 
-- (void)showAlertWithTitle:(NSString *)title {
+- (id)showAlertWithTitle:(NSString *)title {
     if (iOS8Later) {
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleAlert];
         [alertController addAction:[UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"OK"] style:UIAlertActionStyleDefault handler:nil]];
         [self presentViewController:alertController animated:YES completion:nil];
+        return alertController;
     } else {
-        [[[UIAlertView alloc] initWithTitle:title message:nil delegate:nil cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"OK"] otherButtonTitles:nil, nil] show];
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:nil delegate:nil cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"OK"] otherButtonTitles:nil, nil];
+        [alertView show];
+        return alertView;
     }
+}
+
+- (void)hideAlertView:(id)alertView {
+    if ([alertView isKindOfClass:[UIAlertController class]]) {
+        UIAlertController *alertC = alertView;
+        [alertC dismissViewControllerAnimated:YES completion:nil];
+    } else if ([alertView isKindOfClass:[UIAlertView class]]) {
+        UIAlertView *alertV = alertView;
+        [alertV dismissWithClickedButtonIndex:0 animated:YES];
+    }
+    alertView = nil;
 }
 
 - (void)showProgressHUD {
@@ -384,6 +398,11 @@
     } else if (_timeout > 60) {
         _timeout = 60;
     }
+}
+
+- (void)setPickerDelegate:(id<TZImagePickerControllerDelegate>)pickerDelegate {
+    _pickerDelegate = pickerDelegate;
+    [TZImageManager manager].pickerDelegate = pickerDelegate;
 }
 
 - (void)setColumnNumber:(NSInteger)columnNumber {
@@ -526,9 +545,6 @@
     
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:imagePickerVc action:@selector(cancelButtonClick)];
-    
-    // 1.6.10 采用微信的方式，只在相册列表页定义backBarButtonItem为返回，其余的顺系统的做法
-    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -540,6 +556,9 @@
     } else if (imagePickerVc.allowPickingVideo) {
         self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Videos"];
     }
+    
+    // 1.6.10 采用微信的方式，只在相册列表页定义backBarButtonItem为返回，其余的顺系统的做法
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
     
     [self configTableView];
 }

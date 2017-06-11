@@ -312,6 +312,7 @@ static CGSize AssetGridThumbnailSize;
     
     __block BOOL havenotShowAlert = YES;
     [TZImageManager manager].shouldFixOrientation = YES;
+    __block id alertView;
     for (NSInteger i = 0; i < tzImagePickerVc.selectedModels.count; i++) {
         TZAssetModel *model = tzImagePickerVc.selectedModels[i];
         [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
@@ -326,15 +327,19 @@ static CGSize AssetGridThumbnailSize;
             for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
             
             if (havenotShowAlert) {
+                [tzImagePickerVc hideAlertView:alertView];
                 [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
             }
         } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
             // 如果图片正在从iCloud同步中,提醒用户
-            if (progress < 1 && havenotShowAlert) {
+            if (progress < 1 && havenotShowAlert && !alertView) {
                 [tzImagePickerVc hideProgressHUD];
-                [tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]];
+                alertView = [tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]];
                 havenotShowAlert = NO;
                 return;
+            }
+            if (progress >= 1) {
+                havenotShowAlert = YES;
             }
         } networkAccessAllowed:YES];
     }

@@ -163,6 +163,13 @@ static CGFloat TZScreenScale;
                 if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 if (fetchResult.count < 1) continue;
+                
+                if ([self.pickerDelegate respondsToSelector:@selector(isAlbumCanSelect:result:)]) {
+                    if (![self.pickerDelegate isAlbumCanSelect:collection.localizedTitle result:fetchResult]) {
+                        continue;
+                    }
+                }
+                
                 if ([collection.localizedTitle containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
                 if ([self isCameraRollAlbum:collection.localizedTitle]) {
                     [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
@@ -179,6 +186,13 @@ static CGFloat TZScreenScale;
             }
             if ([group numberOfAssets] < 1) return;
             NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
+            
+            if ([self.pickerDelegate respondsToSelector:@selector(isAlbumCanSelect:result:)]) {
+                if (![self.pickerDelegate isAlbumCanSelect:name result:group]) {
+                    return;
+                }
+            }
+            
             if ([self isCameraRollAlbum:name]) {
                 [albumArr insertObject:[self modelWithResult:group name:name] atIndex:0];
             } else if ([name isEqualToString:@"My Photo Stream"] || [name isEqualToString:@"我的照片流"]) {
@@ -277,6 +291,12 @@ static CGFloat TZScreenScale;
 }
 
 - (TZAssetModel *)assetModelWithAsset:(id)asset allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+    BOOL canSelect = YES;
+    if ([self.pickerDelegate respondsToSelector:@selector(isAssetCanSelect:)]) {
+        canSelect = [self.pickerDelegate isAssetCanSelect:asset];
+    }
+    if (!canSelect) return nil;
+    
     TZAssetModel *model;
     TZAssetModelMediaType type = TZAssetModelMediaTypePhoto;
     if ([asset isKindOfClass:[PHAsset class]]) {
@@ -313,7 +333,7 @@ static CGFloat TZScreenScale;
         /// Allow picking video
         if ([[asset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo]) {
             type = TZAssetModelMediaTypeVideo;
-            NSTimeInterval duration = [[asset valueForProperty:ALAssetPropertyDuration] integerValue];
+            NSTimeInterval duration = [[asset valueForProperty:ALAssetPropertyDuration] doubleValue];
             NSString *timeLength = [NSString stringWithFormat:@"%0.0f",duration];
             timeLength = [self getNewTimeFromDurationSecond:timeLength.integerValue];
             model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
@@ -429,11 +449,16 @@ static CGFloat TZScreenScale;
             CGFloat pixelHeight = pixelWidth / aspectRatio;
             imageSize = CGSizeMake(pixelWidth, pixelHeight);
         }
+        
+        __block UIImage *image;
         // 修复获取图片时出现的瞬间内存过高问题
         // 下面两行代码，来自hsjcom，他的github是：https://github.com/hsjcom 表示感谢
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.resizeMode = PHImageRequestOptionsResizeModeFast;
         int32_t imageRequestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:imageSize contentMode:PHImageContentModeAspectFill options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+            if (result) {
+                image = result;
+            }
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && result) {
                 result = [self fixOrientation:result];
@@ -454,10 +479,11 @@ static CGFloat TZScreenScale;
                 [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
                     UIImage *resultImage = [UIImage imageWithData:imageData scale:0.1];
                     resultImage = [self scaleImage:resultImage toSize:imageSize];
-                    if (resultImage) {
-                        resultImage = [self fixOrientation:resultImage];
-                        if (completion) completion(resultImage,info,[[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
+                    if (!resultImage) {
+                        resultImage = image;
                     }
+                    resultImage = [self fixOrientation:resultImage];
+                    if (completion) completion(resultImage,info,NO);
                 }];
             }
         }];
@@ -549,8 +575,7 @@ static CGFloat TZScreenScale;
         [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && imageData) {
-                BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
-                if (completion) completion(imageData,info,isDegraded);
+                if (completion) completion(imageData,info,NO);
             }
         }];
     } else if ([asset isKindOfClass:[ALAsset class]]) {

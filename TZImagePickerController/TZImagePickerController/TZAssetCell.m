@@ -138,6 +138,9 @@
             self.progressView.progress = progress;
             self.progressView.hidden = NO;
             self.imageView.alpha = 0.4;
+            if (progress >= 1) {
+                [self hideProgressView];
+            }
         } else {
             *stop = YES;
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;

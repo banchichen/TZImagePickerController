@@ -12,11 +12,14 @@
 #import <Photos/Photos.h>
 
 @class TZAlbumModel,TZAssetModel;
+@protocol TZImagePickerControllerDelegate;
 @interface TZImageManager : NSObject
 
 @property (nonatomic, strong) PHCachingImageManager *cachingImageManager;
 
 + (instancetype)manager NS_SWIFT_NAME(default());
+
+@property (assign, nonatomic) id<TZImagePickerControllerDelegate> pickerDelegate;
 
 @property (nonatomic, assign) BOOL shouldFixOrientation;
 
@@ -59,9 +62,10 @@
 - (int32_t)getPhotoWithAsset:(id)asset photoWidth:(CGFloat)photoWidth completion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler networkAccessAllowed:(BOOL)networkAccessAllowed;
 
 /// Get full Image 获取原图
-/// 该方法一般会先返回缩略图，再返回原图(详见方法内部使用的系统API的说明)，如果info[PHImageResultIsDegradedKey] 为 YES，则表明当前返回的是缩略图，否则是原图。
+/// 如下两个方法completion一般会调多次，一般会先返回缩略图，再返回原图(详见方法内部使用的系统API的说明)，如果info[PHImageResultIsDegradedKey] 为 YES，则表明当前返回的是缩略图，否则是原图。
 - (void)getOriginalPhotoWithAsset:(id)asset completion:(void (^)(UIImage *photo,NSDictionary *info))completion;
 - (void)getOriginalPhotoWithAsset:(id)asset newCompletion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion;
+// 该方法中，completion只会走一次
 - (void)getOriginalPhotoDataWithAsset:(id)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion;
 
 /// Save photo 保存照片

@@ -123,12 +123,18 @@
     _model = model;
     [_scrollView setZoomScale:1.0 animated:NO];
     if (model.type == TZAssetModelMediaTypePhotoGif) {
-        [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.asset completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
-            if (!isDegraded) {
-                self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
-                [self resizeSubviews];
-            }
-        }];
+        // 先显示缩略图
+        [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+            self.imageView.image = photo;
+            [self resizeSubviews];
+            // 再显示gif动图
+            [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.asset completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
+                if (!isDegraded) {
+                    self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
+                    [self resizeSubviews];
+                }
+            }];
+        } progressHandler:nil networkAccessAllowed:NO];
     } else {
         self.asset = model.asset;
     }
@@ -159,6 +165,11 @@
         _progressView.progress = progress;
         if (self.imageProgressUpdateBlock) {
             self.imageProgressUpdateBlock(progress);
+        }
+        
+        if (progress >= 1) {
+            _progressView.hidden = YES;
+            self.imageRequestID = 0;
         }
     } networkAccessAllowed:YES];
 }

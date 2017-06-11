@@ -35,6 +35,7 @@
 @property (nonatomic, strong) UIView *cropView;
 
 @property (nonatomic, assign) double progress;
+@property (strong, nonatomic) id alertView;
 @end
 
 @implementation TZPhotoPreviewController
@@ -283,9 +284,10 @@
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     // 如果图片正在从iCloud同步中,提醒用户
     if (_progress > 0 && _progress < 1) {
-        [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]]; return;
+        _alertView = [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]];
+        return;
     }
-    
+
     // 如果没有选中过照片 点击确定时选中当前预览的照片
     if (_tzImagePickerVc.selectedModels.count == 0 && _tzImagePickerVc.minImagesCount <= 0) {
         TZAssetModel *model = _models[_currentIndex];
@@ -365,6 +367,12 @@
     }
     [cell setImageProgressUpdateBlock:^(double progress) {
         weakSelf.progress = progress;
+        if (progress >= 1) {
+            if (weakSelf.alertView) {
+                [_tzImagePickerVc hideAlertView:weakSelf.alertView];
+                [weakSelf doneButtonClick];
+            }
+        }
     }];
     return cell;
 }

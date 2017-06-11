@@ -112,7 +112,8 @@
 @property (nonatomic, assign) NSInteger circleCropRadius;  ///< 圆形裁剪框半径大小
 @property (nonatomic, copy) void (^cropViewSettingBlock)(UIView *cropView);     ///< 自定义裁剪框的其他属性
 
-- (void)showAlertWithTitle:(NSString *)title;
+- (id)showAlertWithTitle:(NSString *)title;
+- (void)hideAlertView:(id)alertView;
 - (void)showProgressHUD;
 - (void)hideProgressHUD;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
@@ -199,6 +200,14 @@
 // If user picking a gif image, this callback will be called.
 // 如果用户选择了一个gif图片，下面的handle会被执行
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(id)asset;
+
+// Decide album show or not't
+// 决定相册显示与否 albumName:相册名字 result:相册原始数据
+- (BOOL)isAlbumCanSelect:(NSString *)albumName result:(id)result;
+
+// Decide asset show or not't
+// 决定照片显示与否
+- (BOOL)isAssetCanSelect:(id)asset;
 @end
 
 

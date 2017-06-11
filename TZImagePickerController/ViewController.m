@@ -246,8 +246,8 @@
     imagePickerVc.isStatusBarDefault = NO;
     /*
      [imagePickerVc setCropViewSettingBlock:^(UIView *cropView) {
-         cropView.layer.borderColor = [UIColor redColor].CGColor;
-         cropView.layer.borderWidth = 2.0;
+     cropView.layer.borderColor = [UIColor redColor].CGColor;
+     cropView.layer.borderWidth = 2.0;
      }];*/
     
     //imagePickerVc.allowPreview = NO;
@@ -464,6 +464,67 @@
     _selectedPhotos = [NSMutableArray arrayWithArray:@[animatedImage]];
     _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
     [_collectionView reloadData];
+}
+
+// Decide album show or not't
+// 决定相册显示与否
+- (BOOL)isAlbumCanSelect:(NSString *)albumName result:(id)result {
+    /*
+    if ([albumName isEqualToString:@"个人收藏"]) {
+        return NO;
+    }
+    if ([albumName isEqualToString:@"视频"]) {
+        return NO;
+    }*/
+    return YES;
+}
+
+// Decide asset show or not't
+// 决定asset显示与否
+- (BOOL)isAssetCanSelect:(id)asset {
+    /*
+    if (iOS8Later) {
+        PHAsset *phAsset = asset;
+        switch (phAsset.mediaType) {
+            case PHAssetMediaTypeVideo: {
+                // 视频时长
+                // NSTimeInterval duration = phAsset.duration;
+                return NO;
+            } break;
+            case PHAssetMediaTypeImage: {
+                // 图片尺寸
+                if (phAsset.pixelWidth > 3000 || phAsset.pixelHeight > 3000) {
+                    // return NO;
+                }
+                return YES;
+            } break;
+            case PHAssetMediaTypeAudio:
+                return NO;
+                break;
+            case PHAssetMediaTypeUnknown:
+                return NO;
+                break;
+            default: break;
+        }
+    } else {
+        ALAsset *alAsset = asset;
+        NSString *alAssetType = [[alAsset valueForProperty:ALAssetPropertyType] stringValue];
+        if ([alAssetType isEqualToString:ALAssetTypeVideo]) {
+            // 视频时长
+            // NSTimeInterval duration = [[alAsset valueForProperty:ALAssetPropertyDuration] doubleValue];
+            return NO;
+        } else if ([alAssetType isEqualToString:ALAssetTypePhoto]) {
+            // 图片尺寸
+            CGSize imageSize = alAsset.defaultRepresentation.dimensions;
+            if (imageSize.width > 3000) {
+                // return NO;
+            }
+            return YES;
+        } else if ([alAssetType isEqualToString:ALAssetTypeUnknown]) {
+            return NO;
+        }
+    }*/
+    return YES;
 }
 
 #pragma mark - Click Event
