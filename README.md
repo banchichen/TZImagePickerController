@@ -4,11 +4,10 @@
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
-  
-<img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/DemoPage.png" width="40%" height="40%">
-<img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPickerVc.PNG" width="40%" height="40%">
-<img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPreviewVc.PNG" width="40%" height="40%">
-<img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/videoPlayerVc.PNG" width="40%" height="40%">
+    
+     项目截图 1.Demo首页 2.照片列表页 3.照片预览页 4.视频预览页
+<img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/DemoPage.png" width="40%" height="40%"><img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPickerVc.PNG" width="40%" height="40%">
+<img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPreviewVc.PNG" width="40%" height="40%"><img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/videoPlayerVc.PNG" width="40%" height="40%">
 
 ## 一. Installation 安装
 
@@ -49,7 +48,7 @@
   
 ## 五. Other 其它    
 
-     常见问题
+      常见问题
 **Q：pod search TZImagePickerController 搜索出来的不是最新版本**       
 A：需要在终端执行cd转换文件路径命令退回到Desktop，然后执行pod setup命令更新本地spec缓存（可能需要几分钟）,然后再搜索就可以了       
      
@@ -77,7 +76,7 @@ A：排期中，优先级中
 **Q：可否增加微信编辑图片的功能？**           
 A：考虑下，优先级低  
 
-     最近更新
+      最近更新
 1.8.1 新增2个代理方法，支持由上层来决定相册/照片的显示与否     
 1.8.0 修复若干bug, 提升流畅度     
 ...   
