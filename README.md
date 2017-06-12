@@ -2,7 +2,7 @@
  A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, fitting iOS6789 system.   
  一个支持多选、选原图和视频的图片选择器，同时有预览功能，适配了iOS6789系统。
  
- 关于升级iOS10和Xcdoe8的提示:
+     关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
   
  ![image](https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPickerVc.PNG) 
@@ -43,7 +43,8 @@
   欢迎给我提pull requests。  
   更多信息详见代码，也可查看我的博客: [我的博客](http://www.cnblogs.com/tanzhenblog/ "半尺尘 - 博客园")
   
-  关于issue: 请尽可能详细地描述系统版本、手机型号、库的版本、崩溃日志和复现步骤，请最好先更新到最新版再测试一下，如果新版还存在再提~如果已有开启的类似issue，请直接在该issue下评论说出你的问题
+      关于issue: 
+  请尽可能详细地描述系统版本、手机型号、库的版本、崩溃日志和复现步骤，请最好先更新到最新版再测试一下，如果新版还存在再提~如果已有开启的类似issue，请直接在该issue下评论说出你的问题
   
 ## 五. Other 其他  
 
@@ -51,33 +52,33 @@
 Q：pod search TZImagePickerController 搜索出来的不是最新版本      
 A：需要在终端执行cd转换文件路径命令退回到Desktop，然后执行pod setup命令更新本地spec缓存（可能需要几分钟）,然后再搜索就可以了       
      
-Q: 拍照后照片保存失败    
+Q：拍照后照片保存失败    
 A：请参考issue481：https://github.com/banchichen/TZImagePickerController/issues/481 的信息排查，若还有问题请直接在issue内评论   
  
-Q: photos数组图片不是原图，如何获取原图？   
+Q：photos数组图片不是原图，如何获取原图？   
 A：请参考issue457的解释：https://github.com/banchichen/TZImagePickerController/issues/457    
  
 Q：预览界面能否支持传入NSURL、UIImage对象？   
 A：排期中，优先级高   
 
-Q: 可否支持横屏？    
-A: 排期中，优先级中    
+Q：可否支持横屏？    
+A：排期中，优先级中    
 
-Q: 可否加入视频拍摄功能？   
-A: 排期中，优先级中   
+Q：可否加入视频拍摄功能？   
+A：排期中，优先级中   
 
-Q: 可否加入视频多选功能？   
-A: 排期中，优先级中   
+Q：可否加入视频多选功能？   
+A：排期中，优先级中   
 
-Q: 可否让视频和图片允许一起选？   
-A: 排期中，优先级中   
+Q：可否让视频和图片允许一起选？   
+A：排期中，优先级中   
   
-Q: 可否增加微信编辑图片的功能？   
-A: 考虑下，优先级低  
+Q：可否增加微信编辑图片的功能？   
+A：考虑下，优先级低  
 
      最近更新
-1.8.1 新增2个代理方法，支持由上层来决定相册/照片的显示与否
-1.8.0 修复若干bug, 提升流畅度   
+1.8.1 新增2个代理方法，支持由上层来决定相册/照片的显示与否     
+1.8.0 修复若干bug, 提升流畅度     
 ...   
 1.7.7 支持GIF图片的播放和选择    
 1.7.6 支持对共享相册和同步相册的显示     
