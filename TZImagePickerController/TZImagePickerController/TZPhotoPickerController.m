@@ -191,7 +191,7 @@ static CGSize AssetGridThumbnailSize;
     if (!tzImagePickerVc.showSelectBtn) return;
     
     CGFloat yOffset = 0;
-    if (self.navigationController.navigationBar.isTranslucent) {
+    if (!self.navigationController.navigationBar.isHidden) {
         yOffset = self.view.tz_height - 50;
     } else {
         CGFloat navigationHeight = 44;
