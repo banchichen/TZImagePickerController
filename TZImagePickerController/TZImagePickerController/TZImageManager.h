@@ -11,6 +11,8 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Photos/Photos.h>
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class TZAlbumModel,TZAssetModel;
 @protocol TZImagePickerControllerDelegate;
 @interface TZImageManager : NSObject
@@ -97,6 +99,7 @@
 
 @end
 
+NS_ASSUME_NONNULL_END
 
 //@interface TZSortDescriptor : NSSortDescriptor
 //
