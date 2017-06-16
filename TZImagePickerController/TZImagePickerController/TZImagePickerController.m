@@ -629,6 +629,7 @@
     [self.navigationController pushViewController:photoPickerVc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
+
 #pragma clang diagnostic pop
 
 @end

@@ -23,9 +23,10 @@ static CGSize AssetGridThumbnailSize;
 static CGFloat TZScreenWidth;
 static CGFloat TZScreenScale;
 
+static TZImageManager *manager;
+static dispatch_once_t onceToken;
+
 + (instancetype)manager {
-    static TZImageManager *manager;
-    static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         manager = [[self alloc] init];
         if (iOS8Later) {
@@ -41,6 +42,11 @@ static CGFloat TZScreenScale;
         }
     });
     return manager;
+}
+
++ (void)deallocManager {
+    onceToken = 0;
+    manager = nil;
 }
 
 - (void)setColumnNumber:(NSInteger)columnNumber {
@@ -375,7 +381,7 @@ static CGFloat TZScreenScale;
     for (NSInteger i = 0; i < photos.count; i++) {
         TZAssetModel *model = photos[i];
         if ([model.asset isKindOfClass:[PHAsset class]]) {
-            [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:nil resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+            [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:nil resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                 if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
                 assetCount ++;
                 if (assetCount >= photos.count) {
@@ -455,7 +461,7 @@ static CGFloat TZScreenScale;
         // 下面两行代码，来自hsjcom，他的github是：https://github.com/hsjcom 表示感谢
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.resizeMode = PHImageRequestOptionsResizeModeFast;
-        int32_t imageRequestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:imageSize contentMode:PHImageContentModeAspectFill options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+        int32_t imageRequestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:imageSize contentMode:PHImageContentModeAspectFill options:option resultHandler:^(UIImage *result, NSDictionary *info) {
             if (result) {
                 image = result;
             }
@@ -476,7 +482,7 @@ static CGFloat TZScreenScale;
                 };
                 options.networkAccessAllowed = YES;
                 options.resizeMode = PHImageRequestOptionsResizeModeFast;
-                [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+                [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                     UIImage *resultImage = [UIImage imageWithData:imageData scale:0.1];
                     resultImage = [self scaleImage:resultImage toSize:imageSize];
                     if (!resultImage) {
@@ -544,7 +550,7 @@ static CGFloat TZScreenScale;
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
         option.networkAccessAllowed = YES;
         option.resizeMode = PHImageRequestOptionsResizeModeFast;
-        [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+        [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage *result, NSDictionary *info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && result) {
                 result = [self fixOrientation:result];
@@ -572,7 +578,7 @@ static CGFloat TZScreenScale;
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.networkAccessAllowed = YES;
         option.resizeMode = PHImageRequestOptionsResizeModeFast;
-        [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+        [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && imageData) {
                 if (completion) completion(imageData,info,NO);
@@ -606,7 +612,7 @@ static CGFloat TZScreenScale;
                 request.location = location;
             }
             request.creationDate = [NSDate date];
-        } completionHandler:^(BOOL success, NSError * _Nullable error) {
+        } completionHandler:^(BOOL success, NSError *error) {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 if (success && completion) {
                     completion(nil);
@@ -640,11 +646,11 @@ static CGFloat TZScreenScale;
 #pragma mark - Get Video
 
 /// Get Video / 获取视频
-- (void)getVideoWithAsset:(id)asset completion:(void (^)(AVPlayerItem * _Nullable, NSDictionary * _Nullable))completion {
+- (void)getVideoWithAsset:(id)asset completion:(void (^)(AVPlayerItem *, NSDictionary *))completion {
     [self getVideoWithAsset:asset progressHandler:nil completion:completion];
 }
 
-- (void)getVideoWithAsset:(id)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(AVPlayerItem * _Nullable, NSDictionary * _Nullable))completion {
+- (void)getVideoWithAsset:(id)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(AVPlayerItem *, NSDictionary *))completion {
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHVideoRequestOptions *option = [[PHVideoRequestOptions alloc] init];
         option.networkAccessAllowed = YES;
@@ -655,7 +661,7 @@ static CGFloat TZScreenScale;
                 }
             });
         };
-        [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:option resultHandler:^(AVPlayerItem * _Nullable playerItem, NSDictionary * _Nullable info) {
+        [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:option resultHandler:^(AVPlayerItem *playerItem, NSDictionary *info) {
             if (completion) completion(playerItem,info);
         }];
     } else if ([asset isKindOfClass:[ALAsset class]]) {
@@ -993,6 +999,7 @@ static CGFloat TZScreenScale;
     CGImageRelease(cgimg);
     return img;
 }
+
 #pragma clang diagnostic pop
 
 @end

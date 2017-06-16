@@ -11,8 +11,6 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Photos/Photos.h>
 
-NS_ASSUME_NONNULL_BEGIN
-
 @class TZAlbumModel,TZAssetModel;
 @protocol TZImagePickerControllerDelegate;
 @interface TZImageManager : NSObject
@@ -20,6 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) PHCachingImageManager *cachingImageManager;
 
 + (instancetype)manager NS_SWIFT_NAME(default());
++ (void)deallocManager;
 
 @property (assign, nonatomic) id<TZImagePickerControllerDelegate> pickerDelegate;
 
@@ -76,7 +75,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Get video 获得视频
 - (void)getVideoWithAsset:(id)asset completion:(void (^)(AVPlayerItem * playerItem, NSDictionary * info))completion;
-- (void)getVideoWithAsset:(id)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(AVPlayerItem * _Nullable, NSDictionary * _Nullable))completion;
+- (void)getVideoWithAsset:(id)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(AVPlayerItem *, NSDictionary *))completion;
 
 /// Export video 导出视频
 - (void)getVideoOutputPathWithAsset:(id)asset completion:(void (^)(NSString *outputPath))completion;
@@ -98,8 +97,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (UIImage *)fixOrientation:(UIImage *)aImage;
 
 @end
-
-NS_ASSUME_NONNULL_END
 
 //@interface TZSortDescriptor : NSSortDescriptor
 //

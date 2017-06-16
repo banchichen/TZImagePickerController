@@ -27,6 +27,9 @@
 }
 @end
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @implementation TZVideoPlayerController
 
 - (void)viewDidLoad {
@@ -166,5 +169,7 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
+
+#pragma clang diagnostic pop
 
 @end
