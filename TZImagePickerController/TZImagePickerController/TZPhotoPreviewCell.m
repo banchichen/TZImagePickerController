@@ -261,7 +261,7 @@
 
 #pragma mark - UIScrollViewDelegate
 
-- (nullable UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
     return _imageContainerView;
 }
 
