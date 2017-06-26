@@ -125,7 +125,9 @@
         [self.navigationController setNavigationBarHidden:YES];
         _toolBar.hidden = YES;
         [_playButton setImage:nil forState:UIControlStateNormal];
-        if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = YES;
+        if (!TZ_isGlobalHideStatusBar) {
+            if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = YES;
+        }
     } else {
         [self pausePlayerAndShowNaviBar];
     }
@@ -163,7 +165,10 @@
     _toolBar.hidden = NO;
     [self.navigationController setNavigationBarHidden:NO];
     [_playButton setImage:[UIImage imageNamedFromMyBundle:@"MMVideoPreviewPlay.png"] forState:UIControlStateNormal];
-    if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = NO;
+    
+    if (!TZ_isGlobalHideStatusBar) {
+        if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = NO;
+    }
 }
 
 - (void)dealloc {
