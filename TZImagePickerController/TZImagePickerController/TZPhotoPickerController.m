@@ -267,6 +267,10 @@ static CGSize AssetGridThumbnailSize;
         TZAssetModel *model = tzImagePickerVc.selectedModels[i];
         [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
             if (isDegraded) return;
+            if ([self.presentedViewController isKindOfClass:[UIImagePickerController class]]) {
+                [tzImagePickerVc hideProgressHUD];
+                return;
+            }
             if (photo) {
                 photo = [self scaleImage:photo toSize:CGSizeMake(tzImagePickerVc.photoWidth, (int)(tzImagePickerVc.photoWidth * photo.size.height / photo.size.width))];
                 [photos replaceObjectAtIndex:i withObject:photo];
@@ -289,6 +293,7 @@ static CGSize AssetGridThumbnailSize;
                 tzImagePickerVc.didFinishPickingPhotosWithInfosHandle(photos,assets,_isSelectOriginalPhoto,infoArr);
             }
             [tzImagePickerVc hideProgressHUD];
+           
             [self.navigationController dismissViewControllerAnimated:YES completion:nil];
         }];
     }
