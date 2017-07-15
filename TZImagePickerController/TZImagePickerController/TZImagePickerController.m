@@ -444,6 +444,11 @@
     [TZImageManager manager].photoPreviewMaxWidth = _photoPreviewMaxWidth;
 }
 
+- (void)setPhotoWidth:(CGFloat)photoWidth {
+    _photoWidth = photoWidth;
+    [TZImageManager manager].photoWidth = photoWidth;
+}
+
 - (void)setSelectedAssets:(NSMutableArray *)selectedAssets {
     _selectedAssets = selectedAssets;
     _selectedModels = [NSMutableArray array];

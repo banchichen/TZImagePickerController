@@ -214,6 +214,8 @@
     }
     imagePickerVc.allowTakePicture = self.showTakePhotoBtnSwitch.isOn; // 在内部显示拍照按钮
     
+    // imagePickerVc.photoWidth = 1000;
+    
     // 2. Set the appearance
     // 2. 在这里设置imagePickerVc的外观
     // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];

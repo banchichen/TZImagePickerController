@@ -49,6 +49,11 @@ static dispatch_once_t onceToken;
     manager = nil;
 }
 
+- (void)setPhotoWidth:(CGFloat)photoWidth {
+    _photoWidth = photoWidth;
+    TZScreenWidth = photoWidth / 2;
+}
+
 - (void)setColumnNumber:(NSInteger)columnNumber {
     _columnNumber = columnNumber;
     CGFloat margin = 4;
