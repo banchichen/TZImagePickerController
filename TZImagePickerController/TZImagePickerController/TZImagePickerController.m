@@ -541,12 +541,14 @@
     UITableView *_tableView;
 }
 @property (nonatomic, strong) NSMutableArray *albumArr;
+@property (assign, nonatomic) BOOL isFirstAppear;
 @end
 
 @implementation TZAlbumPickerController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.isFirstAppear = YES;
     self.view.backgroundColor = [UIColor whiteColor];
     
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -564,7 +566,10 @@
     }
     
     // 1.6.10 采用微信的方式，只在相册列表页定义backBarButtonItem为返回，其余的顺系统的做法
-    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
+    if (self.isFirstAppear) {
+        self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
+        self.isFirstAppear = NO;
+    }
     
     [self configTableView];
 }
