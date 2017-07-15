@@ -590,11 +590,11 @@
                     CGFloat tableViewHeight = 0;
                     if (self.navigationController.navigationBar.isTranslucent) {
                         top = 44;
-                        if (iOS7Later) top += 20;
+                        if (iOS7Later && !TZ_isGlobalHideStatusBar) top += 20;
                         tableViewHeight = self.view.tz_height - top;
                     } else {
                         CGFloat navigationHeight = 44;
-                        if (iOS7Later) navigationHeight += 20;
+                        if (iOS7Later && !TZ_isGlobalHideStatusBar) navigationHeight += 20;
                         tableViewHeight = self.view.tz_height - navigationHeight;
                     }
                     
