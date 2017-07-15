@@ -365,11 +365,12 @@
             weakToolBar.hidden = weakSelf.isHideNaviBar;
         };
     }
+    __weak typeof(_tzImagePickerVc) weakTzImagePickerVc = _tzImagePickerVc;
     [cell setImageProgressUpdateBlock:^(double progress) {
         weakSelf.progress = progress;
         if (progress >= 1) {
             if (weakSelf.alertView) {
-                [_tzImagePickerVc hideAlertView:weakSelf.alertView];
+                [weakTzImagePickerVc hideAlertView:weakSelf.alertView];
                 [weakSelf doneButtonClick];
             }
         }
