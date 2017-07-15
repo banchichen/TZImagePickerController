@@ -525,10 +525,11 @@ static CGSize AssetGridThumbnailSize;
 // 调用相机
 - (void)pushImagePickerController {
     // 提前定位
+    __weak typeof(self) weakSelf = self;
     [[TZLocationManager manager] startLocationWithSuccessBlock:^(CLLocation *location, CLLocation *oldLocation) {
-        _location = location;
+        weakSelf.location = location;
     } failureBlock:^(NSError *error) {
-        _location = nil;
+        weakSelf.location = nil;
     }];
     
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
