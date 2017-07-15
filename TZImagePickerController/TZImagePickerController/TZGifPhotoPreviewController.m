@@ -98,7 +98,10 @@
 - (void)signleTapAction {
     _toolBar.hidden = !_toolBar.isHidden;
     [self.navigationController setNavigationBarHidden:_toolBar.isHidden];
-    if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = _toolBar.isHidden;
+    
+    if (!TZ_isGlobalHideStatusBar) {
+        if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = _toolBar.isHidden;
+    }
 }
 
 - (void)doneButtonClick {
