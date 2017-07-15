@@ -24,6 +24,8 @@
     TZPhotoPreviewView *_previewView;
     
     UIStatusBarStyle _originStatusBarStyle;
+    
+    UIColor *_originNavigationBarColor;
 }
 @end
 
@@ -35,6 +37,8 @@
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
         self.navigationItem.title = [NSString stringWithFormat:@"GIF %@",tzImagePickerVc.previewBtnTitleStr];
+        _originNavigationBarColor = tzImagePickerVc.navigationBar.barTintColor;
+        tzImagePickerVc.navigationBar.barTintColor = [UIColor clearColor];
     }
     [self configPreviewView];
     [self configBottomToolBar];
@@ -49,6 +53,10 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (tzImagePickerVc) {
+        tzImagePickerVc.navigationBar.barTintColor = _originNavigationBarColor;
+    }
 }
 
 - (void)configPreviewView {
