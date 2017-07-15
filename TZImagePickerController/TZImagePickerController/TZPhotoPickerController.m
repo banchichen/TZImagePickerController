@@ -142,9 +142,7 @@ static CGSize AssetGridThumbnailSize;
         if (iOS7Later && !TZ_isGlobalHideStatusBar) top += 20;
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - top : self.view.tz_height - top;;
     } else {
-        CGFloat navigationHeight = 44;
-        if (iOS7Later && !TZ_isGlobalHideStatusBar) navigationHeight += 20;
-        collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - navigationHeight : self.view.tz_height - navigationHeight;
+        collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 : self.view.tz_height;
     }
     
     _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectMake(0, top, self.view.tz_width, collectionViewHeight) collectionViewLayout:layout];
