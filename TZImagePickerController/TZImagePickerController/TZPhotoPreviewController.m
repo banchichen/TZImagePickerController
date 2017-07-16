@@ -137,8 +137,9 @@
         if (_isSelectOriginalPhoto) [self showPhotoBytes];
     }
     
+    CGFloat doneWidth = [_tzImagePickerVc.doneBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width + 2;
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
+    _doneButton.frame = CGRectMake(self.view.tz_width - doneWidth - 12, 0, doneWidth, 44);
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:_tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
