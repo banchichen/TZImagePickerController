@@ -22,7 +22,7 @@
     self = [super initWithFrame:frame];
     if (self) {
         self.backgroundColor = [UIColor blackColor];
-        self.previewView = [[TZPhotoPreviewView alloc] initWithFrame:self.bounds];
+        self.previewView = [[TZPhotoPreviewView alloc] initWithFrame:CGRectZero];
         __weak typeof(self) weakSelf = self;
         [self.previewView setSingleTapGestureBlock:^{
             if (weakSelf.singleTapGestureBlock) {
@@ -58,6 +58,11 @@
     _previewView.cropRect = cropRect;
 }
 
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    self.previewView.frame = self.bounds;
+}
+
 @end
 
 
@@ -71,7 +76,6 @@
     self = [super initWithFrame:frame];
     if (self) {
         _scrollView = [[UIScrollView alloc] init];
-        _scrollView.frame = CGRectMake(10, 0, self.tz_width - 20, self.tz_height);
         _scrollView.bouncesZoom = YES;
         _scrollView.maximumZoomScale = 2.5;
         _scrollView.minimumZoomScale = 1.0;
@@ -111,10 +115,6 @@
 
 - (void)configProgressView {
     _progressView = [[TZProgressView alloc] init];
-    static CGFloat progressWH = 40;
-    CGFloat progressX = (self.tz_width - progressWH) / 2;
-    CGFloat progressY = (self.tz_height - progressWH) / 2;
-    _progressView.frame = CGRectMake(progressX, progressY, progressWH, progressWH);
     _progressView.hidden = YES;
     [self addSubview:_progressView];
 }
@@ -163,7 +163,7 @@
         [self bringSubviewToFront:_progressView];
         progress = progress > 0.02 ? progress : 0.02;
         _progressView.progress = progress;
-        if (self.imageProgressUpdateBlock) {
+        if (self.imageProgressUpdateBlock && progress < 1) {
             self.imageProgressUpdateBlock(progress);
         }
         
@@ -230,12 +230,23 @@
         _scrollView.contentSize = CGSizeMake(newSizeW, newSizeH);
         _scrollView.alwaysBounceVertical = YES;
         // 2.让scrollView新增滑动区域（裁剪框左上角的图片部分）
-        if (contentHeightAdd > 0) {
+        if (contentHeightAdd > 0 || contentWidthAdd > 0) {
             _scrollView.contentInset = UIEdgeInsetsMake(contentHeightAdd, _cropRect.origin.x, 0, 0);
         } else {
             _scrollView.contentInset = UIEdgeInsetsZero;
         }
     }
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _scrollView.frame = CGRectMake(10, 0, self.tz_width - 20, self.tz_height);
+    static CGFloat progressWH = 40;
+    CGFloat progressX = (self.tz_width - progressWH) / 2;
+    CGFloat progressY = (self.tz_height - progressWH) / 2;
+    _progressView.frame = CGRectMake(progressX, progressY, progressWH, progressWH);
+    
+    [self recoverSubviews];
 }
 
 #pragma mark - UITapGestureRecognizer Event

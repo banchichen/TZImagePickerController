@@ -153,7 +153,6 @@
 - (UIButton *)selectPhotoButton {
     if (_selectImageView == nil) {
         UIButton *selectPhotoButton = [[UIButton alloc] init];
-        selectPhotoButton.frame = CGRectMake(self.tz_width - 44, 0, 44, 44);
         [selectPhotoButton addTarget:self action:@selector(selectPhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:selectPhotoButton];
         _selectPhotoButton = selectPhotoButton;
@@ -164,7 +163,6 @@
 - (UIImageView *)imageView {
     if (_imageView == nil) {
         UIImageView *imageView = [[UIImageView alloc] init];
-        imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         imageView.clipsToBounds = YES;
         [self.contentView addSubview:imageView];
@@ -179,7 +177,6 @@
 - (UIImageView *)selectImageView {
     if (_selectImageView == nil) {
         UIImageView *selectImageView = [[UIImageView alloc] init];
-        selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
         [self.contentView addSubview:selectImageView];
         _selectImageView = selectImageView;
     }
@@ -189,7 +186,6 @@
 - (UIView *)bottomView {
     if (_bottomView == nil) {
         UIView *bottomView = [[UIView alloc] init];
-        bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
         static NSInteger rgb = 0;
         bottomView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.8];
         [self.contentView addSubview:bottomView];
@@ -201,7 +197,6 @@
 - (UIImageView *)videoImgView {
     if (_videoImgView == nil) {
         UIImageView *videoImgView = [[UIImageView alloc] init];
-        videoImgView.frame = CGRectMake(8, 0, 17, 17);
         [videoImgView setImage:[UIImage imageNamedFromMyBundle:@"VideoSendIcon.png"]];
         [self.bottomView addSubview:videoImgView];
         _videoImgView = videoImgView;
@@ -213,7 +208,6 @@
     if (_timeLength == nil) {
         UILabel *timeLength = [[UILabel alloc] init];
         timeLength.font = [UIFont boldSystemFontOfSize:11];
-        timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
         timeLength.textColor = [UIColor whiteColor];
         timeLength.textAlignment = NSTextAlignmentRight;
         [self.bottomView addSubview:timeLength];
@@ -225,13 +219,28 @@
 - (TZProgressView *)progressView {
     if (_progressView == nil) {
         _progressView = [[TZProgressView alloc] init];
-        static CGFloat progressWH = 20;
-        CGFloat progressXY = (self.tz_width - progressWH) / 2;
         _progressView.hidden = YES;
-        _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
         [self addSubview:_progressView];
     }
     return _progressView;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _selectPhotoButton.frame = CGRectMake(self.tz_width - 44, 0, 44, 44);
+    _selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
+    _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
+    
+    static CGFloat progressWH = 20;
+    CGFloat progressXY = (self.tz_width - progressWH) / 2;
+    _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
+
+    _bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
+    _videoImgView.frame = CGRectMake(8, 0, 17, 17);
+    _timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
+    
+    self.type = (NSInteger)self.model.type;
+    self.showSelectBtn = self.showSelectBtn;
 }
 
 @end

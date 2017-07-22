@@ -16,6 +16,7 @@
 
 @interface TZPhotoPreviewController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIScrollViewDelegate> {
     UICollectionView *_collectionView;
+    UICollectionViewFlowLayout *_layout;
     NSArray *_photosTemp;
     NSArray *_assetsTemp;
     
@@ -29,6 +30,8 @@
     UILabel *_numberLabel;
     UIButton *_originalPhotoButton;
     UILabel *_originalPhotoLabel;
+    
+    CGFloat _offsetItemCount;
 }
 @property (nonatomic, assign) BOOL isHideNaviBar;
 @property (nonatomic, strong) UIView *cropBgView;
@@ -51,10 +54,10 @@
         self.isSelectOriginalPhoto = _tzImagePickerVc.isSelectOriginalPhoto;
     }
     [self configCollectionView];
-    [self configCropView];
     [self configCustomNaviBar];
     [self configBottomToolBar];
     self.view.clipsToBounds = YES;
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
 }
 
 - (void)setPhotos:(NSMutableArray *)photos {
@@ -88,15 +91,15 @@
 - (void)configCustomNaviBar {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
 
-    _naviBar = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.tz_width, 64)];
+    _naviBar = [[UIView alloc] initWithFrame:CGRectZero];
     _naviBar.backgroundColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:0.7];
     
-    _backButton = [[UIButton alloc] initWithFrame:CGRectMake(10, 10, 44, 44)];
+    _backButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [_backButton setImage:[UIImage imageNamedFromMyBundle:@"navi_back.png"] forState:UIControlStateNormal];
     [_backButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [_backButton addTarget:self action:@selector(backButtonClick) forControlEvents:UIControlEventTouchUpInside];
     
-    _selectButton = [[UIButton alloc] initWithFrame:CGRectMake(self.view.tz_width - 54, 10, 42, 42)];
+    _selectButton = [[UIButton alloc] initWithFrame:CGRectZero];
     [_selectButton setImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoDefImageName] forState:UIControlStateNormal];
     [_selectButton setImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoSelImageName] forState:UIControlStateSelected];
     [_selectButton addTarget:self action:@selector(select:) forControlEvents:UIControlEventTouchUpInside];
@@ -108,15 +111,13 @@
 }
 
 - (void)configBottomToolBar {
-    _toolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 44, self.view.tz_width, 44)];
+    _toolBar = [[UIView alloc] initWithFrame:CGRectZero];
     static CGFloat rgb = 34 / 255.0;
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.7];
     
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_tzImagePickerVc.allowPickingOriginalPhoto) {
-        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
         _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, -10, 0, 0);
         _originalPhotoButton.backgroundColor = [UIColor clearColor];
         [_originalPhotoButton addTarget:self action:@selector(originalPhotoButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -129,7 +130,6 @@
         [_originalPhotoButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoOriginSelImageName] forState:UIControlStateSelected];
         
         _originalPhotoLabel = [[UILabel alloc] init];
-        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
         _originalPhotoLabel.textAlignment = NSTextAlignmentLeft;
         _originalPhotoLabel.font = [UIFont systemFontOfSize:13];
         _originalPhotoLabel.textColor = [UIColor whiteColor];
@@ -138,7 +138,6 @@
     }
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:_tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
@@ -146,11 +145,9 @@
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoNumberIconImageName]];
     _numberImageView.backgroundColor = [UIColor clearColor];
-    _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 28, 7, 30, 30);
     _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 0;
     
     _numberLabel = [[UILabel alloc] init];
-    _numberLabel.frame = _numberImageView.frame;
     _numberLabel.font = [UIFont systemFontOfSize:15];
     _numberLabel.textColor = [UIColor whiteColor];
     _numberLabel.textAlignment = NSTextAlignmentCenter;
@@ -167,12 +164,9 @@
 }
 
 - (void)configCollectionView {
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    layout.itemSize = CGSizeMake(self.view.tz_width + 20, self.view.tz_height);
-    layout.minimumInteritemSpacing = 0;
-    layout.minimumLineSpacing = 0;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(-10, 0, self.view.tz_width + 20, self.view.tz_height) collectionViewLayout:layout];
+    _layout = [[UICollectionViewFlowLayout alloc] init];
+    _layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
     _collectionView.backgroundColor = [UIColor blackColor];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
@@ -188,17 +182,20 @@
 - (void)configCropView {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (!_tzImagePickerVc.showSelectBtn && _tzImagePickerVc.allowCrop) {
+        [_cropView removeFromSuperview];
+        [_cropBgView removeFromSuperview];
+        
         _cropBgView = [UIView new];
         _cropBgView.userInteractionEnabled = NO;
-        _cropBgView.backgroundColor = [UIColor clearColor];
         _cropBgView.frame = self.view.bounds;
+        _cropBgView.backgroundColor = [UIColor clearColor];
         [self.view addSubview:_cropBgView];
         [TZImageCropManager overlayClippingWithView:_cropBgView cropRect:_tzImagePickerVc.cropRect containerView:self.view needCircleCrop:_tzImagePickerVc.needCircleCrop];
         
         _cropView = [UIView new];
         _cropView.userInteractionEnabled = NO;
-        _cropView.backgroundColor = [UIColor clearColor];
         _cropView.frame = _tzImagePickerVc.cropRect;
+        _cropView.backgroundColor = [UIColor clearColor];
         _cropView.layer.borderColor = [UIColor whiteColor].CGColor;
         _cropView.layer.borderWidth = 1.0;
         if (_tzImagePickerVc.needCircleCrop) {
@@ -210,6 +207,46 @@
             _tzImagePickerVc.cropViewSettingBlock(_cropView);
         }
     }
+}
+
+#pragma mark - Layout
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+
+    _naviBar.frame = CGRectMake(0, 0, self.view.tz_width, 64);
+    _backButton.frame = CGRectMake(10, 10, 44, 44);
+    _selectButton.frame = CGRectMake(self.view.tz_width - 54, 10, 42, 42);
+    
+    _layout.itemSize = CGSizeMake(self.view.tz_width + 20, self.view.tz_height);
+    _layout.minimumInteritemSpacing = 0;
+    _layout.minimumLineSpacing = 0;
+    _collectionView.frame = CGRectMake(-10, 0, self.view.tz_width + 20, self.view.tz_height);
+    [_collectionView setCollectionViewLayout:_layout];
+    if (_offsetItemCount > 0) {
+        CGFloat offsetX = _offsetItemCount * _layout.itemSize.width;
+        [_collectionView setContentOffset:CGPointMake(offsetX, 0)];
+    }
+    [_collectionView reloadData];
+    
+    _toolBar.frame = CGRectMake(0, self.view.tz_height - 44, self.view.tz_width, 44);
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (_tzImagePickerVc.allowPickingOriginalPhoto) {
+        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
+        _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
+        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
+    }
+    _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
+    _numberImageView.frame = CGRectMake(self.view.tz_width - 56 - 28, 7, 30, 30);
+    _numberLabel.frame = _numberImageView.frame;
+    
+    [self configCropView];
+}
+
+#pragma mark - Notification
+
+- (void)didChangeStatusBarOrientationNotification:(NSNotification *)noti {
+    _offsetItemCount = _collectionView.contentOffset.x / _layout.itemSize.width;
 }
 
 #pragma mark - Click Event
@@ -287,7 +324,7 @@
 - (void)doneButtonClick {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     // 如果图片正在从iCloud同步中,提醒用户
-    if (_progress > 0 && _progress < 1) {
+    if (_progress > 0 && _progress < 1 && (_selectButton.isSelected || !_tzImagePickerVc.selectedModels.count )) {
         _alertView = [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]];
         return;
     }
@@ -370,11 +407,14 @@
         };
     }
     __weak typeof(_tzImagePickerVc) weakTzImagePickerVc = _tzImagePickerVc;
+    __weak typeof(_collectionView) weakCollectionView = _collectionView;
+    __weak typeof(cell) weakCell = cell;
     [cell setImageProgressUpdateBlock:^(double progress) {
         weakSelf.progress = progress;
         if (progress >= 1) {
-            if (weakSelf.alertView) {
+            if (weakSelf.alertView && [weakCollectionView.visibleCells containsObject:weakCell]) {
                 [weakTzImagePickerVc hideAlertView:weakSelf.alertView];
+                weakSelf.alertView = nil;
                 [weakSelf doneButtonClick];
             }
         }
