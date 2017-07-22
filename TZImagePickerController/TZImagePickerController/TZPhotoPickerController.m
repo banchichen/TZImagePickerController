@@ -302,9 +302,7 @@ static CGFloat itemMargin = 5;
     _divideLine.frame = CGRectMake(0, 0, self.view.tz_width, 1);
     
     [TZImageManager manager].columnNumber = [TZImageManager manager].columnNumber;
-    if ([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft || [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight) {
-        [self.collectionView reloadData];
-    }
+    [self.collectionView reloadData];
 }
 
 #pragma mark - Notification

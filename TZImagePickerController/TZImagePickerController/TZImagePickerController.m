@@ -55,7 +55,7 @@
         self.navigationBar.tintColor = [UIColor whiteColor];
         self.automaticallyAdjustsScrollViewInsets = NO;
         if (!TZ_isGlobalHideStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
-    }
+    }    
 }
 
 - (void)setNaviBgColor:(UIColor *)naviBgColor {
@@ -237,6 +237,9 @@
     
     [self configDefaultImageName];
     [self configDefaultBtnTitle];
+    
+    CGFloat cropViewWH = MIN(self.view.tz_width, self.view.tz_height) / 3 * 2;
+    self.cropRect = CGRectMake((self.view.tz_width - cropViewWH) / 2, (self.view.tz_height - cropViewWH) / 2, cropViewWH, cropViewWH);
 }
 
 - (void)configDefaultImageName {
@@ -378,15 +381,14 @@
 
 - (void)setCircleCropRadius:(NSInteger)circleCropRadius {
     _circleCropRadius = circleCropRadius;
-    _cropRect = CGRectMake(self.view.tz_width / 2 - circleCropRadius, self.view.tz_height / 2 - _circleCropRadius, _circleCropRadius * 2, _circleCropRadius * 2);
+    self.cropRect = CGRectMake(self.view.tz_width / 2 - circleCropRadius, self.view.tz_height / 2 - _circleCropRadius, _circleCropRadius * 2, _circleCropRadius * 2);
 }
 
-- (CGRect)cropRect {
-    if (_cropRect.size.width > 0) {
-        return _cropRect;
-    }
-    CGFloat cropViewWH = MIN(self.view.tz_width, self.view.tz_height) / 3 * 2;
-    return CGRectMake((self.view.tz_width - cropViewWH) / 2, (self.view.tz_height - cropViewWH) / 2, cropViewWH, cropViewWH);
+- (void)setCropRect:(CGRect)cropRect {
+    _cropRect = cropRect;
+    _cropRectPortrait = cropRect;
+    CGFloat widthHeight = cropRect.size.width;
+    _cropRectLandscape = CGRectMake((self.view.tz_height - widthHeight) / 2, cropRect.origin.x, widthHeight, widthHeight);
 }
 
 - (void)setTimeout:(NSInteger)timeout {
@@ -503,21 +505,29 @@
 #pragma mark - UIContentContainer
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    if (![UIApplication sharedApplication].statusBarHidden) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            if (iOS7Later && !TZ_isGlobalHideStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
-        });
+    [self willInterfaceOrientionChange];
+    if (size.width > size.height) {
+        _cropRect = _cropRectLandscape;
+    } else {
+        _cropRect = _cropRectPortrait;
     }
-    self.cropRect = CGRectZero;
 }
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    if (![UIApplication sharedApplication].statusBarHidden) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            if (iOS7Later && !TZ_isGlobalHideStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
-        });
+    [self willInterfaceOrientionChange];
+    if (toInterfaceOrientation >= 3) {
+        _cropRect = _cropRectLandscape;
+    } else {
+        _cropRect = _cropRectPortrait;
     }
-    self.cropRect = CGRectZero;
+}
+
+- (void)willInterfaceOrientionChange {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (![UIApplication sharedApplication].statusBarHidden) {
+            if (iOS7Later && !TZ_isGlobalHideStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
+        }
+    });
 }
 
 #pragma mark - Layout

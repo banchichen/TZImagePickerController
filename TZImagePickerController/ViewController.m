@@ -222,7 +222,7 @@
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
     // imagePickerVc.navigationBar.translucent = NO;
     
-#pragma mark - 四类个性化设置，这些参数都可以不传，此时会走默认设置
+#pragma mark - 五类个性化设置，这些参数都可以不传，此时会走默认设置
     imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
     
     if (self.maxCountTF.text.integerValue > 1) {
@@ -262,8 +262,13 @@
     imagePickerVc.showSelectBtn = NO;
     imagePickerVc.allowCrop = self.allowCropSwitch.isOn;
     imagePickerVc.needCircleCrop = self.needCircleCropSwitch.isOn;
-    imagePickerVc.circleCropRadius = 100;
-    imagePickerVc.isStatusBarDefault = NO;
+    // 设置竖屏下的裁剪尺寸
+    NSInteger left = 30;
+    NSInteger widthHeight = self.view.tz_width - 2 * left;
+    NSInteger top = (self.view.tz_height - widthHeight) / 2;
+    imagePickerVc.cropRect = CGRectMake(left, top, widthHeight, widthHeight);
+    // 设置横屏下的裁剪尺寸
+    // imagePickerVc.cropRectLandscape = CGRectMake((self.view.tz_height - widthHeight) / 2, left, widthHeight, widthHeight);
     /*
      [imagePickerVc setCropViewSettingBlock:^(UIView *cropView) {
      cropView.layer.borderColor = [UIColor redColor].CGColor;
@@ -271,6 +276,8 @@
      }];*/
     
     //imagePickerVc.allowPreview = NO;
+    
+    imagePickerVc.isStatusBarDefault = NO;
 #pragma mark - 到这里为止
     
     // You can get the photos by block, the same as by delegate.
