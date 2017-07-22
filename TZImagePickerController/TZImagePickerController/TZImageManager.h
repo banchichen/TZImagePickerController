@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <Photos/Photos.h>
+#import "TZAssetModel.h"
 
 @class TZAlbumModel,TZAssetModel;
 @protocol TZImagePickerControllerDelegate;
@@ -97,6 +98,9 @@
 
 /// 修正图片转向
 - (UIImage *)fixOrientation:(UIImage *)aImage;
+
+/// 获取asset的资源类型
+- (TZAssetModelMediaType)getAssetType:(id)asset;
 
 @end
 

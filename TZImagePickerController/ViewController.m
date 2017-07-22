@@ -29,8 +29,11 @@
 }
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
 @property (nonatomic, strong) UICollectionView *collectionView;
+@property (strong, nonatomic) LxGridViewFlowLayout *layout;
 @property (strong, nonatomic) CLLocation *location;
-// 6个设置开关
+
+@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+// 设置开关
 @property (weak, nonatomic) IBOutlet UISwitch *showTakePhotoBtnSwitch;  ///< 在内部显示拍照按钮
 @property (weak, nonatomic) IBOutlet UISwitch *sortAscendingSwitch;     ///< 照片排列按修改时间升序
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingVideoSwitch; ///< 允许选择视频
@@ -42,6 +45,7 @@
 @property (weak, nonatomic) IBOutlet UITextField *columnNumberTF;
 @property (weak, nonatomic) IBOutlet UISwitch *allowCropSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *needCircleCropSwitch;
+@property (weak, nonatomic) IBOutlet UISwitch *allowPickingMuitlpleVideoSwitch;
 @end
 
 @implementation ViewController
@@ -83,13 +87,8 @@
 
 - (void)configCollectionView {
     // 如不需要长按排序效果，将LxGridViewFlowLayout类改成UICollectionViewFlowLayout即可
-    LxGridViewFlowLayout *layout = [[LxGridViewFlowLayout alloc] init];
-    _margin = 4;
-    _itemWH = (self.view.tz_width - 2 * _margin - 4) / 3 - _margin;
-    layout.itemSize = CGSizeMake(_itemWH, _itemWH);
-    layout.minimumInteritemSpacing = _margin;
-    layout.minimumLineSpacing = _margin;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 409, self.view.tz_width, self.view.tz_height - 409) collectionViewLayout:layout];
+    _layout = [[LxGridViewFlowLayout alloc] init];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
     CGFloat rgb = 244 / 255.0;
     _collectionView.alwaysBounceVertical = YES;
     _collectionView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
@@ -99,6 +98,22 @@
     _collectionView.keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
     [self.view addSubview:_collectionView];
     [_collectionView registerClass:[TZTestCell class] forCellWithReuseIdentifier:@"TZTestCell"];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    NSInteger contentSizeH = 12 * 35 + 20;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        self.scrollView.contentSize = CGSizeMake(0, contentSizeH + 5);
+    });
+    
+    _margin = 4;
+    _itemWH = (self.view.tz_width - 2 * _margin - 4) / 3 - _margin;
+    _layout.itemSize = CGSizeMake(_itemWH, _itemWH);
+    _layout.minimumInteritemSpacing = _margin;
+    _layout.minimumLineSpacing = _margin;
+    [self.collectionView setCollectionViewLayout:_layout];
+    self.collectionView.frame = CGRectMake(0, contentSizeH, self.view.tz_width, self.view.tz_height - contentSizeH);
 }
 
 #pragma mark UICollectionView
@@ -146,12 +161,12 @@
             ALAsset *alAsset = asset;
             isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
         }
-        if ([[asset valueForKey:@"filename"] containsString:@"GIF"] && self.allowPickingGifSwitch.isOn) {
+        if ([[asset valueForKey:@"filename"] containsString:@"GIF"] && self.allowPickingGifSwitch.isOn && !self.allowPickingMuitlpleVideoSwitch.isOn) {
             TZGifPhotoPreviewController *vc = [[TZGifPhotoPreviewController alloc] init];
             TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhotoGif timeLength:@""];
             vc.model = model;
             [self presentViewController:vc animated:YES completion:nil];
-        } else if (isVideo) { // perview video / 预览视频
+        } else if (isVideo && !self.allowPickingMuitlpleVideoSwitch.isOn) { // perview video / 预览视频
             TZVideoPlayerController *vc = [[TZVideoPlayerController alloc] init];
             TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypeVideo timeLength:@""];
             vc.model = model;
@@ -159,7 +174,9 @@
         } else { // preview photos / 预览照片
             TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.row];
             imagePickerVc.maxImagesCount = self.maxCountTF.text.integerValue;
+            imagePickerVc.allowPickingGif = self.allowPickingGifSwitch.isOn;
             imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;
+            imagePickerVc.allowPickingMultipleVideo = self.allowPickingMuitlpleVideoSwitch.isOn;
             imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
             [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
                 _selectedPhotos = [NSMutableArray arrayWithArray:photos];
@@ -229,6 +246,7 @@
     imagePickerVc.allowPickingImage = self.allowPickingImageSwitch.isOn;
     imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;
     imagePickerVc.allowPickingGif = self.allowPickingGifSwitch.isOn;
+    imagePickerVc.allowPickingMultipleVideo = self.allowPickingMuitlpleVideoSwitch.isOn; // 是否可以多选视频
     
     // 4. 照片排列按修改时间升序
     imagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
@@ -578,12 +596,17 @@
 - (IBAction)allowPickingGifSwitchClick:(UISwitch *)sender {
     if (sender.isOn) {
         [_allowPickingImageSwitch setOn:YES animated:YES];
+    } else if (!self.allowPickingVideoSwitch.isOn) {
+        [self.allowPickingMuitlpleVideoSwitch setOn:NO animated:YES];
     }
 }
 
 - (IBAction)allowPickingVideoSwitchClick:(UISwitch *)sender {
     if (!sender.isOn) {
         [_allowPickingImageSwitch setOn:YES animated:YES];
+        if (!self.allowPickingGifSwitch.isOn) {
+            [self.allowPickingMuitlpleVideoSwitch setOn:NO animated:YES];
+        }
     }
 }
 
@@ -592,6 +615,9 @@
         self.maxCountTF.text = @"1";
         [self.allowPickingOriginalPhotoSwitch setOn:NO animated:YES];
     } else {
+        if ([self.maxCountTF.text isEqualToString:@"1"]) {
+            self.maxCountTF.text = @"9";
+        }
         [self.needCircleCropSwitch setOn:NO animated:YES];
     }
 }
@@ -602,6 +628,10 @@
         self.maxCountTF.text = @"1";
         [self.allowPickingOriginalPhotoSwitch setOn:NO animated:YES];
     }
+}
+
+- (IBAction)allowPickingMultipleVideoSwitchClick:(UISwitch *)sender {
+ 
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
@@ -621,12 +651,8 @@
             ALAsset *alAsset = (ALAsset *)asset;
             fileName = alAsset.defaultRepresentation.filename;;
         }
-        //NSLog(@"图片名字:%@",fileName);
+        // NSLog(@"图片名字:%@",fileName);
     }
-}
-
-- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskPortrait;
 }
 
 #pragma clang diagnostic pop

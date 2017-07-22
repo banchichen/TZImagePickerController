@@ -41,6 +41,7 @@
         self.navigationItem.title = tzImagePickerVc.previewBtnTitleStr;
     }
     [self configMoviePlayer];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pausePlayerAndShowNaviBar) name:UIApplicationWillResignActiveNotification object:nil];
 }
 
 - (void)viewWillAppear:(BOOL)animated {

@@ -90,7 +90,7 @@
 
 - (void)configCustomNaviBar {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-
+    
     _naviBar = [[UIView alloc] initWithFrame:CGRectZero];
     _naviBar.backgroundColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:0.7];
     
@@ -154,7 +154,7 @@
     _numberLabel.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
     _numberLabel.hidden = _tzImagePickerVc.selectedModels.count <= 0;
     _numberLabel.backgroundColor = [UIColor clearColor];
-
+    
     [_originalPhotoButton addSubview:_originalPhotoLabel];
     [_toolBar addSubview:_doneButton];
     [_toolBar addSubview:_originalPhotoButton];
@@ -177,6 +177,8 @@
     _collectionView.contentSize = CGSizeMake(self.models.count * (self.view.tz_width + 20), 0);
     [self.view addSubview:_collectionView];
     [_collectionView registerClass:[TZPhotoPreviewCell class] forCellWithReuseIdentifier:@"TZPhotoPreviewCell"];
+    [_collectionView registerClass:[TZVideoPreviewCell class] forCellWithReuseIdentifier:@"TZVideoPreviewCell"];
+    [_collectionView registerClass:[TZGifPreviewCell class] forCellWithReuseIdentifier:@"TZGifPreviewCell"];
 }
 
 - (void)configCropView {
@@ -213,6 +215,7 @@
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
 
     _naviBar.frame = CGRectMake(0, 0, self.view.tz_width, 64);
     _backButton.frame = CGRectMake(10, 10, 44, 44);
@@ -227,10 +230,11 @@
         CGFloat offsetX = _offsetItemCount * _layout.itemSize.width;
         [_collectionView setContentOffset:CGPointMake(offsetX, 0)];
     }
-    [_collectionView reloadData];
+    if (_tzImagePickerVc.allowCrop) {
+        [_collectionView reloadData];
+    }
     
     _toolBar.frame = CGRectMake(0, self.view.tz_height - 44, self.view.tz_width, 44);
-    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_tzImagePickerVc.allowPickingOriginalPhoto) {
         CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
         _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
@@ -260,14 +264,14 @@
             NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], _tzImagePickerVc.maxImagesCount];
             [_tzImagePickerVc showAlertWithTitle:title];
             return;
-        // 2. if not over the maxImagesCount / 如果没有超过最大个数限制
+            // 2. if not over the maxImagesCount / 如果没有超过最大个数限制
         } else {
             [_tzImagePickerVc.selectedModels addObject:model];
             if (self.photos) {
                 [_tzImagePickerVc.selectedAssets addObject:_assetsTemp[_currentIndex]];
                 [self.photos addObject:_photosTemp[_currentIndex]];
             }
-            if (model.type == TZAssetModelMediaTypeVideo) {
+            if (model.type == TZAssetModelMediaTypeVideo && !_tzImagePickerVc.allowPickingMultipleVideo) {
                 [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Select the video when in multi state, we will handle the video as a photo"]];
             }
         }
@@ -328,7 +332,7 @@
         _alertView = [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]];
         return;
     }
-
+    
     // 如果没有选中过照片 点击确定时选中当前预览的照片
     if (_tzImagePickerVc.selectedModels.count == 0 && _tzImagePickerVc.minImagesCount <= 0) {
         TZAssetModel *model = _models[_currentIndex];
@@ -369,6 +373,12 @@
     }
 }
 
+- (void)didTapPreviewCell {
+    self.isHideNaviBar = !self.isHideNaviBar;
+    _naviBar.hidden = self.isHideNaviBar;
+    _toolBar.hidden = self.isHideNaviBar;
+}
+
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
@@ -381,6 +391,8 @@
         _currentIndex = currentIndex;
         [self refreshNaviBarAndBottomBarState];
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"photoPreviewCollectionViewDidScroll" object:nil];
 }
 
 #pragma mark - UICollectionViewDataSource && Delegate
@@ -390,34 +402,38 @@
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    TZPhotoPreviewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZPhotoPreviewCell" forIndexPath:indexPath];
-    cell.model = _models[indexPath.row];
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    cell.cropRect = _tzImagePickerVc.cropRect;
-    cell.allowCrop = _tzImagePickerVc.allowCrop;
+    TZAssetModel *model = _models[indexPath.row];
+    
+    TZAssetPreviewCell *cell;
     __weak typeof(self) weakSelf = self;
-    if (!cell.singleTapGestureBlock) {
-        __weak typeof(_naviBar) weakNaviBar = _naviBar;
-        __weak typeof(_toolBar) weakToolBar = _toolBar;
-        cell.singleTapGestureBlock = ^(){
-            // show or hide naviBar / 显示或隐藏导航栏
-            weakSelf.isHideNaviBar = !weakSelf.isHideNaviBar;
-            weakNaviBar.hidden = weakSelf.isHideNaviBar;
-            weakToolBar.hidden = weakSelf.isHideNaviBar;
-        };
-    }
-    __weak typeof(_tzImagePickerVc) weakTzImagePickerVc = _tzImagePickerVc;
-    __weak typeof(_collectionView) weakCollectionView = _collectionView;
-    __weak typeof(cell) weakCell = cell;
-    [cell setImageProgressUpdateBlock:^(double progress) {
-        weakSelf.progress = progress;
-        if (progress >= 1) {
-            if (weakSelf.alertView && [weakCollectionView.visibleCells containsObject:weakCell]) {
-                [weakTzImagePickerVc hideAlertView:weakSelf.alertView];
-                weakSelf.alertView = nil;
-                [weakSelf doneButtonClick];
+    if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypeVideo) {
+        cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZVideoPreviewCell" forIndexPath:indexPath];
+    } else if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypePhotoGif && _tzImagePickerVc.allowPickingGif) {
+        cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZGifPreviewCell" forIndexPath:indexPath];
+    } else {
+        cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZPhotoPreviewCell" forIndexPath:indexPath];
+        TZPhotoPreviewCell *photoPreviewCell = (TZPhotoPreviewCell *)cell;
+        photoPreviewCell.cropRect = _tzImagePickerVc.cropRect;
+        photoPreviewCell.allowCrop = _tzImagePickerVc.allowCrop;
+        __weak typeof(_tzImagePickerVc) weakTzImagePickerVc = _tzImagePickerVc;
+        __weak typeof(_collectionView) weakCollectionView = _collectionView;
+        __weak typeof(photoPreviewCell) weakCell = photoPreviewCell;
+        [photoPreviewCell setImageProgressUpdateBlock:^(double progress) {
+            weakSelf.progress = progress;
+            if (progress >= 1) {
+                if (weakSelf.alertView && [weakCollectionView.visibleCells containsObject:weakCell]) {
+                    [weakTzImagePickerVc hideAlertView:weakSelf.alertView];
+                    weakSelf.alertView = nil;
+                    [weakSelf doneButtonClick];
+                }
             }
-        }
+        }];
+    }
+    
+    cell.model = model;
+    [cell setSingleTapGestureBlock:^{
+        [weakSelf didTapPreviewCell];
     }];
     return cell;
 }
@@ -431,6 +447,8 @@
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[TZPhotoPreviewCell class]]) {
         [(TZPhotoPreviewCell *)cell recoverSubviews];
+    } else if ([cell isKindOfClass:[TZVideoPreviewCell class]]) {
+        [(TZVideoPreviewCell *)cell pausePlayerAndShowNaviBar];
     }
 }
 

@@ -69,6 +69,7 @@
     if (model.isSelected) {
         [self fetchBigImage];
     }
+    [self setNeedsLayout];
 }
 
 - (void)setShowSelectBtn:(BOOL)showSelectBtn {
@@ -83,25 +84,27 @@
 
 - (void)setType:(TZAssetCellType)type {
     _type = type;
-    if (type == TZAssetCellTypePhoto || type == TZAssetCellTypeLivePhoto || (type == TZAssetCellTypePhotoGif && !self.allowPickingGif)) {
+    if (type == TZAssetCellTypePhoto || type == TZAssetCellTypeLivePhoto || (type == TZAssetCellTypePhotoGif && !self.allowPickingGif) || self.allowPickingMultipleVideo) {
         _selectImageView.hidden = NO;
         _selectPhotoButton.hidden = NO;
         _bottomView.hidden = YES;
     } else { // Video of Gif
         _selectImageView.hidden = YES;
         _selectPhotoButton.hidden = YES;
-        _bottomView.hidden = NO;
-        if (type == TZAssetCellTypeVideo) {
-            self.timeLength.text = _model.timeLength;
-            self.videoImgView.hidden = NO;
-            _timeLength.tz_left = self.videoImgView.tz_right;
-            _timeLength.textAlignment = NSTextAlignmentRight;
-        } else {
-            self.timeLength.text = @"GIF";
-            self.videoImgView.hidden = YES;
-            _timeLength.tz_left = 5;
-            _timeLength.textAlignment = NSTextAlignmentLeft;
-        }
+    }
+    
+    if (type == TZAssetCellTypeVideo) {
+        self.bottomView.hidden = NO;
+        self.timeLength.text = _model.timeLength;
+        self.videoImgView.hidden = NO;
+        _timeLength.tz_left = self.videoImgView.tz_right;
+        _timeLength.textAlignment = NSTextAlignmentRight;
+    } else if (type == TZAssetCellTypePhotoGif) {
+        self.bottomView.hidden = NO;
+        self.timeLength.text = @"GIF";
+        self.videoImgView.hidden = YES;
+        _timeLength.tz_left = 5;
+        _timeLength.textAlignment = NSTextAlignmentLeft;
     }
 }
 

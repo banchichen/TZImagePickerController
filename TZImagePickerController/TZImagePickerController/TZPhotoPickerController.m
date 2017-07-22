@@ -431,6 +431,7 @@ static CGFloat itemMargin = 5;
     }
     // the cell dipaly photo or video / 展示照片或视频的cell
     TZAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCell" forIndexPath:indexPath];
+    cell.allowPickingMultipleVideo = tzImagePickerVc.allowPickingMultipleVideo;
     cell.photoDefImageName = tzImagePickerVc.photoDefImageName;
     cell.photoSelImageName = tzImagePickerVc.photoSelImageName;
     TZAssetModel *model;
@@ -492,7 +493,7 @@ static CGFloat itemMargin = 5;
         index = indexPath.row - 1;
     }
     TZAssetModel *model = _models[index];
-    if (model.type == TZAssetModelMediaTypeVideo) {
+    if (model.type == TZAssetModelMediaTypeVideo && !tzImagePickerVc.allowPickingMultipleVideo) {
         if (tzImagePickerVc.selectedModels.count > 0) {
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
             [imagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Can not choose both video and photo"]];
@@ -501,7 +502,7 @@ static CGFloat itemMargin = 5;
             videoPlayerVc.model = model;
             [self.navigationController pushViewController:videoPlayerVc animated:YES];
         }
-    } else if (model.type == TZAssetModelMediaTypePhotoGif && tzImagePickerVc.allowPickingGif) {
+    } else if (model.type == TZAssetModelMediaTypePhotoGif && tzImagePickerVc.allowPickingGif && !tzImagePickerVc.allowPickingMultipleVideo) {
         if (tzImagePickerVc.selectedModels.count > 0) {
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
             [imagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Can not choose both photo and GIF"]];
@@ -633,16 +634,21 @@ static CGFloat itemMargin = 5;
 
 - (void)scrollCollectionViewToBottom {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (_shouldScrollToBottom && _models.count > 0 && tzImagePickerVc.sortAscendingByModificationDate) {
-        NSInteger item = _models.count - 1;
-        if (_showTakePhotoBtn) {
-            TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-            if (tzImagePickerVc.allowPickingImage && tzImagePickerVc.allowTakePicture) {
-                item += 1;
+    if (_shouldScrollToBottom && _models.count > 0) {
+        NSInteger item = 0;
+        if (tzImagePickerVc.sortAscendingByModificationDate) {
+            item = _models.count - 1;
+            if (_showTakePhotoBtn) {
+                TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+                if (tzImagePickerVc.allowPickingImage && tzImagePickerVc.allowTakePicture) {
+                    item += 1;
+                }
             }
         }
-        [_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
-        _shouldScrollToBottom = NO;
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
+            _shouldScrollToBottom = NO;
+        });
     }
 }
 
@@ -720,7 +726,7 @@ static CGFloat itemMargin = 5;
                     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
                     if (tzImagePickerVc.sortAscendingByModificationDate) {
                         photoPreviewVc.currentIndex = _models.count - 1;
-                    }else{
+                    } else {
                         photoPreviewVc.currentIndex = 0;
                     }
                     photoPreviewVc.models = _models;
@@ -870,7 +876,7 @@ static CGFloat itemMargin = 5;
 @implementation TZCollectionView
 
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view {
-    if ( [view isKindOfClass:[UIControl class]]) {
+    if ([view isKindOfClass:[UIControl class]]) {
         return YES;
     }
     return [super touchesShouldCancelInContentView:view];
