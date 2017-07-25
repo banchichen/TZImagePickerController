@@ -258,9 +258,10 @@ static CGFloat itemMargin = 5;
     CGFloat top = 0;
     CGFloat collectionViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
+    BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
-        if (iOS7Later && !TZ_isGlobalHideStatusBar) top += 20;
+        if (iOS7Later && !isStatusBarHidden) top += 20;
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 - top : self.view.tz_height - top;;
     } else {
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - 50 : self.view.tz_height;

@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.8.4 - 2017.07.22
+//  version 1.8.5 - 2017.07.25
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -639,14 +639,13 @@
     CGFloat top = 0;
     CGFloat tableViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
+    BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
-        if (iOS7Later && !TZ_isGlobalHideStatusBar) top += 20;
+        if (iOS7Later && !isStatusBarHidden) top += 20;
         tableViewHeight = self.view.tz_height - top;
     } else {
-        CGFloat navigationHeight = naviBarHeight;
-        if (iOS7Later && !TZ_isGlobalHideStatusBar) navigationHeight += 20;
-        tableViewHeight = self.view.tz_height - navigationHeight;
+        tableViewHeight = self.view.tz_height;
     }
     _tableView.frame = CGRectMake(0, top, self.view.tz_width, tableViewHeight);
 }
