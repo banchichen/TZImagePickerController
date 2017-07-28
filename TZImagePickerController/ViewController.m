@@ -79,8 +79,6 @@
     _selectedPhotos = [NSMutableArray array];
     _selectedAssets = [NSMutableArray array];
     [self configCollectionView];
-    
-    [UIApplication sharedApplication].statusBarHidden = NO;
 }
 
 - (BOOL)prefersStatusBarHidden {
