@@ -695,3 +695,17 @@
 }
 
 @end
+
+
+@implementation NSString (TzExtension)
+
+- (BOOL)tz_containsString:(NSString *)string {
+    if (iOS8Later) {
+        return [self containsString:string];
+    } else {
+        NSRange range = [self rangeOfString:string];
+        return range.location != NSNotFound;
+    }
+}
+
+@end

@@ -225,8 +225,11 @@
 
 
 @interface UIImage (MyBundle)
-
 + (UIImage *)imageNamedFromMyBundle:(NSString *)name;
+@end
 
+
+@interface NSString (TzExtension)
+- (BOOL)tz_containsString:(NSString *)string;
 @end
 
