@@ -251,10 +251,15 @@
 @interface TZAlbumCell ()
 @property (weak, nonatomic) UIImageView *posterImageView;
 @property (weak, nonatomic) UILabel *titleLabel;
-@property (weak, nonatomic) UIImageView *arrowImageView;
 @end
 
 @implementation TZAlbumCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    return self;
+}
 
 - (void)setModel:(TZAlbumModel *)model {
     _model = model;
@@ -278,6 +283,9 @@
 - (void)layoutSubviews {
     if (iOS7Later) [super layoutSubviews];
     _selectedCountButton.frame = CGRectMake(self.tz_width - 24 - 30, 23, 24, 24);
+    NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
+    self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
+    self.posterImageView.frame = CGRectMake(0, 0, 70, 70);
 }
 
 - (void)layoutSublayersOfLayer:(CALayer *)layer {
@@ -291,7 +299,6 @@
         UIImageView *posterImageView = [[UIImageView alloc] init];
         posterImageView.contentMode = UIViewContentModeScaleAspectFill;
         posterImageView.clipsToBounds = YES;
-        posterImageView.frame = CGRectMake(0, 0, 70, 70);
         [self.contentView addSubview:posterImageView];
         _posterImageView = posterImageView;
     }
@@ -302,25 +309,12 @@
     if (_titleLabel == nil) {
         UILabel *titleLabel = [[UILabel alloc] init];
         titleLabel.font = [UIFont boldSystemFontOfSize:17];
-        titleLabel.frame = CGRectMake(80, 0, self.tz_width - 80 - 50, self.tz_height);
         titleLabel.textColor = [UIColor blackColor];
         titleLabel.textAlignment = NSTextAlignmentLeft;
         [self.contentView addSubview:titleLabel];
         _titleLabel = titleLabel;
     }
     return _titleLabel;
-}
-
-- (UIImageView *)arrowImageView {
-    if (_arrowImageView == nil) {
-        UIImageView *arrowImageView = [[UIImageView alloc] init];
-        CGFloat arrowWH = 15;
-        arrowImageView.frame = CGRectMake(self.tz_width - arrowWH - 12, 28, arrowWH, arrowWH);
-        [arrowImageView setImage:[UIImage imageNamedFromMyBundle:@"TableViewArrow"]];
-        [self.contentView addSubview:arrowImageView];
-        _arrowImageView = arrowImageView;
-    }
-    return _arrowImageView;
 }
 
 - (UIButton *)selectedCountButton {
