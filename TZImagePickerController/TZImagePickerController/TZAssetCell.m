@@ -99,7 +99,7 @@
         self.videoImgView.hidden = NO;
         _timeLength.tz_left = self.videoImgView.tz_right;
         _timeLength.textAlignment = NSTextAlignmentRight;
-    } else if (type == TZAssetCellTypePhotoGif) {
+    } else if (type == TZAssetCellTypePhotoGif && self.allowPickingGif) {
         self.bottomView.hidden = NO;
         self.timeLength.text = @"GIF";
         self.videoImgView.hidden = YES;

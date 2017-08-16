@@ -422,6 +422,7 @@
         [photoPreviewCell setImageProgressUpdateBlock:^(double progress) {
             weakSelf.progress = progress;
             if (progress >= 1) {
+                if (weakSelf.isSelectOriginalPhoto) [weakSelf showPhotoBytes];
                 if (weakSelf.alertView && [weakCollectionView.visibleCells containsObject:weakCell]) {
                     [weakTzImagePickerVc hideAlertView:weakSelf.alertView];
                     weakSelf.alertView = nil;
