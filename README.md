@@ -2,6 +2,9 @@
  A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, support iOS6+.   
  一个支持多选、选原图和视频的图片选择器，同时有预览功能，支持iOS6+。
  
+ ## 重要提示：1.9.0版本已发布，移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。  
+ 其它同样使用了该API的库大家可以检查下，比如著名的SVProgressHUD ：http://www.cocoachina.com/bbs/read.php?tid=1722166    
+ 
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
     
@@ -80,6 +83,7 @@ A：1.8.4版本已支持
 A：考虑下，优先级低  
 
       最近更新 
+1.9.0 移除"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级   
 1.8.8 修复一些细节   
 1.8.5 修复一些样式细节    
 1.8.4 加入横竖屏适配；支持视频/gif多选；支持视频和照片一起选    
