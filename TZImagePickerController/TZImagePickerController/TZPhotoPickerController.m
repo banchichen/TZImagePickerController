@@ -116,6 +116,7 @@ static CGFloat itemMargin = 5;
         
         [self checkSelectedModels];
         [self configCollectionView];
+        _collectionView.hidden = YES;
         [self configBottomToolBar];
         
         [self scrollCollectionViewToBottom];
@@ -652,7 +653,10 @@ static CGFloat itemMargin = 5;
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
             _shouldScrollToBottom = NO;
+            _collectionView.hidden = NO;
         });
+    } else {
+        _collectionView.hidden = NO;
     }
 }
 
@@ -738,6 +742,7 @@ static CGFloat itemMargin = 5;
                 [tzImagePickerVc.selectedModels addObject:assetModel];
                 [self refreshBottomToolBarStatus];
             }
+            _collectionView.hidden = YES;
             [_collectionView reloadData];
             
             _shouldScrollToBottom = YES;
