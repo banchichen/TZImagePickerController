@@ -34,7 +34,6 @@
 		90CE84AE1C3A89EF003D0779 /* TZImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 90CE84AD1C3A89EF003D0779 /* TZImageManager.m */; };
 		90CE84B71C3BABB6003D0779 /* TZVideoPlayerController.m in Sources */ = {isa = PBXBuildFile; fileRef = 90CE84B61C3BABB6003D0779 /* TZVideoPlayerController.m */; };
 		90EBF5D61C2E298000CB9BCC /* UIView+Layout.m in Sources */ = {isa = PBXBuildFile; fileRef = 90EBF5D51C2E298000CB9BCC /* UIView+Layout.m */; };
-		939868A71F56C2AC00D03E64 /* TZLeftBarButtonModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 939868A61F56C2AC00D03E64 /* TZLeftBarButtonModel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,8 +107,6 @@
 		90CE84B61C3BABB6003D0779 /* TZVideoPlayerController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZVideoPlayerController.m; sourceTree = "<group>"; };
 		90EBF5D41C2E298000CB9BCC /* UIView+Layout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+Layout.h"; sourceTree = "<group>"; };
 		90EBF5D51C2E298000CB9BCC /* UIView+Layout.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+Layout.m"; sourceTree = "<group>"; };
-		939868A51F56C2AC00D03E64 /* TZLeftBarButtonModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZLeftBarButtonModel.h; sourceTree = "<group>"; };
-		939868A61F56C2AC00D03E64 /* TZLeftBarButtonModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZLeftBarButtonModel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,8 +219,6 @@
 				900EEFF71C2BBF9500EA709B /* TZImagePickerController.m */,
 				900EEFFC1C2BD58B00EA709B /* TZPhotoPickerController.h */,
 				900EEFFD1C2BD58B00EA709B /* TZPhotoPickerController.m */,
-				939868A51F56C2AC00D03E64 /* TZLeftBarButtonModel.h */,
-				939868A61F56C2AC00D03E64 /* TZLeftBarButtonModel.m */,
 				900EEFFF1C2BD7E400EA709B /* TZAssetCell.h */,
 				900EF0001C2BD7E400EA709B /* TZAssetCell.m */,
 				900EF00D1C2C0B1100EA709B /* TZAssetModel.h */,
@@ -411,7 +406,6 @@
 				900E65811C2BB8D5003D9A9E /* main.m in Sources */,
 				900EF0121C2C107400EA709B /* TZPhotoPreviewController.m in Sources */,
 				6D5358CD1D64600F00928CC6 /* NSBundle+TZImagePicker.m in Sources */,
-				939868A71F56C2AC00D03E64 /* TZLeftBarButtonModel.m in Sources */,
 				900EEFF81C2BBF9500EA709B /* TZImagePickerController.m in Sources */,
 				902938D81EE2D02C000F2F8F /* TZLocationManager.m in Sources */,
 				6DC84D0A1DF5358500A107A9 /* TZImageCropManager.m in Sources */,
