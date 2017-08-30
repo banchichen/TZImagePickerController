@@ -78,6 +78,13 @@ static CGFloat itemMargin = 5;
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = _model.name;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
+    if (tzImagePickerVc.navLeftBarButtonBlick) {
+        UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        leftButton.frame = CGRectMake(0, 0, 40, 40);
+        [leftButton addTarget:self action:@selector(goBackEvent:) forControlEvents:UIControlEventTouchUpInside];
+        tzImagePickerVc.navLeftBarButtonBlick(leftButton);
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:leftButton];
+    }
     _showTakePhotoBtn = (([[TZImageManager manager] isCameraRollAlbum:_model.name]) && tzImagePickerVc.allowTakePicture);
     // [self resetCachedAssets];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
@@ -314,7 +321,9 @@ static CGFloat itemMargin = 5;
 }
 
 #pragma mark - Click Event
-
+-(void)goBackEvent:(UIButton *)backButton{
+    [self.navigationController popViewControllerAnimated:YES];
+}
 - (void)previewButtonClick {
     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
     [self pushPhotoPrevireViewController:photoPreviewVc];
