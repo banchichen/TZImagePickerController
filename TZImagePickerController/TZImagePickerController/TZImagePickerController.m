@@ -162,12 +162,14 @@
             _tipLabel.text = tipText;
             [self.view addSubview:_tipLabel];
             
-            _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-            [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
-            _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
-            _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
-            [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
-            [self.view addSubview:_settingBtn];
+            if (iOS8Later) {
+                _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+                [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
+                _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
+                _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+                [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+                [self.view addSubview:_settingBtn];
+            }
             
             _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:YES];
         } else {
@@ -478,18 +480,7 @@
 }
 
 - (void)settingBtnClick {
-    if (iOS8Later) {
-        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-    } else {
-        NSURL *privacyUrl = [NSURL URLWithString:@"prefs:root=Privacy&path=PHOTOS"];
-        if ([[UIApplication sharedApplication] canOpenURL:privacyUrl]) {
-            [[UIApplication sharedApplication] openURL:privacyUrl];
-        } else {
-            NSString *message = [NSBundle tz_localizedStringForKey:@"Can not jump to the privacy settings page, please go to the settings page by self, thank you"];
-            UIAlertView * alert = [[UIAlertView alloc]initWithTitle:[NSBundle tz_localizedStringForKey:@"Sorry"] message:message delegate:nil cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"OK"] otherButtonTitles: nil];
-            [alert show];
-        }
-    }
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
