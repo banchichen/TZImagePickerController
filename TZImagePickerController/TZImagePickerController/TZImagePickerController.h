@@ -119,7 +119,7 @@
 @property (nonatomic, assign) NSInteger circleCropRadius;  ///< 圆形裁剪框半径大小
 @property (nonatomic, copy) void (^cropViewSettingBlock)(UIView *cropView);     ///< 自定义裁剪框的其他属性
 
-@property (nonatomic, copy) void (^navLeftBarButtonBlick)(UIButton *leftButton);     ///< 自定义返回按钮样式及其属性
+@property (nonatomic, copy) void (^navLeftBarButtonBlock)(UIButton *leftButton);     ///< 自定义返回按钮样式及其属性
 
 - (id)showAlertWithTitle:(NSString *)title;
 - (void)hideAlertView:(id)alertView;

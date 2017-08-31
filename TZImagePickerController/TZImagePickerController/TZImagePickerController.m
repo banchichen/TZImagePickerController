@@ -62,9 +62,7 @@
     _naviBgColor = naviBgColor;
     self.navigationBar.barTintColor = naviBgColor;
 }
--(void)setBackBarItemColor:(UIColor *)backBarItemColor{
-    
-}
+
 - (void)setNaviTitleColor:(UIColor *)naviTitleColor {
     _naviTitleColor = naviTitleColor;
     [self configNaviTitleAppearance];
