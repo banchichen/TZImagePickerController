@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.9.0 - 2017.08.30
+//  version 1.9.1 - 2017.08.31
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -587,8 +587,7 @@
         self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Videos"];
     }
     
-    // 1.6.10 采用微信的方式，只在相册列表页定义backBarButtonItem为返回，其余的顺系统的做法
-    if (self.isFirstAppear) {
+    if (self.isFirstAppear && !imagePickerVc.navLeftBarButtonSettingBlock) {
         self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
         self.isFirstAppear = NO;
     }

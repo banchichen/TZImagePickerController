@@ -277,11 +277,15 @@
      }];*/
     
     //imagePickerVc.allowPreview = NO;
-//    自定义导航栏上的返回按钮
-    [imagePickerVc setNavLeftBarButtonBlock:^(UIButton *leftButton){
+    // 自定义导航栏上的返回按钮
+    /*
+    [imagePickerVc setNavLeftBarButtonSettingBlock:^(UIButton *leftButton){
         [leftButton setImage:[UIImage imageNamed:@"back"] forState:UIControlStateNormal];
         [leftButton setImageEdgeInsets:UIEdgeInsetsMake(0, -20, 0, 20)];
     }];
+    imagePickerVc.delegate = self;
+    */
+    
     imagePickerVc.isStatusBarDefault = NO;
 #pragma mark - 到这里为止
     
@@ -293,6 +297,17 @@
     
     [self presentViewController:imagePickerVc animated:YES completion:nil];
 }
+
+/*
+// 设置了navLeftBarButtonSettingBlock后，需打开这个方法，让系统的侧滑返回生效
+- (void)navigationController:(UINavigationController *)navigationController didShowViewController:(UIViewController *)viewController animated:(BOOL)animated {
+ 
+    navigationController.interactivePopGestureRecognizer.enabled = YES;
+    if (viewController != navigationController.viewControllers[0]) {
+        navigationController.interactivePopGestureRecognizer.delegate = nil; // 支持侧滑
+    }
+}
+*/
 
 #pragma mark - UIImagePickerController
 
