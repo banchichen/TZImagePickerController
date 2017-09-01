@@ -320,7 +320,7 @@ static CGFloat itemMargin = 5;
 }
 
 #pragma mark - Click Event
--(void)navLeftBarButtonClick{
+- (void)navLeftBarButtonClick{
     [self.navigationController popViewControllerAnimated:YES];
 }
 - (void)previewButtonClick {
@@ -451,9 +451,7 @@ static CGFloat itemMargin = 5;
     cell.allowPickingGif = tzImagePickerVc.allowPickingGif;
     cell.model = model;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
-    if (!tzImagePickerVc.allowPreview) {
-        cell.selectPhotoButton.frame = cell.bounds;
-    }
+    cell.allowPreview = tzImagePickerVc.allowPreview;
     
     __weak typeof(cell) weakCell = cell;
     __weak typeof(self) weakSelf = self;

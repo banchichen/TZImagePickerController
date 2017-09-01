@@ -33,6 +33,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, copy) NSString *photoDefImageName;
 
 @property (nonatomic, assign) BOOL showSelectBtn;
+@property (assign, nonatomic) BOOL allowPreview;
 
 @end
 
