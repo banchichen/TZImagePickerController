@@ -90,7 +90,7 @@
 - (BOOL)isAssetsArray:(NSArray *)assets containAsset:(id)asset;
 
 - (NSString *)getAssetIdentifier:(id)asset;
-- (BOOL)isCameraRollAlbum:(NSString *)albumName;
+- (BOOL)isCameraRollAlbum:(id)metadata;
 
 /// 检查照片大小是否满足最小要求
 - (BOOL)isPhotoSelectableWithAsset:(id)asset;
