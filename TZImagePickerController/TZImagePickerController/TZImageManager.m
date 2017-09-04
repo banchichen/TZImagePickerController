@@ -138,7 +138,7 @@ static dispatch_once_t onceToken;
             if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
             if ([self isCameraRollAlbum:collection]) {
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-                model = [self modelWithResult:fetchResult name:collection.localizedTitle];
+                model = [self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES];
                 if (completion) completion(model);
                 break;
             }
@@ -148,7 +148,7 @@ static dispatch_once_t onceToken;
             if ([group numberOfAssets] < 1) return;
             if ([self isCameraRollAlbum:group]) {
                 NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-                model = [self modelWithResult:group name:name];
+                model = [self modelWithResult:group name:name isCameraRoll:YES];
                 if (completion) completion(model);
                 *stop = YES;
             }
@@ -190,9 +190,9 @@ static dispatch_once_t onceToken;
                 if ([collection.localizedTitle tz_containsString:@"Hidden"] || [collection.localizedTitle isEqualToString:@"已隐藏"]) continue;
                 if ([collection.localizedTitle tz_containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
                 if ([self isCameraRollAlbum:collection]) {
-                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
+                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES] atIndex:0];
                 } else {
-                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:NO]];
                 }
             }
         }
@@ -212,15 +212,15 @@ static dispatch_once_t onceToken;
             }
             
             if ([self isCameraRollAlbum:group]) {
-                [albumArr insertObject:[self modelWithResult:group name:name] atIndex:0];
+                [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:YES] atIndex:0];
             } else if ([name isEqualToString:@"My Photo Stream"] || [name isEqualToString:@"我的照片流"]) {
                 if (albumArr.count) {
-                    [albumArr insertObject:[self modelWithResult:group name:name] atIndex:1];
+                    [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:NO] atIndex:1];
                 } else {
-                    [albumArr addObject:[self modelWithResult:group name:name]];
+                    [albumArr addObject:[self modelWithResult:group name:name isCameraRoll:NO]];
                 }
             } else {
-                [albumArr addObject:[self modelWithResult:group name:name]];
+                [albumArr addObject:[self modelWithResult:group name:name isCameraRoll:NO]];
             }
         } failureBlock:nil];
     }
@@ -843,10 +843,11 @@ static dispatch_once_t onceToken;
 
 #pragma mark - Private Method
 
-- (TZAlbumModel *)modelWithResult:(id)result name:(NSString *)name{
+- (TZAlbumModel *)modelWithResult:(id)result name:(NSString *)name isCameraRoll:(BOOL)isCameraRoll {
     TZAlbumModel *model = [[TZAlbumModel alloc] init];
     model.result = result;
     model.name = name;
+    model.isCameraRoll = isCameraRoll;
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         model.count = fetchResult.count;
