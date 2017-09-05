@@ -136,9 +136,9 @@ static dispatch_once_t onceToken;
         for (PHAssetCollection *collection in smartAlbums) {
             // 有可能是PHCollectionList类的的对象，过滤掉
             if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
-            if ([self isCameraRollAlbum:collection.localizedTitle]) {
+            if ([self isCameraRollAlbum:collection]) {
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-                model = [self modelWithResult:fetchResult name:collection.localizedTitle];
+                model = [self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES];
                 if (completion) completion(model);
                 break;
             }
@@ -146,9 +146,9 @@ static dispatch_once_t onceToken;
     } else {
         [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupAll usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
             if ([group numberOfAssets] < 1) return;
-            NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-            if ([self isCameraRollAlbum:name]) {
-                model = [self modelWithResult:group name:name];
+            if ([self isCameraRollAlbum:group]) {
+                NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
+                model = [self modelWithResult:group name:name isCameraRoll:YES];
                 if (completion) completion(model);
                 *stop = YES;
             }
@@ -189,10 +189,10 @@ static dispatch_once_t onceToken;
                 
                 if ([collection.localizedTitle tz_containsString:@"Hidden"] || [collection.localizedTitle isEqualToString:@"已隐藏"]) continue;
                 if ([collection.localizedTitle tz_containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
-                if ([self isCameraRollAlbum:collection.localizedTitle]) {
-                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle] atIndex:0];
+                if ([self isCameraRollAlbum:collection]) {
+                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES] atIndex:0];
                 } else {
-                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle]];
+                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:NO]];
                 }
             }
         }
@@ -211,16 +211,16 @@ static dispatch_once_t onceToken;
                 }
             }
             
-            if ([self isCameraRollAlbum:name]) {
-                [albumArr insertObject:[self modelWithResult:group name:name] atIndex:0];
+            if ([self isCameraRollAlbum:group]) {
+                [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:YES] atIndex:0];
             } else if ([name isEqualToString:@"My Photo Stream"] || [name isEqualToString:@"我的照片流"]) {
                 if (albumArr.count) {
-                    [albumArr insertObject:[self modelWithResult:group name:name] atIndex:1];
+                    [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:NO] atIndex:1];
                 } else {
-                    [albumArr addObject:[self modelWithResult:group name:name]];
+                    [albumArr addObject:[self modelWithResult:group name:name isCameraRoll:NO]];
                 }
             } else {
-                [albumArr addObject:[self modelWithResult:group name:name]];
+                [albumArr addObject:[self modelWithResult:group name:name isCameraRoll:NO]];
             }
         } failureBlock:nil];
     }
@@ -799,20 +799,16 @@ static dispatch_once_t onceToken;
     }
 }
 
-- (BOOL)isCameraRollAlbum:(NSString *)albumName {
-    NSString *versionStr = [[UIDevice currentDevice].systemVersion stringByReplacingOccurrencesOfString:@"." withString:@""];
-    if (versionStr.length <= 1) {
-        versionStr = [versionStr stringByAppendingString:@"00"];
-    } else if (versionStr.length <= 2) {
-        versionStr = [versionStr stringByAppendingString:@"0"];
+- (BOOL)isCameraRollAlbum:(id)metadata {
+    if ([metadata isKindOfClass:[PHAssetCollection class]]) {
+        return ((PHAssetCollection *)metadata).assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary;
     }
-    CGFloat version = versionStr.floatValue;
-    // 目前已知8.0.0 - 8.0.2系统，拍照后的图片会保存在最近添加中
-    if (version >= 800 && version <= 802) {
-        return [albumName isEqualToString:@"最近添加"] || [albumName isEqualToString:@"Recently Added"];
-    } else {
-        return [albumName isEqualToString:@"Camera Roll"] || [albumName isEqualToString:@"相机胶卷"] || [albumName isEqualToString:@"所有照片"] || [albumName isEqualToString:@"All Photos"];
+    if ([metadata isKindOfClass:[ALAssetsGroup class]]) {
+        ALAssetsGroup *group = metadata;
+        return ([[group valueForProperty:ALAssetsGroupPropertyType] intValue] == ALAssetsGroupSavedPhotos);
     }
+    
+    return NO;
 }
 
 - (NSString *)getAssetIdentifier:(id)asset {
@@ -847,10 +843,11 @@ static dispatch_once_t onceToken;
 
 #pragma mark - Private Method
 
-- (TZAlbumModel *)modelWithResult:(id)result name:(NSString *)name{
+- (TZAlbumModel *)modelWithResult:(id)result name:(NSString *)name isCameraRoll:(BOOL)isCameraRoll {
     TZAlbumModel *model = [[TZAlbumModel alloc] init];
     model.result = result;
     model.name = name;
+    model.isCameraRoll = isCameraRoll;
     if ([result isKindOfClass:[PHFetchResult class]]) {
         PHFetchResult *fetchResult = (PHFetchResult *)result;
         model.count = fetchResult.count;
