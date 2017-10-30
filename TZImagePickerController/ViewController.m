@@ -18,6 +18,7 @@
 #import "TZPhotoPreviewController.h"
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
+#import "TZPhotoPreviewDeleteViewController.h"
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
@@ -80,6 +81,7 @@
     _selectedPhotos = [NSMutableArray array];
     _selectedAssets = [NSMutableArray array];
     [self configCollectionView];
+
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -173,7 +175,7 @@
             vc.model = model;
             [self presentViewController:vc animated:YES completion:nil];
         } else { // preview photos / 预览照片
-            TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.row];
+            TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssetsForPublish:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.row];
             imagePickerVc.maxImagesCount = self.maxCountTF.text.integerValue;
             imagePickerVc.allowPickingGif = self.allowPickingGifSwitch.isOn;
             imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;
@@ -187,6 +189,7 @@
                 _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
             }];
             [self presentViewController:imagePickerVc animated:YES completion:nil];
+//            [self.navigationController pushViewController:imagePickerVc animated:YES];
         }
     }
 }
@@ -468,8 +471,8 @@
 // 你可以通过一个asset获得原图，通过这个方法：[[TZImageManager manager] getOriginalPhotoWithAsset:completion:]
 // photos数组里的UIImage对象，默认是828像素宽，你可以通过设置photoWidth属性的值来改变它
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
-    _selectedPhotos = [NSMutableArray arrayWithArray:photos];
-    _selectedAssets = [NSMutableArray arrayWithArray:assets];
+    [_selectedPhotos addObjectsFromArray:photos];
+    [_selectedAssets addObjectsFromArray:assets];
     _isSelectOriginalPhoto = isSelectOriginalPhoto;
     [_collectionView reloadData];
     // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));

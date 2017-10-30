@@ -40,6 +40,8 @@
 @property (strong, nonatomic) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
 @property (strong, nonatomic) CLLocation *location;
+
+@property (nonatomic, strong) NSMutableArray *tempSelectedModels;
 @end
 
 static CGSize AssetGridThumbnailSize;
@@ -69,10 +71,12 @@ static CGFloat itemMargin = 5;
     }
     return _imagePickerVc;
 }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
+    [tzImagePickerVc.selectedIndexes removeAllObjects];
     _shouldScrollToBottom = YES;
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = _model.name;
@@ -86,8 +90,37 @@ static CGFloat itemMargin = 5;
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
     }
     _showTakePhotoBtn = (_model.isCameraRoll && tzImagePickerVc.allowTakePicture);
+    self.tempSelectedModels = [NSMutableArray array];
     // [self resetCachedAssets];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    // Determine the size of the thumbnails to request from the PHCachingImageManager
+    CGFloat scale = 2.0;
+    if ([UIScreen mainScreen].bounds.size.width > 600) {
+        scale = 1.0;
+    }
+    CGSize cellSize = ((UICollectionViewFlowLayout *)_collectionView.collectionViewLayout).itemSize;
+    AssetGridThumbnailSize = CGSizeMake(cellSize.width * scale, cellSize.height * scale);
+    
+    if (!_models) {
+        [self fetchAssetModels];
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    tzImagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (iOS8Later) {
+        // [self updateCachedAssets];
+    }
 }
 
 - (void)fetchAssetModels {
@@ -121,19 +154,13 @@ static CGFloat itemMargin = 5;
         TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
         [tzImagePickerVc hideProgressHUD];
         
-        [self checkSelectedModels];
+//        [self checkSelectedModels];
         [self configCollectionView];
         _collectionView.hidden = YES;
         [self configBottomToolBar];
         
         [self scrollCollectionViewToBottom];
     });
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    tzImagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
 }
 
 - (BOOL)prefersStatusBarHidden {
@@ -161,30 +188,10 @@ static CGFloat itemMargin = 5;
     [_collectionView registerClass:[TZAssetCameraCell class] forCellWithReuseIdentifier:@"TZAssetCameraCell"];
 }
 
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-    // Determine the size of the thumbnails to request from the PHCachingImageManager
-    CGFloat scale = 2.0;
-    if ([UIScreen mainScreen].bounds.size.width > 600) {
-        scale = 1.0;
-    }
-    CGSize cellSize = ((UICollectionViewFlowLayout *)_collectionView.collectionViewLayout).itemSize;
-    AssetGridThumbnailSize = CGSizeMake(cellSize.width * scale, cellSize.height * scale);
-    
-    if (!_models) {
-        [self fetchAssetModels];
-    }
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    if (iOS8Later) {
-        // [self updateCachedAssets];
-    }
-}
-
 - (void)configBottomToolBar {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+//    [tzImagePickerVc.selectedModels removeAllObjects];
+    [tzImagePickerVc.selectedIndexes removeAllObjects];
     if (!tzImagePickerVc.showSelectBtn) return;
 
     _bottomToolBar = [[UIView alloc] initWithFrame:CGRectZero];
@@ -198,7 +205,7 @@ static CGFloat itemMargin = 5;
     [_previewButton setTitle:tzImagePickerVc.previewBtnTitleStr forState:UIControlStateDisabled];
     [_previewButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [_previewButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
-    _previewButton.enabled = tzImagePickerVc.selectedModels.count;
+    _previewButton.enabled = tzImagePickerVc.selectedIndexes.count;
     
     if (tzImagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -212,7 +219,7 @@ static CGFloat itemMargin = 5;
         [_originalPhotoButton setImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoOriginDefImageName] forState:UIControlStateNormal];
         [_originalPhotoButton setImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoOriginSelImageName] forState:UIControlStateSelected];
         _originalPhotoButton.selected = _isSelectOriginalPhoto;
-        _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
+        _originalPhotoButton.enabled = tzImagePickerVc.selectedIndexes.count > 0;
         
         _originalPhotoLabel = [[UILabel alloc] init];
         _originalPhotoLabel.textAlignment = NSTextAlignmentLeft;
@@ -231,15 +238,15 @@ static CGFloat itemMargin = 5;
     _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
     
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoNumberIconImageName]];
-    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    _numberImageView.hidden = tzImagePickerVc.selectedIndexes.count <= 0;
     _numberImageView.backgroundColor = [UIColor clearColor];
     
     _numberLabel = [[UILabel alloc] init];
     _numberLabel.font = [UIFont systemFontOfSize:15];
     _numberLabel.textColor = [UIColor whiteColor];
     _numberLabel.textAlignment = NSTextAlignmentCenter;
-    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
-    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedIndexes.count];
+    _numberLabel.hidden = tzImagePickerVc.selectedIndexes.count <= 0;
     _numberLabel.backgroundColor = [UIColor clearColor];
     
     _divideLine = [[UIView alloc] init];
@@ -453,6 +460,13 @@ static CGFloat itemMargin = 5;
     cell.model = model;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     cell.allowPreview = tzImagePickerVc.allowPreview;
+
+    [tzImagePickerVc.selectedIndexes enumerateObjectsUsingBlock:^(NSNumber *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if (indexPath.item == obj.integerValue) {
+            cell.numberLabel.text = [NSString stringWithFormat:@"%ld", idx + 1];
+            *stop = YES;
+        }
+    }];
     
     __weak typeof(cell) weakCell = cell;
     __weak typeof(self) weakSelf = self;
@@ -462,22 +476,63 @@ static CGFloat itemMargin = 5;
         // 1. cancel select / 取消选择
         if (isSelected) {
             weakCell.selectPhotoButton.selected = NO;
+            weakCell.numberLabel.hidden = YES;
             model.isSelected = NO;
             NSArray *selectedModels = [NSArray arrayWithArray:tzImagePickerVc.selectedModels];
             for (TZAssetModel *model_item in selectedModels) {
                 if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
                     [tzImagePickerVc.selectedModels removeObject:model_item];
+                    [weakSelf.tempSelectedModels removeObject:model];
                     break;
                 }
+            }
+            
+            // 移除已选indexpath
+            for (NSNumber *selectedIndexes in tzImagePickerVc.selectedIndexes) {
+                if (indexPath.item == selectedIndexes.integerValue) {
+                    [tzImagePickerVc.selectedIndexes removeObject:selectedIndexes];
+                    break;
+                }
+            }
+            // 重设角标
+            [tzImagePickerVc.selectedIndexes enumerateObjectsUsingBlock:^(NSNumber *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                TZAssetCell *cell = (TZAssetCell *)[collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:obj.integerValue inSection:0]];
+                cell.numberLabel.text = [NSString stringWithFormat:@"%ld", idx + 1];
+            }];
+            // 设置不可选模糊图层
+            if (tzImagePickerVc.selectedIndexes.count < tzImagePickerVc.maxImagesCount) {
+                [_models enumerateObjectsUsingBlock:^(TZAssetModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
+                    model.hasSelectedMax = NO;
+                }];
+                [weakSelf.collectionView reloadData];
             }
             [weakSelf refreshBottomToolBarStatus];
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
-            if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
+            if (tzImagePickerVc.selectedIndexes.count < tzImagePickerVc.maxImagesCount) {
                 weakCell.selectPhotoButton.selected = YES;
+                weakCell.numberLabel.hidden = NO;
                 model.isSelected = YES;
                 [tzImagePickerVc.selectedModels addObject:model];
+                [weakSelf.tempSelectedModels addObject:model];
+                // 设置选中角标
+                [tzImagePickerVc.selectedIndexes addObject:@(indexPath.item)];
+                [tzImagePickerVc.selectedIndexes enumerateObjectsUsingBlock:^(NSNumber *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    TZAssetCell *cell = (TZAssetCell *)[collectionView cellForItemAtIndexPath:[NSIndexPath indexPathForItem:obj.integerValue inSection:0]];
+                    cell.numberLabel.text = [NSString stringWithFormat:@"%ld", idx + 1];
+                }];
                 [weakSelf refreshBottomToolBarStatus];
+                // 设置不可选模糊图层
+                if (tzImagePickerVc.selectedIndexes.count == tzImagePickerVc.maxImagesCount) {
+                    [_models enumerateObjectsUsingBlock:^(TZAssetModel *model, NSUInteger idx, BOOL * _Nonnull stop) {
+                        if ([weakSelf.tempSelectedModels containsObject:model]) {
+                            model.hasSelectedMax = NO;
+                        } else {
+                            model.hasSelectedMax = YES;
+                        }
+                    }];
+                    [weakSelf.collectionView reloadData];
+                }
             } else {
                 NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], tzImagePickerVc.maxImagesCount];
                 [tzImagePickerVc showAlertWithTitle:title];
@@ -500,6 +555,9 @@ static CGFloat itemMargin = 5;
         index = indexPath.row - 1;
     }
     TZAssetModel *model = _models[index];
+    if (model.hasSelectedMax) {
+        return;
+    }
     if (model.type == TZAssetModelMediaTypeVideo && !tzImagePickerVc.allowPickingMultipleVideo) {
         if (tzImagePickerVc.selectedModels.count > 0) {
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -599,7 +657,7 @@ static CGFloat itemMargin = 5;
     
     _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
-    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
+    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedIndexes.count];
     
     _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
     _originalPhotoButton.selected = (_isSelectOriginalPhoto && _originalPhotoButton.enabled);
@@ -609,6 +667,7 @@ static CGFloat itemMargin = 5;
 
 - (void)pushPhotoPrevireViewController:(TZPhotoPreviewController *)photoPreviewVc {
     __weak typeof(self) weakSelf = self;
+
     photoPreviewVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
     [photoPreviewVc setBackButtonClickBlock:^(BOOL isSelectOriginalPhoto) {
         weakSelf.isSelectOriginalPhoto = isSelectOriginalPhoto;

@@ -13,6 +13,7 @@
 
 + (instancetype)modelWithAsset:(id)asset type:(TZAssetModelMediaType)type{
     TZAssetModel *model = [[TZAssetModel alloc] init];
+    model.hasSelectedMax = NO;
     model.asset = asset;
     model.isSelected = NO;
     model.type = type;
