@@ -35,6 +35,8 @@ typedef enum : NSUInteger {
 @property (nonatomic, assign) BOOL showSelectBtn;
 @property (assign, nonatomic) BOOL allowPreview;
 
+@property (nonatomic, weak) UILabel *numberLabel;
+@property (nonatomic, assign) BOOL allowPicking;
 @end
 
 
@@ -43,7 +45,7 @@ typedef enum : NSUInteger {
 @interface TZAlbumCell : UITableViewCell
 
 @property (nonatomic, strong) TZAlbumModel *model;
-@property (weak, nonatomic) UIButton *selectedCountButton;
+//@property (weak, nonatomic) UIButton *selectedCountButton;
 
 @end
 

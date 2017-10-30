@@ -10,6 +10,7 @@
 #import "TZImagePickerController.h"
 #import "TZPhotoPickerController.h"
 #import "TZPhotoPreviewController.h"
+#import "TZPhotoPreviewDeleteViewController.h"
 #import "TZAssetModel.h"
 #import "TZAssetCell.h"
 #import "UIView+Layout.h"
@@ -44,7 +45,7 @@
     self.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationBar.translucent = YES;
     [TZImageManager manager].shouldFixOrientation = NO;
-
+    self.selectedIndexes = [NSMutableArray array];
     // Default appearance, you can reset these after this method
     // 默认的外观，你可以在这个方法后重置
     self.oKButtonTitleColorNormal   = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0];
@@ -231,6 +232,29 @@
     return self;
 }
 
+- (instancetype)initWithSelectedAssetsForPublish:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index
+{
+    TZPhotoPreviewDeleteViewController *previewVc = [[TZPhotoPreviewDeleteViewController alloc] init];
+    self = [super initWithRootViewController:previewVc];
+    if (self) {
+        self.selectedAssets = [NSMutableArray arrayWithArray:selectedAssets];
+        self.allowPickingOriginalPhoto = self.allowPickingOriginalPhoto;
+//        [self configDefaultSetting];
+        
+        previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
+        previewVc.currentIndex = index;
+        __weak typeof(self) weakSelf = self;
+        [previewVc setDoneButtonClickBlockWithPreviewType:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+//            [weakSelf dismissViewControllerAnimated:YES completion:^{
+                if (weakSelf.didFinishPickingPhotosHandle) {
+                    weakSelf.didFinishPickingPhotosHandle(photos,assets,isSelectOriginalPhoto);
+                }
+//            }];
+        }];
+    }
+    return self;
+}
+
 - (void)configDefaultSetting {
     self.timeout = 15;
     self.photoWidth = 828.0;
@@ -250,7 +274,7 @@
 
 - (void)configDefaultImageName {
     self.takePictureImageName = @"takePicture";
-    self.photoSelImageName = @"photo_sel_photoPickerVc";
+    self.photoSelImageName = @"photo_number_icon";
     self.photoDefImageName = @"photo_def_photoPickerVc";
     self.photoNumberIconImageName = @"photo_number_icon";
     self.photoPreviewOriginDefImageName = @"preview_original_def";
@@ -652,8 +676,8 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     TZAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TZAlbumCell"];
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    cell.selectedCountButton.backgroundColor = imagePickerVc.oKButtonTitleColorNormal;
+//    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+//    cell.selectedCountButton.backgroundColor = imagePickerVc.oKButtonTitleColorNormal;
     cell.model = _albumArr[indexPath.row];
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;

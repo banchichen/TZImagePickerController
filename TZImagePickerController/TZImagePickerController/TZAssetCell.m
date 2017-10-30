@@ -22,6 +22,7 @@
 @property (nonatomic, weak) UIImageView *videoImgView;
 @property (nonatomic, strong) TZProgressView *progressView;
 @property (nonatomic, assign) int32_t bigImageRequestID;
+@property (nonatomic, weak) UIImageView *blurImageView;
 @end
 
 @implementation TZAssetCell
@@ -56,12 +57,14 @@
     }
     self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
+    self.numberLabel.hidden = !model.isSelected;
     self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
     self.type = (NSInteger)model.type;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
     if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {
         if (_selectImageView.hidden == NO) {
             self.selectPhotoButton.hidden = YES;
+            self.numberLabel.hidden = YES;
             _selectImageView.hidden = YES;
         }
     }
@@ -69,6 +72,8 @@
     if (model.isSelected) {
         [self fetchBigImage];
     }
+
+    self.blurImageView.hidden = !model.hasSelectedMax;
     [self setNeedsLayout];
 }
 
@@ -114,10 +119,12 @@
     }
     self.selectImageView.image = sender.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
     if (sender.isSelected) {
+//        _numberLabel.hidden = NO;
         [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
         // 用户选中了该图片，提前获取一下大图
         [self fetchBigImage];
     } else { // 取消选中，取消大图的获取
+//        _numberLabel.hidden = YES;
         if (_bigImageRequestID && _progressView) {
             [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
             [self hideProgressView];
@@ -153,6 +160,20 @@
 
 #pragma mark - Lazy load
 
+- (UILabel *)numberLabel
+{
+    if (!_numberLabel) {
+        UILabel *numbeLabel = [[UILabel alloc] init];
+        numbeLabel.backgroundColor = [UIColor clearColor];
+        numbeLabel.font = [UIFont boldSystemFontOfSize:15];
+        numbeLabel.textColor = [UIColor whiteColor];
+        numbeLabel.textAlignment = NSTextAlignmentCenter;
+        [self.selectImageView addSubview:numbeLabel];
+        _numberLabel = numbeLabel;
+    }
+    return _numberLabel;
+}
+
 - (UIButton *)selectPhotoButton {
     if (_selectImageView == nil) {
         UIButton *selectPhotoButton = [[UIButton alloc] init];
@@ -172,9 +193,21 @@
         _imageView = imageView;
         
         [self.contentView bringSubviewToFront:_selectImageView];
+        [self.contentView bringSubviewToFront:_numberLabel];
         [self.contentView bringSubviewToFront:_bottomView];
     }
     return _imageView;
+}
+
+- (UIImageView *)blurImageView
+{
+    if (_blurImageView == nil) {
+        UIImageView *blurImageView = [[UIImageView alloc] init];
+        blurImageView.image = [UIImage imageNamed:@"AlbumAddBtn"];
+        [self.contentView addSubview:blurImageView];
+        _blurImageView = blurImageView;
+    }
+    return _blurImageView;
 }
 
 - (UIImageView *)selectImageView {
@@ -237,6 +270,7 @@
     }
     _selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
     _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
+    _numberLabel.frame = _selectImageView.bounds;
     
     static CGFloat progressWH = 20;
     CGFloat progressXY = (self.tz_width - progressWH) / 2;
@@ -248,6 +282,7 @@
     
     self.type = (NSInteger)self.model.type;
     self.showSelectBtn = self.showSelectBtn;
+    self.blurImageView.frame = self.bounds;
 }
 
 @end
@@ -275,18 +310,18 @@
     [[TZImageManager manager] getPostImageWithAlbumModel:model completion:^(UIImage *postImage) {
         self.posterImageView.image = postImage;
     }];
-    if (model.selectedCount) {
-        self.selectedCountButton.hidden = NO;
-        [self.selectedCountButton setTitle:[NSString stringWithFormat:@"%zd",model.selectedCount] forState:UIControlStateNormal];
-    } else {
-        self.selectedCountButton.hidden = YES;
-    }
+//    if (model.selectedCount) {
+//        self.selectedCountButton.hidden = NO;
+//        [self.selectedCountButton setTitle:[NSString stringWithFormat:@"%zd",model.selectedCount] forState:UIControlStateNormal];
+//    } else {
+//        self.selectedCountButton.hidden = YES;
+//    }
 }
 
 /// For fitting iOS6
 - (void)layoutSubviews {
     if (iOS7Later) [super layoutSubviews];
-    _selectedCountButton.frame = CGRectMake(self.tz_width - 24 - 30, 23, 24, 24);
+//    _selectedCountButton.frame = CGRectMake(self.tz_width - 24 - 30, 23, 24, 24);
     NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
     self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
     self.posterImageView.frame = CGRectMake(0, 0, 70, 70);
@@ -321,19 +356,19 @@
     return _titleLabel;
 }
 
-- (UIButton *)selectedCountButton {
-    if (_selectedCountButton == nil) {
-        UIButton *selectedCountButton = [[UIButton alloc] init];
-        selectedCountButton.layer.cornerRadius = 12;
-        selectedCountButton.clipsToBounds = YES;
-        selectedCountButton.backgroundColor = [UIColor redColor];
-        [selectedCountButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        selectedCountButton.titleLabel.font = [UIFont systemFontOfSize:15];
-        [self.contentView addSubview:selectedCountButton];
-        _selectedCountButton = selectedCountButton;
-    }
-    return _selectedCountButton;
-}
+//- (UIButton *)selectedCountButton {
+//    if (_selectedCountButton == nil) {
+//        UIButton *selectedCountButton = [[UIButton alloc] init];
+//        selectedCountButton.layer.cornerRadius = 12;
+//        selectedCountButton.clipsToBounds = YES;
+//        selectedCountButton.backgroundColor = [UIColor redColor];
+//        [selectedCountButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+//        selectedCountButton.titleLabel.font = [UIFont systemFontOfSize:15];
+//        [self.contentView addSubview:selectedCountButton];
+//        _selectedCountButton = selectedCountButton;
+//    }
+//    return _selectedCountButton;
+//}
 
 @end
 

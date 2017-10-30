@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2D49F6F41F8CEA2B00E3930D /* TZPhotoPreviewDeleteViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2D49F6F31F8CEA2B00E3930D /* TZPhotoPreviewDeleteViewController.m */; };
 		6D32B9BD1CD83640005CE1E0 /* LxGridViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D32B9BC1CD83640005CE1E0 /* LxGridViewFlowLayout.m */; };
 		6D4608311DFFC60D004FB009 /* TZGifPhotoPreviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D4608301DFFC60D004FB009 /* TZGifPhotoPreviewController.m */; };
 		6D5358CD1D64600F00928CC6 /* NSBundle+TZImagePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D5358CC1D64600F00928CC6 /* NSBundle+TZImagePicker.m */; };
@@ -54,6 +55,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		2D49F6F21F8CEA2A00E3930D /* TZPhotoPreviewDeleteViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TZPhotoPreviewDeleteViewController.h; sourceTree = "<group>"; };
+		2D49F6F31F8CEA2B00E3930D /* TZPhotoPreviewDeleteViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TZPhotoPreviewDeleteViewController.m; sourceTree = "<group>"; };
 		6D12FC191D66B71E00182C44 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		6D12FC1A1D66B71E00182C44 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		6D32B9BB1CD83640005CE1E0 /* LxGridViewFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LxGridViewFlowLayout.h; sourceTree = "<group>"; };
@@ -225,6 +228,8 @@
 				900EF00E1C2C0B1100EA709B /* TZAssetModel.m */,
 				900EF0101C2C107400EA709B /* TZPhotoPreviewController.h */,
 				900EF0111C2C107400EA709B /* TZPhotoPreviewController.m */,
+				2D49F6F21F8CEA2A00E3930D /* TZPhotoPreviewDeleteViewController.h */,
+				2D49F6F31F8CEA2B00E3930D /* TZPhotoPreviewDeleteViewController.m */,
 				900EF0131C2C134800EA709B /* TZPhotoPreviewCell.h */,
 				900EF0141C2C134900EA709B /* TZPhotoPreviewCell.m */,
 				90CE84B51C3BABB6003D0779 /* TZVideoPlayerController.h */,
@@ -324,7 +329,7 @@
 				TargetAttributes = {
 					900E657B1C2BB8D5003D9A9E = {
 						CreatedOnToolsVersion = 7.2;
-						DevelopmentTeam = T86X98NCU2;
+						DevelopmentTeam = A59B2Z45EY;
 						ProvisioningStyle = Automatic;
 					};
 					900E65941C2BB8D5003D9A9E = {
@@ -405,6 +410,7 @@
 				900E65841C2BB8D5003D9A9E /* AppDelegate.m in Sources */,
 				900E65811C2BB8D5003D9A9E /* main.m in Sources */,
 				900EF0121C2C107400EA709B /* TZPhotoPreviewController.m in Sources */,
+				2D49F6F41F8CEA2B00E3930D /* TZPhotoPreviewDeleteViewController.m in Sources */,
 				6D5358CD1D64600F00928CC6 /* NSBundle+TZImagePicker.m in Sources */,
 				900EEFF81C2BBF9500EA709B /* TZImagePickerController.m in Sources */,
 				902938D81EE2D02C000F2F8F /* TZLocationManager.m in Sources */,
@@ -551,7 +557,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = T86X98NCU2;
+				DEVELOPMENT_TEAM = A59B2Z45EY;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TZImagePickerController",
@@ -572,7 +578,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				DEVELOPMENT_TEAM = T86X98NCU2;
+				DEVELOPMENT_TEAM = A59B2Z45EY;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TZImagePickerController",
