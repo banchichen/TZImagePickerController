@@ -13,6 +13,8 @@
 #import "TZImagePickerController.h"
 #import "TZProgressView.h"
 
+#define kPhotoSelImageSize [UIImage imageNamedFromMyBundle:self.photoSelImageName].size
+
 @interface TZAssetCell ()
 @property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
 @property (weak, nonatomic) UIImageView *selectImageView;
@@ -235,7 +237,9 @@
     } else {
         _selectPhotoButton.frame = self.bounds;
     }
-    _selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
+    
+    CGFloat space = kPhotoSelImageSize.width < 25 ? 3 : 0;
+    _selectImageView.frame = CGRectMake(self.tz_width - kPhotoSelImageSize.width - space, space, kPhotoSelImageSize.width, kPhotoSelImageSize.height);
     _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
     
     static CGFloat progressWH = 20;
