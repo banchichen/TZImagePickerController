@@ -21,7 +21,7 @@
 
 @property (nonatomic, weak) UIImageView *videoImgView;
 @property (nonatomic, strong) TZProgressView *progressView;
-@property (nonatomic, assign) PHImageRequestID bigImageRequestID;
+@property (nonatomic, assign) int32_t bigImageRequestID;
 @end
 
 @implementation TZAssetCell
@@ -31,7 +31,7 @@
     if (iOS8Later) {
         self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
     }
-    PHImageRequestID imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+    int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (_progressView) {
             self.progressView.hidden = YES;
             self.imageView.alpha = 1.0;
@@ -69,6 +69,7 @@
     if (model.isSelected) {
         [self fetchBigImage];
     }
+    [self setNeedsLayout];
 }
 
 - (void)setShowSelectBtn:(BOOL)showSelectBtn {
@@ -83,25 +84,27 @@
 
 - (void)setType:(TZAssetCellType)type {
     _type = type;
-    if (type == TZAssetCellTypePhoto || type == TZAssetCellTypeLivePhoto || (type == TZAssetCellTypePhotoGif && !self.allowPickingGif)) {
+    if (type == TZAssetCellTypePhoto || type == TZAssetCellTypeLivePhoto || (type == TZAssetCellTypePhotoGif && !self.allowPickingGif) || self.allowPickingMultipleVideo) {
         _selectImageView.hidden = NO;
         _selectPhotoButton.hidden = NO;
         _bottomView.hidden = YES;
     } else { // Video of Gif
         _selectImageView.hidden = YES;
         _selectPhotoButton.hidden = YES;
-        _bottomView.hidden = NO;
-        if (type == TZAssetCellTypeVideo) {
-            self.timeLength.text = _model.timeLength;
-            self.videoImgView.hidden = NO;
-            _timeLength.tz_left = self.videoImgView.tz_right;
-            _timeLength.textAlignment = NSTextAlignmentRight;
-        } else {
-            self.timeLength.text = @"GIF";
-            self.videoImgView.hidden = YES;
-            _timeLength.tz_left = 5;
-            _timeLength.textAlignment = NSTextAlignmentLeft;
-        }
+    }
+    
+    if (type == TZAssetCellTypeVideo) {
+        self.bottomView.hidden = NO;
+        self.timeLength.text = _model.timeLength;
+        self.videoImgView.hidden = NO;
+        _timeLength.tz_left = self.videoImgView.tz_right;
+        _timeLength.textAlignment = NSTextAlignmentRight;
+    } else if (type == TZAssetCellTypePhotoGif && self.allowPickingGif) {
+        self.bottomView.hidden = NO;
+        self.timeLength.text = @"GIF";
+        self.videoImgView.hidden = YES;
+        _timeLength.tz_left = 5;
+        _timeLength.textAlignment = NSTextAlignmentLeft;
     }
 }
 
@@ -138,6 +141,9 @@
             self.progressView.progress = progress;
             self.progressView.hidden = NO;
             self.imageView.alpha = 0.4;
+            if (progress >= 1) {
+                [self hideProgressView];
+            }
         } else {
             *stop = YES;
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
@@ -150,7 +156,6 @@
 - (UIButton *)selectPhotoButton {
     if (_selectImageView == nil) {
         UIButton *selectPhotoButton = [[UIButton alloc] init];
-        selectPhotoButton.frame = CGRectMake(self.tz_width - 44, 0, 44, 44);
         [selectPhotoButton addTarget:self action:@selector(selectPhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:selectPhotoButton];
         _selectPhotoButton = selectPhotoButton;
@@ -161,7 +166,6 @@
 - (UIImageView *)imageView {
     if (_imageView == nil) {
         UIImageView *imageView = [[UIImageView alloc] init];
-        imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         imageView.clipsToBounds = YES;
         [self.contentView addSubview:imageView];
@@ -176,7 +180,6 @@
 - (UIImageView *)selectImageView {
     if (_selectImageView == nil) {
         UIImageView *selectImageView = [[UIImageView alloc] init];
-        selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
         [self.contentView addSubview:selectImageView];
         _selectImageView = selectImageView;
     }
@@ -186,7 +189,6 @@
 - (UIView *)bottomView {
     if (_bottomView == nil) {
         UIView *bottomView = [[UIView alloc] init];
-        bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
         static NSInteger rgb = 0;
         bottomView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.8];
         [self.contentView addSubview:bottomView];
@@ -198,8 +200,7 @@
 - (UIImageView *)videoImgView {
     if (_videoImgView == nil) {
         UIImageView *videoImgView = [[UIImageView alloc] init];
-        videoImgView.frame = CGRectMake(8, 0, 17, 17);
-        [videoImgView setImage:[UIImage imageNamedFromMyBundle:@"VideoSendIcon.png"]];
+        [videoImgView setImage:[UIImage imageNamedFromMyBundle:@"VideoSendIcon"]];
         [self.bottomView addSubview:videoImgView];
         _videoImgView = videoImgView;
     }
@@ -210,7 +211,6 @@
     if (_timeLength == nil) {
         UILabel *timeLength = [[UILabel alloc] init];
         timeLength.font = [UIFont boldSystemFontOfSize:11];
-        timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
         timeLength.textColor = [UIColor whiteColor];
         timeLength.textAlignment = NSTextAlignmentRight;
         [self.bottomView addSubview:timeLength];
@@ -222,13 +222,32 @@
 - (TZProgressView *)progressView {
     if (_progressView == nil) {
         _progressView = [[TZProgressView alloc] init];
-        static CGFloat progressWH = 20;
-        CGFloat progressXY = (self.tz_width - progressWH) / 2;
         _progressView.hidden = YES;
-        _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
         [self addSubview:_progressView];
     }
     return _progressView;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    if (self.allowPreview) {
+        _selectPhotoButton.frame = CGRectMake(self.tz_width - 44, 0, 44, 44);
+    } else {
+        _selectPhotoButton.frame = self.bounds;
+    }
+    _selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
+    _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
+    
+    static CGFloat progressWH = 20;
+    CGFloat progressXY = (self.tz_width - progressWH) / 2;
+    _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
+
+    _bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
+    _videoImgView.frame = CGRectMake(8, 0, 17, 17);
+    _timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
+    
+    self.type = (NSInteger)self.model.type;
+    self.showSelectBtn = self.showSelectBtn;
 }
 
 @end
@@ -236,10 +255,15 @@
 @interface TZAlbumCell ()
 @property (weak, nonatomic) UIImageView *posterImageView;
 @property (weak, nonatomic) UILabel *titleLabel;
-@property (weak, nonatomic) UIImageView *arrowImageView;
 @end
 
 @implementation TZAlbumCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    return self;
+}
 
 - (void)setModel:(TZAlbumModel *)model {
     _model = model;
@@ -263,6 +287,9 @@
 - (void)layoutSubviews {
     if (iOS7Later) [super layoutSubviews];
     _selectedCountButton.frame = CGRectMake(self.tz_width - 24 - 30, 23, 24, 24);
+    NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
+    self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
+    self.posterImageView.frame = CGRectMake(0, 0, 70, 70);
 }
 
 - (void)layoutSublayersOfLayer:(CALayer *)layer {
@@ -276,7 +303,6 @@
         UIImageView *posterImageView = [[UIImageView alloc] init];
         posterImageView.contentMode = UIViewContentModeScaleAspectFill;
         posterImageView.clipsToBounds = YES;
-        posterImageView.frame = CGRectMake(0, 0, 70, 70);
         [self.contentView addSubview:posterImageView];
         _posterImageView = posterImageView;
     }
@@ -287,25 +313,12 @@
     if (_titleLabel == nil) {
         UILabel *titleLabel = [[UILabel alloc] init];
         titleLabel.font = [UIFont boldSystemFontOfSize:17];
-        titleLabel.frame = CGRectMake(80, 0, self.tz_width - 80 - 50, self.tz_height);
         titleLabel.textColor = [UIColor blackColor];
         titleLabel.textAlignment = NSTextAlignmentLeft;
         [self.contentView addSubview:titleLabel];
         _titleLabel = titleLabel;
     }
     return _titleLabel;
-}
-
-- (UIImageView *)arrowImageView {
-    if (_arrowImageView == nil) {
-        UIImageView *arrowImageView = [[UIImageView alloc] init];
-        CGFloat arrowWH = 15;
-        arrowImageView.frame = CGRectMake(self.tz_width - arrowWH - 12, 28, arrowWH, arrowWH);
-        [arrowImageView setImage:[UIImage imageNamedFromMyBundle:@"TableViewArrow.png"]];
-        [self.contentView addSubview:arrowImageView];
-        _arrowImageView = arrowImageView;
-    }
-    return _arrowImageView;
 }
 
 - (UIButton *)selectedCountButton {

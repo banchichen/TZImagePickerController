@@ -13,6 +13,9 @@
 #import "TZPhotoPreviewCell.h"
 #import "TZImageManager.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+
 @interface TZGifPhotoPreviewController () {
     UIView *_toolBar;
     UIButton *_doneButton;
@@ -49,8 +52,7 @@
 }
 
 - (void)configPreviewView {
-    _previewView = [[TZPhotoPreviewView alloc] initWithFrame:self.view.bounds];
-    _previewView.scrollView.frame = self.view.bounds;
+    _previewView = [[TZPhotoPreviewView alloc] initWithFrame:CGRectZero];
     _previewView.model = self.model;
     __weak typeof(self) weakSelf = self;
     [_previewView setSingleTapGestureBlock:^{
@@ -60,12 +62,11 @@
 }
 
 - (void)configBottomToolBar {
-    _toolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 44, self.view.tz_width, 44)];
+    _toolBar = [[UIView alloc] initWithFrame:CGRectZero];
     CGFloat rgb = 34 / 255.0;
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.7];
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -90,12 +91,26 @@
     [self.view addSubview:_toolBar];
 }
 
+#pragma mark - Layout
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    
+    _previewView.frame = self.view.bounds;
+    _previewView.scrollView.frame = self.view.bounds;
+    _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
+    _toolBar.frame = CGRectMake(0, self.view.tz_height - 44, self.view.tz_width, 44);
+}
+
 #pragma mark - Click Event
 
 - (void)signleTapAction {
     _toolBar.hidden = !_toolBar.isHidden;
     [self.navigationController setNavigationBarHidden:_toolBar.isHidden];
-    if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = _toolBar.isHidden;
+    
+    if (!TZ_isGlobalHideStatusBar) {
+        if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = _toolBar.isHidden;
+    }
 }
 
 - (void)doneButtonClick {
@@ -123,5 +138,7 @@
         imagePickerVc.didFinishPickingGifImageHandle(animatedImage,_model.asset);
     }
 }
+
+#pragma clang diagnostic pop
 
 @end

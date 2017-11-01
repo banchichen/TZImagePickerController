@@ -43,4 +43,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) NSArray *models;
 @property (nonatomic, strong) NSArray *selectedModels;
 @property (nonatomic, assign) NSUInteger selectedCount;
+
+@property (nonatomic, assign) BOOL isCameraRoll;
+
 @end

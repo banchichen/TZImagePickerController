@@ -63,4 +63,11 @@
     }
 }
 
+- (NSString *)name {
+    if (_name) {
+        return _name;
+    }
+    return @"";
+}
+
 @end

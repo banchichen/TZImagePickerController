@@ -1,17 +1,16 @@
 # TZImagePickerController
- A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, fitting iOS6789 system.   
- 一个支持多选、选原图和视频的图片选择器，同时有预览功能，适配了iOS6789系统。
+ A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, support iOS6+.   
+ 一个支持多选、选原图和视频的图片选择器，同时有预览功能，支持iOS6+。
  
- 关于升级iOS10和Xcdoe8的提示:
+ ## 重要提示：1.9.0版本已发布，移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。  
+ 其它同样使用了该API的库大家可以检查下，比如著名的[SVProgressHUD](http://www.cocoachina.com/bbs/read.php?tid=1722166)    
+ 
+     关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
- 
- 1. 当前最新版本1.6.5. 修复和优化了若干bug，新增单选模式、可自定义每行展示照片个数和支持了国际化，目前支持中文和英文两种语言。
- 2. 如果发现pod search TZImagePickerController 搜索出来的不是最新版本，需要在终端执行cd转换文件路径命令退回到Desktop，然后执行pod setup命令更新本地spec缓存（可能需要几分钟）,然后再搜索就可以了.
- 3. 如果发现了bug请提一个issue，请尽可能详细地描述系统版本、手机型号和复现步骤等信息，当然最好能先更新到最新版再测试一下，许多旧版本存在的一些问题在新版本上已经解决了~
- 
- ![image](https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPickerVc.PNG) 
- ![image](https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPreviewVc.PNG) 
- ![image](https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/videoPlayerVc.PNG) 
+    
+     项目截图 1.Demo首页 2.照片列表页 3.照片预览页 4.视频预览页
+<img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/DemoPage.png" width="40%" height="40%"><img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPickerVc.PNG" width="40%" height="40%">
+<img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/photoPreviewVc.PNG" width="40%" height="40%"><img src="https://github.com/banchichen/TZImagePickerController/blob/master/TZImagePickerController/ScreenShots/videoPlayerVc.PNG" width="40%" height="40%">
 
 ## 一. Installation 安装
 
@@ -34,7 +33,7 @@
    iOS6及以上系统可使用. ARC环境.
    
    When system version is iOS6 or iOS7,  Using AssetsLibrary.  
-   When system version is iOS 8 or later, Using PhotoKit.  
+   When system version is iOS8 or later, Using PhotoKit.  
    如果运行在iOS6或7系统上，用的是AssetsLibrary库获取照片资源。  
    如果运行在iOS8及以上系统上，用的是PhotoKit库获取照片资源。
    
@@ -43,28 +42,61 @@
   If you find a bug, please create a issue.  
   Welcome to pull requests.  
   More infomation please view code.  
-  如果你发现了bug，请提一个issue。  
+  如果你发现了bug，请提一个issue。 
   欢迎给我提pull requests。  
   更多信息详见代码，也可查看我的博客: [我的博客](http://www.cnblogs.com/tanzhenblog/ "半尺尘 - 博客园")
   
+      关于issue: 
+  请尽可能详细地描述**系统版本**、**手机型号**、**库的版本**、**崩溃日志**和**复现步骤**，**请先更新到最新版再测试一下**，如果新版还存在再提~如果已有开启的类似issue，请直接在该issue下评论说出你的问题
+  
+## 五. Other 其它    
 
-2016.5.23更新：
-刚刚更新了代码，现在版本更新到了1.4.5，新增了一些新功能，比如：在照片列表页新增了拍照按钮，可以全局记录哪个相册已选中了多少张图片，预览控制器可以在外界打开。同时Demo页面也做了一些优化，可以直接删除选中的照片、可以对照片进行长按排序等。当然期间也修复了许多小bug，表现更加好了。
+      常见问题
+**Q：pod search TZImagePickerController 搜索出来的不是最新版本**       
+A：需要在终端执行cd转换文件路径命令退回到Desktop，然后执行pod setup命令更新本地spec缓存（可能需要几分钟）,然后再搜索就可以了       
+     
+**Q：拍照后照片保存失败**         
+A：请参考issue481：https://github.com/banchichen/TZImagePickerController/issues/481 的信息排查，若还有问题请直接在issue内评论   
+ 
+**Q：photos数组图片不是原图，如何获取原图？**        
+A：请参考issue457的解释：https://github.com/banchichen/TZImagePickerController/issues/457    
 
-最值得一提的是，1.4.5版本的性能大幅提升了，在我的iOS9.3.2系统6s设备上（870张照片），平均滑动帧数在58左右，滑动十分流畅，在iOS7.0.4的4s设备上(124张照片)，平均滑动帧数在57左右，也十分流畅。经过对比，和QQ的图片选择器滑动帧数表现基本一致，都十分流畅，同时都强于微信的图片选择器。微信的图片选择器，在快速滑动的时候明显感到有一丝卡顿，通过Core Animation查看发现，微信的图片选择器在我的6s设备下帧数平均约52左右，好几次甚至低于50，在4s设备上则表现更糟一些。下面贴上帧数测试截图，大家也可以测试一下~（测试截图请去博客查看~）
+**Q：系统语言是中文/英文，界面上却有部分相册名字、返回按钮显示成了英文/中文？**        
+A：请参考issue443的解释：https://github.com/banchichen/TZImagePickerController/issues/443
+ 
+**Q：预览界面能否支持传入NSURL、UIImage对象？**       
+A：排期中，优先级高   
 
-tip: 如果你用的是老版本，建议你更新到新版，特别是需要适配iOS7甚至6的应用，因为旧版本在iOS7和6下性能比较糟糕...
+**Q：可否支持横屏？**        
+A：1.8.4版本已支持    
 
-2016.6.22更新:
-刚刚更新了代码，现在版本更新到了1.5.0。更新如下：
-1.可把拍照按钮放在外面了,可以设置弹出一个sheet提示用户选择相册或相机；
-2.新增了sortAscendingByModificationDate属性，默认为YES，设置为NO时，照片会按修改时间降序，拍照按钮会在第一个；
-3.优化了Demo页面的UI，新增6个开关控件，可方便地更改各个设置来打开选择器；
-4.修复了若干bug；
+**Q：可否加入视频拍摄功能？**      
+A：排期中，优先级中   
 
-最近更新:
-1.7.7 支持GIF图片的播放和选择
-1.7.6 支持对共享相册和同步相册的显示 
-1.7.5 允许不进入预览页面直接选择照片 
-1.7.4 支持单选模式下裁剪照片，支持任意矩形和圆形裁剪框 
-1.7.3 优化iCloud照片的显示与选择 
+**Q：可否加入视频多选功能？**         
+A：1.8.4版本已支持   
+
+**Q：可否让视频和图片允许一起选？**         
+A：1.8.4版本已支持   
+  
+**Q：可否增加微信编辑图片的功能？**           
+A：考虑下，优先级低  
+
+      最近更新 
+1.9.0 移除"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级   
+1.8.8 修复一些细节   
+1.8.5 修复一些样式细节    
+1.8.4 加入横竖屏适配；支持视频/gif多选；支持视频和照片一起选    
+1.8.1 新增2个代理方法，支持由上层来决定相册/照片的显示与否     
+1.8.0 修复若干bug, 提升流畅度     
+...   
+1.7.7 支持GIF图片的播放和选择    
+1.7.6 支持对共享相册和同步相册的显示     
+1.7.5 允许不进入预览页面直接选择照片     
+1.7.4 支持单选模式下裁剪照片，支持任意矩形和圆形裁剪框    
+1.7.3 优化iCloud照片的显示与选择    
+...   
+1.5.0 可把拍照按钮放在外面；可自定义照片排序方式；Demo页的UI大改版，新增若干开关；   
+...      
+1.4.5 性能大幅提升（性能测试截图请去博客查看）；可在照片列表页拍照；Demo大幅优化；   
+...        

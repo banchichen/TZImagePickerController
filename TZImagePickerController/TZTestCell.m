@@ -32,7 +32,6 @@
         
         _deleteBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         [_deleteBtn setImage:[UIImage imageNamed:@"photo_delete"] forState:UIControlStateNormal];
-        _deleteBtn.frame = CGRectMake(self.tz_width - 36, 0, 36, 36);
         _deleteBtn.imageEdgeInsets = UIEdgeInsetsMake(-10, 0, 0, -10);
         _deleteBtn.alpha = 0.6;
         [self addSubview:_deleteBtn];
@@ -43,7 +42,6 @@
         _gifLable.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.8];
         _gifLable.textAlignment = NSTextAlignmentCenter;
         _gifLable.font = [UIFont systemFontOfSize:10];
-        _gifLable.frame = CGRectMake(self.tz_width - 25, self.tz_height - 14, 25, 14);
         [self addSubview:_gifLable];
     }
     return self;
@@ -52,6 +50,8 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     _imageView.frame = self.bounds;
+    _gifLable.frame = CGRectMake(self.tz_width - 25, self.tz_height - 14, 25, 14);
+    _deleteBtn.frame = CGRectMake(self.tz_width - 36, 0, 36, 36);
     CGFloat width = self.tz_width / 3.0;
     _videoImageView.frame = CGRectMake(width, width, width, width);
 }
@@ -61,7 +61,7 @@
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHAsset *phAsset = asset;
         _videoImageView.hidden = phAsset.mediaType != PHAssetMediaTypeVideo;
-        _gifLable.hidden = ![[phAsset valueForKey:@"filename"] containsString:@"GIF"];
+        _gifLable.hidden = ![[phAsset valueForKey:@"filename"] tz_containsString:@"GIF"];
     } else if ([asset isKindOfClass:[ALAsset class]]) {
         ALAsset *alAsset = asset;
         _videoImageView.hidden = ![[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
