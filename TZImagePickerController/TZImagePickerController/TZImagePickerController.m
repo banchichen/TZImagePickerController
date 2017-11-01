@@ -572,7 +572,7 @@
     [super viewDidLoad];
     self.isFirstAppear = YES;
     self.view.backgroundColor = [UIColor whiteColor];
-    
+    self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Photos"];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:imagePickerVc action:@selector(cancelButtonClick)];
 }
