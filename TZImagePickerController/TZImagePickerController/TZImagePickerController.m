@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.9.3 - 2017.09.13
+//  version 1.9.4 - 2017.11.08
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -14,6 +14,8 @@
 #import "TZAssetCell.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
+#import "math.h"
+#import "sys/utsname.h"
 
 @interface TZImagePickerController () {
     NSTimer *_timer;
@@ -640,7 +642,7 @@
     BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
-        if (iOS7Later && !isStatusBarHidden) top += 20;
+        if (iOS7Later && !isStatusBarHidden) top += [TZCommonTools statusBarHeight];
         tableViewHeight = self.view.tz_height - top;
     } else {
         tableViewHeight = self.view.tz_height;
@@ -704,6 +706,27 @@
         NSRange range = [self rangeOfString:string];
         return range.location != NSNotFound;
     }
+}
+
+@end
+
+
+@implementation TZCommonTools
+
++ (BOOL)isIPhoneX {
+    struct utsname systemInfo;
+    uname(&systemInfo);
+    NSString *platform = [NSString stringWithCString:systemInfo.machine encoding:NSASCIIStringEncoding];
+    if ([platform isEqualToString:@"i386"] || [platform isEqualToString:@"x86_64"]) {
+        // 模拟器下采用屏幕的高度来判断
+        return [UIScreen mainScreen].bounds.size.height == 812;
+    }
+    BOOL isIPhoneX = [platform isEqualToString:@"iPhone10,3"];
+    return isIPhoneX;
+}
+
++ (CGFloat)statusBarHeight {
+    return [self isIPhoneX] ? 44 : 20;
 }
 
 @end

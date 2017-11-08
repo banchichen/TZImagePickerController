@@ -217,9 +217,12 @@
     [super viewDidLayoutSubviews];
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
 
-    _naviBar.frame = CGRectMake(0, 0, self.view.tz_width, 64);
-    _backButton.frame = CGRectMake(10, 10, 44, 44);
-    _selectButton.frame = CGRectMake(self.view.tz_width - 54, 10, 42, 42);
+    CGFloat statusBarHeight = [TZCommonTools statusBarHeight];
+    CGFloat statusBarHeightInterval = statusBarHeight - 20;
+    CGFloat naviBarHeight = statusBarHeight + _tzImagePickerVc.navigationBar.tz_height;
+    _naviBar.frame = CGRectMake(0, 0, self.view.tz_width, naviBarHeight);
+    _backButton.frame = CGRectMake(10, 10 + statusBarHeightInterval, 44, 44);
+    _selectButton.frame = CGRectMake(self.view.tz_width - 54, 10 + statusBarHeightInterval, 42, 42);
     
     _layout.itemSize = CGSizeMake(self.view.tz_width + 20, self.view.tz_height);
     _layout.minimumInteritemSpacing = 0;
@@ -234,7 +237,9 @@
         [_collectionView reloadData];
     }
     
-    _toolBar.frame = CGRectMake(0, self.view.tz_height - 44, self.view.tz_width, 44);
+    CGFloat toolBarHeight = [TZCommonTools isIPhoneX] ? 44 + (83 - 49) : 44;
+    CGFloat toolBarTop = self.view.tz_height - toolBarHeight;
+    _toolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
     if (_tzImagePickerVc.allowPickingOriginalPhoto) {
         CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
         _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);

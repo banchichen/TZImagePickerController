@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 1.9.3 - 2017.09.13
+//  version 1.9.4 - 2017.11.08
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -233,5 +233,11 @@
 
 @interface NSString (TzExtension)
 - (BOOL)tz_containsString:(NSString *)string;
+@end
+
+
+@interface TZCommonTools : NSObject
++ (BOOL)isIPhoneX;
++ (CGFloat)statusBarHeight;
 @end
 
