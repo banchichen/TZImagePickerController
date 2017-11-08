@@ -75,8 +75,12 @@
 
 - (void)configNaviTitleAppearance {
     NSMutableDictionary *textAttrs = [NSMutableDictionary dictionary];
-    textAttrs[NSForegroundColorAttributeName] = self.naviTitleColor;
-    textAttrs[NSFontAttributeName] = self.naviTitleFont;
+    if (self.naviTitleColor) {
+        textAttrs[NSForegroundColorAttributeName] = self.naviTitleColor;
+    }
+    if (self.naviTitleFont) {
+        textAttrs[NSFontAttributeName] = self.naviTitleFont;
+    }
     self.navigationBar.titleTextAttributes = textAttrs;
 }
 
