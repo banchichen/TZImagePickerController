@@ -101,7 +101,12 @@ static CGSize AssetGridThumbnailSize;
         self.backButtonClickHandle(_model);
     }
 }
-
+- (CGFloat)hp_bottomOffset {
+    if ([UIScreen mainScreen].bounds.size.height > 736) {
+        return 34;
+    }
+    return 0;
+}
 - (void)configCollectionView {
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     CGFloat margin = 4;
@@ -111,7 +116,7 @@ static CGSize AssetGridThumbnailSize;
     layout.minimumLineSpacing = margin;
     CGFloat top = margin + 44;
     if (iOS7Later) top += 20;
-    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(margin, top, self.view.tz_width - 2 * margin, self.view.tz_height - 50 - top) collectionViewLayout:layout];
+    _collectionView = [[UICollectionView alloc] initWithFrame:CGRectMake(margin, top, self.view.tz_width - 2 * margin, self.view.tz_height - 50-[self hp_bottomOffset] - top) collectionViewLayout:layout];
     _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
@@ -152,7 +157,7 @@ static CGSize AssetGridThumbnailSize;
 
 - (void)configBottomToolBar {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50, self.view.tz_width, 50)];
+    UIView *bottomToolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 50-[self hp_bottomOffset], self.view.tz_width, 50+[self hp_bottomOffset])];
     CGFloat rgb = 253 / 255.0;
     bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     
@@ -168,7 +173,7 @@ static CGSize AssetGridThumbnailSize;
     
     if (tzImagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        _originalPhotoButton.frame = CGRectMake(50, self.view.tz_height - 50, 130, 50);
+        _originalPhotoButton.frame = CGRectMake(50, self.view.tz_height - 50-[self hp_bottomOffset], 130, 50+[self hp_bottomOffset]);
         _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, -8, 0, 0);
         _originalPhotoButton.contentEdgeInsets = UIEdgeInsetsMake(0, -45, 0, 0);
         [_originalPhotoButton addTarget:self action:@selector(originalPhotoButtonClick) forControlEvents:UIControlEventTouchUpInside];
