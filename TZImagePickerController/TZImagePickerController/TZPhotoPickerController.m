@@ -101,6 +101,7 @@ static CGSize AssetGridThumbnailSize;
         self.backButtonClickHandle(_model);
     }
 }
+//适配iPhoneX
 - (CGFloat)hp_bottomOffset {
     if ([UIScreen mainScreen].bounds.size.height > 736) {
         return 34;
