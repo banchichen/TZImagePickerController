@@ -237,7 +237,7 @@
 
 
 @interface TZCommonTools : NSObject
-+ (BOOL)isIPhoneX;
-+ (CGFloat)statusBarHeight;
++ (BOOL)tz_isIPhoneX;
++ (CGFloat)tz_statusBarHeight;
 @end
 

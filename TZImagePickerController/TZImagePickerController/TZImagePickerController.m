@@ -642,7 +642,7 @@
     BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
-        if (iOS7Later && !isStatusBarHidden) top += [TZCommonTools statusBarHeight];
+        if (iOS7Later && !isStatusBarHidden) top += [TZCommonTools tz_statusBarHeight];
         tableViewHeight = self.view.tz_height - top;
     } else {
         tableViewHeight = self.view.tz_height;
@@ -713,7 +713,7 @@
 
 @implementation TZCommonTools
 
-+ (BOOL)isIPhoneX {
++ (BOOL)tz_isIPhoneX {
     struct utsname systemInfo;
     uname(&systemInfo);
     NSString *platform = [NSString stringWithCString:systemInfo.machine encoding:NSASCIIStringEncoding];
@@ -721,12 +721,13 @@
         // 模拟器下采用屏幕的高度来判断
         return [UIScreen mainScreen].bounds.size.height == 812;
     }
-    BOOL isIPhoneX = [platform isEqualToString:@"iPhone10,3"];
+    // iPhone10,6是美版iPhoneX 感谢hegelsu指出：https://github.com/banchichen/TZImagePickerController/issues/635
+    BOOL isIPhoneX = [platform isEqualToString:@"iPhone10,3"] || [platform isEqualToString:@"iPhone10,6"];
     return isIPhoneX;
 }
 
-+ (CGFloat)statusBarHeight {
-    return [self isIPhoneX] ? 44 : 20;
++ (CGFloat)tz_statusBarHeight {
+    return [self tz_isIPhoneX] ? 44 : 20;
 }
 
 @end
