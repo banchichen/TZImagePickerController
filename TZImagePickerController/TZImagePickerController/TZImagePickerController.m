@@ -38,6 +38,14 @@
 
 @implementation TZImagePickerController
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self = [self initWithMaxImagesCount:9 delegate:nil];
+    }
+    return self;
+}
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)viewDidLoad {
