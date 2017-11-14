@@ -62,7 +62,9 @@
 
 - (void)setNaviBgColor:(UIColor *)naviBgColor {
     _naviBgColor = naviBgColor;
-    self.navigationBar.barTintColor = naviBgColor;
+    if (iOS7Later) {
+        self.navigationBar.barTintColor = naviBgColor;
+    }
 }
 
 - (void)setNaviTitleColor:(UIColor *)naviTitleColor {
@@ -707,6 +709,19 @@
         return range.location != NSNotFound;
     }
 }
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (CGSize)tz_calculateSizeWithAttributes:(NSDictionary *)attributes maxSize:(CGSize)maxSize {
+    CGSize size;
+    if (iOS7Later) {
+        size = [self boundingRectWithSize:maxSize options:NSStringDrawingUsesFontLeading attributes:attributes context:nil].size;
+    } else {
+        size = [self sizeWithFont:attributes[NSFontAttributeName] constrainedToSize:maxSize];
+    }
+    return size;
+}
+#pragma clang diagnostic pop
 
 @end
 

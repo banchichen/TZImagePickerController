@@ -241,7 +241,7 @@
     CGFloat toolBarTop = self.view.tz_height - toolBarHeight;
     _toolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
     if (_tzImagePickerVc.allowPickingOriginalPhoto) {
-        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
+        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr tz_calculateSizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} maxSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)].width;
         _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
         _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
     }

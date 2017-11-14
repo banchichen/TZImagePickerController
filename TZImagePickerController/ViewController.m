@@ -57,7 +57,9 @@
         _imagePickerVc = [[UIImagePickerController alloc] init];
         _imagePickerVc.delegate = self;
         // set appearance / 改变相册选择页的导航栏外观
-        _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
+        if (iOS7Later) {
+            _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
+        }
         _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
         UIBarButtonItem *tzBarItem, *BarItem;
         if (iOS9Later) {
@@ -236,7 +238,9 @@
     
     // 2. Set the appearance
     // 2. 在这里设置imagePickerVc的外观
-    // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];
+    // if (iOS7Later) {
+        // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];
+    // }
     // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
     // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
     // imagePickerVc.navigationBar.translucent = NO;

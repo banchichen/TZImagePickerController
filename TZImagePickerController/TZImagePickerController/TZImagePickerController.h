@@ -233,6 +233,7 @@
 
 @interface NSString (TzExtension)
 - (BOOL)tz_containsString:(NSString *)string;
+- (CGSize)tz_calculateSizeWithAttributes:(NSDictionary *)attributes maxSize:(CGSize)maxSize;
 @end
 
 
