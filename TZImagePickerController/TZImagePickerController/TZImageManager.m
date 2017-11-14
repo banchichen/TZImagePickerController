@@ -399,6 +399,10 @@ static dispatch_once_t onceToken;
 
 /// Get photo bytes 获得一组照片的大小
 - (void)getPhotosBytesWithArray:(NSArray *)photos completion:(void (^)(NSString *totalBytes))completion {
+    if (!photos || !photos.count) {
+        if (completion) completion(@"0B");
+        return;
+    }
     __block NSInteger dataLength = 0;
     __block NSInteger assetCount = 0;
     for (NSInteger i = 0; i < photos.count; i++) {
