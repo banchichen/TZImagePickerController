@@ -496,7 +496,7 @@
     _selectedPhotos = [NSMutableArray arrayWithArray:@[coverImage]];
     _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
     // open this code to send video / 打开这段代码发送视频
-    [[TZImageManager manager] getVideoOutputPathWithAsset:asset success:^(NSString *outputPath) {
+    [[TZImageManager manager] getVideoOutputPathWithAsset:asset presetName:AVAssetExportPreset640x480 success:^(NSString *outputPath) {
         NSLog(@"视频导出到本地完成,沙盒路径为:%@",outputPath);
         // Export completed, send video here, send by outputPath or NSData
         // 导出完成，在这里写上传代码，通过路径或者通过NSData上传

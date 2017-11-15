@@ -80,8 +80,9 @@
 - (void)getVideoWithAsset:(id)asset completion:(void (^)(AVPlayerItem * playerItem, NSDictionary * info))completion;
 - (void)getVideoWithAsset:(id)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(AVPlayerItem *, NSDictionary *))completion;
 
-/// Export video 导出视频
+/// Export video 导出视频 presetName: 预设名字，默认值是AVAssetExportPreset640x480
 - (void)getVideoOutputPathWithAsset:(id)asset success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
+- (void)getVideoOutputPathWithAsset:(id)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
 /// Deprecated, Use -getVideoOutputPathWithAsset:failure:success:
 - (void)getVideoOutputPathWithAsset:(id)asset completion:(void (^)(NSString *outputPath))completion __attribute__((deprecated("Use -getVideoOutputPathWithAsset:failure:success:")));
 

@@ -715,6 +715,10 @@ static dispatch_once_t onceToken;
 
 /// Export Video / 导出视频
 - (void)getVideoOutputPathWithAsset:(id)asset success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+    [self getVideoOutputPathWithAsset:asset presetName:AVAssetExportPreset640x480 success:success failure:failure];
+}
+
+- (void)getVideoOutputPathWithAsset:(id)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
         options.version = PHVideoRequestOptionsVersionOriginal;
@@ -724,12 +728,12 @@ static dispatch_once_t onceToken;
             // NSLog(@"Info:\n%@",info);
             AVURLAsset *videoAsset = (AVURLAsset*)avasset;
             // NSLog(@"AVAsset URL: %@",myAsset.URL);
-            [self startExportVideoWithVideoAsset:videoAsset success:success failure:failure];
+            [self startExportVideoWithVideoAsset:videoAsset presetName:presetName success:success failure:failure];
         }];
     } else if ([asset isKindOfClass:[ALAsset class]]) {
         NSURL *videoURL =[asset valueForProperty:ALAssetPropertyAssetURL]; // ALAssetPropertyURLs
         AVURLAsset *videoAsset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
-        [self startExportVideoWithVideoAsset:videoAsset success:success failure:failure];
+        [self startExportVideoWithVideoAsset:videoAsset presetName:presetName success:success failure:failure];
     }
 }
 
@@ -738,7 +742,7 @@ static dispatch_once_t onceToken;
     [self getVideoOutputPathWithAsset:asset success:completion failure:nil];
 }
 
-- (void)startExportVideoWithVideoAsset:(AVURLAsset *)videoAsset success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+- (void)startExportVideoWithVideoAsset:(AVURLAsset *)videoAsset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
     // Find compatible presets by video asset.
     NSArray *presets = [AVAssetExportSession exportPresetsCompatibleWithAsset:videoAsset];
     
@@ -746,8 +750,8 @@ static dispatch_once_t onceToken;
     // Now we just compress to low resolution if it supports
     // If you need to upload to the server, but server does't support to upload by streaming,
     // You can compress the resolution to lower. Or you can support more higher resolution.
-    if ([presets containsObject:AVAssetExportPreset640x480]) {
-        AVAssetExportSession *session = [[AVAssetExportSession alloc]initWithAsset:videoAsset presetName:AVAssetExportPreset640x480];
+    if ([presets containsObject:presetName]) {
+        AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:videoAsset presetName:presetName];
         
         NSDateFormatter *formater = [[NSDateFormatter alloc] init];
         [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss-SSS"];
@@ -816,6 +820,11 @@ static dispatch_once_t onceToken;
                 }
             });
         }];
+    } else {
+        if (failure) {
+            NSString *errorMessage = [NSString stringWithFormat:@"当前设备不支持该预设:%@", presetName];
+            failure(errorMessage, nil);
+        }
     }
 }
 
