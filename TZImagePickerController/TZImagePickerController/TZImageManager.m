@@ -813,7 +813,19 @@ static dispatch_once_t onceToken;
 
 - (BOOL)isCameraRollAlbum:(id)metadata {
     if ([metadata isKindOfClass:[PHAssetCollection class]]) {
-        return ((PHAssetCollection *)metadata).assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary;
+        NSString *versionStr = [[UIDevice currentDevice].systemVersion stringByReplacingOccurrencesOfString:@"." withString:@""];
+        if (versionStr.length <= 1) {
+            versionStr = [versionStr stringByAppendingString:@"00"];
+        } else if (versionStr.length <= 2) {
+            versionStr = [versionStr stringByAppendingString:@"0"];
+        }
+        CGFloat version = versionStr.floatValue;
+        // 目前已知8.0.0 ~ 8.0.2系统，拍照后的图片会保存在最近添加中
+        if (version >= 800 && version <= 802) {
+            return ((PHAssetCollection *)metadata).assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumRecentlyAdded;
+        } else {
+            return ((PHAssetCollection *)metadata).assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary;
+        }
     }
     if ([metadata isKindOfClass:[ALAssetsGroup class]]) {
         ALAssetsGroup *group = metadata;
