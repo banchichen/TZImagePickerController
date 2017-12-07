@@ -16,6 +16,7 @@
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate> {
     NSMutableArray *_models;
@@ -58,6 +59,8 @@ static CGFloat itemMargin = 5;
             _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
         }
         _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
+        _imagePickerVc.mediaTypes = @[(NSString *)kUTTypeMovie, (NSString *)kUTTypeImage];
+
         UIBarButtonItem *tzBarItem, *BarItem;
         if (iOS9Later) {
             tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
@@ -710,6 +713,18 @@ static CGFloat itemMargin = 5;
             }];
             self.location = nil;
         }
+    } else if ([type isEqualToString:@"public.movie"]) {
+        TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+        [imagePickerVc showProgressHUD];
+        NSURL *videoPath = [info objectForKey:UIImagePickerControllerMediaURL];
+        if(videoPath) {
+            [[TZImageManager manager] saveVideoWithPath:videoPath location:self.location completion:^(NSError *error) {
+                if (!error) {
+                    [self reloadPhotoArray];
+                }
+            }];
+            self.location = nil;
+        }
     }
 }
 
@@ -745,11 +760,12 @@ static CGFloat itemMargin = 5;
                 }
                 return;
             }
-            
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
-                assetModel.isSelected = YES;
-                [tzImagePickerVc.selectedModels addObject:assetModel];
-                [self refreshBottomToolBarStatus];
+                if (assetModel.type == TZAssetModelMediaTypePhoto) {
+                    assetModel.isSelected = YES;
+                    [tzImagePickerVc.selectedModels addObject:assetModel];
+                    [self refreshBottomToolBarStatus];
+                }
             }
             _collectionView.hidden = YES;
             [_collectionView reloadData];

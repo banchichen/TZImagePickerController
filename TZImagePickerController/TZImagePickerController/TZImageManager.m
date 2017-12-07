@@ -680,6 +680,59 @@ static dispatch_once_t onceToken;
     }
 }
 
+#pragma mark - Save Video
+- (void)saveVideoWithPath:(NSURL *)path completion:(void (^)(NSError *error))completion {
+    [self saveVideoWithPath:path location:nil completion:completion];
+}
+
+- (void)saveVideoWithPath:(NSURL *)path location:(CLLocation *)location completion:(void (^)(NSError *error))completion {
+    if (iOS9Later) { // 这里有坑... iOS8系统下这个方法保存图片会失败 原来是因为
+        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+            PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
+            options.shouldMoveFile = YES;
+            PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];
+            [request addResourceWithType:PHAssetResourceTypeVideo fileURL:path options:options];
+            if (location) {
+                request.location = location;
+            }
+            
+            request.creationDate = [NSDate date];
+        } completionHandler:^(BOOL success, NSError *error) {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                if (success && completion) {
+                    completion(nil);
+                } else if (error) {
+                    NSLog(@"保存视频出错:%@",error.localizedDescription);
+                    if (completion) {
+                        completion(error);
+                    }
+                }
+            });
+        }];
+
+    } else {
+        [self.assetLibrary writeVideoAtPathToSavedPhotosAlbum:path completionBlock:^(NSURL *assetURL, NSError *error) {
+            if (error) {
+                NSLog(@"保存视频失败:%@",error.localizedDescription);
+                if (completion) {
+                    completion(error);
+                }
+            } else {
+                // 多给系统0.5秒的时间，让系统去更新相册数据
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    if (completion) {
+                        completion(nil);
+                    }
+                });
+            }
+        }];
+    }
+
+}
+
+
+
+
 #pragma mark - Get Video
 
 /// Get Video / 获取视频
