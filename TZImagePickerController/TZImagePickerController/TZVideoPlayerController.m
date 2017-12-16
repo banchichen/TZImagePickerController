@@ -180,7 +180,8 @@
     [self.navigationController setNavigationBarHidden:NO];
     [_playButton setImage:[UIImage imageNamedFromMyBundle:@"MMVideoPreviewPlay"] forState:UIControlStateNormal];
     
-    if (TZ_showStatusBarInitial && iOS7Later) {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (tzImagePickerVc.needShowStatusBar && iOS7Later) {
         [UIApplication sharedApplication].statusBarHidden = NO;
     }
 }

@@ -50,6 +50,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationBar.translucent = YES;
@@ -64,8 +65,8 @@
         self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
         self.navigationBar.tintColor = [UIColor whiteColor];
         self.automaticallyAdjustsScrollViewInsets = NO;
-        if (TZ_showStatusBarInitial) [UIApplication sharedApplication].statusBarHidden = NO;
-    }    
+        if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
+    }
 }
 
 - (void)setNaviBgColor:(UIColor *)naviBgColor {
@@ -536,7 +537,7 @@
 - (void)willInterfaceOrientionChange {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         if (![UIApplication sharedApplication].statusBarHidden) {
-            if (iOS7Later && TZ_showStatusBarInitial) [UIApplication sharedApplication].statusBarHidden = NO;
+            if (iOS7Later && self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
         }
     });
 }

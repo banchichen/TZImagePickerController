@@ -25,8 +25,6 @@
 #define iOS9Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.0f)
 #define iOS9_1Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.1f)
 
-#define TZ_showStatusBarInitial (![[[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIStatusBarHidden"] boolValue])
-
 @protocol TZImagePickerControllerDelegate;
 @interface TZImagePickerController : UINavigationController
 
@@ -126,6 +124,7 @@
 - (void)showProgressHUD;
 - (void)hideProgressHUD;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
+@property (assign, nonatomic) BOOL needShowStatusBar;
 
 @property (nonatomic, copy) NSString *takePictureImageName;
 @property (nonatomic, copy) NSString *photoSelImageName;
