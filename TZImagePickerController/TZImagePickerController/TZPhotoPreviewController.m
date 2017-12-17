@@ -207,6 +207,9 @@
         if (_tzImagePickerVc.cropViewSettingBlock) {
             _tzImagePickerVc.cropViewSettingBlock(_cropView);
         }
+        
+        [self.view bringSubviewToFront:_naviBar];
+        [self.view bringSubviewToFront:_toolBar];
     }
 }
 
