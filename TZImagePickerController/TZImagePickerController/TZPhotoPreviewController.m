@@ -324,6 +324,12 @@
 - (void)backButtonClick {
     if (self.navigationController.childViewControllers.count < 2) {
         [self.navigationController dismissViewControllerAnimated:YES completion:nil];
+        if ([self.navigationController isKindOfClass: [TZImagePickerController class]]) {
+            TZImagePickerController *nav = (TZImagePickerController *)self.navigationController;
+            if (nav.imagePickerControllerDidCancelHandle) {
+                nav.imagePickerControllerDidCancelHandle();
+            }
+        }
         return;
     }
     [self.navigationController popViewControllerAnimated:YES];
