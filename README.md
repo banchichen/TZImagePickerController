@@ -1,4 +1,8 @@
 # TZImagePickerController
+[![CocoaPods](https://img.shields.io/cocoapods/v/TZImagePickerController.svg?style=flat)]()
+[![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+
+
  A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, support iOS6+.   
  一个支持多选、选原图和视频的图片选择器，同时有预览功能，支持iOS6+。
  
@@ -14,8 +18,14 @@
 
 ## 一. Installation 安装
 
-  * CocoaPods：pod 'TZImagePickerController'
-  * 手动导入：将TZImagePickerController文件夹拽入项目中，导入头文件：#import "TZImagePickerController.h"
+#### CocoaPods
+> pod 'TZImagePickerController'
+
+#### Carthage
+> github "banchichen/TZImagePickerController"
+
+#### 手动安装
+> 将TZImagePickerController文件夹拽入项目中，导入头文件：#import "TZImagePickerController.h"
 
 ## 二. Example 例子
 
