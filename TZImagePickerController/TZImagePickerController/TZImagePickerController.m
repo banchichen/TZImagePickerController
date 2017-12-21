@@ -213,9 +213,11 @@
         previewVc.currentIndex = index;
         __weak typeof(self) weakSelf = self;
         [previewVc setDoneButtonClickBlockWithPreviewType:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-            [weakSelf dismissViewControllerAnimated:YES completion:^{
-                if (weakSelf.didFinishPickingPhotosHandle) {
-                    weakSelf.didFinishPickingPhotosHandle(photos,assets,isSelectOriginalPhoto);
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            [strongSelf dismissViewControllerAnimated:YES completion:^{
+                if (!strongSelf) return;
+                if (strongSelf.didFinishPickingPhotosHandle) {
+                    strongSelf.didFinishPickingPhotosHandle(photos,assets,isSelectOriginalPhoto);
                 }
             }];
         }];
@@ -238,7 +240,8 @@
         previewVc.currentIndex = 0;
         __weak typeof(self) weakSelf = self;
         [previewVc setDoneButtonClickBlockCropMode:^(UIImage *cropImage, id asset) {
-            [weakSelf dismissViewControllerAnimated:YES completion:^{
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            [strongSelf dismissViewControllerAnimated:YES completion:^{
                 if (completion) {
                     completion(cropImage,asset);
                 }
