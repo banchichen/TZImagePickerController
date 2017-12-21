@@ -1,5 +1,5 @@
 # TZImagePickerController
-[![CocoaPods](https://img.shields.io/cocoapods/v/TZImagePickerController.svg?style=flat)]()
+[![CocoaPods](https://img.shields.io/cocoapods/v/TZImagePickerController.svg?style=flat)](https://github.com/banchichen/TZImagePickerController)
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
 
