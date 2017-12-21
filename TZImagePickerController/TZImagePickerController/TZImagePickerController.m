@@ -370,7 +370,8 @@
     // if over time, dismiss HUD automatic
     __weak typeof(self) weakSelf = self;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.timeout * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        [weakSelf hideProgressHUD];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf hideProgressHUD];
     });
 }
 

@@ -427,13 +427,17 @@
         __weak typeof(_collectionView) weakCollectionView = _collectionView;
         __weak typeof(photoPreviewCell) weakCell = photoPreviewCell;
         [photoPreviewCell setImageProgressUpdateBlock:^(double progress) {
-            weakSelf.progress = progress;
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            __strong typeof(weakTzImagePickerVc) strongTzImagePickerVc = weakTzImagePickerVc;
+            __strong typeof(weakCollectionView) strongCollectionView = weakCollectionView;
+            __strong typeof(weakCell) strongCell = weakCell;
+            strongSelf.progress = progress;
             if (progress >= 1) {
-                if (weakSelf.isSelectOriginalPhoto) [weakSelf showPhotoBytes];
-                if (weakSelf.alertView && [weakCollectionView.visibleCells containsObject:weakCell]) {
-                    [weakTzImagePickerVc hideAlertView:weakSelf.alertView];
-                    weakSelf.alertView = nil;
-                    [weakSelf doneButtonClick];
+                if (strongSelf.isSelectOriginalPhoto) [strongSelf showPhotoBytes];
+                if (strongSelf.alertView && [strongCollectionView.visibleCells containsObject:strongCell]) {
+                    [strongTzImagePickerVc hideAlertView:strongSelf.alertView];
+                    strongSelf.alertView = nil;
+                    [strongSelf doneButtonClick];
                 }
             }
         }];
@@ -441,7 +445,8 @@
     
     cell.model = model;
     [cell setSingleTapGestureBlock:^{
-        [weakSelf didTapPreviewCell];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf didTapPreviewCell];
     }];
     return cell;
 }
