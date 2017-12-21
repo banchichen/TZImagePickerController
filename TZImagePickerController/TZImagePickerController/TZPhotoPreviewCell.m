@@ -50,13 +50,15 @@
     self.previewView = [[TZPhotoPreviewView alloc] initWithFrame:CGRectZero];
     __weak typeof(self) weakSelf = self;
     [self.previewView setSingleTapGestureBlock:^{
-        if (weakSelf.singleTapGestureBlock) {
-            weakSelf.singleTapGestureBlock();
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf.singleTapGestureBlock) {
+            strongSelf.singleTapGestureBlock();
         }
     }];
     [self.previewView setImageProgressUpdateBlock:^(double progress) {
-        if (weakSelf.imageProgressUpdateBlock) {
-            weakSelf.imageProgressUpdateBlock(progress);
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (strongSelf.imageProgressUpdateBlock) {
+            strongSelf.imageProgressUpdateBlock(progress);
         }
     }];
     [self addSubview:self.previewView];
@@ -419,7 +421,8 @@
     _previewView = [[TZPhotoPreviewView alloc] initWithFrame:CGRectZero];
     __weak typeof(self) weakSelf = self;
     [_previewView setSingleTapGestureBlock:^{
-        [weakSelf signleTapAction];
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf signleTapAction];
     }];
     [self addSubview:_previewView];
 }

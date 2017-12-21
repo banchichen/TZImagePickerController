@@ -362,9 +362,11 @@
     // 提前定位
     __weak typeof(self) weakSelf = self;
     [[TZLocationManager manager] startLocationWithSuccessBlock:^(CLLocation *location, CLLocation *oldLocation) {
-        weakSelf.location = location;
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        strongSelf.location = location;
     } failureBlock:^(NSError *error) {
-        weakSelf.location = nil;
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        strongSelf.location = nil;
     }];
     
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
