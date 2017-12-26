@@ -181,7 +181,7 @@
 
 - (void)configCropView {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (!_tzImagePickerVc.showSelectBtn && _tzImagePickerVc.allowCrop) {
+    if (_tzImagePickerVc.maxImagesCount <= 1 && _tzImagePickerVc.allowCrop) {
         [_cropView removeFromSuperview];
         [_cropBgView removeFromSuperview];
         
