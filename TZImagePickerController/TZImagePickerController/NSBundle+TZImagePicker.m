@@ -28,6 +28,8 @@
         NSString *language = [NSLocale preferredLanguages].firstObject;
         if ([language rangeOfString:@"zh-Hans"].location != NSNotFound) {
             language = @"zh-Hans";
+        } else if ([language rangeOfString:@"zh-Hant"].location != NSNotFound) {
+            language = @"zh-Hant";
         } else {
             language = @"en";
         }
