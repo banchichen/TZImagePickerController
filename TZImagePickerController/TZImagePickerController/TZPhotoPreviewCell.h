@@ -45,6 +45,8 @@
 @property (nonatomic, strong) id asset;
 @property (nonatomic, copy) void (^singleTapGestureBlock)();
 @property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
+@property (nonatomic, copy) void (^didScrollBlock)();
+@property (nonatomic, copy) void (^didZoomBlock)();
 
 @property (nonatomic, assign) int32_t imageRequestID;
 
