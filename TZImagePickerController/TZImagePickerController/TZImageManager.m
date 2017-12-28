@@ -580,7 +580,7 @@ static dispatch_once_t onceToken;
         option.networkAccessAllowed = YES;
         option.resizeMode = PHImageRequestOptionsResizeModeFast;
         [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage *result, NSDictionary *info) {
-            BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
+            BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey] && ![[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
             if (downloadFinined && result) {
                 result = [self fixOrientation:result];
                 BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
