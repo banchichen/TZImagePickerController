@@ -14,8 +14,7 @@
 #import "TZAssetCell.h"
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
-#import "math.h"
-#import "sys/utsname.h"
+#import <sys/utsname.h>
 
 @interface TZImagePickerController () {
     NSTimer *_timer;
