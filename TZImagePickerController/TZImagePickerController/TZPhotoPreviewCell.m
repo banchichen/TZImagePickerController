@@ -113,6 +113,9 @@
         _scrollView.delaysContentTouches = NO;
         _scrollView.canCancelContentTouches = YES;
         _scrollView.alwaysBounceVertical = NO;
+        if (iOS11Later) {
+            _scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
         [self addSubview:_scrollView];
         
         _imageContainerView = [[UIView alloc] init];
