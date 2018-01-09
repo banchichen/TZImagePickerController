@@ -10,6 +10,7 @@
 #import <UIKit/UIKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <Photos/Photos.h>
+#import <AssetsLibrary/AssetsLibrary.h>
 #import "TZAssetModel.h"
 
 @class TZAlbumModel,TZAssetModel;
