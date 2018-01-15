@@ -173,7 +173,7 @@
             _tipLabel.font = [UIFont systemFontOfSize:16];
             _tipLabel.textColor = [UIColor blackColor];
             NSDictionary *infoDict = [NSBundle mainBundle].localizedInfoDictionary;
-            if (!infoDict) {
+            if (!infoDict || !infoDict.count) {
                 infoDict = [NSBundle mainBundle].infoDictionary;
             }
             NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
