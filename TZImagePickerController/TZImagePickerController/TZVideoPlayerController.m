@@ -58,6 +58,9 @@
 - (void)configMoviePlayer {
     [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         _cover = photo;
+        if (!isDegraded && photo) {
+            _doneButton.enabled = YES;
+        }
     }];
     [[TZImageManager manager] getVideoWithAsset:_model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -101,6 +104,7 @@
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    _doneButton.enabled = NO;
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
@@ -110,6 +114,7 @@
         [_doneButton setTitle:[NSBundle tz_localizedStringForKey:@"Done"] forState:UIControlStateNormal];
         [_doneButton setTitleColor:[UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0] forState:UIControlStateNormal];
     }
+    [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     [_toolBar addSubview:_doneButton];
     [self.view addSubview:_toolBar];
 }
