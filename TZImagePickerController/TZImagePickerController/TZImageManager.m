@@ -94,8 +94,8 @@ static dispatch_once_t onceToken;
     return NO;
 }
 
-- (void)requestAuthorizationWithCompletion:(void (^)())completion {
-    void (^callCompletionBlock)() = ^(){
+- (void)requestAuthorizationWithCompletion:(void (^)(void))completion {
+    void (^callCompletionBlock)(void) = ^(){
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) {
                 completion();

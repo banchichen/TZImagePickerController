@@ -11,7 +11,7 @@
 @class TZAssetModel;
 @interface TZAssetPreviewCell : UICollectionViewCell
 @property (nonatomic, strong) TZAssetModel *model;
-@property (nonatomic, copy) void (^singleTapGestureBlock)();
+@property (nonatomic, copy) void (^singleTapGestureBlock)(void);
 - (void)configSubviews;
 - (void)photoPreviewCollectionViewDidScroll;
 @end
@@ -43,7 +43,7 @@
 
 @property (nonatomic, strong) TZAssetModel *model;
 @property (nonatomic, strong) id asset;
-@property (nonatomic, copy) void (^singleTapGestureBlock)();
+@property (nonatomic, copy) void (^singleTapGestureBlock)(void);
 @property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
 
 @property (nonatomic, assign) int32_t imageRequestID;
