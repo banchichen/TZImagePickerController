@@ -495,16 +495,18 @@
 
 - (void)setAllowPickingImage:(BOOL)allowPickingImage {
     _allowPickingImage = allowPickingImage;
-    NSString *allowPickingImageStr = _allowPickingImage ? @"1" : @"0";
-    [[NSUserDefaults standardUserDefaults] setObject:allowPickingImageStr forKey:@"tz_allowPickingImage"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [TZImagePickerConfig sharedInstance].allowPickingImage = allowPickingImage;
 }
 
 - (void)setAllowPickingVideo:(BOOL)allowPickingVideo {
     _allowPickingVideo = allowPickingVideo;
-    NSString *allowPickingVideoStr = _allowPickingVideo ? @"1" : @"0";
-    [[NSUserDefaults standardUserDefaults] setObject:allowPickingVideoStr forKey:@"tz_allowPickingVideo"];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [TZImagePickerConfig sharedInstance].allowPickingVideo = allowPickingVideo;
+}
+
+- (void)setPreferredLanguage:(NSString *)preferredLanguage {
+    _preferredLanguage = preferredLanguage;
+    [TZImagePickerConfig sharedInstance].preferredLanguage = preferredLanguage;
+    [self configDefaultBtnTitle];
 }
 
 - (void)setSortAscendingByModificationDate:(BOOL)sortAscendingByModificationDate {
@@ -764,6 +766,39 @@
 
 + (CGFloat)tz_statusBarHeight {
     return [self tz_isIPhoneX] ? 44 : 20;
+}
+
+@end
+
+
+@implementation TZImagePickerConfig
+
++ (instancetype)sharedInstance {
+    static dispatch_once_t onceToken;
+    static TZImagePickerConfig *config = nil;
+    dispatch_once(&onceToken, ^{
+        if (config == nil) {
+            config = [[TZImagePickerConfig alloc] init];
+            config.preferredLanguage = nil;
+        }
+    });
+    return config;
+}
+
+- (void)setPreferredLanguage:(NSString *)preferredLanguage {
+    _preferredLanguage = preferredLanguage;
+    
+    if (!preferredLanguage || !preferredLanguage.length) {
+        preferredLanguage = [NSLocale preferredLanguages].firstObject;
+    }
+    if ([preferredLanguage rangeOfString:@"zh-Hans"].location != NSNotFound) {
+        preferredLanguage = @"zh-Hans";
+    } else if ([preferredLanguage rangeOfString:@"zh-Hant"].location != NSNotFound) {
+        preferredLanguage = @"zh-Hant";
+    } else {
+        preferredLanguage = @"en";
+    }
+    _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:preferredLanguage ofType:@"lproj"]];
 }
 
 @end

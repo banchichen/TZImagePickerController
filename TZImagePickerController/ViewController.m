@@ -292,8 +292,10 @@
     
     // Deprecated, Use statusBarStyle
     // imagePickerVc.isStatusBarDefault = NO;
-    
     imagePickerVc.statusBarStyle = UIStatusBarStyleLightContent;
+    
+    // 设置首选语言
+    imagePickerVc.preferredLanguage = @"zh-Hans";
     
 #pragma mark - 到这里为止
     
