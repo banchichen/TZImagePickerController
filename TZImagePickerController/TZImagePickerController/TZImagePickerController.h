@@ -104,8 +104,10 @@
 /// Hide the photo what can not be selected, Default is NO
 /// 隐藏不可以选中的图片，默认是NO，不推荐将其设置为YES
 @property (nonatomic, assign) BOOL hideWhenCanNotSelect;
-/// 顶部statusBar 是否为系统默认的黑色，默认为NO
-@property (nonatomic, assign) BOOL isStatusBarDefault;
+/// Deprecated, Use statusBarStyle (顶部statusBar 是否为系统默认的黑色，默认为NO)
+@property (nonatomic, assign) BOOL isStatusBarDefault __attribute__((deprecated("Use -statusBarStyle.")));
+/// statusBar的样式，默认为UIStatusBarStyleLightContent
+@property (assign, nonatomic) UIStatusBarStyle statusBarStyle;
 /// Single selection mode, valid when maxImagesCount = 1
 /// 单选模式,maxImagesCount为1时才生效
 @property (nonatomic, assign) BOOL showSelectBtn;        ///< 在单选模式下，照片列表页中，显示选择按钮,默认为NO

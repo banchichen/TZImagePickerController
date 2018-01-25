@@ -290,7 +290,11 @@
     imagePickerVc.delegate = self;
     */
     
-    imagePickerVc.isStatusBarDefault = NO;
+    // Deprecated, Use statusBarStyle
+    // imagePickerVc.isStatusBarDefault = NO;
+    
+    imagePickerVc.statusBarStyle = UIStatusBarStyleLightContent;
+    
 #pragma mark - 到这里为止
     
     // You can get the photos by block, the same as by delegate.

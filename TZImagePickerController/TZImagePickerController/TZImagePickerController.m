@@ -106,6 +106,16 @@
     [self configBarButtonItemAppearance];
 }
 
+- (void)setIsStatusBarDefault:(BOOL)isStatusBarDefault {
+    _isStatusBarDefault = isStatusBarDefault;
+    
+    if (isStatusBarDefault) {
+        self.statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
+    } else {
+        self.statusBarStyle = iOS7Later ? UIStatusBarStyleLightContent : UIStatusBarStyleBlackOpaque;
+    }
+}
+
 - (void)configBarButtonItemAppearance {
     UIBarButtonItem *barItem;
     if (@available(iOS 9.0, *)) {
@@ -122,18 +132,17 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    
-    if (self.isStatusBarDefault) {
-        [UIApplication sharedApplication].statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
-    } else {
-        [UIApplication sharedApplication].statusBarStyle = iOS7Later ? UIStatusBarStyleLightContent : UIStatusBarStyleBlackOpaque;
-    }
+    [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
     [self hideProgressHUD];
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    return self.statusBarStyle;
 }
 
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate {
