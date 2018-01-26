@@ -56,12 +56,6 @@
 }
 
 - (void)configMoviePlayer {
-    [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        _cover = photo;
-        if (!isDegraded && photo) {
-            _doneButton.enabled = YES;
-        }
-    }];
     [[TZImageManager manager] getVideoWithAsset:_model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
         dispatch_async(dispatch_get_main_queue(), ^{
             _player = [AVPlayer playerWithPlayerItem:playerItem];
@@ -71,6 +65,7 @@
             [self addProgressObserver];
             [self configPlayButton];
             [self configBottomToolBar];
+            [self configCoverDoneButton];
             [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pausePlayerAndShowNaviBar) name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
         });
     }];
@@ -119,6 +114,14 @@
     [self.view addSubview:_toolBar];
 }
 
+- (void)configCoverDoneButton{
+    [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        _cover = photo;
+        if (!isDegraded && photo) {
+            _doneButton.enabled = YES;
+        }
+    }];
+}
 #pragma mark - Layout
 
 - (void)viewDidLayoutSubviews {
