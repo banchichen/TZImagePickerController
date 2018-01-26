@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.0.0 - 2018.01.25
+//  version 2.0.0.1 - 2018.01.26
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -268,6 +268,7 @@
     self.barItemTextFont = [UIFont systemFontOfSize:15];
     self.barItemTextColor = [UIColor whiteColor];
     self.allowPreview = YES;
+    self.statusBarStyle = UIStatusBarStyleLightContent;
     
     [self configDefaultImageName];
     [self configDefaultBtnTitle];
