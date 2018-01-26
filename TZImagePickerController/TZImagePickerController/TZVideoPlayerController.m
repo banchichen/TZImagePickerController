@@ -57,8 +57,8 @@
 
 - (void)configMoviePlayer {
     [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        _cover = photo;
         if (!isDegraded && photo) {
+            _cover = photo;
             _doneButton.enabled = YES;
         }
     }];
@@ -104,7 +104,9 @@
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
-    _doneButton.enabled = NO;
+    if (!_cover) {
+        _doneButton.enabled = NO;
+    }
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
