@@ -796,6 +796,8 @@
         preferredLanguage = @"zh-Hans";
     } else if ([preferredLanguage rangeOfString:@"zh-Hant"].location != NSNotFound) {
         preferredLanguage = @"zh-Hant";
+    } else if ([preferredLanguage rangeOfString:@"vi"].location != NSNotFound) {
+        preferredLanguage = @"vi";
     } else {
         preferredLanguage = @"en";
     }
