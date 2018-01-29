@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.0.0.2 - 2018.01.26
+//  version 2.0.0.3 - 2018.01.29
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -234,6 +234,7 @@
 
 @interface TZAlbumPickerController : UIViewController
 @property (nonatomic, assign) NSInteger columnNumber;
+@property (assign, nonatomic) BOOL isFirstAppear;
 - (void)configTableView;
 @end
 

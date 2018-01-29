@@ -73,6 +73,7 @@ static CGFloat itemMargin = 5;
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.isFirstAppear = YES;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
@@ -93,12 +94,12 @@ static CGFloat itemMargin = 5;
 
 - (void)fetchAssetModels {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (_isFirstAppear) {
+    if (_isFirstAppear && !_model.models.count) {
         [tzImagePickerVc showProgressHUD];
     }
-    dispatch_sync(dispatch_get_global_queue(0, 0), ^{
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
         if (!tzImagePickerVc.sortAscendingByModificationDate && _isFirstAppear && iOS8Later) {
-            [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(TZAlbumModel *model) {
+            [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:YES completion:^(TZAlbumModel *model) {
                 _model = model;
                 _models = [NSMutableArray arrayWithArray:_model.models];
                 [self initSubviews];
@@ -562,7 +563,7 @@ static CGFloat itemMargin = 5;
         if (iOS7Later) {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
                 if (granted) {
-                    dispatch_sync(dispatch_get_main_queue(), ^{
+                    dispatch_async(dispatch_get_main_queue(), ^{
                         [self pushImagePickerController];
                     });
                 }
@@ -724,7 +725,7 @@ static CGFloat itemMargin = 5;
 
 - (void)reloadPhotoArray {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage completion:^(TZAlbumModel *model) {
+    [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
         _model = model;
         [[TZImageManager manager] getAssetsFromFetchResult:_model.result completion:^(NSArray<TZAssetModel *> *models) {
             [tzImagePickerVc hideProgressHUD];

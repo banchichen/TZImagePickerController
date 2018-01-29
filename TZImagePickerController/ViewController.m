@@ -337,7 +337,7 @@
         if (iOS7Later) {
             [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
                 if (granted) {
-                    dispatch_sync(dispatch_get_main_queue(), ^{
+                    dispatch_async(dispatch_get_main_queue(), ^{
                         [self takePhoto];
                     });
                 }
@@ -402,7 +402,7 @@
                 [tzImagePickerVc hideProgressHUD];
                 NSLog(@"图片保存失败 %@",error);
             } else {
-                [[TZImageManager manager] getCameraRollAlbum:NO allowPickingImage:YES completion:^(TZAlbumModel *model) {
+                [[TZImageManager manager] getCameraRollAlbum:NO allowPickingImage:YES needFetchAssets:NO completion:^(TZAlbumModel *model) {
                     [[TZImageManager manager] getAssetsFromFetchResult:model.result allowPickingVideo:NO allowPickingImage:YES completion:^(NSArray<TZAssetModel *> *models) {
                         [tzImagePickerVc hideProgressHUD];
                         TZAssetModel *assetModel = [models firstObject];

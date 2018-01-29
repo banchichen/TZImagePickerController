@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.0.0.2 - 2018.01.26
+//  version 2.0.0.3 - 2018.01.29
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -156,6 +156,7 @@
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc {
     _pushPhotoPickerVc = pushPhotoPickerVc;
     TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
+    albumPickerVc.isFirstAppear = YES;
     albumPickerVc.columnNumber = columnNumber;
     self = [super initWithRootViewController:albumPickerVc];
     if (self) {
@@ -303,6 +304,11 @@
         [_timer invalidate];
         _timer = nil;
         [self pushPhotoPickerVc];
+        
+        TZAlbumPickerController *albumPickerVc = (TZAlbumPickerController *)self.visibleViewController;
+        if ([albumPickerVc isKindOfClass:[TZAlbumPickerController class]]) {
+            [albumPickerVc configTableView];
+        }
     }
 }
 
@@ -313,16 +319,11 @@
         TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
         photoPickerVc.isFirstAppear = YES;
         photoPickerVc.columnNumber = self.columnNumber;
-        [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage completion:^(TZAlbumModel *model) {
+        [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
             _didPushPhotoPickerVc = YES;
         }];
-    }
-    
-    TZAlbumPickerController *albumPickerVc = (TZAlbumPickerController *)self.visibleViewController;
-    if ([albumPickerVc isKindOfClass:[TZAlbumPickerController class]]) {
-        [albumPickerVc configTableView];
     }
 }
 
@@ -595,7 +596,6 @@
     UITableView *_tableView;
 }
 @property (nonatomic, strong) NSMutableArray *albumArr;
-@property (assign, nonatomic) BOOL isFirstAppear;
 @end
 
 @implementation TZAlbumPickerController
@@ -621,21 +621,27 @@
     
     if (self.isFirstAppear && !imagePickerVc.navLeftBarButtonSettingBlock) {
         self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
-        self.isFirstAppear = NO;
     }
     
     [self configTableView];
 }
 
 - (void)configTableView {
+    if (self.isFirstAppear) {
+        TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+        [imagePickerVc showProgressHUD];
+    }
+
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-        [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo allowPickingImage:imagePickerVc.allowPickingImage completion:^(NSArray<TZAlbumModel *> *models) {
+        [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo allowPickingImage:imagePickerVc.allowPickingImage needFetchAssets:!self.isFirstAppear completion:^(NSArray<TZAlbumModel *> *models) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 _albumArr = [NSMutableArray arrayWithArray:models];
                 for (TZAlbumModel *albumModel in _albumArr) {
                     albumModel.selectedModels = imagePickerVc.selectedModels;
                 }
+                [imagePickerVc hideProgressHUD];
+                self.isFirstAppear = NO;
                 if (!_tableView) {
                     _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
                     _tableView.rowHeight = 70;

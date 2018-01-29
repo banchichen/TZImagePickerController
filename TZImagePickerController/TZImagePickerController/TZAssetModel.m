@@ -31,14 +31,16 @@
 
 @implementation TZAlbumModel
 
-- (void)setResult:(id)result {
+- (void)setResult:(id)result needFetchAssets:(BOOL)needFetchAssets {
     _result = result;
-    [[TZImageManager manager] getAssetsFromFetchResult:result completion:^(NSArray<TZAssetModel *> *models) {
-        _models = models;
-        if (_selectedModels) {
-            [self checkSelectedModels];
-        }
-    }];
+    if (needFetchAssets) {
+        [[TZImageManager manager] getAssetsFromFetchResult:result completion:^(NSArray<TZAssetModel *> *models) {
+            _models = models;
+            if (_selectedModels) {
+                [self checkSelectedModels];
+            }
+        }];
+    }
 }
 
 - (void)setSelectedModels:(NSArray *)selectedModels {

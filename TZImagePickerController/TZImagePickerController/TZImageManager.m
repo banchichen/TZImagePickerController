@@ -121,7 +121,7 @@ static dispatch_once_t onceToken;
 #pragma mark - Get Album
 
 /// Get Album 获得相册/相册数组
-- (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAlbumModel *))completion{
+- (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(TZAlbumModel *model))completion {
     __block TZAlbumModel *model;
     if (iOS8Later) {
         PHFetchOptions *option = [[PHFetchOptions alloc] init];
@@ -138,7 +138,7 @@ static dispatch_once_t onceToken;
             if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
             if ([self isCameraRollAlbum:collection]) {
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-                model = [self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES];
+                model = [self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets];
                 if (completion) completion(model);
                 break;
             }
@@ -148,7 +148,7 @@ static dispatch_once_t onceToken;
             if ([group numberOfAssets] < 1) return;
             if ([self isCameraRollAlbum:group]) {
                 NSString *name = [group valueForProperty:ALAssetsGroupPropertyName];
-                model = [self modelWithResult:group name:name isCameraRoll:YES];
+                model = [self modelWithResult:group name:name isCameraRoll:YES needFetchAssets:needFetchAssets];
                 if (completion) completion(model);
                 *stop = YES;
             }
@@ -156,7 +156,7 @@ static dispatch_once_t onceToken;
     }
 }
 
-- (void)getAllAlbums:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAlbumModel *> *))completion{
+- (void)getAllAlbums:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(NSArray<TZAlbumModel *> *))completion{
     NSMutableArray *albumArr = [NSMutableArray array];
     if (iOS8Later) {
         PHFetchOptions *option = [[PHFetchOptions alloc] init];
@@ -190,9 +190,9 @@ static dispatch_once_t onceToken;
                 if ([collection.localizedTitle tz_containsString:@"Hidden"] || [collection.localizedTitle isEqualToString:@"已隐藏"]) continue;
                 if ([collection.localizedTitle tz_containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
                 if ([self isCameraRollAlbum:collection]) {
-                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES] atIndex:0];
+                    [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets] atIndex:0];
                 } else {
-                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:NO]];
+                    [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:NO needFetchAssets:needFetchAssets]];
                 }
             }
         }
@@ -212,15 +212,15 @@ static dispatch_once_t onceToken;
             }
             
             if ([self isCameraRollAlbum:group]) {
-                [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:YES] atIndex:0];
+                [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:YES needFetchAssets:needFetchAssets] atIndex:0];
             } else if ([name isEqualToString:@"My Photo Stream"] || [name isEqualToString:@"我的照片流"]) {
                 if (albumArr.count) {
-                    [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:NO] atIndex:1];
+                    [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:NO needFetchAssets:needFetchAssets] atIndex:1];
                 } else {
-                    [albumArr addObject:[self modelWithResult:group name:name isCameraRoll:NO]];
+                    [albumArr addObject:[self modelWithResult:group name:name isCameraRoll:NO needFetchAssets:needFetchAssets]];
                 }
             } else {
-                [albumArr addObject:[self modelWithResult:group name:name isCameraRoll:NO]];
+                [albumArr addObject:[self modelWithResult:group name:name isCameraRoll:NO needFetchAssets:needFetchAssets]];
             }
         } failureBlock:nil];
     }
@@ -655,7 +655,7 @@ static dispatch_once_t onceToken;
                 request.creationDate = [NSDate date];
             }
         } completionHandler:^(BOOL success, NSError *error) {
-            dispatch_sync(dispatch_get_main_queue(), ^{
+            dispatch_async(dispatch_get_main_queue(), ^{
                 if (success && completion) {
                     completion(nil);
                 } else if (error) {
@@ -902,9 +902,9 @@ static dispatch_once_t onceToken;
 
 #pragma mark - Private Method
 
-- (TZAlbumModel *)modelWithResult:(id)result name:(NSString *)name isCameraRoll:(BOOL)isCameraRoll {
+- (TZAlbumModel *)modelWithResult:(id)result name:(NSString *)name isCameraRoll:(BOOL)isCameraRoll needFetchAssets:(BOOL)needFetchAssets {
     TZAlbumModel *model = [[TZAlbumModel alloc] init];
-    model.result = result;
+    [model setResult:result needFetchAssets:needFetchAssets];
     model.name = name;
     model.isCameraRoll = isCameraRoll;
     if ([result isKindOfClass:[PHFetchResult class]]) {
