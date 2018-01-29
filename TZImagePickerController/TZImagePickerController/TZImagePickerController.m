@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.0.0.3 - 2018.01.29
+//  version 2.0.0.4 - 2018.01.29
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -201,7 +201,9 @@
                 [self.view addSubview:_settingBtn];
             }
             
-            _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:YES];
+            if ([TZImageManager authorizationStatus] == 0) {
+                _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
+            }
         } else {
             [self pushPhotoPickerVc];
         }
@@ -298,11 +300,16 @@
 }
 
 - (void)observeAuthrizationStatusChange {
+    [_timer invalidate];
+    _timer = nil;
+    if ([TZImageManager authorizationStatus] == 0) {
+        _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
+    }
+    
     if ([[TZImageManager manager] authorizationStatusAuthorized]) {
         [_tipLabel removeFromSuperview];
         [_settingBtn removeFromSuperview];
-        [_timer invalidate];
-        _timer = nil;
+
         [self pushPhotoPickerVc];
         
         TZAlbumPickerController *albumPickerVc = (TZAlbumPickerController *)self.visibleViewController;
@@ -521,8 +528,9 @@
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    if (iOS7Later) viewController.automaticallyAdjustsScrollViewInsets = NO;
-    if (_timer) { [_timer invalidate]; _timer = nil;}
+    if (iOS7Later) {
+        viewController.automaticallyAdjustsScrollViewInsets = NO;
+    }
     [super pushViewController:viewController animated:animated];
 }
 
@@ -627,6 +635,10 @@
 }
 
 - (void)configTableView {
+    if (![[TZImageManager manager] authorizationStatusAuthorized]) {
+        return;
+    }
+
     if (self.isFirstAppear) {
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
         [imagePickerVc showProgressHUD];
