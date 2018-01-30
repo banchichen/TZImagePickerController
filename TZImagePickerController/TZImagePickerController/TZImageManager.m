@@ -136,6 +136,8 @@ static dispatch_once_t onceToken;
         for (PHAssetCollection *collection in smartAlbums) {
             // 有可能是PHCollectionList类的的对象，过滤掉
             if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
+            // 过滤空相册
+            if (collection.estimatedAssetCount <= 0) continue;
             if ([self isCameraRollAlbum:collection]) {
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 model = [self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets];
@@ -178,6 +180,8 @@ static dispatch_once_t onceToken;
             for (PHAssetCollection *collection in fetchResult) {
                 // 有可能是PHCollectionList类的的对象，过滤掉
                 if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
+                // 过滤空相册
+                if (collection.estimatedAssetCount <= 0) continue;
                 PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
                 if (fetchResult.count < 1) continue;
                 
