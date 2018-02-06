@@ -186,6 +186,11 @@
             if (!infoDict || !infoDict.count) {
                 infoDict = [NSBundle mainBundle].infoDictionary;
             }
+            if (!infoDict || !infoDict.count) {
+                NSString *path = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"plist"];
+                infoDict = [NSDictionary dictionaryWithContentsOfFile:path];
+            }
+            
             NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
             if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
             NSString *tipText = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Allow %@ to access your album in \"Settings -> Privacy -> Photos\""],appName];
