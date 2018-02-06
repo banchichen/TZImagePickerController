@@ -118,7 +118,7 @@
 
 - (void)configBarButtonItemAppearance {
     UIBarButtonItem *barItem;
-    if (@available(iOS 9.0, *)) {
+    if (iOS9Later) {
         barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
     } else {
         barItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
