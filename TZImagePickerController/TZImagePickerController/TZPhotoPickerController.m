@@ -550,14 +550,7 @@ static CGFloat itemMargin = 5;
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied) && iOS7Later) {
         
-        NSDictionary *infoDict = [NSBundle mainBundle].localizedInfoDictionary;
-        if (!infoDict || !infoDict.count) {
-            infoDict = [NSBundle mainBundle].infoDictionary;
-        }
-        if (!infoDict || !infoDict.count) {
-            NSString *path = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"plist"];
-            infoDict = [NSDictionary dictionaryWithContentsOfFile:path];
-        }
+        NSDictionary *infoDict = [TZCommonTools tz_getInfoDictionary];
         // 无权限 做一个友好的提示
         NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
         if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];

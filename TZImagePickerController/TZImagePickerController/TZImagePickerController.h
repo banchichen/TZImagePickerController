@@ -253,6 +253,8 @@
 @interface TZCommonTools : NSObject
 + (BOOL)tz_isIPhoneX;
 + (CGFloat)tz_statusBarHeight;
+// 获得Info.plist数据字典
++ (NSDictionary *)tz_getInfoDictionary;
 @end
 
 
