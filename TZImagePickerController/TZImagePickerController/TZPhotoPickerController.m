@@ -337,7 +337,9 @@ static CGFloat itemMargin = 5;
     _originalPhotoButton.selected = !_originalPhotoButton.isSelected;
     _isSelectOriginalPhoto = _originalPhotoButton.isSelected;
     _originalPhotoLabel.hidden = !_originalPhotoButton.isSelected;
-    if (_isSelectOriginalPhoto) [self getSelectedPhotoBytes];
+    if (_isSelectOriginalPhoto) {
+        [self getSelectedPhotoBytes];
+    }
 }
 
 - (void)doneButtonClick {
@@ -638,6 +640,10 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)getSelectedPhotoBytes {
+    // 越南语 && 5屏幕时会显示不下，暂时这样处理
+    if ([[TZImagePickerConfig sharedInstance].preferredLanguage isEqualToString:@"vi"] && self.view.tz_width <= 320) {
+        return;
+    }
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     [[TZImageManager manager] getPhotosBytesWithArray:imagePickerVc.selectedModels completion:^(NSString *totalBytes) {
         _originalPhotoLabel.text = [NSString stringWithFormat:@"(%@)",totalBytes];
