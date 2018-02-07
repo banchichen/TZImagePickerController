@@ -787,18 +787,14 @@
 
 // 获得Info.plist数据字典
 + (NSDictionary *)tz_getInfoDictionary {
-    
     NSDictionary *infoDict = [NSBundle mainBundle].localizedInfoDictionary;
-    
     if (!infoDict || !infoDict.count) {
         infoDict = [NSBundle mainBundle].infoDictionary;
     }
-    
     if (!infoDict || !infoDict.count) {
         NSString *path = [[NSBundle mainBundle] pathForResource:@"Info" ofType:@"plist"];
         infoDict = [NSDictionary dictionaryWithContentsOfFile:path];
     }
-    
     return infoDict ? infoDict : @{};
 }
 @end
