@@ -294,8 +294,11 @@
     // imagePickerVc.isStatusBarDefault = NO;
     imagePickerVc.statusBarStyle = UIStatusBarStyleLightContent;
     
-    // 设置首选语言
-    imagePickerVc.preferredLanguage = @"zh-Hans";
+    // 设置首选语言 / Set preferred language
+    // imagePickerVc.preferredLanguage = @"zh-Hans";
+    
+    // 设置languageBundle以使用其它语言 / Set languageBundle to use other language
+    // imagePickerVc.languageBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"tz-ru" ofType:@"lproj"]];
     
 #pragma mark - 到这里为止
     

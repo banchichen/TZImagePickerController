@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.0.0.5 - 2018.02.06
+//  version 2.0.0.6 - 2018.02.13
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -515,6 +515,12 @@
 - (void)setPreferredLanguage:(NSString *)preferredLanguage {
     _preferredLanguage = preferredLanguage;
     [TZImagePickerConfig sharedInstance].preferredLanguage = preferredLanguage;
+    [self configDefaultBtnTitle];
+}
+
+- (void)setLanguageBundle:(NSBundle *)languageBundle {
+    _languageBundle = languageBundle;
+    [TZImagePickerConfig sharedInstance].languageBundle = languageBundle;
     [self configDefaultBtnTitle];
 }
 
