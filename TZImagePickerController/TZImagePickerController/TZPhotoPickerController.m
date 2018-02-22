@@ -19,6 +19,8 @@
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate> {
     NSMutableArray *_models;
+	NSMutableArray *_privateModels; // used if configured to bypass photo roll
+
     
     UIView *_bottomToolBar;
     UIButton *_previewButton;
@@ -722,17 +724,21 @@ static CGFloat itemMargin = 5;
         [imagePickerVc showProgressHUD];
         UIImage *photo = [info objectForKey:UIImagePickerControllerOriginalImage];
         if (photo) {
-            [[TZImageManager manager] savePhotoWithImage:photo location:self.location completion:^(NSError *error){
-                if (!error) {
-                    [self reloadPhotoArray];
-                }
-            }];
+			if (imagePickerVc.bypassPhotoRoll) {
+				[self reloadPhotoArrayAfterTakingImage:photo];
+			} else {
+				[[TZImageManager manager] savePhotoWithImage:photo location:self.location completion:^(NSError *error){
+					if (!error) {
+						[self reloadPhotoArrayAfterTakingImage:nil];
+					}
+				}];
+			}
             self.location = nil;
         }
     }
 }
 
-- (void)reloadPhotoArray {
+- (void)reloadPhotoArrayAfterTakingImage:(UIImage*) inImage {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
         _model = model;
@@ -740,13 +746,20 @@ static CGFloat itemMargin = 5;
             [tzImagePickerVc hideProgressHUD];
             
             TZAssetModel *assetModel;
-            if (tzImagePickerVc.sortAscendingByModificationDate) {
-                assetModel = [models lastObject];
-                [_models addObject:assetModel];
-            } else {
-                assetModel = [models firstObject];
-                [_models insertObject:assetModel atIndex:0];
-            }
+
+			if (inImage) {
+				assetModel = [TZAssetModel modelWithAsset:inImage type:TZAssetModelMediaTypePhoto];
+				[_models addObject:assetModel];
+			}
+			else {
+				if (tzImagePickerVc.sortAscendingByModificationDate) {
+					assetModel = [models lastObject];
+					[_models addObject:assetModel];
+				} else {
+					assetModel = [models firstObject];
+					[_models insertObject:assetModel atIndex:0];
+				}
+			}
             
             if (tzImagePickerVc.maxImagesCount <= 1) {
                 if (tzImagePickerVc.allowCrop) {

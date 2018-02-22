@@ -102,10 +102,16 @@
 /// 默认为YES，如果设置为NO, 选择器将不会自己dismiss
 @property(nonatomic, assign) BOOL autoDismiss;
 
+/// Default is NO, if set YES, photos taken by the user are not added to the photo roll
+@property(nonatomic, assign) BOOL bypassPhotoRoll;
+
 /// The photos user have selected
 /// 用户选中过的图片数组
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) NSMutableArray<TZAssetModel *> *selectedModels;
+
+// Photos taken by the user, if bypassPhotoRoll is YES
+@property (nonatomic, strong) NSMutableArray<TZAssetModel *> *privateModels;
 
 /// Minimum selectable photo width, Default is 0
 /// 最小可选中的图片宽度，默认是0，小于这个宽度的图片不可选中
