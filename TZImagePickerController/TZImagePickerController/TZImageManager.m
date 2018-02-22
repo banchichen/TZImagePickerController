@@ -553,7 +553,11 @@ static dispatch_once_t onceToken;
                 }
             });
         });
-    }
+    } else if ([asset isKindOfClass:[UIImage class]]) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (completion) completion(asset,nil,NO);
+		});
+	}
     return 0;
 }
 
@@ -608,7 +612,11 @@ static dispatch_once_t onceToken;
                 if (completion) completion(originalImage,nil,NO);
             });
         });
-    }
+	}  else if ([asset isKindOfClass:[UIImage class]]) {
+		dispatch_async(dispatch_get_main_queue(), ^{
+			if (completion) completion(asset,nil,NO);
+		});
+	}
 }
 
 - (void)getOriginalPhotoDataWithAsset:(id)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion {
@@ -629,7 +637,12 @@ static dispatch_once_t onceToken;
         NSUInteger bufferSize = [assetRep getBytes:imageBuffer fromOffset:0.0 length:assetRep.size error:nil];
         NSData *imageData = [NSData dataWithBytesNoCopy:imageBuffer length:bufferSize freeWhenDone:YES];
         if (completion) completion(imageData,nil,NO);
-    }
+	} else if ([asset isKindOfClass:[UIImage class]]) {
+		UIImage *image = asset;
+		NSData *imageData = CFBridgingRelease(CGDataProviderCopyData(CGImageGetDataProvider(image.CGImage)));
+		if (completion) completion(imageData,nil,NO);
+	}
+
 }
 
 #pragma mark - Save photo
@@ -875,6 +888,9 @@ static dispatch_once_t onceToken;
 }
 
 - (NSString *)getAssetIdentifier:(id)asset {
+	if ([asset isKindOfClass:[UIImage class]]) {
+		return [NSString stringWithFormat: @"%ld", (long) asset];
+	}
     if (iOS8Later) {
         PHAsset *phAsset = (PHAsset *)asset;
         return phAsset.localIdentifier;
@@ -895,6 +911,9 @@ static dispatch_once_t onceToken;
 }
 
 - (CGSize)photoSizeWithAsset:(id)asset {
+	if ([asset isKindOfClass:[UIImage class]]) {
+		return [(UIImage*) asset size];
+	}
     if (iOS8Later) {
         PHAsset *phAsset = (PHAsset *)asset;
         return CGSizeMake(phAsset.pixelWidth, phAsset.pixelHeight);

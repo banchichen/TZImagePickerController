@@ -164,7 +164,7 @@
             ALAsset *alAsset = asset;
             isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
         }
-        if ([[asset valueForKey:@"filename"] tz_containsString:@"GIF"] && self.allowPickingGifSwitch.isOn && !self.allowPickingMuitlpleVideoSwitch.isOn) {
+		if (![asset isKindOfClass:[UIImage class]] && [[asset valueForKey:@"filename"] tz_containsString:@"GIF"] && self.allowPickingGifSwitch.isOn && !self.allowPickingMuitlpleVideoSwitch.isOn) {
             TZGifPhotoPreviewController *vc = [[TZGifPhotoPreviewController alloc] init];
             TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhotoGif timeLength:@""];
             vc.model = model;
@@ -493,8 +493,10 @@
     [self printAssetsName:assets];
     // 2.图片位置信息
     if (iOS8Later) {
-        for (PHAsset *phAsset in assets) {
-            NSLog(@"location:%@",phAsset.location);
+        for (id phAsset in assets) {
+			if ([phAsset isKindOfClass:[PHAsset class]]) {
+           		NSLog(@"location:%@",[(PHAsset*)phAsset location]);
+			}
         }
     }
 }
