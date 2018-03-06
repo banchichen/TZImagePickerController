@@ -370,9 +370,9 @@
 - (void)pushImagePickerController {
     // 提前定位
     __weak typeof(self) weakSelf = self;
-    [[TZLocationManager manager] startLocationWithSuccessBlock:^(CLLocation *location, CLLocation *oldLocation) {
+    [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.location = location;
+        strongSelf.location = [locations firstObject];
     } failureBlock:^(NSError *error) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         strongSelf.location = nil;

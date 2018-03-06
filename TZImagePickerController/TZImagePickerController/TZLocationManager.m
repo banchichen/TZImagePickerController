@@ -12,7 +12,7 @@
 @interface TZLocationManager ()<CLLocationManagerDelegate>
 @property (nonatomic, strong) CLLocationManager *locationManager;
 /// 定位成功的回调block
-@property (nonatomic, copy) void (^successBlock)(CLLocation *location,CLLocation *oldLocation);
+@property (nonatomic, copy) void (^successBlock)(NSArray<CLLocation *> *);
 /// 编码成功的回调block
 @property (nonatomic, copy) void (^geocodeBlock)(NSArray *geocodeArray);
 /// 定位失败的回调block
@@ -39,7 +39,7 @@
     [self startLocationWithSuccessBlock:nil failureBlock:nil geocoderBlock:nil];
 }
 
-- (void)startLocationWithSuccessBlock:(void (^)(CLLocation *location,CLLocation *oldLocation))successBlock failureBlock:(void (^)(NSError *error))failureBlock {
+- (void)startLocationWithSuccessBlock:(void (^)(NSArray<CLLocation *> *))successBlock failureBlock:(void (^)(NSError *error))failureBlock {
     [self startLocationWithSuccessBlock:successBlock failureBlock:failureBlock geocoderBlock:nil];
 }
 
@@ -47,7 +47,7 @@
     [self startLocationWithSuccessBlock:nil failureBlock:nil geocoderBlock:geocoderBlock];
 }
 
-- (void)startLocationWithSuccessBlock:(void (^)(CLLocation *location,CLLocation *oldLocation))successBlock failureBlock:(void (^)(NSError *error))failureBlock geocoderBlock:(void (^)(NSArray *geocoderArray))geocoderBlock {
+- (void)startLocationWithSuccessBlock:(void (^)(NSArray<CLLocation *> *))successBlock failureBlock:(void (^)(NSError *error))failureBlock geocoderBlock:(void (^)(NSArray *geocoderArray))geocoderBlock {
     [self.locationManager startUpdatingLocation];
     _successBlock = successBlock;
     _geocodeBlock = geocoderBlock;
@@ -57,16 +57,16 @@
 #pragma mark - CLLocationManagerDelegate
 
 /// 地理位置发生改变时触发
-- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
+- (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations {
     [manager stopUpdatingLocation];
     
     if (_successBlock) {
-        _successBlock(newLocation,oldLocation);
+        _successBlock(locations);
     }
     
-    if (_geocodeBlock) {
+    if (_geocodeBlock && locations.count) {
         CLGeocoder *geocoder = [[CLGeocoder alloc] init];
-        [geocoder reverseGeocodeLocation:newLocation completionHandler:^(NSArray *array, NSError *error) {
+        [geocoder reverseGeocodeLocation:[locations firstObject] completionHandler:^(NSArray *array, NSError *error) {
             _geocodeBlock(array);
         }];
     }
