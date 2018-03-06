@@ -373,7 +373,7 @@ static CGFloat itemMargin = 5;
             [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
                 if (isDegraded) return;
                 if (photo) {
-                    photo = [self scaleImage:photo toSize:CGSizeMake(tzImagePickerVc.photoWidth, (int)(tzImagePickerVc.photoWidth * photo.size.height / photo.size.width))];
+                    photo = [[TZImageManager manager] scaleImage:photo toSize:CGSizeMake(tzImagePickerVc.photoWidth, (int)(tzImagePickerVc.photoWidth * photo.size.height / photo.size.width))];
                     [photos replaceObjectAtIndex:i withObject:photo];
                 }
                 if (info)  [infoArr replaceObjectAtIndex:i withObject:info];
@@ -660,18 +660,6 @@ static CGFloat itemMargin = 5;
     [[TZImageManager manager] getPhotosBytesWithArray:imagePickerVc.selectedModels completion:^(NSString *totalBytes) {
         _originalPhotoLabel.text = [NSString stringWithFormat:@"(%@)",totalBytes];
     }];
-}
-
-/// Scale image / 缩放图片
-- (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size {
-    if (image.size.width < size.width) {
-        return image;
-    }
-    UIGraphicsBeginImageContext(size);
-    [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
-    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    return newImage;
 }
 
 - (void)scrollCollectionViewToBottom {

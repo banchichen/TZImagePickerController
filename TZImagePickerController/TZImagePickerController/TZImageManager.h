@@ -106,6 +106,9 @@
 /// 获取asset的资源类型
 - (TZAssetModelMediaType)getAssetType:(id)asset;
 
+/// 缩放图片至新尺寸
+- (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size;
+
 @end
 
 //@interface TZSortDescriptor : NSSortDescriptor
