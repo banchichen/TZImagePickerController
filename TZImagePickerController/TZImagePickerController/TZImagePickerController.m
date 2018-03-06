@@ -657,7 +657,12 @@
                     albumModel.selectedModels = imagePickerVc.selectedModels;
                 }
                 [imagePickerVc hideProgressHUD];
-                self.isFirstAppear = NO;
+                
+                if (self.isFirstAppear) {
+                    self.isFirstAppear = NO;
+                    [self configTableView];
+                }
+                
                 if (!_tableView) {
                     _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
                     _tableView.rowHeight = 70;
