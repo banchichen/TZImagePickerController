@@ -26,6 +26,7 @@
     
     UIStatusBarStyle _originStatusBarStyle;
 }
+@property (assign, nonatomic) BOOL needShowStatusBar;
 @end
 
 #pragma clang diagnostic push
@@ -35,6 +36,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
     self.view.backgroundColor = [UIColor blackColor];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
@@ -187,8 +189,7 @@
     [self.navigationController setNavigationBarHidden:NO];
     [_playButton setImage:[UIImage imageNamedFromMyBundle:@"MMVideoPreviewPlay"] forState:UIControlStateNormal];
     
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (tzImagePickerVc.needShowStatusBar && iOS7Later) {
+    if (self.needShowStatusBar && iOS7Later) {
         [UIApplication sharedApplication].statusBarHidden = NO;
     }
 }
