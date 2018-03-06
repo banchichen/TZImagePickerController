@@ -102,6 +102,10 @@
 /// 默认为YES，如果设置为NO, 选择器将不会自己dismiss
 @property(nonatomic, assign) BOOL autoDismiss;
 
+/// Default is YES, if set NO, in the delegate method the photos and infos will be nil, only assets hava value.
+/// 默认为NO，如果设置为YES，代理方法里photos和infos会是nil，只返回assets
+@property (assign, nonatomic) BOOL onlyReturnAsset;
+
 /// The photos user have selected
 /// 用户选中过的图片数组
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
