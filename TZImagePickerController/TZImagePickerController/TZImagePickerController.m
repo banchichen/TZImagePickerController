@@ -399,7 +399,7 @@
 
 - (void)setMaxImagesCount:(NSInteger)maxImagesCount {
     _maxImagesCount = maxImagesCount;
-    if (maxImagesCount > 1) {
+    if (maxImagesCount > 0) {
         _showSelectBtn = YES;
         _allowCrop = NO;
     }
@@ -408,7 +408,7 @@
 - (void)setShowSelectBtn:(BOOL)showSelectBtn {
     _showSelectBtn = showSelectBtn;
     // 多选模式下，不允许让showSelectBtn为NO
-    if (!showSelectBtn && _maxImagesCount > 1) {
+    if (!showSelectBtn && _maxImagesCount > 0) {
         _showSelectBtn = YES;
     }
 }
