@@ -399,7 +399,7 @@ static CGFloat itemMargin = 5;
             } networkAccessAllowed:YES];
         }
     }
-    if (tzImagePickerVc.selectedModels.count <= 0) {
+    if (tzImagePickerVc.selectedModels.count <= 0 || tzImagePickerVc.onlyReturnAsset) {
         [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
     }
 }
