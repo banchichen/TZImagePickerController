@@ -36,6 +36,10 @@
     BOOL allowPickingImage = [[[NSUserDefaults standardUserDefaults] objectForKey:@"tz_allowPickingImage"] isEqualToString:@"1"];
     BOOL allowPickingVideo = [[[NSUserDefaults standardUserDefaults] objectForKey:@"tz_allowPickingVideo"] isEqualToString:@"1"];
     [[TZImageManager manager] getAssetsFromFetchResult:result allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage completion:^(NSArray<TZAssetModel *> *models) {
+        //进行反转排序
+        NSMutableArray<TZAssetModel *> *tempArray = [NSMutableArray arrayWithArray:models];
+        models = [[tempArray reverseObjectEnumerator] allObjects];
+        
         _models = models;
         if (_selectedModels) {
             [self checkSelectedModels];

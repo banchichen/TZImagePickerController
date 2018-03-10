@@ -63,17 +63,23 @@ static CGFloat TZScreenScale;
 - (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAlbumModel *))completion{
     __block TZAlbumModel *model;
     if (iOS8Later) {
-        PHFetchOptions *option = [[PHFetchOptions alloc] init];
-        if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
-        if (!allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
-                                                    PHAssetMediaTypeVideo];
-         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
-//        option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
+        
+           /*
+              采用默认排序  原因：PNG格式照片带有创建时间等信息，当保存到相册 进行creationDate排序 会发生错乱；
+              在TZAlbumModel.m文件下 进行照片数组 反转排列
+            
+            */
+//        PHFetchOptions *option = [[PHFetchOptions alloc] init];
+//        if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
+//        if (!allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
+//                                                    PHAssetMediaTypeVideo];
+//         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
+
         
         PHFetchResult *smartAlbums = [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum subtype:PHAssetCollectionSubtypeSmartAlbumUserLibrary options:nil];
         for (PHAssetCollection *collection in smartAlbums) {
             if ([collection.localizedTitle isEqualToString:@"Camera Roll"] || [collection.localizedTitle isEqualToString:@"相机胶卷"] ||  [collection.localizedTitle isEqualToString:@"所有照片"] || [collection.localizedTitle isEqualToString:@"All Photos"]) {
-                PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
+                PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:nil];
                 model = [self modelWithResult:fetchResult name:collection.localizedTitle];
                 if (completion) completion(model);
                 break;
