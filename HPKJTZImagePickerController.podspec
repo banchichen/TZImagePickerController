@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "HPKJTZImagePickerController"
-  s.version      = "2.1.1"
+  s.version      = "2.1.2"
   s.summary      = "A clone of UIImagePickerController, support picking multiple photos、original photo and video"
   s.homepage     = "https://github.com/banchichen/TZImagePickerController"
   s.license      = "MIT"
