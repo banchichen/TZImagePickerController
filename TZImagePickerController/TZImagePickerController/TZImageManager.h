@@ -21,7 +21,7 @@
 + (instancetype)manager NS_SWIFT_NAME(default());
 + (void)deallocManager;
 
-@property (assign, nonatomic) id<TZImagePickerControllerDelegate> pickerDelegate;
+@property (weak, nonatomic) id<TZImagePickerControllerDelegate> pickerDelegate;
 
 @property (nonatomic, assign) BOOL shouldFixOrientation;
 
