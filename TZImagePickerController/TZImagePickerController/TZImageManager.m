@@ -69,6 +69,7 @@ static CGFloat TZScreenScale;
               在TZAlbumModel.m文件下 进行照片数组 反转排列
             
             */
+        
 //        PHFetchOptions *option = [[PHFetchOptions alloc] init];
 //        if (!allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
 //        if (!allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
