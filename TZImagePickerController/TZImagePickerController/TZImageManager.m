@@ -615,7 +615,8 @@ static dispatch_once_t onceToken;
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.networkAccessAllowed = YES;
-        option.resizeMode = PHImageRequestOptionsResizeModeFast;
+        option.version = PHImageRequestOptionsVersionOriginal;
+        option.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
         [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && imageData) {
