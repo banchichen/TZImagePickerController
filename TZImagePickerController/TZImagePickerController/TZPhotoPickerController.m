@@ -686,13 +686,13 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)checkSelectedModels {
+    NSMutableArray *selectedAssets = [NSMutableArray array];
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    for (TZAssetModel *model in tzImagePickerVc.selectedModels) {
+        [selectedAssets addObject:model.asset];
+    }
     for (TZAssetModel *model in _models) {
         model.isSelected = NO;
-        NSMutableArray *selectedAssets = [NSMutableArray array];
-        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-        for (TZAssetModel *model in tzImagePickerVc.selectedModels) {
-            [selectedAssets addObject:model.asset];
-        }
         if ([[TZImageManager manager] isAssetsArray:selectedAssets containAsset:model.asset]) {
             model.isSelected = YES;
         }
