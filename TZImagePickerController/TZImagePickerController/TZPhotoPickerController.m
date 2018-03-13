@@ -566,10 +566,10 @@ static CGSize AssetGridThumbnailSize;
             
             TZAssetModel *assetModel;
             if (tzImagePickerVc.sortAscendingByModificationDate) {
-                assetModel = [models lastObject];
+                assetModel = [models firstObject]; //正常因为最后一张 （因为数组被反转了）
                 [_models addObject:assetModel];
             } else {
-                assetModel = [models firstObject];
+                assetModel = [models lastObject]; //正常应为第一张 因为数组被反转了）
                 [_models insertObject:assetModel atIndex:0];
             }
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {

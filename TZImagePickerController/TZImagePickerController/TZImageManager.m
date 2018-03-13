@@ -68,6 +68,9 @@ static CGFloat TZScreenScale;
               采用默认排序  原因：PNG格式照片带有创建时间等信息，当保存到相册 进行creationDate排序 会发生错乱；
               在TZAlbumModel.m文件下 进行照片数组 反转排列
             
+            因为反转  第一张变为最后一张 最后一张变为第一张， 在相册内部进行拍照 拍照完成后 选中的照片会出错误。
+            所以此时在 TZPhotoPickerController的方法 reloadPhotoArray 中选中的照片需要取最后一张
+            
             */
         
 //        PHFetchOptions *option = [[PHFetchOptions alloc] init];
