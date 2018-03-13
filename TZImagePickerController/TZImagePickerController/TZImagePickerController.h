@@ -272,4 +272,6 @@
 @property(nonatomic, assign) BOOL allowPickingImage;
 @property (nonatomic, assign) BOOL allowPickingVideo;
 @property (strong, nonatomic) NSBundle *languageBundle;
+/// 默认是200，如果一个GIF过大，里面图片个数可能超过1000，会导致内存飙升而崩溃
+@property (assign, nonatomic) NSInteger gifPreviewMaxImagesCount;
 @end

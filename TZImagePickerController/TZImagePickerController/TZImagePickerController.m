@@ -820,6 +820,7 @@
         if (config == nil) {
             config = [[TZImagePickerConfig alloc] init];
             config.preferredLanguage = nil;
+            config.gifPreviewMaxImagesCount = 200;
         }
     });
     return config;

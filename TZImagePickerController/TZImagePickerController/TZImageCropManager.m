@@ -10,6 +10,7 @@
 #import "UIView+Layout.h"
 #import <ImageIO/ImageIO.h>
 #import "TZImageManager.h"
+#import "TZImagePickerController.h"
 
 @implementation TZImageCropManager
 
@@ -131,17 +132,21 @@
         animatedImage = [[UIImage alloc] initWithData:data];
     }
     else {
+        // images数组过大时内存会飙升，在这里限制下最大count
+        NSInteger maxCount = [TZImagePickerConfig sharedInstance].gifPreviewMaxImagesCount ?: 200;
+        NSInteger interval = MAX((count + maxCount / 2) / maxCount, 1);
+        
         NSMutableArray *images = [NSMutableArray array];
         
         NSTimeInterval duration = 0.0f;
         
-        for (size_t i = 0; i < count; i++) {
+        for (size_t i = 0; i < count; i+=interval) {
             CGImageRef image = CGImageSourceCreateImageAtIndex(source, i, NULL);
             if (!image) {
                 continue;
             }
             
-            duration += [self sd_frameDurationAtIndex:i source:source];
+            duration += [self sd_frameDurationAtIndex:i source:source] * MIN(interval, 3);
             
             [images addObject:[UIImage imageWithCGImage:image scale:[UIScreen mainScreen].scale orientation:UIImageOrientationUp]];
             
