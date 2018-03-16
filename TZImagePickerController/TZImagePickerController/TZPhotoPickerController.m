@@ -605,6 +605,10 @@ static CGFloat itemMargin = 5;
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         self.imagePickerVc.sourceType = sourceType;
+        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+        if (tzImagePickerVc.allowPickingVideo) {
+            self.imagePickerVc.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
+        }
         if(iOS8Later) {
             _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
         }
@@ -726,6 +730,18 @@ static CGFloat itemMargin = 5;
             }];
             self.location = nil;
         }
+    } else if ([type isEqualToString:@"public.movie"]) {
+        TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+        [imagePickerVc showProgressHUD];
+        NSURL *videoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
+        if (videoUrl) {
+            [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(NSError *error) {
+                if (!error) {
+                    [self reloadPhotoArray];
+                }
+            }];
+            self.location = nil;
+        }
     }
 }
 
@@ -739,10 +755,14 @@ static CGFloat itemMargin = 5;
             TZAssetModel *assetModel;
             if (tzImagePickerVc.sortAscendingByModificationDate) {
                 assetModel = [models lastObject];
-                [_models addObject:assetModel];
+                if (assetModel.type != TZAssetModelMediaTypeVideo || tzImagePickerVc.allowPickingMultipleVideo) {
+                    [_models addObject:assetModel];
+                }
             } else {
                 assetModel = [models firstObject];
-                [_models insertObject:assetModel atIndex:0];
+                if (assetModel.type != TZAssetModelMediaTypeVideo || tzImagePickerVc.allowPickingMultipleVideo) {
+                    [_models insertObject:assetModel atIndex:0];
+                }
             }
             
             if (tzImagePickerVc.maxImagesCount <= 1) {

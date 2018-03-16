@@ -690,6 +690,61 @@ static dispatch_once_t onceToken;
     }
 }
 
+#pragma mark - Save video
+
+- (void)saveVideoWithUrl:(NSURL *)url completion:(void (^)(NSError *error))completion {
+    [self saveVideoWithUrl:url location:nil completion:completion];
+}
+
+- (void)saveVideoWithUrl:(NSURL *)url location:(CLLocation *)location completion:(void (^)(NSError *error))completion {
+    if (iOS8Later) {
+        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+            if (iOS9Later) {
+                PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
+                options.shouldMoveFile = YES;
+                PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];
+                [request addResourceWithType:PHAssetResourceTypeVideo fileURL:url options:options];
+                if (location) {
+                    request.location = location;
+                }
+                request.creationDate = [NSDate date];
+            } else {
+                PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url];
+                if (location) {
+                    request.location = location;
+                }
+                request.creationDate = [NSDate date];
+            }
+        } completionHandler:^(BOOL success, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (success && completion) {
+                    completion(nil);
+                } else if (error) {
+                    NSLog(@"保存视频出错:%@",error.localizedDescription);
+                    if (completion) {
+                        completion(error);
+                    }
+                }
+            });
+        }];
+    } else {
+        [self.assetLibrary writeVideoAtPathToSavedPhotosAlbum:url completionBlock:^(NSURL *assetURL, NSError *error) {
+            if (error) {
+                NSLog(@"保存视频出错:%@",error.localizedDescription);
+                if (completion) {
+                    completion(error);
+                }
+            } else {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    if (completion) {
+                        completion(nil);
+                    }
+                });
+            }
+        }];
+    }
+}
+
 #pragma mark - Get Video
 
 /// Get Video / 获取视频
