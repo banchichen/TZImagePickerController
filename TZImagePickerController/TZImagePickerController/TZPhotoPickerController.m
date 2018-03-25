@@ -309,8 +309,8 @@ static CGFloat itemMargin = 5;
         _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 46, 0, 80, 50);
     }
     [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, _doneButton.tz_width, toolBarHeight);
-    _numberImageView.frame = CGRectMake(_doneButton.tz_left - 30 - 2, (toolBarHeight - 30) / 2, 30, 30);
+    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, _doneButton.tz_width, 44);
+    _numberImageView.frame = CGRectMake(_doneButton.tz_left - 30 - 2, 7, 30, 30);
     _numberLabel.frame = _numberImageView.frame;
     _divideLine.frame = CGRectMake(0, 0, self.view.tz_width, 1);
     
