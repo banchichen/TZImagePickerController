@@ -239,11 +239,19 @@
     // 2. Set the appearance
     // 2. 在这里设置imagePickerVc的外观
     // if (iOS7Later) {
-        // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];
+//    imagePickerVc.navigationBar.barTintColor = [UIColor yellowColor];
+//    imagePickerVc.navigationBar.backgroundColor = UIColor.whiteColor;
+//    imagePickerVc.statusBarStyle = UIStatusBarStyleDefault;
+//    imagePickerVc.isStatusBarDefault = YES;
+//    imagePickerVc.navigationBar.backgroundColor = UIColor.whiteColor;
     // }
     // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
     // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
-    // imagePickerVc.navigationBar.translucent = NO;
+    UIColor *color = [UIColor blackColor];
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    [dic setObject:color forKey:NSForegroundColorAttributeName];
+    imagePickerVc.navigationBar.titleTextAttributes = dic;
+//    imagePickerVc.navigationBar.translucent = NO;
     
     // 3. Set allow picking video & photo & originalPhoto or not
     // 3. 设置是否可以选择视频/图片/原图
@@ -488,7 +496,7 @@
     _isSelectOriginalPhoto = isSelectOriginalPhoto;
     [_collectionView reloadData];
     // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
-    
+
     // 1.打印图片名字
     [self printAssetsName:assets];
     // 2.图片位置信息
@@ -497,6 +505,10 @@
             NSLog(@"location:%@",phAsset.location);
         }
     }
+}
+
+- (void)imagePickerControllerDidClickTakePhotoBtn:(TZImagePickerController *)picker {
+    NSLog(@"点击了相册按钮");
 }
 
 // If user picking a video, this callback will be called.

@@ -61,8 +61,8 @@
     self.oKButtonTitleColorDisabled = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:0.5];
     
     if (iOS7Later) {
-        self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
-        self.navigationBar.tintColor = [UIColor whiteColor];
+        self.navigationBar.barTintColor = [UIColor whiteColor];
+        self.navigationBar.tintColor = [UIColor blackColor];
         self.automaticallyAdjustsScrollViewInsets = NO;
         if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
     }
@@ -112,7 +112,7 @@
     if (isStatusBarDefault) {
         self.statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
     } else {
-        self.statusBarStyle = iOS7Later ? UIStatusBarStyleLightContent : UIStatusBarStyleBlackOpaque;
+        self.statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
     }
 }
 
@@ -132,7 +132,22 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+    [self.navigationBar setShadowImage:[self imageWithColor:[UIColor colorWithRed:222/255.0 green:222/255.0 blue:222/255.0 alpha:1] size:CGSizeMake(UIScreen.mainScreen.bounds.size.width, 1)]];
+}
+
+- (UIImage *)imageWithColor:(UIColor *)color size:(CGSize)size {
+    CGRect rect = CGRectMake(0, 0, size.width, size.height);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    
+    return image;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -269,7 +284,7 @@
     self.barItemTextFont = [UIFont systemFontOfSize:15];
     self.barItemTextColor = [UIColor whiteColor];
     self.allowPreview = YES;
-    self.statusBarStyle = UIStatusBarStyleLightContent;
+    self.statusBarStyle = UIStatusBarStyleDefault;
     
     [self configDefaultImageName];
     [self configDefaultBtnTitle];
@@ -618,21 +633,23 @@
     self.view.backgroundColor = [UIColor whiteColor];
     
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:imagePickerVc action:@selector(cancelButtonClick)];
+    UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightButton.frame = CGRectMake(0, 0, 44, 44);
+    rightButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    [rightButton setTitle:imagePickerVc.cancelBtnTitleStr forState:UIControlStateNormal];
+    [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
+    [rightButton addTarget:imagePickerVc action:@selector(cancelButtonClick) forControlEvents:UIControlEventTouchUpInside];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     [imagePickerVc hideProgressHUD];
-    if (imagePickerVc.allowTakePicture) {
-        self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Photos"];
-    } else if (imagePickerVc.allowPickingVideo) {
-        self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Videos"];
-    }
-    
+    self.navigationItem.title = @"选择相册";
+
     if (self.isFirstAppear && !imagePickerVc.navLeftBarButtonSettingBlock) {
-        self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
+        self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] style:UIBarButtonItemStylePlain target:nil action:nil];
     }
     
     [self configTableView];

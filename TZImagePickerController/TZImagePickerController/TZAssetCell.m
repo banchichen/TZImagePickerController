@@ -96,9 +96,8 @@
     if (type == TZAssetCellTypeVideo) {
         self.bottomView.hidden = NO;
         self.timeLength.text = _model.timeLength;
-        self.videoImgView.hidden = NO;
-        _timeLength.tz_left = self.videoImgView.tz_right;
-        _timeLength.textAlignment = NSTextAlignmentRight;
+        self.videoImgView.hidden = YES;
+        _timeLength.textAlignment = NSTextAlignmentCenter;
     } else if (type == TZAssetCellTypePhotoGif && self.allowPickingGif) {
         self.bottomView.hidden = NO;
         self.timeLength.text = @"GIF";
@@ -189,8 +188,7 @@
 - (UIView *)bottomView {
     if (_bottomView == nil) {
         UIView *bottomView = [[UIView alloc] init];
-        static NSInteger rgb = 0;
-        bottomView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.8];
+        bottomView.backgroundColor = UIColor.clearColor;
         [self.contentView addSubview:bottomView];
         _bottomView = bottomView;
     }
@@ -210,9 +208,12 @@
 - (UILabel *)timeLength {
     if (_timeLength == nil) {
         UILabel *timeLength = [[UILabel alloc] init];
-        timeLength.font = [UIFont boldSystemFontOfSize:11];
+        timeLength.font = [UIFont boldSystemFontOfSize:10];
         timeLength.textColor = [UIColor whiteColor];
-        timeLength.textAlignment = NSTextAlignmentRight;
+        timeLength.textAlignment = NSTextAlignmentCenter;
+        timeLength.backgroundColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5];
+        timeLength.clipsToBounds = YES;
+        timeLength.layer.cornerRadius = 7;
         [self.bottomView addSubview:timeLength];
         _timeLength = timeLength;
     }
@@ -237,15 +238,15 @@
     }
     _selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
     _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
-    
+
     static CGFloat progressWH = 20;
     CGFloat progressXY = (self.tz_width - progressWH) / 2;
     _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
 
-    _bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
+    _bottomView.frame = CGRectMake(0, self.tz_height - 22, self.tz_width, 22);
     _videoImgView.frame = CGRectMake(8, 0, 17, 17);
-    _timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
-    
+    _timeLength.frame = CGRectMake(self.tz_width - 8 - 37, 0, 37, 14);
+
     self.type = (NSInteger)self.model.type;
     self.showSelectBtn = self.showSelectBtn;
 }
