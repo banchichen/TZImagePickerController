@@ -524,7 +524,7 @@ static CGFloat itemMargin = 5;
     // take a photo / 去拍照
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn)  {
-        [self.navigationController dismissViewControllerAnimated:YES completion:^{
+        [self.navigationController dismissViewControllerAnimated:NO completion:^{
             if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidClickTakePhotoBtn:)]) {
                 [tzImagePickerVc.pickerDelegate imagePickerControllerDidClickTakePhotoBtn:tzImagePickerVc];
             }
@@ -547,7 +547,7 @@ static CGFloat itemMargin = 5;
                 if (!isDegraded && photo) {
                     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
                     if (self.navigationController) {
-                        [self.navigationController dismissViewControllerAnimated:YES completion:^{
+                        [self.navigationController dismissViewControllerAnimated:NO completion:^{
                             if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
                                 [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingVideo:photo sourceAssets:model.asset];
                             }
