@@ -237,6 +237,9 @@
 // Decide asset show or not't
 // 决定照片显示与否
 - (BOOL)isAssetCanSelect:(id)asset;
+
+// 点击了拍照相册内的拍照按钮
+- (void)imagePickerControllerDidClickTakePhotoBtn:(TZImagePickerController *)picker;
 @end
 
 

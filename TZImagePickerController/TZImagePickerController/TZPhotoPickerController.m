@@ -524,7 +524,12 @@ static CGFloat itemMargin = 5;
     // take a photo / 去拍照
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn)  {
-        [self takePhoto]; return;
+        [self.navigationController dismissViewControllerAnimated:YES completion:^{
+            if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidClickTakePhotoBtn:)]) {
+                [tzImagePickerVc.pickerDelegate imagePickerControllerDidClickTakePhotoBtn:tzImagePickerVc];
+            }
+        }];
+        return;
     }
     // preview phote or video / 预览照片或视频
     NSInteger index = indexPath.row;
@@ -537,9 +542,22 @@ static CGFloat itemMargin = 5;
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
             [imagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Can not choose both video and photo"]];
         } else {
-            TZVideoPlayerController *videoPlayerVc = [[TZVideoPlayerController alloc] init];
-            videoPlayerVc.model = model;
-            [self.navigationController pushViewController:videoPlayerVc animated:YES];
+            // TODO: 后续如果需要修改代码和旧代码共存,增进一个协议函数返回Bool值决定是否调整即可
+            [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+                if (!isDegraded && photo) {
+                    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+                    if (self.navigationController) {
+                        [self.navigationController dismissViewControllerAnimated:YES completion:^{
+                            if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
+                                [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingVideo:photo sourceAssets:model.asset];
+                            }
+                            if (imagePickerVc.didFinishPickingVideoHandle) {
+                                imagePickerVc.didFinishPickingVideoHandle(photo,model.asset);
+                            }
+                        }];
+                    }
+                }
+            }];
         }
     } else if (model.type == TZAssetModelMediaTypePhotoGif && tzImagePickerVc.allowPickingGif && !tzImagePickerVc.allowPickingMultipleVideo) {
         if (tzImagePickerVc.selectedModels.count > 0) {
