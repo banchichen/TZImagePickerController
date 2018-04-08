@@ -126,6 +126,8 @@
             [self.navigationController dismissViewControllerAnimated:YES completion:^{
                 [self callDelegateMethod];
             }];
+        } else {
+            [self callDelegateMethod];
         }
     } else {
         [self dismissViewControllerAnimated:YES completion:^{
