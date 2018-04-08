@@ -25,6 +25,32 @@
     return model;
 }
 
+- (UIImage *)getFullImageSynchronous {
+    __block UIImage *resultImage = nil;
+    if (!self.asset) {
+        return nil;
+    }
+    if ([self.asset isKindOfClass:[PHAsset class]]) {
+        PHImageRequestOptions *phImageRequestOptions = [[PHImageRequestOptions alloc] init];
+        phImageRequestOptions.synchronous = YES;
+        [[PHImageManager defaultManager] requestImageForAsset:self.asset
+                                                   targetSize:PHImageManagerMaximumSize
+                                                  contentMode:PHImageContentModeDefault
+                                                      options:phImageRequestOptions
+                                                resultHandler:^(UIImage *result, NSDictionary *info) {
+                                                    resultImage = result;
+                                                }];
+        return resultImage;
+    }
+    else {
+        ALAsset *alAsset = (ALAsset *)self.asset;
+        ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
+        CGImageRef originalImageRef = [assetRep fullResolutionImage];
+        UIImage *originalImage = [UIImage imageWithCGImage:originalImageRef scale:1.0 orientation:UIImageOrientationUp];
+        return originalImage;
+    }
+}
+
 @end
 
 
