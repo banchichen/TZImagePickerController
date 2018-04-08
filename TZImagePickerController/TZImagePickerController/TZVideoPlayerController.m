@@ -155,8 +155,8 @@
 }
 
 - (void)doneButtonClick {
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     if (self.navigationController) {
+        TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
         if (imagePickerVc.autoDismiss) {
             [self.navigationController dismissViewControllerAnimated:YES completion:^{
                 [self callDelegateMethod];
