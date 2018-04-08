@@ -25,7 +25,7 @@
     return model;
 }
 
-- (UIImage *)originImage {
+- (UIImage *)getFullImageSynchronous {
     __block UIImage *resultImage = nil;
     if (!self.asset) {
         return nil;
