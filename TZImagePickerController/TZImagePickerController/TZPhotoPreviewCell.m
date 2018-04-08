@@ -297,6 +297,13 @@
 
 #pragma mark - UIScrollViewDelegate
 
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    if (self.didScrollBlock) {
+        self.didScrollBlock();
+    }
+}
+
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
     return _imageContainerView;
 }
@@ -306,10 +313,16 @@
 }
 
 - (void)scrollViewDidZoom:(UIScrollView *)scrollView {
+    if (self.didZoomBlock) {
+        self.didZoomBlock();
+    }
     [self refreshImageContainerViewCenter];
 }
 
 - (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
+    if (self.didZoomBlock) {
+        self.didZoomBlock();
+    }
     [self refreshScrollViewContentSize];
 }
 
