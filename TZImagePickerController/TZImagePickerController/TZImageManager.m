@@ -1155,6 +1155,50 @@ static dispatch_once_t onceToken;
     return img;
 }
 
+
+#pragma clang diagnostic pop
+
+
+//获取首页头
+-(void)loadLastItemWithBlock:(void (^)(UIImage *))completion
+{
+    if (iOS8Later) {
+        //
+        PHFetchOptions *options = [[PHFetchOptions alloc] init];
+        PHFetchResult *assetsFetchResults = [PHAsset fetchAssetsWithOptions:options];
+        PHAsset *phasset = [assetsFetchResults lastObject];
+        PHCachingImageManager *imageManager = [[PHCachingImageManager alloc] init];
+        [imageManager requestImageForAsset:phasset targetSize:CGSizeMake(300, 300) contentMode:PHImageContentModeAspectFill options:nil resultHandler:^(UIImage * _Nullable result, NSDictionary * _Nullable info) {
+            if (completion) completion(result);
+
+        }];
+    }
+    else
+    {
+        //
+        [self.assetLibrary enumerateGroupsWithTypes:ALAssetsGroupSavedPhotos usingBlock:^(ALAssetsGroup *group, BOOL *stop) {
+            if (group) {
+                [group setAssetsFilter:[ALAssetsFilter allPhotos]];
+                [group enumerateAssetsWithOptions:NSEnumerationReverse/*遍历方式-反向*/ usingBlock:^(ALAsset *result, NSUInteger index, BOOL *stop) {
+                    if (result) {
+                        ALAssetRepresentation *assetRep = [result defaultRepresentation];
+                        CGImageRef imgRef = [assetRep fullResolutionImage];
+                        UIImage *image = [[UIImage alloc] initWithCGImage:imgRef];
+                        *stop = YES;
+                        if (completion) completion(image);
+                    }
+                }];
+                *stop = YES;
+               
+                
+            }
+        } failureBlock:^(NSError *error) {
+            if (error) {
+                 if (completion) completion(nil);
+            }
+        }];
+    }
+}
 #pragma clang diagnostic pop
 
 @end
