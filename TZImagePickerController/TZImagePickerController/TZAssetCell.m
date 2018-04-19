@@ -348,7 +348,7 @@
         _imageView = [[UIImageView alloc] init];
         _imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
         _imageView.contentMode = UIViewContentModeScaleAspectFill;
-        [self addSubview:_imageView];
+        [self.contentView addSubview:_imageView];
         self.clipsToBounds = YES;
     }
     return self;

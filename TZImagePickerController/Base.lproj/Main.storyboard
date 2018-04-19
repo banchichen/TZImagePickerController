@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14109" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14088"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -263,14 +263,36 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v2g-6C-m1J" userLabel="View13">
+                                        <rect key="frame" x="0.0" y="440" width="375" height="35"/>
+                                        <subviews>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mMy-bi-cIJ">
+                                                <rect key="frame" x="225" y="2" width="51" height="31"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <connections>
+                                                    <action selector="showTakeVideoBtnSwitchClick:" destination="BYZ-38-t0r" eventType="valueChanged" id="YVa-sT-R3M"/>
+                                                </connections>
+                                            </switch>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="显示内部拍视频按钮" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8H2-cq-aUq">
+                                                <rect key="frame" x="0.0" y="0.0" width="200" height="35"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </view>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="VUP-wm-Ah2" firstAttribute="leading" secondItem="PA2-zk-4Ey" secondAttribute="leading" id="1iv-97-UAf"/>
+                                    <constraint firstItem="v2g-6C-m1J" firstAttribute="leading" secondItem="kBC-oD-k6h" secondAttribute="leading" id="1xv-oX-xWZ"/>
                                     <constraint firstItem="92q-n9-Zwf" firstAttribute="trailing" secondItem="VUP-wm-Ah2" secondAttribute="trailing" id="2dI-dy-w3s"/>
                                     <constraint firstItem="PA2-zk-4Ey" firstAttribute="trailing" secondItem="Qrr-87-KzM" secondAttribute="trailing" id="3up-87-K1l"/>
                                     <constraint firstItem="VUP-wm-Ah2" firstAttribute="top" secondItem="PA2-zk-4Ey" secondAttribute="bottom" id="3wW-Pg-fzS"/>
                                     <constraint firstItem="Z20-6k-hhA" firstAttribute="leading" secondItem="kJv-DR-NlY" secondAttribute="leading" id="9l0-Jl-AUA"/>
                                     <constraint firstItem="Qrr-87-KzM" firstAttribute="height" secondItem="gde-hr-2Sy" secondAttribute="height" id="ClL-Ck-Dcn"/>
+                                    <constraint firstItem="v2g-6C-m1J" firstAttribute="top" secondItem="kBC-oD-k6h" secondAttribute="bottom" id="ErC-BJ-ezP"/>
                                     <constraint firstItem="92q-n9-Zwf" firstAttribute="leading" secondItem="VUP-wm-Ah2" secondAttribute="leading" id="FGD-bj-L3J"/>
                                     <constraint firstItem="wWK-ob-W4A" firstAttribute="height" secondItem="obE-hs-XLa" secondAttribute="height" id="HFb-Z1-0pm"/>
                                     <constraint firstItem="VUP-wm-Ah2" firstAttribute="trailing" secondItem="PA2-zk-4Ey" secondAttribute="trailing" id="JFl-1c-hQh"/>
@@ -292,6 +314,7 @@
                                     <constraint firstItem="Z20-6k-hhA" firstAttribute="height" secondItem="kJv-DR-NlY" secondAttribute="height" id="cSa-cz-LpU"/>
                                     <constraint firstItem="Qrr-87-KzM" firstAttribute="top" secondItem="jKt-h1-BC7" secondAttribute="bottom" constant="35" id="eMB-pt-F7l"/>
                                     <constraint firstItem="gde-hr-2Sy" firstAttribute="top" secondItem="jKt-h1-BC7" secondAttribute="bottom" id="eqU-F1-2IQ"/>
+                                    <constraint firstItem="v2g-6C-m1J" firstAttribute="trailing" secondItem="kBC-oD-k6h" secondAttribute="trailing" id="ez1-O3-KTh"/>
                                     <constraint firstItem="jKt-h1-BC7" firstAttribute="top" secondItem="Z20-6k-hhA" secondAttribute="bottom" id="gEr-Zu-lDh"/>
                                     <constraint firstItem="VUP-wm-Ah2" firstAttribute="height" secondItem="PA2-zk-4Ey" secondAttribute="height" id="hDo-rF-XEe"/>
                                     <constraint firstItem="obE-hs-XLa" firstAttribute="leading" secondItem="AMD-xf-cz2" secondAttribute="leading" id="hDy-MM-w5g"/>
@@ -312,6 +335,7 @@
                                     <constraint firstItem="kJv-DR-NlY" firstAttribute="trailing" secondItem="wWK-ob-W4A" secondAttribute="trailing" id="t41-Zi-afs"/>
                                     <constraint firstItem="Qrr-87-KzM" firstAttribute="trailing" secondItem="gde-hr-2Sy" secondAttribute="trailing" id="vZF-Ly-XEP"/>
                                     <constraint firstItem="Z20-6k-hhA" firstAttribute="trailing" secondItem="kJv-DR-NlY" secondAttribute="trailing" id="w7j-cD-oSq"/>
+                                    <constraint firstItem="v2g-6C-m1J" firstAttribute="height" secondItem="kBC-oD-k6h" secondAttribute="height" id="xp8-5X-dXy"/>
                                     <constraint firstItem="uex-bO-uvg" firstAttribute="leading" secondItem="92q-n9-Zwf" secondAttribute="leading" id="yDZ-7l-FMk"/>
                                 </constraints>
                             </scrollView>
@@ -338,6 +362,7 @@
                         <outlet property="scrollView" destination="AMD-xf-cz2" id="0Bb-Te-K4h"/>
                         <outlet property="showSheetSwitch" destination="uHt-bT-lBZ" id="NxK-wM-ivE"/>
                         <outlet property="showTakePhotoBtnSwitch" destination="jpa-B9-8n6" id="lh8-2O-IWS"/>
+                        <outlet property="showTakeVideoBtnSwitch" destination="mMy-bi-cIJ" id="jER-Fp-aOr"/>
                         <outlet property="sortAscendingSwitch" destination="Rbt-bh-r0x" id="WEA-Vq-uSg"/>
                     </connections>
                 </viewController>

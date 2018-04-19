@@ -133,6 +133,11 @@
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
     [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
+    if ([self.takePictureImageName isEqualToString:@"takePicture80"]) {
+        if (self.allowTakePicture && !self.allowTakeVideo) {
+            self.takePictureImageName = @"takePicture";
+        }
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -170,6 +175,8 @@
         self.allowPickingVideo = YES;
         self.allowPickingImage = YES;
         self.allowTakePicture = YES;
+        self.allowTakeVideo = YES;
+        self.videoMaximumDuration = 10 * 60;
         self.sortAscendingByModificationDate = YES;
         self.autoDismiss = YES;
         self.columnNumber = columnNumber;
@@ -279,7 +286,7 @@
 }
 
 - (void)configDefaultImageName {
-    self.takePictureImageName = @"takePicture";
+    self.takePictureImageName = @"takePicture80";
     self.photoSelImageName = @"photo_sel_photoPickerVc";
     self.photoDefImageName = @"photo_def_photoPickerVc";
     self.photoNumberIconImageName = @"photo_number_icon";
@@ -625,7 +632,7 @@
     [super viewWillAppear:animated];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     [imagePickerVc hideProgressHUD];
-    if (imagePickerVc.allowTakePicture) {
+    if (imagePickerVc.allowPickingImage) {
         self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Photos"];
     } else if (imagePickerVc.allowPickingVideo) {
         self.navigationItem.title = [NSBundle tz_localizedStringForKey:@"Videos"];

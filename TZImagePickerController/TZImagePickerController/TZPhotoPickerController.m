@@ -16,6 +16,7 @@
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate> {
     NSMutableArray *_models;
@@ -87,7 +88,7 @@ static CGFloat itemMargin = 5;
         tzImagePickerVc.navLeftBarButtonSettingBlock(leftButton);
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
     }
-    _showTakePhotoBtn = (_model.isCameraRoll && tzImagePickerVc.allowTakePicture);
+    _showTakePhotoBtn = _model.isCameraRoll && (tzImagePickerVc.allowTakePicture || tzImagePickerVc.allowTakeVideo);
     // [self resetCachedAssets];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
 }
@@ -153,7 +154,7 @@ static CGFloat itemMargin = 5;
     _collectionView.alwaysBounceHorizontal = NO;
     _collectionView.contentInset = UIEdgeInsetsMake(itemMargin, itemMargin, itemMargin, itemMargin);
     
-    if (_showTakePhotoBtn && tzImagePickerVc.allowTakePicture ) {
+    if (_showTakePhotoBtn) {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber) / self.columnNumber) * self.view.tz_width);
     } else {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber - 1) / self.columnNumber) * self.view.tz_width);
@@ -437,10 +438,7 @@ static CGFloat itemMargin = 5;
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     if (_showTakePhotoBtn) {
-        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-        if (tzImagePickerVc.allowPickingImage && tzImagePickerVc.allowTakePicture) {
-            return _models.count + 1;
-        }
+        return _models.count + 1;
     }
     return _models.count;
 }
@@ -451,6 +449,13 @@ static CGFloat itemMargin = 5;
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
         cell.imageView.image = [UIImage imageNamedFromMyBundle:tzImagePickerVc.takePictureImageName];
+        if ([tzImagePickerVc.takePictureImageName isEqualToString:@"takePicture80"]) {
+            cell.imageView.contentMode = UIViewContentModeCenter;
+            CGFloat rgb = 223 / 255.0;
+            cell.imageView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+        } else {
+            cell.imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
+        }
         return cell;
     }
     // the cell dipaly photo or video / 展示照片或视频的cell
@@ -603,13 +608,19 @@ static CGFloat itemMargin = 5;
     }];
     
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
-    if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
-        self.imagePickerVc.sourceType = sourceType;
+    if ([UIImagePickerController isSourceTypeAvailable: sourceType]) {
         TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-        if (tzImagePickerVc.allowPickingVideo) {
-            self.imagePickerVc.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType:UIImagePickerControllerSourceTypeCamera];
+        self.imagePickerVc.sourceType = sourceType;
+        NSMutableArray *mediaTypes = [NSMutableArray array];
+        if (tzImagePickerVc.allowTakePicture) {
+            [mediaTypes addObject:(NSString *)kUTTypeImage];
         }
-        if(iOS8Later) {
+        if (tzImagePickerVc.allowTakeVideo) {
+            [mediaTypes addObject:(NSString *)kUTTypeMovie];
+            self.imagePickerVc.videoMaximumDuration = tzImagePickerVc.videoMaximumDuration;
+        }
+        self.imagePickerVc.mediaTypes= mediaTypes;
+        if (iOS8Later) {
             _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
         }
         [self presentViewController:_imagePickerVc animated:YES completion:nil];
@@ -673,10 +684,7 @@ static CGFloat itemMargin = 5;
         if (tzImagePickerVc.sortAscendingByModificationDate) {
             item = _models.count - 1;
             if (_showTakePhotoBtn) {
-                TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-                if (tzImagePickerVc.allowPickingImage && tzImagePickerVc.allowTakePicture) {
-                    item += 1;
-                }
+                item += 1;
             }
         }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
