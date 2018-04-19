@@ -327,7 +327,7 @@
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
-            _didPushPhotoPickerVc = YES;
+            self->_didPushPhotoPickerVc = YES;
         }];
     }
 }

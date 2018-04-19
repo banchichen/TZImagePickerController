@@ -363,7 +363,7 @@
     [[TZImageManager manager] getVideoWithAsset:self.model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
         dispatch_async(dispatch_get_main_queue(), ^{
             self->_player = [AVPlayer playerWithPlayerItem:playerItem];
-            self->_playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
+            self->_playerLayer = [AVPlayerLayer playerLayerWithPlayer:self->_player];
             self->_playerLayer.backgroundColor = [UIColor blackColor].CGColor;
             self->_playerLayer.frame = self.bounds;
             [self.layer addSublayer:self->_playerLayer];

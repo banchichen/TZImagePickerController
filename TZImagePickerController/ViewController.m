@@ -182,11 +182,11 @@
             imagePickerVc.allowPickingMultipleVideo = self.allowPickingMuitlpleVideoSwitch.isOn;
             imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
             [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-                _selectedPhotos = [NSMutableArray arrayWithArray:photos];
-                _selectedAssets = [NSMutableArray arrayWithArray:assets];
-                _isSelectOriginalPhoto = isSelectOriginalPhoto;
-                [_collectionView reloadData];
-                _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
+                self->_selectedPhotos = [NSMutableArray arrayWithArray:photos];
+                self->_selectedAssets = [NSMutableArray arrayWithArray:assets];
+                self->_isSelectOriginalPhoto = isSelectOriginalPhoto;
+                [self->_collectionView reloadData];
+                self->_collectionView.contentSize = CGSizeMake(0, ((self->_selectedPhotos.count + 2) / 3 ) * (self->_margin + self->_itemWH));
             }];
             [self presentViewController:imagePickerVc animated:YES completion:nil];
         }
@@ -595,9 +595,9 @@
     
     [_collectionView performBatchUpdates:^{
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:sender.tag inSection:0];
-        [_collectionView deleteItemsAtIndexPaths:@[indexPath]];
+        [self->_collectionView deleteItemsAtIndexPaths:@[indexPath]];
     } completion:^(BOOL finished) {
-        [_collectionView reloadData];
+        [self->_collectionView reloadData];
     }];
 }
 
