@@ -98,20 +98,20 @@ static CGFloat itemMargin = 5;
         [tzImagePickerVc showProgressHUD];
     }
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        if (!tzImagePickerVc.sortAscendingByModificationDate && _isFirstAppear && iOS8Later && _model.isCameraRoll) {
+        if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && iOS8Later && self->_model.isCameraRoll) {
             [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:YES completion:^(TZAlbumModel *model) {
-                _model = model;
-                _models = [NSMutableArray arrayWithArray:_model.models];
+                self->_model = model;
+                self->_models = [NSMutableArray arrayWithArray:self->_model.models];
                 [self initSubviews];
             }];
         } else {
-            if (_showTakePhotoBtn || !iOS8Later || _isFirstAppear) {
-                [[TZImageManager manager] getAssetsFromFetchResult:_model.result completion:^(NSArray<TZAssetModel *> *models) {
-                    _models = [NSMutableArray arrayWithArray:models];
+            if (self->_showTakePhotoBtn || !iOS8Later || self->_isFirstAppear) {
+                [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
+                    self->_models = [NSMutableArray arrayWithArray:models];
                     [self initSubviews];
                 }];
             } else {
-                _models = [NSMutableArray arrayWithArray:_model.models];
+                self->_models = [NSMutableArray arrayWithArray:self->_model.models];
                 [self initSubviews];
             }
         }
@@ -125,7 +125,7 @@ static CGFloat itemMargin = 5;
         
         [self checkSelectedModels];
         [self configCollectionView];
-        _collectionView.hidden = YES;
+        self->_collectionView.hidden = YES;
         [self configBottomToolBar];
         
         [self scrollCollectionViewToBottom];
@@ -662,7 +662,7 @@ static CGFloat itemMargin = 5;
     }
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     [[TZImageManager manager] getPhotosBytesWithArray:imagePickerVc.selectedModels completion:^(NSString *totalBytes) {
-        _originalPhotoLabel.text = [NSString stringWithFormat:@"(%@)",totalBytes];
+        self->_originalPhotoLabel.text = [NSString stringWithFormat:@"(%@)",totalBytes];
     }];
 }
 
@@ -680,9 +680,9 @@ static CGFloat itemMargin = 5;
             }
         }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
-            _shouldScrollToBottom = NO;
-            _collectionView.hidden = NO;
+            [self->_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
+            self->_shouldScrollToBottom = NO;
+            self->_collectionView.hidden = NO;
         });
     } else {
         _collectionView.hidden = NO;
@@ -748,20 +748,20 @@ static CGFloat itemMargin = 5;
 - (void)reloadPhotoArray {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
-        _model = model;
-        [[TZImageManager manager] getAssetsFromFetchResult:_model.result completion:^(NSArray<TZAssetModel *> *models) {
+        self->_model = model;
+        [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
             [tzImagePickerVc hideProgressHUD];
             
             TZAssetModel *assetModel;
             if (tzImagePickerVc.sortAscendingByModificationDate) {
                 assetModel = [models lastObject];
                 if (assetModel.type != TZAssetModelMediaTypeVideo || tzImagePickerVc.allowPickingMultipleVideo) {
-                    [_models addObject:assetModel];
+                    [self->_models addObject:assetModel];
                 }
             } else {
                 assetModel = [models firstObject];
                 if (assetModel.type != TZAssetModelMediaTypeVideo || tzImagePickerVc.allowPickingMultipleVideo) {
-                    [_models insertObject:assetModel atIndex:0];
+                    [self->_models insertObject:assetModel atIndex:0];
                 }
             }
             
@@ -769,11 +769,11 @@ static CGFloat itemMargin = 5;
                 if (tzImagePickerVc.allowCrop) {
                     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
                     if (tzImagePickerVc.sortAscendingByModificationDate) {
-                        photoPreviewVc.currentIndex = _models.count - 1;
+                        photoPreviewVc.currentIndex = self->_models.count - 1;
                     } else {
                         photoPreviewVc.currentIndex = 0;
                     }
-                    photoPreviewVc.models = _models;
+                    photoPreviewVc.models = self->_models;
                     [self pushPhotoPrevireViewController:photoPreviewVc];
                 } else {
                     [tzImagePickerVc.selectedModels addObject:assetModel];
@@ -787,10 +787,10 @@ static CGFloat itemMargin = 5;
                 [tzImagePickerVc.selectedModels addObject:assetModel];
                 [self refreshBottomToolBarStatus];
             }
-            _collectionView.hidden = YES;
-            [_collectionView reloadData];
+            self->_collectionView.hidden = YES;
+            [self->_collectionView reloadData];
             
-            _shouldScrollToBottom = YES;
+            self->_shouldScrollToBottom = YES;
             [self scrollCollectionViewToBottom];
         }];
     }];

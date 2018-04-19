@@ -32,7 +32,7 @@
         self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
     }
     int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        if (_progressView) {
+        if (self->_progressView) {
             self.progressView.hidden = YES;
             self.imageView.alpha = 1.0;
         }
@@ -132,11 +132,11 @@
 
 - (void)fetchBigImage {
     _bigImageRequestID = [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        if (_progressView) {
+        if (self->_progressView) {
             [self hideProgressView];
         }
     } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-        if (_model.isSelected) {
+        if (self->_model.isSelected) {
             progress = progress > 0.02 ? progress : 0.02;;
             self.progressView.progress = progress;
             self.progressView.hidden = NO;

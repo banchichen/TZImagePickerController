@@ -175,10 +175,10 @@
     
     _asset = asset;
     self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        if (![asset isEqual:_asset]) return;
+        if (![asset isEqual:self->_asset]) return;
         self.imageView.image = photo;
         [self resizeSubviews];
-        _progressView.hidden = YES;
+        self->_progressView.hidden = YES;
         if (self.imageProgressUpdateBlock) {
             self.imageProgressUpdateBlock(1);
         }
@@ -186,17 +186,17 @@
             self.imageRequestID = 0;
         }
     } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-        if (![asset isEqual:_asset]) return;
-        _progressView.hidden = NO;
-        [self bringSubviewToFront:_progressView];
+        if (![asset isEqual:self->_asset]) return;
+        self->_progressView.hidden = NO;
+        [self bringSubviewToFront:self->_progressView];
         progress = progress > 0.02 ? progress : 0.02;
-        _progressView.progress = progress;
+        self->_progressView.progress = progress;
         if (self.imageProgressUpdateBlock && progress < 1) {
             self.imageProgressUpdateBlock(progress);
         }
         
         if (progress >= 1) {
-            _progressView.hidden = YES;
+            self->_progressView.hidden = YES;
             self.imageRequestID = 0;
         }
     } networkAccessAllowed:YES];
@@ -358,17 +358,17 @@
     }
     
     [[TZImageManager manager] getPhotoWithAsset:self.model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        _cover = photo;
+        self->_cover = photo;
     }];
     [[TZImageManager manager] getVideoWithAsset:self.model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            _player = [AVPlayer playerWithPlayerItem:playerItem];
-            _playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
-            _playerLayer.backgroundColor = [UIColor blackColor].CGColor;
-            _playerLayer.frame = self.bounds;
-            [self.layer addSublayer:_playerLayer];
+            self->_player = [AVPlayer playerWithPlayerItem:playerItem];
+            self->_playerLayer = [AVPlayerLayer playerLayerWithPlayer:_player];
+            self->_playerLayer.backgroundColor = [UIColor blackColor].CGColor;
+            self->_playerLayer.frame = self.bounds;
+            [self.layer addSublayer:self->_playerLayer];
             [self configPlayButton];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pausePlayerAndShowNaviBar) name:AVPlayerItemDidPlayToEndTimeNotification object:_player.currentItem];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pausePlayerAndShowNaviBar) name:AVPlayerItemDidPlayToEndTimeNotification object:self->_player.currentItem];
         });
     }];
 }

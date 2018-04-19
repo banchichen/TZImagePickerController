@@ -652,8 +652,8 @@
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
         [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo allowPickingImage:imagePickerVc.allowPickingImage needFetchAssets:!self.isFirstAppear completion:^(NSArray<TZAlbumModel *> *models) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _albumArr = [NSMutableArray arrayWithArray:models];
-                for (TZAlbumModel *albumModel in _albumArr) {
+                self->_albumArr = [NSMutableArray arrayWithArray:models];
+                for (TZAlbumModel *albumModel in self->_albumArr) {
                     albumModel.selectedModels = imagePickerVc.selectedModels;
                 }
                 [imagePickerVc hideProgressHUD];
@@ -663,16 +663,16 @@
                     [self configTableView];
                 }
                 
-                if (!_tableView) {
-                    _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-                    _tableView.rowHeight = 70;
-                    _tableView.tableFooterView = [[UIView alloc] init];
-                    _tableView.dataSource = self;
-                    _tableView.delegate = self;
-                    [_tableView registerClass:[TZAlbumCell class] forCellReuseIdentifier:@"TZAlbumCell"];
-                    [self.view addSubview:_tableView];
+                if (!self->_tableView) {
+                    self->_tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+                    self->_tableView.rowHeight = 70;
+                    self->_tableView.tableFooterView = [[UIView alloc] init];
+                    self->_tableView.dataSource = self;
+                    self->_tableView.delegate = self;
+                    [self->_tableView registerClass:[TZAlbumCell class] forCellReuseIdentifier:@"TZAlbumCell"];
+                    [self.view addSubview:self->_tableView];
                 } else {
-                    [_tableView reloadData];
+                    [self->_tableView reloadData];
                 }
             });
         }];

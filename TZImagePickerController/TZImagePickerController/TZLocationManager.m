@@ -67,7 +67,7 @@
     if (_geocodeBlock && locations.count) {
         CLGeocoder *geocoder = [[CLGeocoder alloc] init];
         [geocoder reverseGeocodeLocation:[locations firstObject] completionHandler:^(NSArray *array, NSError *error) {
-            _geocodeBlock(array);
+            self->_geocodeBlock(array);
         }];
     }
 }

@@ -540,7 +540,7 @@ static dispatch_once_t onceToken;
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (completion) completion(thumbnailImage,nil,YES);
                 
-                if (photoWidth == TZScreenWidth || photoWidth == _photoPreviewMaxWidth) {
+                if (photoWidth == TZScreenWidth || photoWidth == self->_photoPreviewMaxWidth) {
                     dispatch_async(dispatch_get_global_queue(0,0), ^{
                         ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
                         CGImageRef fullScrennImageRef = [assetRep fullScreenImage];
