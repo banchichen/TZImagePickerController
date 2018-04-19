@@ -755,14 +755,10 @@ static CGFloat itemMargin = 5;
             TZAssetModel *assetModel;
             if (tzImagePickerVc.sortAscendingByModificationDate) {
                 assetModel = [models lastObject];
-                if (assetModel.type != TZAssetModelMediaTypeVideo || tzImagePickerVc.allowPickingMultipleVideo) {
-                    [self->_models addObject:assetModel];
-                }
+                [self->_models addObject:assetModel];
             } else {
                 assetModel = [models firstObject];
-                if (assetModel.type != TZAssetModelMediaTypeVideo || tzImagePickerVc.allowPickingMultipleVideo) {
-                    [self->_models insertObject:assetModel atIndex:0];
-                }
+                [self->_models insertObject:assetModel atIndex:0];
             }
             
             if (tzImagePickerVc.maxImagesCount <= 1) {
