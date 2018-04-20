@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.1.0 - 2018.04.19
+//  version 2.1.0.1 - 2018.04.20
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -510,11 +510,17 @@
 - (void)setAllowPickingImage:(BOOL)allowPickingImage {
     _allowPickingImage = allowPickingImage;
     [TZImagePickerConfig sharedInstance].allowPickingImage = allowPickingImage;
+    if (!allowPickingImage) {
+        _allowTakePicture = NO;
+    }
 }
 
 - (void)setAllowPickingVideo:(BOOL)allowPickingVideo {
     _allowPickingVideo = allowPickingVideo;
     [TZImagePickerConfig sharedInstance].allowPickingVideo = allowPickingVideo;
+    if (!allowPickingVideo) {
+        _allowTakeVideo = NO;
+    }
 }
 
 - (void)setPreferredLanguage:(NSString *)preferredLanguage {

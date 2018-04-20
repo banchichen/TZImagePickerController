@@ -608,12 +608,14 @@
 - (IBAction)showTakePhotoBtnSwitchClick:(UISwitch *)sender {
     if (sender.isOn) {
         [_showSheetSwitch setOn:NO animated:YES];
+        [_allowPickingImageSwitch setOn:YES animated:YES];
     }
 }
 
 - (IBAction)showTakeVideoBtnSwitchClick:(UISwitch *)sender {
     if (sender.isOn) {
         [_showSheetSwitch setOn:NO animated:YES];
+        [_allowPickingVideoSwitch setOn:YES animated:YES];
     }
 }
 
