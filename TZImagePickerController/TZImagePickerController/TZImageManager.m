@@ -26,8 +26,8 @@ static CGFloat TZScreenScale;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         manager = [[self alloc] init];
-        manager.cachingImageManager = [[PHCachingImageManager alloc] init];
-        manager.cachingImageManager.allowsCachingHighQualityImages = NO;
+//        manager.cachingImageManager = [[PHCachingImageManager alloc] init];
+//        manager.cachingImageManager.allowsCachingHighQualityImages = NO;
         
         TZScreenWidth = [UIScreen mainScreen].bounds.size.width;
         // 测试发现，如果scale在plus真机上取到3.0，内存会增大特别多。故这里写死成2.0
