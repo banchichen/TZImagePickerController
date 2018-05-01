@@ -741,7 +741,7 @@ static CGFloat itemMargin = 5;
         if (photo) {
             [[TZImageManager manager] savePhotoWithImage:photo location:self.location completion:^(NSError *error){
                 if (!error) {
-                    [self reloadPhotoArray];
+                    [self reloadPhotoArrayWithMediaType:type];
                 }
             }];
             self.location = nil;
@@ -753,7 +753,7 @@ static CGFloat itemMargin = 5;
         if (videoUrl) {
             [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(NSError *error) {
                 if (!error) {
-                    [self reloadPhotoArray];
+                    [self reloadPhotoArrayWithMediaType:type];
                 }
             }];
             self.location = nil;
@@ -761,7 +761,7 @@ static CGFloat itemMargin = 5;
     }
 }
 
-- (void)reloadPhotoArray {
+- (void)reloadPhotoArrayWithMediaType:(NSString *)mediaType {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
         self->_model = model;
@@ -795,9 +795,13 @@ static CGFloat itemMargin = 5;
             }
             
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
-                assetModel.isSelected = YES;
-                [tzImagePickerVc.selectedModels addObject:assetModel];
-                [self refreshBottomToolBarStatus];
+                if ([mediaType isEqualToString:@"public.movie"] && !tzImagePickerVc.allowPickingMultipleVideo) {
+                    // 不能多选视频的情况下，不选中拍摄的视频
+                } else {
+                    assetModel.isSelected = YES;
+                    [tzImagePickerVc.selectedModels addObject:assetModel];
+                    [self refreshBottomToolBarStatus];
+                }
             }
             self->_collectionView.hidden = YES;
             [self->_collectionView reloadData];
