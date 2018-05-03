@@ -191,8 +191,9 @@ static dispatch_once_t onceToken;
                     }
                 }
                 
-                if ([collection.localizedTitle tz_containsString:@"Hidden"] || [collection.localizedTitle isEqualToString:@"已隐藏"]) continue;
-                if ([collection.localizedTitle tz_containsString:@"Deleted"] || [collection.localizedTitle isEqualToString:@"最近删除"]) continue;
+                // 判断相册类型建议不要使用字符串判断，不然只能在中文和英文环境下能用了
+                if (collection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumAllHidden) continue; // 『已隐藏』相册
+                if (collection.assetCollectionSubtype == 1000000201) continue; // 『最近删除』相册
                 if ([self isCameraRollAlbum:collection]) {
                     [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets] atIndex:0];
                 } else {
@@ -218,6 +219,10 @@ static dispatch_once_t onceToken;
             if ([self isCameraRollAlbum:group]) {
                 [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:YES needFetchAssets:needFetchAssets] atIndex:0];
             } else if ([name isEqualToString:@"My Photo Stream"] || [name isEqualToString:@"我的照片流"]) {
+                // 这里也不建议使用字符串判断，
+                // 貌似应该使用 [group valueForProperty:ALAssetsGroupPropertyType] == *特定值*
+                // 具体的值我并不知道，因为已经找不到iOS8.0以下的手机或模拟器来调试了
+
                 if (albumArr.count) {
                     [albumArr insertObject:[self modelWithResult:group name:name isCameraRoll:NO needFetchAssets:needFetchAssets] atIndex:1];
                 } else {
