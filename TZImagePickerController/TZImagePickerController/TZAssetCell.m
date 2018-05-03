@@ -154,7 +154,7 @@
 #pragma mark - Lazy load
 
 - (UIButton *)selectPhotoButton {
-    if (_selectImageView == nil) {
+    if (_selectPhotoButton == nil) {
         UIButton *selectPhotoButton = [[UIButton alloc] init];
         [selectPhotoButton addTarget:self action:@selector(selectPhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:selectPhotoButton];
