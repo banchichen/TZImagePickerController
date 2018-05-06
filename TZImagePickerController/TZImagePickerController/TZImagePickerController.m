@@ -278,7 +278,7 @@
     self.allowPreview = YES;
     self.statusBarStyle = UIStatusBarStyleLightContent;
     
-    [self configDefaultImageName];
+    self.iconThemeColor = [UIColor colorWithRed:31 / 255.0 green:185 / 255.0 blue:34 / 255.0 alpha:1.0];
     [self configDefaultBtnTitle];
     
     CGFloat cropViewWH = MIN(self.view.tz_width, self.view.tz_height) / 3 * 2;
@@ -289,10 +289,50 @@
     self.takePictureImageName = @"takePicture80";
     self.photoSelImageName = @"photo_sel_photoPickerVc";
     self.photoDefImageName = @"photo_def_photoPickerVc";
-    self.photoNumberIconImageName = @"photo_number_icon";
+    self.photoNumberIconImage = [self createImageWithColor:nil size:CGSizeMake(48, 48) radius:24]; // @"photo_number_icon";
     self.photoPreviewOriginDefImageName = @"preview_original_def";
     self.photoOriginDefImageName = @"photo_original_def";
     self.photoOriginSelImageName = @"photo_original_sel";
+}
+
+- (void)setTakePictureImageName:(NSString *)takePictureImageName {
+    _takePictureImageName = takePictureImageName;
+    _takePictureImage = [UIImage imageNamedFromMyBundle:takePictureImageName];
+}
+
+- (void)setPhotoSelImageName:(NSString *)photoSelImageName {
+    _photoSelImageName = photoSelImageName;
+    _photoSelImage = [UIImage imageNamedFromMyBundle:photoSelImageName];
+}
+
+- (void)setPhotoDefImageName:(NSString *)photoDefImageName {
+    _photoDefImageName = photoDefImageName;
+    _photoDefImage = [UIImage imageNamedFromMyBundle:photoDefImageName];
+}
+
+- (void)setPhotoNumberIconImageName:(NSString *)photoNumberIconImageName {
+    _photoNumberIconImageName = photoNumberIconImageName;
+    _photoNumberIconImage = [UIImage imageNamedFromMyBundle:photoNumberIconImageName];
+}
+
+- (void)setPhotoPreviewOriginDefImageName:(NSString *)photoPreviewOriginDefImageName {
+    _photoPreviewOriginDefImageName = photoPreviewOriginDefImageName;
+    _photoPreviewOriginDefImage = [UIImage imageNamedFromMyBundle:photoPreviewOriginDefImageName];
+}
+
+- (void)setPhotoOriginDefImageName:(NSString *)photoOriginDefImageName {
+    _photoOriginDefImageName = photoOriginDefImageName;
+    _photoOriginDefImage = [UIImage imageNamedFromMyBundle:photoOriginDefImageName];
+}
+
+- (void)setPhotoOriginSelImageName:(NSString *)photoOriginSelImageName {
+    _photoOriginSelImageName = photoOriginSelImageName;
+    _photoOriginSelImage = [UIImage imageNamedFromMyBundle:photoOriginSelImageName];
+}
+
+- (void)setIconThemeColor:(UIColor *)iconThemeColor {
+    _iconThemeColor = iconThemeColor;
+    [self configDefaultImageName];
 }
 
 - (void)configDefaultBtnTitle {
@@ -302,6 +342,14 @@
     self.fullImageBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Full image"];
     self.settingBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Setting"];
     self.processHintStr = [NSBundle tz_localizedStringForKey:@"Processing..."];
+}
+
+- (void)setShowSelectedIndex:(BOOL)showSelectedIndex {
+    _showSelectedIndex = showSelectedIndex;
+    if (showSelectedIndex) {
+        self.photoSelImage = [self createImageWithColor:nil size:CGSizeMake(48, 48) radius:24];
+    }
+    [TZImagePickerConfig sharedInstance].showSelectedIndex = showSelectedIndex;
 }
 
 - (void)observeAuthrizationStatusChange {
@@ -500,10 +548,11 @@
 - (void)setSelectedAssets:(NSMutableArray *)selectedAssets {
     _selectedAssets = selectedAssets;
     _selectedModels = [NSMutableArray array];
+    _selectedAssetIds = [NSMutableArray array];
     for (id asset in selectedAssets) {
         TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:[[TZImageManager manager] getAssetType:asset]];
         model.isSelected = YES;
-        [_selectedModels addObject:model];
+        [self addSelectedModel:model];
     }
 }
 
@@ -553,6 +602,34 @@
 
 - (void)dealloc {
     // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+}
+
+- (void)addSelectedModel:(TZAssetModel *)model {
+    [_selectedModels addObject:model];
+    NSString *assetId = [[TZImageManager manager] getAssetIdentifier:model.asset];
+    [_selectedAssetIds addObject:assetId];
+}
+
+- (void)removeSelectedModel:(TZAssetModel *)model {
+    [_selectedModels removeObject:model];
+    NSString *assetId = [[TZImageManager manager] getAssetIdentifier:model.asset];
+    [_selectedAssetIds removeObject:assetId];
+}
+
+- (UIImage *)createImageWithColor:(UIColor *)color size:(CGSize)size radius:(CGFloat)radius {
+    if (!color) {
+        color = self.iconThemeColor;
+    }
+    CGRect rect = CGRectMake(0.0f, 0.0f, size.width, size.height);
+    UIGraphicsBeginImageContextWithOptions(rect.size, NO, [UIScreen mainScreen].scale);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+    CGContextAddPath(context, path.CGPath);
+    CGContextFillPath(context);
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
 }
 
 #pragma mark - UIContentContainer
@@ -724,7 +801,7 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     TZAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TZAlbumCell"];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    cell.selectedCountButton.backgroundColor = imagePickerVc.oKButtonTitleColorNormal;
+    cell.selectedCountButton.backgroundColor = imagePickerVc.iconThemeColor;
     cell.model = _albumArr[indexPath.row];
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;

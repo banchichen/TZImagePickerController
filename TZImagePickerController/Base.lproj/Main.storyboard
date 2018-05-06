@@ -22,7 +22,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" keyboardDismissMode="onDrag" translatesAutoresizingMaskIntoConstraints="NO" id="AMD-xf-cz2">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="440"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="640"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="obE-hs-XLa" userLabel="View1">
                                         <rect key="frame" x="0.0" y="20" width="375" height="35"/>
@@ -283,6 +283,24 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fWM-jc-1VU" userLabel="View14">
+                                        <rect key="frame" x="0.0" y="475" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <subviews>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XsY-NI-Txd">
+                                                <rect key="frame" x="225" y="2" width="51" height="31"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            </switch>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="右上角显示图片选中序号" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nm2-mT-siy">
+                                                <rect key="frame" x="0.0" y="0.0" width="200" height="35"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </view>
                                 </subviews>
                                 <constraints>
                                     <constraint firstItem="VUP-wm-Ah2" firstAttribute="leading" secondItem="PA2-zk-4Ey" secondAttribute="leading" id="1iv-97-UAf"/>
@@ -360,6 +378,7 @@
                         <outlet property="maxCountTF" destination="37K-cO-hgf" id="776-gE-tea"/>
                         <outlet property="needCircleCropSwitch" destination="hsH-wt-l1R" id="SVP-EE-wgf"/>
                         <outlet property="scrollView" destination="AMD-xf-cz2" id="0Bb-Te-K4h"/>
+                        <outlet property="showSelectedIndexSwitch" destination="XsY-NI-Txd" id="ou9-YO-ebP"/>
                         <outlet property="showSheetSwitch" destination="uHt-bT-lBZ" id="NxK-wM-ivE"/>
                         <outlet property="showTakePhotoBtnSwitch" destination="jpa-B9-8n6" id="lh8-2O-IWS"/>
                         <outlet property="showTakeVideoBtnSwitch" destination="mMy-bi-cIJ" id="jER-Fp-aOr"/>

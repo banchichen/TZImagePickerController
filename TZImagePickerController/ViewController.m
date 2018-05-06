@@ -47,6 +47,7 @@
 @property (weak, nonatomic) IBOutlet UISwitch *allowCropSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *needCircleCropSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingMuitlpleVideoSwitch;
+@property (weak, nonatomic) IBOutlet UISwitch *showSelectedIndexSwitch;
 @end
 
 @implementation ViewController
@@ -106,7 +107,7 @@
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    NSInteger contentSizeH = 13 * 35 + 20;
+    NSInteger contentSizeH = 14 * 35 + 20;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.scrollView.contentSize = CGSizeMake(0, contentSizeH + 5);
     });
@@ -182,6 +183,7 @@
             imagePickerVc.allowPickingGif = self.allowPickingGifSwitch.isOn;
             imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;
             imagePickerVc.allowPickingMultipleVideo = self.allowPickingMuitlpleVideoSwitch.isOn;
+            imagePickerVc.showSelectedIndex = self.showSelectedIndexSwitch.isOn;
             imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
             [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
                 self->_selectedPhotos = [NSMutableArray arrayWithArray:photos];
@@ -248,6 +250,7 @@
     // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
     // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
     // imagePickerVc.navigationBar.translucent = NO;
+    imagePickerVc.iconThemeColor = [UIColor redColor];
     
     // 3. Set allow picking video & photo & originalPhoto or not
     // 3. 设置是否可以选择视频/图片/原图
@@ -297,6 +300,9 @@
     // Deprecated, Use statusBarStyle
     // imagePickerVc.isStatusBarDefault = NO;
     imagePickerVc.statusBarStyle = UIStatusBarStyleLightContent;
+    
+    // 设置是否显示图片序号
+    imagePickerVc.showSelectedIndex = self.showSelectedIndexSwitch.isOn;
     
     // 设置首选语言 / Set preferred language
     // imagePickerVc.preferredLanguage = @"zh-Hans";

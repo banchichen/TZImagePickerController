@@ -16,6 +16,7 @@
 @interface TZAssetCell ()
 @property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
 @property (weak, nonatomic) UIImageView *selectImageView;
+@property (weak, nonatomic) UILabel *indexLabel;
 @property (weak, nonatomic) UIView *bottomView;
 @property (weak, nonatomic) UILabel *timeLength;
 
@@ -31,32 +32,39 @@
     if (iOS8Later) {
         self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
     }
-    int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        if (self->_progressView) {
-            self.progressView.hidden = YES;
-            self.imageView.alpha = 1.0;
-        }
-        // Set the cell's thumbnail image if it's still showing the same asset.
-        if (!iOS8Later) {
-            self.imageView.image = photo; return;
-        }
-        if ([self.representedAssetIdentifier isEqualToString:[[TZImageManager manager] getAssetIdentifier:model.asset]]) {
-            self.imageView.image = photo;
-        } else {
-            // NSLog(@"this cell is showing other asset");
+    if (self.useCachedImage && model.cachedImage) {
+        self.imageView.image = model.cachedImage;
+    } else {
+        int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+            if (self->_progressView) {
+                self.progressView.hidden = YES;
+                self.imageView.alpha = 1.0;
+            }
+            // Set the cell's thumbnail image if it's still showing the same asset.
+            if (!iOS8Later) {
+                self.imageView.image = photo; return;
+            }
+            if ([self.representedAssetIdentifier isEqualToString:[[TZImageManager manager] getAssetIdentifier:model.asset]]) {
+                self.imageView.image = photo;
+            } else {
+                // NSLog(@"this cell is showing other asset");
+                [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+            }
+            if (!isDegraded) {
+                self.imageRequestID = 0;
+            }
+            self.model.cachedImage = photo;
+        } progressHandler:nil networkAccessAllowed:NO];
+        if (imageRequestID && self.imageRequestID && imageRequestID != self.imageRequestID) {
             [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+            // NSLog(@"cancelImageRequest %d",self.imageRequestID);
         }
-        if (!isDegraded) {
-            self.imageRequestID = 0;
-        }
-    } progressHandler:nil networkAccessAllowed:NO];
-    if (imageRequestID && self.imageRequestID && imageRequestID != self.imageRequestID) {
-        [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
-        // NSLog(@"cancelImageRequest %d",self.imageRequestID);
+        self.imageRequestID = imageRequestID;
     }
-    self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
-    self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
+    self.selectImageView.image = self.selectPhotoButton.isSelected ? self.photoSelImage : self.photoDefImage;
+    self.indexLabel.hidden = !self.selectPhotoButton.isSelected;
+    
     self.type = (NSInteger)model.type;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
     if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {
@@ -69,7 +77,17 @@
     if (model.isSelected) {
         [self fetchBigImage];
     }
+    if (model.needOscillatoryAnimation) {
+        [UIView showOscillatoryAnimationWithLayer:self.selectImageView.layer type:TZOscillatoryAnimationToBigger];
+        model.needOscillatoryAnimation = NO;
+    }
     [self setNeedsLayout];
+}
+
+- (void)setIndex:(NSInteger)index {
+    _index = index;
+    self.indexLabel.text = [NSString stringWithFormat:@"%zd", index];
+    [self.contentView bringSubviewToFront:self.indexLabel];
 }
 
 - (void)setShowSelectBtn:(BOOL)showSelectBtn {
@@ -112,9 +130,11 @@
     if (self.didSelectPhotoBlock) {
         self.didSelectPhotoBlock(sender.isSelected);
     }
-    self.selectImageView.image = sender.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
+    self.selectImageView.image = sender.isSelected ? self.photoSelImage : self.photoDefImage;
     if (sender.isSelected) {
-        [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
+        if (![TZImagePickerConfig sharedInstance].showSelectedIndex) {
+            [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
+        }
         // 用户选中了该图片，提前获取一下大图
         [self fetchBigImage];
     } else { // 取消选中，取消大图的获取
@@ -180,6 +200,8 @@
 - (UIImageView *)selectImageView {
     if (_selectImageView == nil) {
         UIImageView *selectImageView = [[UIImageView alloc] init];
+        selectImageView.contentMode = UIViewContentModeCenter;
+        selectImageView.clipsToBounds = YES;
         [self.contentView addSubview:selectImageView];
         _selectImageView = selectImageView;
     }
@@ -219,6 +241,18 @@
     return _timeLength;
 }
 
+- (UILabel *)indexLabel {
+    if (_indexLabel == nil) {
+        UILabel *indexLabel = [[UILabel alloc] init];
+        indexLabel.font = [UIFont systemFontOfSize:14];
+        indexLabel.textColor = [UIColor whiteColor];
+        indexLabel.textAlignment = NSTextAlignmentCenter;
+        [self.contentView addSubview:indexLabel];
+        _indexLabel = indexLabel;
+    }
+    return _indexLabel;
+}
+
 - (TZProgressView *)progressView {
     if (_progressView == nil) {
         _progressView = [[TZProgressView alloc] init];
@@ -235,7 +269,13 @@
     } else {
         _selectPhotoButton.frame = self.bounds;
     }
-    _selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
+    _selectImageView.frame = CGRectMake(self.tz_width - 27, 3, 24, 24);
+    if (_selectImageView.image.size.width <= 27) {
+        _selectImageView.contentMode = UIViewContentModeCenter;
+    } else {
+        _selectImageView.contentMode = UIViewContentModeScaleAspectFit;
+    }
+    _indexLabel.frame = _selectImageView.frame;
     _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
     
     static CGFloat progressWH = 20;

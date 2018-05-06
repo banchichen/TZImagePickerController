@@ -114,14 +114,21 @@
 /// 默认为YES，如果设置为NO, 选择器将不会自己dismiss
 @property(nonatomic, assign) BOOL autoDismiss;
 
-/// Default is YES, if set NO, in the delegate method the photos and infos will be nil, only assets hava value.
+/// Default is NO, if set YES, in the delegate method the photos and infos will be nil, only assets hava value.
 /// 默认为NO，如果设置为YES，代理方法里photos和infos会是nil，只返回assets
 @property (assign, nonatomic) BOOL onlyReturnAsset;
+
+/// Default is NO, if set YES, will show the image's selected index.
+/// 默认为NO，如果设置为YES，会显示照片的选中序号
+@property (assign, nonatomic) BOOL showSelectedIndex;
 
 /// The photos user have selected
 /// 用户选中过的图片数组
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) NSMutableArray<TZAssetModel *> *selectedModels;
+@property (nonatomic, strong) NSMutableArray *selectedAssetIds;
+- (void)addSelectedModel:(TZAssetModel *)model;
+- (void)removeSelectedModel:(TZAssetModel *)model;
 
 /// Minimum selectable photo width, Default is 0
 /// 最小可选中的图片宽度，默认是0，小于这个宽度的图片不可选中
@@ -158,13 +165,20 @@
 @property (assign, nonatomic) BOOL needShowStatusBar;
 
 #pragma mark -
-@property (nonatomic, copy) NSString *takePictureImageName;
-@property (nonatomic, copy) NSString *photoSelImageName;
-@property (nonatomic, copy) NSString *photoDefImageName;
-@property (nonatomic, copy) NSString *photoOriginSelImageName;
-@property (nonatomic, copy) NSString *photoOriginDefImageName;
-@property (nonatomic, copy) NSString *photoPreviewOriginDefImageName;
-@property (nonatomic, copy) NSString *photoNumberIconImageName;
+@property (nonatomic, copy) NSString *takePictureImageName __attribute__((deprecated("Use -takePictureImage.")));
+@property (nonatomic, copy) NSString *photoSelImageName __attribute__((deprecated("Use -photoSelImage.")));
+@property (nonatomic, copy) NSString *photoDefImageName __attribute__((deprecated("Use -photoDefImage.")));
+@property (nonatomic, copy) NSString *photoOriginSelImageName __attribute__((deprecated("Use -photoOriginSelImage.")));
+@property (nonatomic, copy) NSString *photoOriginDefImageName __attribute__((deprecated("Use -photoOriginDefImage.")));
+@property (nonatomic, copy) NSString *photoPreviewOriginDefImageName __attribute__((deprecated("Use -photoPreviewOriginDefImage.")));
+@property (nonatomic, copy) NSString *photoNumberIconImageName __attribute__((deprecated("Use -photoNumberIconImage.")));
+@property (nonatomic, strong) UIImage *takePictureImage;
+@property (nonatomic, strong) UIImage *photoSelImage;
+@property (nonatomic, strong) UIImage *photoDefImage;
+@property (nonatomic, strong) UIImage *photoOriginSelImage;
+@property (nonatomic, strong) UIImage *photoOriginDefImage;
+@property (nonatomic, strong) UIImage *photoPreviewOriginDefImage;
+@property (nonatomic, strong) UIImage *photoNumberIconImage;
 
 #pragma mark -
 /// Appearance / 外观颜色 + 按钮文字
@@ -182,6 +196,10 @@
 @property (nonatomic, copy) NSString *fullImageBtnTitleStr;
 @property (nonatomic, copy) NSString *settingBtnTitleStr;
 @property (nonatomic, copy) NSString *processHintStr;
+
+/// Icon theme color, default is green color like wechat, the value is r:31 g:185 b:34. Currently only support image selection icon when showSelectedIndex is YES
+/// icon主题色，默认是微信的绿色，值是r:31 g:185 b:34。目前仅支持showSelectedIndex为YES时的图片选中icon
+@property (strong, nonatomic) UIColor *iconThemeColor;
 
 #pragma mark -
 - (void)cancelButtonClick;
@@ -286,4 +304,5 @@
 @property (strong, nonatomic) NSBundle *languageBundle;
 /// 默认是200，如果一个GIF过大，里面图片个数可能超过1000，会导致内存飙升而崩溃
 @property (assign, nonatomic) NSInteger gifPreviewMaxImagesCount;
+@property (assign, nonatomic) BOOL showSelectedIndex;
 @end
