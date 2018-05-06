@@ -615,7 +615,10 @@ static dispatch_once_t onceToken;
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.networkAccessAllowed = YES;
-        option.version = PHImageRequestOptionsVersionOriginal;
+        if ([[asset valueForKey:@"filename"] hasSuffix:@"GIF"]) {
+            // if version isn't PHImageRequestOptionsVersionOriginal, the gif may cann't play
+            option.version = PHImageRequestOptionsVersionOriginal;
+        }
         option.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
         [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
