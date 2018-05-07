@@ -190,9 +190,6 @@
         imageView.clipsToBounds = YES;
         [self.contentView addSubview:imageView];
         _imageView = imageView;
-        
-        [self.contentView bringSubviewToFront:_selectImageView];
-        [self.contentView bringSubviewToFront:_bottomView];
     }
     return _imageView;
 }
@@ -217,6 +214,15 @@
         _bottomView = bottomView;
     }
     return _bottomView;
+}
+
+- (UIButton *)cannotSelectLayerButton {
+    if (_cannotSelectLayerButton == nil) {
+        UIButton *cannotSelectLayerButton = [[UIButton alloc] init];
+        [self.contentView addSubview:cannotSelectLayerButton];
+        _cannotSelectLayerButton = cannotSelectLayerButton;
+    }
+    return _cannotSelectLayerButton;
 }
 
 - (UIImageView *)videoImgView {
@@ -264,6 +270,7 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
+    _cannotSelectLayerButton.frame = self.bounds;
     if (self.allowPreview) {
         _selectPhotoButton.frame = CGRectMake(self.tz_width - 44, 0, 44, 44);
     } else {
@@ -288,6 +295,12 @@
     
     self.type = (NSInteger)self.model.type;
     self.showSelectBtn = self.showSelectBtn;
+    
+    [self.contentView bringSubviewToFront:_bottomView];
+    [self.contentView bringSubviewToFront:_cannotSelectLayerButton];
+    [self.contentView bringSubviewToFront:_selectPhotoButton];
+    [self.contentView bringSubviewToFront:_selectImageView];
+    [self.contentView bringSubviewToFront:_indexLabel];
 }
 
 @end

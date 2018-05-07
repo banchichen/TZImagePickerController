@@ -122,6 +122,12 @@
 /// 默认为NO，如果设置为YES，会显示照片的选中序号
 @property (assign, nonatomic) BOOL showSelectedIndex;
 
+/// Default is NO, if set YES, when selected photos's count up to maxImagesCount, other photo will show float layer what's color is cannotSelectLayerColor.
+/// 默认是NO，如果设置为YES，当照片选择张数达到maxImagesCount时，其它照片会显示颜色为cannotSelectLayerColor的浮层
+@property (assign, nonatomic) BOOL showPhotoCannotSelectLayer;
+/// Default is white color with 0.8 alpha;
+@property (strong, nonatomic) UIColor *cannotSelectLayerColor;
+
 /// The photos user have selected
 /// 用户选中过的图片数组
 @property (nonatomic, strong) NSMutableArray *selectedAssets;

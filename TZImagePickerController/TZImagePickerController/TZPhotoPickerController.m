@@ -492,6 +492,13 @@ static CGFloat itemMargin = 5;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     cell.allowPreview = tzImagePickerVc.allowPreview;
     
+    if (tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount && tzImagePickerVc.showPhotoCannotSelectLayer && !model.isSelected) {
+        cell.cannotSelectLayerButton.backgroundColor = tzImagePickerVc.cannotSelectLayerColor;
+        cell.cannotSelectLayerButton.hidden = NO;
+    } else {
+        cell.cannotSelectLayerButton.hidden = YES;
+    }
+    
     __weak typeof(cell) weakCell = cell;
     __weak typeof(self) weakSelf = self;
     __weak typeof(_numberImageView.layer) weakLayer = _numberImageView.layer;
@@ -515,6 +522,7 @@ static CGFloat itemMargin = 5;
             if (tzImagePickerVc.showSelectedIndex) {
                 [strongSelf setUseCachedImageAndReloadData];
             }
+            [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
@@ -526,12 +534,15 @@ static CGFloat itemMargin = 5;
                 }
                 [tzImagePickerVc addSelectedModel:model];
                 [strongSelf refreshBottomToolBarStatus];
+                [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
             } else {
                 NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], tzImagePickerVc.maxImagesCount];
                 [tzImagePickerVc showAlertWithTitle:title];
             }
         }
-        [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
+        if (tzImagePickerVc.showPhotoCannotSelectLayer && !tzImagePickerVc.showSelectedIndex) {
+            [strongSelf.collectionView reloadData];
+        }
     };
     return cell;
 }
