@@ -78,7 +78,13 @@ static CGFloat itemMargin = 5;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
     self.view.backgroundColor = [UIColor whiteColor];
-    self.navigationItem.title = @"选择视频";
+    // 如果仅仅选择视频 title就固定显示"选择视频"
+    // 其他情况显示当前相册名称
+    if (tzImagePickerVc.allowPickingImage == NO && tzImagePickerVc.allowPickingGif == NO  && tzImagePickerVc.allowPickingVideo == YES) {
+        self.navigationItem.title = @"选择视频";
+    } else {
+        self.navigationItem.title = _model.name;
+    }
     UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
     rightButton.frame = CGRectMake(0, 0, 44, 44);
     rightButton.titleLabel.font = [UIFont systemFontOfSize:16];
