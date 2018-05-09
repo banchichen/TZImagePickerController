@@ -302,7 +302,14 @@
     self.photoOriginDefImageName = @"photo_original_def";
     self.photoOriginSelImageName = @"photo_original_sel";
 }
-
+// 为了不大幅改动TZ原结构，重写get方法定制UI
+- (NSString* )takePictureImageName {
+    if (self.allowPickingGif == NO && self.allowPickingImage == NO && self.allowPickingVideo == YES) {
+        return @"takeVideo";
+    } else {
+        return @"takePicture";
+    }
+}
 - (void)configDefaultBtnTitle {
     self.doneBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Done"];
     self.cancelBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Cancel"];
