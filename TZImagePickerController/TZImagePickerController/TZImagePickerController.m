@@ -57,8 +57,8 @@
 
     // Default appearance, you can reset these after this method
     // 默认的外观，你可以在这个方法后重置
-    self.oKButtonTitleColorNormal   = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0];
-    self.oKButtonTitleColorDisabled = [UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:0.5];
+    self.oKButtonTitleColorNormal   = [UIColor whiteColor];
+    self.oKButtonTitleColorDisabled = [UIColor grayColor];
     
     if (iOS7Later) {
         self.navigationBar.barTintColor = [UIColor whiteColor];
@@ -302,7 +302,14 @@
     self.photoOriginDefImageName = @"photo_original_def";
     self.photoOriginSelImageName = @"photo_original_sel";
 }
-
+// 为了不大幅改动TZ原结构，重写get方法定制UI
+- (NSString* )takePictureImageName {
+    if (self.allowPickingGif == NO && self.allowPickingImage == NO && self.allowPickingVideo == YES) {
+        return @"takeVideo";
+    } else {
+        return @"takePicture";
+    }
+}
 - (void)configDefaultBtnTitle {
     self.doneBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Done"];
     self.cancelBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Cancel"];
