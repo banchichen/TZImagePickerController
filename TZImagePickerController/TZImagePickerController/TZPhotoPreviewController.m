@@ -143,7 +143,11 @@
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:_tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     [_doneButton setTitleColor:_tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
-    [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",_tzImagePickerVc.selectedModels.count,(long)_tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+    if ((long)_tzImagePickerVc.maxImagesCount > 1) {
+        [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",_tzImagePickerVc.selectedModels.count,(long)_tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+    } else {
+        [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
+    }
 
 //    _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoNumberIconImageName]];
 //    _numberImageView.backgroundColor = [UIColor clearColor];
@@ -479,7 +483,11 @@
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     TZAssetModel *model = _models[_currentIndex];
     _selectButton.selected = model.isSelected;
-    [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",_tzImagePickerVc.selectedModels.count,(long)_tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+    if ((long)_tzImagePickerVc.maxImagesCount > 1) {
+        [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",_tzImagePickerVc.selectedModels.count,(long)_tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+    } else {
+        [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
+    }
     _numberImageView.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);
     _numberLabel.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);
     

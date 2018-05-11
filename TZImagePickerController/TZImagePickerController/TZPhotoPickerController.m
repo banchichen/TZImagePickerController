@@ -254,7 +254,11 @@ static CGFloat itemMargin = 5;
     [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
-    [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",tzImagePickerVc.selectedModels.count,(long)tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+    if ((long)tzImagePickerVc.maxImagesCount > 1) {
+        [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",tzImagePickerVc.selectedModels.count,(long)tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+    } else {
+        [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
+    }
     /*
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoNumberIconImageName]];
     _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
@@ -670,7 +674,12 @@ static CGFloat itemMargin = 5;
 //    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
 //    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
 //    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
-    [_doneButton setTitle:[NSString stringWithFormat:@"完成(%d/%d)",tzImagePickerVc.selectedModels.count,tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+    if ((long)tzImagePickerVc.maxImagesCount > 1) {
+        [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",tzImagePickerVc.selectedModels.count,(long)tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+    } else {
+        [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
+    }
+
     _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
     _originalPhotoButton.selected = (_isSelectOriginalPhoto && _originalPhotoButton.enabled);
     _originalPhotoLabel.hidden = (!_originalPhotoButton.isSelected);
