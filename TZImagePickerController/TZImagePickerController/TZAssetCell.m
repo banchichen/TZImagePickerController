@@ -79,8 +79,8 @@
     }
     if (model.needOscillatoryAnimation) {
         [UIView showOscillatoryAnimationWithLayer:self.selectImageView.layer type:TZOscillatoryAnimationToBigger];
-        model.needOscillatoryAnimation = NO;
     }
+    model.needOscillatoryAnimation = NO;
     [self setNeedsLayout];
 }
 
@@ -132,7 +132,7 @@
     }
     self.selectImageView.image = sender.isSelected ? self.photoSelImage : self.photoDefImage;
     if (sender.isSelected) {
-        if (![TZImagePickerConfig sharedInstance].showSelectedIndex) {
+        if (![TZImagePickerConfig sharedInstance].showSelectedIndex && ![TZImagePickerConfig sharedInstance].showPhotoCannotSelectLayer) {
             [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
         }
         // 用户选中了该图片，提前获取一下大图

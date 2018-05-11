@@ -311,4 +311,5 @@
 /// 默认是200，如果一个GIF过大，里面图片个数可能超过1000，会导致内存飙升而崩溃
 @property (assign, nonatomic) NSInteger gifPreviewMaxImagesCount;
 @property (assign, nonatomic) BOOL showSelectedIndex;
+@property (assign, nonatomic) BOOL showPhotoCannotSelectLayer;
 @end

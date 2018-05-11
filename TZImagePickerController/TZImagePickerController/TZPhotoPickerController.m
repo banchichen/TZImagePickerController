@@ -519,7 +519,7 @@ static CGFloat itemMargin = 5;
                 }
             }
             [strongSelf refreshBottomToolBarStatus];
-            if (tzImagePickerVc.showSelectedIndex) {
+            if (tzImagePickerVc.showSelectedIndex || tzImagePickerVc.showPhotoCannotSelectLayer) {
                 [strongSelf setUseCachedImageAndReloadData];
             }
             [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
@@ -528,7 +528,7 @@ static CGFloat itemMargin = 5;
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
                 strongCell.selectPhotoButton.selected = YES;
                 model.isSelected = YES;
-                if (tzImagePickerVc.showSelectedIndex) {
+                if (tzImagePickerVc.showSelectedIndex || tzImagePickerVc.showPhotoCannotSelectLayer) {
                     model.needOscillatoryAnimation = YES;
                     [strongSelf setUseCachedImageAndReloadData];
                 }
@@ -539,9 +539,6 @@ static CGFloat itemMargin = 5;
                 NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], tzImagePickerVc.maxImagesCount];
                 [tzImagePickerVc showAlertWithTitle:title];
             }
-        }
-        if (tzImagePickerVc.showPhotoCannotSelectLayer && !tzImagePickerVc.showSelectedIndex) {
-            [strongSelf.collectionView reloadData];
         }
     };
     return cell;
@@ -598,7 +595,7 @@ static CGFloat itemMargin = 5;
 - (void)setUseCachedImageAndReloadData {
     self.useCachedImage = YES;
     [self.collectionView reloadData];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.useCachedImage = NO;
     });
 }

@@ -353,6 +353,11 @@
     [TZImagePickerConfig sharedInstance].showSelectedIndex = showSelectedIndex;
 }
 
+- (void)setShowPhotoCannotSelectLayer:(BOOL)showPhotoCannotSelectLayer {
+    _showPhotoCannotSelectLayer = showPhotoCannotSelectLayer;
+    [TZImagePickerConfig sharedInstance].showPhotoCannotSelectLayer = showPhotoCannotSelectLayer;
+}
+
 - (void)observeAuthrizationStatusChange {
     [_timer invalidate];
     _timer = nil;
