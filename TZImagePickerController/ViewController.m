@@ -512,6 +512,25 @@
             NSLog(@"location:%@",phAsset.location);
         }
     }
+    
+    /*
+    // 3. 获取原图的示例，这样一次性获取很可能会导致内存飙升，建议获取1-2张，消费和释放掉，再获取剩下的
+    __block NSMutableArray *originalPhotos = [NSMutableArray array];
+    __block NSInteger finishCount = 0;
+    for (NSInteger i = 0; i < assets.count; i++) {
+        [originalPhotos addObject:@1];
+    }
+    for (NSInteger i = 0; i < assets.count; i++) {
+        PHAsset *asset = assets[i];
+        [[TZImageManager manager] getOriginalPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info) {
+            finishCount += 1;
+            [originalPhotos replaceObjectAtIndex:i withObject:photo];
+            if (finishCount >= assets.count) {
+                NSLog(@"All finished.");
+            }
+        }];
+    }
+     */
 }
 
 // If user picking a video, this callback will be called.
