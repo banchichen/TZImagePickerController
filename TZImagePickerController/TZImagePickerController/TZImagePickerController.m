@@ -133,11 +133,6 @@
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
     [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
-    if ([self.takePictureImageName isEqualToString:@"takePicture80"]) {
-        if (self.allowTakePicture && !self.allowTakeVideo) {
-            self.takePictureImageName = @"takePicture";
-        }
-    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
