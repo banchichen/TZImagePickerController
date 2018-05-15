@@ -260,6 +260,10 @@ static CGFloat itemMargin = 5;
     [_bottomToolBar addSubview:_originalPhotoButton];
     [self.view addSubview:_bottomToolBar];
     [_originalPhotoButton addSubview:_originalPhotoLabel];
+    
+    if (tzImagePickerVc.photoPickerPageUIConfigBlock) {
+        tzImagePickerVc.photoPickerPageUIConfigBlock(_collectionView, _bottomToolBar, _previewButton, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel, _divideLine);
+    }
 }
 
 #pragma mark - Layout
@@ -320,6 +324,10 @@ static CGFloat itemMargin = 5;
     
     [TZImageManager manager].columnNumber = [TZImageManager manager].columnNumber;
     [self.collectionView reloadData];
+    
+    if (tzImagePickerVc.photoPickerPageDidLayoutSubviewsBlock) {
+        tzImagePickerVc.photoPickerPageDidLayoutSubviewsBlock(_collectionView, _bottomToolBar, _previewButton, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel, _divideLine);
+    }
 }
 
 #pragma mark - Notification

@@ -161,8 +161,15 @@
 @property (nonatomic, assign) BOOL needCircleCrop;       ///< 需要圆形裁剪框
 @property (nonatomic, assign) NSInteger circleCropRadius;  ///< 圆形裁剪框半径大小
 @property (nonatomic, copy) void (^cropViewSettingBlock)(UIView *cropView);     ///< 自定义裁剪框的其他属性
-
 @property (nonatomic, copy) void (^navLeftBarButtonSettingBlock)(UIButton *leftButton);     ///< 自定义返回按钮样式及其属性
+/// 【自定义照片列表页的样式】在界面初始化完成后调用，允许外界修改样式等
+@property (nonatomic, copy) void (^photoPickerPageUIConfigBlock)(UICollectionView *collectionView, UIView *bottomToolBar, UIButton *previewButton, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel, UIView *divideLine);
+/// 【自定义照片列表页的尺寸】在界面viewDidLayoutSubviews后调用，允许外界修改尺寸等
+@property (nonatomic, copy) void (^photoPickerPageDidLayoutSubviewsBlock)(UICollectionView *collectionView, UIView *bottomToolBar, UIButton *previewButton, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel, UIView *divideLine);
+/// 【自定义照片预览页的样式】在界面初始化完成后调用，允许外界修改样式等
+@property (nonatomic, copy) void (^photoPreviewPageUIConfigBlock)(UICollectionView *collectionView, UIView *naviBar, UIButton *backButton, UIButton *selectButton, UILabel *indexLabel, UIView *toolBar, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel);
+/// 【自定义照片预览页的尺寸】在界面viewDidLayoutSubviews后调用，允许外界修改尺寸等
+@property (nonatomic, copy) void (^photoPreviewPageDidLayoutSubviewsBlock)(UICollectionView *collectionView, UIView *naviBar, UIButton *backButton, UIButton *selectButton, UILabel *indexLabel, UIView *toolBar, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel);
 
 #pragma mark -
 - (id)showAlertWithTitle:(NSString *)title;

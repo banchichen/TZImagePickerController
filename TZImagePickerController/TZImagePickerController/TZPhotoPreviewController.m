@@ -171,6 +171,10 @@
     [_toolBar addSubview:_numberImageView];
     [_toolBar addSubview:_numberLabel];
     [self.view addSubview:_toolBar];
+    
+    if (_tzImagePickerVc.photoPreviewPageUIConfigBlock) {
+        _tzImagePickerVc.photoPreviewPageUIConfigBlock(_collectionView, _naviBar, _backButton, _selectButton, _indexLabel, _toolBar, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel);
+    }
 }
 
 - (void)configCollectionView {
@@ -265,6 +269,10 @@
     _numberLabel.frame = _numberImageView.frame;
     
     [self configCropView];
+    
+    if (_tzImagePickerVc.photoPreviewPageDidLayoutSubviewsBlock) {
+        _tzImagePickerVc.photoPreviewPageDidLayoutSubviewsBlock(_collectionView, _naviBar, _backButton, _selectButton, _indexLabel, _toolBar, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel);
+    }
 }
 
 #pragma mark - Notification
