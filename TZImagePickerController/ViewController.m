@@ -131,25 +131,25 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TZTestCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZTestCell" forIndexPath:indexPath];
     cell.videoImageView.hidden = YES;
-    if (indexPath.row == _selectedPhotos.count) {
+    if (indexPath.item == _selectedPhotos.count) {
         cell.imageView.image = [UIImage imageNamed:@"AlbumAddBtn.png"];
         cell.deleteBtn.hidden = YES;
         cell.gifLable.hidden = YES;
     } else {
-        cell.imageView.image = _selectedPhotos[indexPath.row];
-        cell.asset = _selectedAssets[indexPath.row];
+        cell.imageView.image = _selectedPhotos[indexPath.item];
+        cell.asset = _selectedAssets[indexPath.item];
         cell.deleteBtn.hidden = NO;
     }
     if (!self.allowPickingGifSwitch.isOn) {
         cell.gifLable.hidden = YES;
     }
-    cell.deleteBtn.tag = indexPath.row;
+    cell.deleteBtn.tag = indexPath.item;
     [cell.deleteBtn addTarget:self action:@selector(deleteBtnClik:) forControlEvents:UIControlEventTouchUpInside];
     return cell;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.row == _selectedPhotos.count) {
+    if (indexPath.item == _selectedPhotos.count) {
         BOOL showSheet = self.showSheetSwitch.isOn;
         if (showSheet) {
             UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"拍照",@"去相册选择", nil];
@@ -158,7 +158,7 @@
             [self pushTZImagePickerController];
         }
     } else { // preview photos or video / 预览照片或者视频
-        id asset = _selectedAssets[indexPath.row];
+        id asset = _selectedAssets[indexPath.item];
         BOOL isVideo = NO;
         if ([asset isKindOfClass:[PHAsset class]]) {
             PHAsset *phAsset = asset;
@@ -178,7 +178,7 @@
             vc.model = model;
             [self presentViewController:vc animated:YES completion:nil];
         } else { // preview photos / 预览照片
-            TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.row];
+            TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.item];
             imagePickerVc.maxImagesCount = self.maxCountTF.text.integerValue;
             imagePickerVc.allowPickingGif = self.allowPickingGifSwitch.isOn;
             imagePickerVc.allowPickingOriginalPhoto = self.allowPickingOriginalPhotoSwitch.isOn;

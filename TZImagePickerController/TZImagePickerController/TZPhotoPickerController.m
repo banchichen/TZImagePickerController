@@ -467,7 +467,7 @@ static CGFloat itemMargin = 5;
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     // the cell lead to take a picture / 去拍照的cell
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn) {
+    if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.item >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.item == 0)) && _showTakePhotoBtn) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
         cell.imageView.image = tzImagePickerVc.takePictureImage;
         if ([tzImagePickerVc.takePictureImageName isEqualToString:@"takePicture80"]) {
@@ -487,9 +487,9 @@ static CGFloat itemMargin = 5;
     cell.useCachedImage = self.useCachedImage;
     TZAssetModel *model;
     if (tzImagePickerVc.sortAscendingByModificationDate || !_showTakePhotoBtn) {
-        model = _models[indexPath.row];
+        model = _models[indexPath.item];
     } else {
-        model = _models[indexPath.row - 1];
+        model = _models[indexPath.item - 1];
     }
     cell.allowPickingGif = tzImagePickerVc.allowPickingGif;
     cell.model = model;
@@ -555,13 +555,13 @@ static CGFloat itemMargin = 5;
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     // take a photo / 去拍照
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn)  {
+    if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.item >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.item == 0)) && _showTakePhotoBtn)  {
         [self takePhoto]; return;
     }
     // preview phote or video / 预览照片或视频
-    NSInteger index = indexPath.row;
+    NSInteger index = indexPath.item;
     if (!tzImagePickerVc.sortAscendingByModificationDate && _showTakePhotoBtn) {
-        index = indexPath.row - 1;
+        index = indexPath.item - 1;
     }
     TZAssetModel *model = _models[index];
     if (model.type == TZAssetModelMediaTypeVideo && !tzImagePickerVc.allowPickingMultipleVideo) {
