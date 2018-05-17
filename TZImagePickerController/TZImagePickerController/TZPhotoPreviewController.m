@@ -431,7 +431,7 @@
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    TZAssetModel *model = _models[indexPath.row];
+    TZAssetModel *model = _models[indexPath.item];
     
     TZAssetPreviewCell *cell;
     __weak typeof(self) weakSelf = self;
