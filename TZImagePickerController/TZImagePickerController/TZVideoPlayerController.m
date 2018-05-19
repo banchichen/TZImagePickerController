@@ -121,6 +121,10 @@
     [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     [_toolBar addSubview:_doneButton];
     [self.view addSubview:_toolBar];
+    
+    if (tzImagePickerVc.videoPreviewPageUIConfigBlock) {
+        tzImagePickerVc.videoPreviewPageUIConfigBlock(_playButton, _toolBar, _doneButton);
+    }
 }
 
 #pragma mark - Layout
@@ -135,6 +139,11 @@
     _toolBar.frame = CGRectMake(0, self.view.tz_height - toolBarHeight, self.view.tz_width, toolBarHeight);
     _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
     _playButton.frame = CGRectMake(0, statusBarAndNaviBarHeight, self.view.tz_width, self.view.tz_height - statusBarAndNaviBarHeight - toolBarHeight);
+    
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (tzImagePickerVc.videoPreviewPageDidLayoutSubviewsBlock) {
+        tzImagePickerVc.videoPreviewPageDidLayoutSubviewsBlock(_playButton, _toolBar, _doneButton);
+    }
 }
 
 #pragma mark - Click Event
