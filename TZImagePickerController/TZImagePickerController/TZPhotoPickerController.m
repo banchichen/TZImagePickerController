@@ -485,6 +485,8 @@ static CGFloat itemMargin = 5;
     cell.photoDefImage = tzImagePickerVc.photoDefImage;
     cell.photoSelImage = tzImagePickerVc.photoSelImage;
     cell.useCachedImage = self.useCachedImage;
+    cell.assetCellDidSetModelBlock = tzImagePickerVc.assetCellDidSetModelBlock;
+    cell.assetCellDidLayoutSubviewsBlock = tzImagePickerVc.assetCellDidLayoutSubviewsBlock;
     TZAssetModel *model;
     if (tzImagePickerVc.sortAscendingByModificationDate || !_showTakePhotoBtn) {
         model = _models[indexPath.item];
