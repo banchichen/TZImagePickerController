@@ -56,9 +56,9 @@
 		9F763A6D1FA0733700D9E526 /* NSBundle+TZImagePicker.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D5358CB1D64600F00928CC6 /* NSBundle+TZImagePicker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9F763A6E1FA0734800D9E526 /* TZImagePickerController.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 6DC358651CC8BAFD00898D29 /* TZImagePickerController.bundle */; };
 		9F763A6F1FA0741D00D9E526 /* TZPhotoPickerController.h in Headers */ = {isa = PBXBuildFile; fileRef = 900EEFFC1C2BD58B00EA709B /* TZPhotoPickerController.h */; };
-		9F763A701FA0741D00D9E526 /* TZAssetCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 900EEFFF1C2BD7E400EA709B /* TZAssetCell.h */; };
+		9F763A701FA0741D00D9E526 /* TZAssetCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 900EEFFF1C2BD7E400EA709B /* TZAssetCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9F763A711FA0741D00D9E526 /* TZPhotoPreviewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 900EF0101C2C107400EA709B /* TZPhotoPreviewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9F763A721FA0741D00D9E526 /* TZPhotoPreviewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 900EF0131C2C134800EA709B /* TZPhotoPreviewCell.h */; };
+		9F763A721FA0741D00D9E526 /* TZPhotoPreviewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 900EF0131C2C134800EA709B /* TZPhotoPreviewCell.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9F763A731FA0741D00D9E526 /* TZVideoPlayerController.h in Headers */ = {isa = PBXBuildFile; fileRef = 90CE84B51C3BABB6003D0779 /* TZVideoPlayerController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9F763A741FA0741D00D9E526 /* TZGifPhotoPreviewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 6D46082F1DFFC60D004FB009 /* TZGifPhotoPreviewController.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9F763A751FA0741D00D9E526 /* TZProgressView.h in Headers */ = {isa = PBXBuildFile; fileRef = 6DD050291DF659ED0057C78D /* TZProgressView.h */; };
@@ -355,10 +355,10 @@
 				9F763A761FA0741D00D9E526 /* TZImageManager.h in Headers */,
 				9F763A781FA0741D00D9E526 /* TZLocationManager.h in Headers */,
 				9F763A711FA0741D00D9E526 /* TZPhotoPreviewController.h in Headers */,
+				9F763A721FA0741D00D9E526 /* TZPhotoPreviewCell.h in Headers */,
+				9F763A701FA0741D00D9E526 /* TZAssetCell.h in Headers */,
 				9F763A791FA0741D00D9E526 /* UIView+Layout.h in Headers */,
 				9F763A6F1FA0741D00D9E526 /* TZPhotoPickerController.h in Headers */,
-				9F763A701FA0741D00D9E526 /* TZAssetCell.h in Headers */,
-				9F763A721FA0741D00D9E526 /* TZPhotoPreviewCell.h in Headers */,
 				9F763A751FA0741D00D9E526 /* TZProgressView.h in Headers */,
 				9F763A771FA0741D00D9E526 /* TZImageCropManager.h in Headers */,
 			);

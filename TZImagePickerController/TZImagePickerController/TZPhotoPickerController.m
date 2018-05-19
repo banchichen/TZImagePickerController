@@ -73,6 +73,7 @@ static CGFloat itemMargin = 5;
     }
     return _imagePickerVc;
 }
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.isFirstAppear = YES;
