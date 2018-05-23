@@ -82,6 +82,14 @@
     [_selectButton setImage:[UIImage imageNamedFromMyBundle:@"photo_sel_photoPickerVc.png"] forState:UIControlStateSelected];
     [_selectButton addTarget:self action:@selector(select:) forControlEvents:UIControlEventTouchUpInside];
     
+    //预览界面适配iPhone X
+    CGFloat viewHeight = self.view.frame.size.height;
+    if (viewHeight>736) {
+        _naviBar.frame = CGRectMake(0, 0, self.view.tz_width, 84);
+        _backButton.frame = CGRectMake(0, 35, 44, 44);
+        _selectButton.frame = CGRectMake(self.view.tz_width - 52, 35, 42, 42);
+    }
+    
     [_naviBar addSubview:_selectButton];
     [_naviBar addSubview:_backButton];
     [self.view addSubview:_naviBar];
@@ -89,6 +97,12 @@
 
 - (void)configBottomToolBar {
     _toolBar = [[UIView alloc] initWithFrame:CGRectMake(0, self.view.tz_height - 44, self.view.tz_width, 44)];
+    //预览界面适配iPhone X
+    CGFloat viewHeight = self.view.frame.size.height;
+    if (viewHeight>736) {
+        _toolBar.frame = CGRectMake(0, self.view.tz_height - 44 - 34, self.view.tz_width, 78);
+    }
+    
     CGFloat rgb = 34 / 255.0;
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     _toolBar.alpha = 0.7;
