@@ -127,6 +127,16 @@
 #pragma mark UICollectionView
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    if (_selectedPhotos.count >= self.maxCountTF.text.integerValue) {
+        return _selectedPhotos.count;
+    }
+    if (!self.allowPickingMuitlpleVideoSwitch.isOn) {
+        for (PHAsset *asset in _selectedAssets) {
+            if (asset.mediaType == PHAssetMediaTypeVideo) {
+                return _selectedPhotos.count;
+            }
+        }
+    }
     return _selectedPhotos.count + 1;
 }
 
@@ -676,9 +686,15 @@
 #pragma mark - Click Event
 
 - (void)deleteBtnClik:(UIButton *)sender {
+    if ([self collectionView:self.collectionView numberOfItemsInSection:0] <= _selectedPhotos.count) {
+        [_selectedPhotos removeObjectAtIndex:sender.tag];
+        [_selectedAssets removeObjectAtIndex:sender.tag];
+        [self.collectionView reloadData];
+        return;
+    }
+    
     [_selectedPhotos removeObjectAtIndex:sender.tag];
     [_selectedAssets removeObjectAtIndex:sender.tag];
-    
     [_collectionView performBatchUpdates:^{
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:sender.tag inSection:0];
         [self->_collectionView deleteItemsAtIndexPaths:@[indexPath]];
