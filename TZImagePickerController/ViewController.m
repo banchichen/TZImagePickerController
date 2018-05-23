@@ -19,6 +19,7 @@
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
 #import "TZAssetCell.h"
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
@@ -35,14 +36,14 @@
 
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 // 设置开关
-@property (weak, nonatomic) IBOutlet UISwitch *showTakePhotoBtnSwitch;  ///< 在内部显示拍照按钮
-@property (weak, nonatomic) IBOutlet UISwitch *showTakeVideoBtnSwitch;  ///< 在内部显示拍视频按钮
+@property (weak, nonatomic) IBOutlet UISwitch *showTakePhotoBtnSwitch;  ///< 允许拍照
+@property (weak, nonatomic) IBOutlet UISwitch *showTakeVideoBtnSwitch;  ///< 允许拍视频
 @property (weak, nonatomic) IBOutlet UISwitch *sortAscendingSwitch;     ///< 照片排列按修改时间升序
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingVideoSwitch; ///< 允许选择视频
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingImageSwitch; ///< 允许选择图片
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingGifSwitch;
 @property (weak, nonatomic) IBOutlet UISwitch *allowPickingOriginalPhotoSwitch; ///< 允许选择原图
-@property (weak, nonatomic) IBOutlet UISwitch *showSheetSwitch; ///< 显示一个sheet,把拍照按钮放在外面
+@property (weak, nonatomic) IBOutlet UISwitch *showSheetSwitch; ///< 显示一个sheet,把拍照/拍视频按钮放在外面
 @property (weak, nonatomic) IBOutlet UITextField *maxCountTF;  ///< 照片最大可选张数，设置为1即为单选模式
 @property (weak, nonatomic) IBOutlet UITextField *columnNumberTF;
 @property (weak, nonatomic) IBOutlet UISwitch *allowCropSwitch;
@@ -153,7 +154,13 @@
     if (indexPath.item == _selectedPhotos.count) {
         BOOL showSheet = self.showSheetSwitch.isOn;
         if (showSheet) {
-            UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:@"拍照",@"去相册选择", nil];
+            NSString *takePhotoTitle = @"拍照";
+            if (self.showTakeVideoBtnSwitch.isOn && self.showTakePhotoBtnSwitch.isOn) {
+                takePhotoTitle = @"相机";
+            } else if (self.showTakeVideoBtnSwitch.isOn) {
+                takePhotoTitle = @"拍摄";
+            }
+            UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:takePhotoTitle,@"去相册选择", nil];
             [sheet showInView:self.view];
         } else {
             [self pushTZImagePickerController];
@@ -406,7 +413,17 @@
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         self.imagePickerVc.sourceType = sourceType;
-        if(iOS8Later) {
+        NSMutableArray *mediaTypes = [NSMutableArray array];
+        if (self.showTakeVideoBtnSwitch.isOn) {
+            [mediaTypes addObject:(NSString *)kUTTypeMovie];
+        }
+        if (self.showTakePhotoBtnSwitch.isOn) {
+            [mediaTypes addObject:(NSString *)kUTTypeImage];
+        }
+        if (mediaTypes.count) {
+            _imagePickerVc.mediaTypes = mediaTypes;
+        }
+        if (iOS8Later) {
             _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
         }
         [self presentViewController:_imagePickerVc animated:YES completion:nil];
@@ -418,10 +435,11 @@
 - (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
     [picker dismissViewControllerAnimated:YES completion:nil];
     NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
+    
+    TZImagePickerController *tzImagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:self];
+    tzImagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
+    [tzImagePickerVc showProgressHUD];
     if ([type isEqualToString:@"public.image"]) {
-        TZImagePickerController *tzImagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:self];
-        tzImagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
-        [tzImagePickerVc showProgressHUD];
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
         
         // save photo and get asset / 保存图片，获取到asset
@@ -451,6 +469,30 @@
                 }];
             }
         }];
+    } else if ([type isEqualToString:@"public.movie"]) {
+        NSURL *videoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
+        if (videoUrl) {
+            [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(NSError *error) {
+                if (!error) {
+                    [[TZImageManager manager] getCameraRollAlbum:YES allowPickingImage:NO needFetchAssets:NO completion:^(TZAlbumModel *model) {
+                        [[TZImageManager manager] getAssetsFromFetchResult:model.result allowPickingVideo:YES allowPickingImage:NO completion:^(NSArray<TZAssetModel *> *models) {
+                            [tzImagePickerVc hideProgressHUD];
+                            TZAssetModel *assetModel = [models firstObject];
+                            if (tzImagePickerVc.sortAscendingByModificationDate) {
+                                assetModel = [models lastObject];
+                            }
+                            [[TZImageManager manager] getPhotoWithAsset:assetModel.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+                                if (!isDegraded && photo) {
+                                    [self refreshCollectionViewWithAddedAsset:assetModel.asset image:photo];
+                                }
+                            }];
+                        }];
+                    }];
+                } else {
+                    [tzImagePickerVc hideProgressHUD];
+                }
+            }];
+        }
     }
 }
 
@@ -647,21 +689,18 @@
 
 - (IBAction)showTakePhotoBtnSwitchClick:(UISwitch *)sender {
     if (sender.isOn) {
-        [_showSheetSwitch setOn:NO animated:YES];
         [_allowPickingImageSwitch setOn:YES animated:YES];
     }
 }
 
 - (IBAction)showTakeVideoBtnSwitchClick:(UISwitch *)sender {
     if (sender.isOn) {
-        [_showSheetSwitch setOn:NO animated:YES];
         [_allowPickingVideoSwitch setOn:YES animated:YES];
     }
 }
 
 - (IBAction)showSheetSwitchClick:(UISwitch *)sender {
     if (sender.isOn) {
-        [_showTakePhotoBtnSwitch setOn:NO animated:YES];
         [_allowPickingImageSwitch setOn:YES animated:YES];
     }
 }
