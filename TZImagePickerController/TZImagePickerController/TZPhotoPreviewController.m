@@ -253,8 +253,8 @@
 //        _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
 //        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
 //    }
-    _doneButton.frame = CGRectMake(self.view.tz_width - 80 - 12, (_toolBar.tz_height - 30) / 2.0, 80, 30);
-    _selectButton.frame = CGRectMake(10, (_toolBar.tz_height - 42) / 2.0, 42, 42);
+    _doneButton.frame = CGRectMake(self.view.tz_width - 80 - 12, 5, 80, 30);
+    _selectButton.tz_centerY = _doneButton.tz_centerY;
     _doneButton.layer.cornerRadius = 4;
     _numberImageView.frame = CGRectMake(_doneButton.tz_left - 30 - 2, 7, 30, 30);
     _numberLabel.frame = _numberImageView.frame;

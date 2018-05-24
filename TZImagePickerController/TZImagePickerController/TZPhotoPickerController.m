@@ -338,6 +338,7 @@ static CGFloat itemMargin = 5;
     }
 //    [_doneButton sizeToFit];
     _doneButton.frame = CGRectMake(self.view.tz_width - 80 - 12, (_bottomToolBar.tz_height - 30) / 2.0, 80, 30);
+    _doneButton.tz_centerY = _previewButton.tz_centerY;
     _doneButton.layer.cornerRadius = 4;
 //    _numberImageView.frame = CGRectMake(_doneButton.tz_left - 30 - 2, 7, 30, 30);
 //    _numberLabel.frame = _numberImageView.frame;
