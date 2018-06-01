@@ -35,6 +35,7 @@
     if (self.useCachedImage && model.cachedImage) {
         self.imageView.image = model.cachedImage;
     } else {
+        self.model.cachedImage = nil;
         int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
             if (self->_progressView) {
                 self.progressView.hidden = YES;
