@@ -37,24 +37,24 @@
     } else {
         self.model.cachedImage = nil;
         int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-            if (self->_progressView) {
-                self.progressView.hidden = YES;
-                self.imageView.alpha = 1.0;
-            }
             // Set the cell's thumbnail image if it's still showing the same asset.
             if (!iOS8Later) {
-                self.imageView.image = photo; return;
+                self.imageView.image = photo;
+                self.model.cachedImage = photo;
+                [self hideProgressView];
+                return;
             }
             if ([self.representedAssetIdentifier isEqualToString:[[TZImageManager manager] getAssetIdentifier:model.asset]]) {
                 self.imageView.image = photo;
+                self.model.cachedImage = photo;
             } else {
                 // NSLog(@"this cell is showing other asset");
                 [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
             }
             if (!isDegraded) {
+                [self hideProgressView];
                 self.imageRequestID = 0;
             }
-            self.model.cachedImage = photo;
         } progressHandler:nil networkAccessAllowed:NO];
         if (imageRequestID && self.imageRequestID && imageRequestID != self.imageRequestID) {
             [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
@@ -150,15 +150,19 @@
 }
 
 - (void)hideProgressView {
-    self.progressView.hidden = YES;
-    self.imageView.alpha = 1.0;
+    if (_progressView) {
+        self.progressView.hidden = YES;
+        self.imageView.alpha = 1.0;
+    }
 }
 
 - (void)requestBigImage {
+    if (_bigImageRequestID) {
+        [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
+    }
+    
     _bigImageRequestID = [[TZImageManager manager] requestImageDataForAsset:_model.asset completion:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-        if (self.progressView) {
-            [self hideProgressView];
-        }
+        [self hideProgressView];
     } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
         if (self.model.isSelected) {
             progress = progress > 0.02 ? progress : 0.02;;
@@ -180,9 +184,7 @@
     if (_bigImageRequestID) {
         [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
     }
-    if (_progressView) {
-        [self hideProgressView];
-    }
+    [self hideProgressView];
 }
 
 #pragma mark - Lazy load
