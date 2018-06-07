@@ -67,6 +67,10 @@
 /// Default is 600px / 默认600像素宽
 @property (nonatomic, assign) CGFloat photoPreviewMaxWidth;
 
+/// Default is NO / 默认是原版本弹出提示框
+/// 如果设置成YES 当存在照片和视频 选照片的时候显示视频遮罩让其不可选
+@property (nonatomic, assign) BOOL showVideoDeSelectLayer;
+
 /// Default is 15, While fetching photo, HUD will dismiss automatic if timeout;
 /// 超时时间，默认为15秒，当取图片时间超过15秒还没有取成功时，会自动dismiss HUD；
 @property (nonatomic, assign) NSInteger timeout;
