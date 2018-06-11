@@ -92,6 +92,7 @@ A：1.8.4版本已支持
 A：考虑下，优先级低  
 
       最近更新    
+2.1.6 新增allowCameraLocation属性，默认为YES，置为NO时不会在照相/摄像时定位，修复一个序号紊乱的bug              
 2.1.5 修复开启showSelectedIndex后照片列表页iCloud图片进度条紊乱的bug              
 2.1.4 新增多个页面和组件的样式自定义block，允许自定义绝大多数UI样式              
 2.1.2 新增showPhotoCannotSelectLayer属性，当已选照片张数达到最大可选张数时，可像微信一样让其它照片显示一个提示不可选的浮层            
