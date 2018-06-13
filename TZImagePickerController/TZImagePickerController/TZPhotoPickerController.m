@@ -343,6 +343,7 @@ static CGFloat itemMargin = 5;
 }
 - (void)previewButtonClick {
     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+    photoPreviewVc.enableDoneWhenNoneSelect = NO;
     [self pushPhotoPrevireViewController:photoPreviewVc needCheckSelectedModels:YES];
 }
 
