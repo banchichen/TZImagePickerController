@@ -246,7 +246,6 @@ static CGFloat itemMargin = 5;
      */
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _doneButton.backgroundColor = [UIColor colorWithRed:89 / 255.0 green:182 / 255.0 blue:215 / 255.0 alpha:1];
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:14];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
@@ -256,8 +255,15 @@ static CGFloat itemMargin = 5;
     _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
     if ((long)tzImagePickerVc.maxImagesCount > 1) {
         [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",tzImagePickerVc.selectedModels.count,(long)tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+        [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",tzImagePickerVc.selectedModels.count,(long)tzImagePickerVc.maxImagesCount] forState:UIControlStateDisabled];
+        if(tzImagePickerVc.selectedModels.count > 0) {
+            _doneButton.backgroundColor = tzImagePickerVc.oKButtonBackGroundColorEnabled;
+        } else {
+            _doneButton.backgroundColor = tzImagePickerVc.oKButtonBackGroundColorDisabled;
+        }
     } else {
         [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
+        _doneButton.backgroundColor = tzImagePickerVc.oKButtonBackGroundColorEnabled;
     }
     /*
     _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:tzImagePickerVc.photoNumberIconImageName]];
@@ -483,6 +489,7 @@ static CGFloat itemMargin = 5;
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
         cell.imageView.image = [UIImage imageNamedFromMyBundle:tzImagePickerVc.takePictureImageName];
+        cell.imageView.backgroundColor = tzImagePickerVc.oKButtonBackGroundColorDisabled;
         return cell;
     }
     // the cell dipaly photo or video / 展示照片或视频的cell
@@ -679,10 +686,15 @@ static CGFloat itemMargin = 5;
 //    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
     if ((long)tzImagePickerVc.maxImagesCount > 1) {
         [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",tzImagePickerVc.selectedModels.count,(long)tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+        if(tzImagePickerVc.selectedModels.count > 0) {
+            _doneButton.backgroundColor = tzImagePickerVc.oKButtonBackGroundColorEnabled;
+        } else {
+            _doneButton.backgroundColor = tzImagePickerVc.oKButtonBackGroundColorDisabled;
+        }
     } else {
         [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
+        _doneButton.backgroundColor = tzImagePickerVc.oKButtonBackGroundColorEnabled;
     }
-
     _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
     _originalPhotoButton.selected = (_isSelectOriginalPhoto && _originalPhotoButton.enabled);
     _originalPhotoLabel.hidden = (!_originalPhotoButton.isSelected);

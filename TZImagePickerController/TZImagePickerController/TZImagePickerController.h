@@ -158,6 +158,9 @@
 /// Appearance / 外观颜色 + 按钮文字
 @property (nonatomic, strong) UIColor *oKButtonTitleColorNormal;
 @property (nonatomic, strong) UIColor *oKButtonTitleColorDisabled;
+// 确定按钮的背景颜色
+@property (nonatomic, strong) UIColor *oKButtonBackGroundColorEnabled;
+@property (nonatomic, strong) UIColor *oKButtonBackGroundColorDisabled;
 @property (nonatomic, strong) UIColor *naviBgColor;
 @property (nonatomic, strong) UIColor *naviTitleColor;
 @property (nonatomic, strong) UIFont *naviTitleFont;
