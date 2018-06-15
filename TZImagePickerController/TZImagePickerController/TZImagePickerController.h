@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.1.5 - 2018.06.03
+//  version 2.1.6 - 2018.06.12
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -91,11 +91,12 @@
 
 /// Default is YES, if set NO, user can't picking image.
 /// 默认为YES，如果设置为NO,用户将不能选择发送图片
-@property(nonatomic, assign) BOOL allowPickingImage;
+@property (nonatomic, assign) BOOL allowPickingImage;
 
 /// Default is YES, if set NO, user can't take picture.
 /// 默认为YES，如果设置为NO, 用户将不能拍摄照片
-@property(nonatomic, assign) BOOL allowTakePicture;
+@property (nonatomic, assign) BOOL allowTakePicture;
+@property (nonatomic, assign) BOOL allowCameraLocation;
 
 /// Default is YES, if set NO, user can't take video.
 /// 默认为YES，如果设置为NO, 用户将不能拍摄视频

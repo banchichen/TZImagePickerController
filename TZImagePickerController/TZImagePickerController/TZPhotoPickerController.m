@@ -343,7 +343,7 @@ static CGFloat itemMargin = 5;
 }
 - (void)previewButtonClick {
     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-    [self pushPhotoPrevireViewController:photoPreviewVc];
+    [self pushPhotoPrevireViewController:photoPreviewVc needCheckSelectedModels:YES];
 }
 
 - (void)originalPhotoButtonClick {
@@ -656,18 +656,20 @@ static CGFloat itemMargin = 5;
 // 调用相机
 - (void)pushImagePickerController {
     // 提前定位
-    __weak typeof(self) weakSelf = self;
-    [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.location = [locations firstObject];
-    } failureBlock:^(NSError *error) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.location = nil;
-    }];
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (tzImagePickerVc.allowCameraLocation) {
+        __weak typeof(self) weakSelf = self;
+        [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            strongSelf.location = [locations firstObject];
+        } failureBlock:^(NSError *error) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            strongSelf.location = nil;
+        }];
+    }
     
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: sourceType]) {
-        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
         self.imagePickerVc.sourceType = sourceType;
         NSMutableArray *mediaTypes = [NSMutableArray array];
         if (tzImagePickerVc.allowTakePicture) {
@@ -707,11 +709,18 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)pushPhotoPrevireViewController:(TZPhotoPreviewController *)photoPreviewVc {
+    [self pushPhotoPrevireViewController:photoPreviewVc needCheckSelectedModels:NO];
+}
+
+- (void)pushPhotoPrevireViewController:(TZPhotoPreviewController *)photoPreviewVc needCheckSelectedModels:(BOOL)needCheckSelectedModels {
     __weak typeof(self) weakSelf = self;
     photoPreviewVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
     [photoPreviewVc setBackButtonClickBlock:^(BOOL isSelectOriginalPhoto) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         strongSelf.isSelectOriginalPhoto = isSelectOriginalPhoto;
+        if (needCheckSelectedModels) {
+            [strongSelf checkSelectedModels];
+        }
         [strongSelf.collectionView reloadData];
         [strongSelf refreshBottomToolBarStatus];
     }];
