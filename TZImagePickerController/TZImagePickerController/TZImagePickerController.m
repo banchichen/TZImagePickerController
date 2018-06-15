@@ -68,6 +68,35 @@
     }
 }
 
+- (void)setUiType:(TZImagePickerUIType)uiType{
+    _uiType = uiType;
+    
+    //
+    if (uiType == TZImagePickerUITypeSZYUI) {
+        
+        self.photoSelImageName = @"icon_growup_check_selecetd";
+        self.photoNumberIconImageName = @"icon_growup_check_bg";
+        self.photoOriginDefImageName = @"icon_growup_check_circle";
+        self.photoDefImageName = @"icon_growup_check_unselecetd";
+        self.photoOriginSelImageName = @"SZY_original_sel";
+        self.iconThemeColor = [UIColor colorWithRed:0 green:204/255.0 blue:1 alpha:1];
+        self.photoPickerPageUIConfigBlock = ^(UICollectionView *collectionView, UIView *bottomToolBar, UIButton *previewButton, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel, UIView *divideLine) {
+            UIColor *color = [UIColor colorWithRed:0 green:204/255.0 blue:1 alpha:1];
+            [doneButton setTitleColor:color forState:UIControlStateNormal];
+        };
+        
+        [self setNavLeftBarButtonSettingBlock:^(UIButton *leftButton){
+            [leftButton setImage:[UIImage imageNamed:@"SZY_Custom_back.png"] forState:UIControlStateNormal];
+            [leftButton setImageEdgeInsets:UIEdgeInsetsMake(0, -10, 0, 20)];
+        }];
+        
+        
+    }else{
+        self.photoNumberIconImage = [self createImageWithColor:nil size:CGSizeMake(48, 48) radius:24]; // @"photo_number_icon";
+        self.photoOriginSelImageName = @"photo_original_sel";
+    }
+}
+
 - (void)setNaviBgColor:(UIColor *)naviBgColor {
     _naviBgColor = naviBgColor;
     if (iOS7Later) {
@@ -275,7 +304,7 @@
     self.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
     self.allowCameraLocation = YES;
     
-    self.iconThemeColor = [UIColor colorWithRed:31 / 255.0 green:185 / 255.0 blue:34 / 255.0 alpha:1.0];
+//    self.iconThemeColor = [UIColor colorWithRed:31 / 255.0 green:185 / 255.0 blue:34 / 255.0 alpha:1.0];
     [self configDefaultBtnTitle];
     
     CGFloat cropViewWH = MIN(self.view.tz_width, self.view.tz_height) / 3 * 2;
@@ -286,10 +315,9 @@
     self.takePictureImageName = @"takePicture80";
     self.photoSelImageName = @"photo_sel_photoPickerVc";
     self.photoDefImageName = @"photo_def_photoPickerVc";
-    self.photoNumberIconImage = [self createImageWithColor:nil size:CGSizeMake(48, 48) radius:24]; // @"photo_number_icon";
     self.photoPreviewOriginDefImageName = @"preview_original_def";
     self.photoOriginDefImageName = @"photo_original_def";
-    self.photoOriginSelImageName = @"photo_original_sel";
+
 }
 
 - (void)setTakePictureImageName:(NSString *)takePictureImageName {
@@ -310,6 +338,7 @@
 - (void)setPhotoNumberIconImageName:(NSString *)photoNumberIconImageName {
     _photoNumberIconImageName = photoNumberIconImageName;
     _photoNumberIconImage = [UIImage imageNamedFromMyBundle:photoNumberIconImageName];
+    
 }
 
 - (void)setPhotoPreviewOriginDefImageName:(NSString *)photoPreviewOriginDefImageName {
