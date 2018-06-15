@@ -470,6 +470,8 @@ static CGFloat itemMargin = 5;
         TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
         if (tzImagePickerVc.allowPickingImage && tzImagePickerVc.allowTakePicture) {
             return _models.count + 1;
+        } else if(tzImagePickerVc.allowPickingVideo == YES) {
+            return _models.count + 1;
         }
     }
     return _models.count;
