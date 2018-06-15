@@ -18,7 +18,7 @@
 @property (weak, nonatomic) UIImageView *selectImageView;
 @property (weak, nonatomic) UIView *bottomView;
 @property (weak, nonatomic) UILabel *timeLength;
-
+@property (weak, nonatomic) UIImageView *gifImageView;
 @property (nonatomic, weak) UIImageView *videoImgView;
 @property (nonatomic, strong) TZProgressView *progressView;
 @property (nonatomic, assign) int32_t bigImageRequestID;
@@ -84,6 +84,7 @@
 
 - (void)setType:(TZAssetCellType)type {
     _type = type;
+    self.gifImageView.hidden = YES;
     if (type == TZAssetCellTypePhoto || type == TZAssetCellTypeLivePhoto || (type == TZAssetCellTypePhotoGif && !self.allowPickingGif) || self.allowPickingMultipleVideo) {
         _selectImageView.hidden = NO;
         _selectPhotoButton.hidden = NO;
@@ -99,11 +100,11 @@
         self.videoImgView.hidden = YES;
         _timeLength.textAlignment = NSTextAlignmentCenter;
     } else if (type == TZAssetCellTypePhotoGif && self.allowPickingGif) {
+        _selectImageView.hidden = NO;
+        _selectPhotoButton.hidden = NO;
         self.bottomView.hidden = NO;
-        self.timeLength.text = @"GIF";
+        self.gifImageView.hidden = NO;
         self.videoImgView.hidden = YES;
-        _timeLength.tz_left = 5;
-        _timeLength.textAlignment = NSTextAlignmentLeft;
     }
 }
 
@@ -205,6 +206,15 @@
     return _videoImgView;
 }
 
+- (UIImageView *)gifImageView {
+    if (_gifImageView == nil) {
+        UIImageView *videoImgView = [[UIImageView alloc] init];
+        [videoImgView setImage:[UIImage imageNamedFromMyBundle:@"pic_gif"]];
+        [self.bottomView addSubview:videoImgView];
+        _gifImageView = videoImgView;
+    }
+    return _gifImageView;
+}
 - (UILabel *)timeLength {
     if (_timeLength == nil) {
         UILabel *timeLength = [[UILabel alloc] init];
@@ -236,7 +246,7 @@
     } else {
         _selectPhotoButton.frame = self.bounds;
     }
-    _selectImageView.frame = CGRectMake(self.tz_width - 27, 0, 27, 27);
+    _selectImageView.frame = CGRectMake(self.tz_width - 20 - 5, 5, 20, 20);
     _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
 
     static CGFloat progressWH = 20;
@@ -246,7 +256,7 @@
     _bottomView.frame = CGRectMake(0, self.tz_height - 22, self.tz_width, 22);
     _videoImgView.frame = CGRectMake(8, 0, 17, 17);
     _timeLength.frame = CGRectMake(self.tz_width - 8 - 37, 0, 37, 14);
-
+    _gifImageView.frame = CGRectMake(self.tz_width - 25, 0, 25, 15);
     self.type = (NSInteger)self.model.type;
     self.showSelectBtn = self.showSelectBtn;
 }

@@ -138,13 +138,17 @@
     [_toolBar addSubview:_selectButton];
 
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _doneButton.backgroundColor = [UIColor colorWithRed:89 / 255.0 green:182 / 255.0 blue:215 / 255.0 alpha:1];
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:14];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:_tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     [_doneButton setTitleColor:_tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     if ((long)_tzImagePickerVc.maxImagesCount > 1) {
         [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",_tzImagePickerVc.selectedModels.count,(long)_tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+        if(_tzImagePickerVc.selectedModels.count > 0) {
+            _doneButton.backgroundColor = _tzImagePickerVc.oKButtonBackGroundColorEnabled;
+        } else {
+            _doneButton.backgroundColor = _tzImagePickerVc.oKButtonBackGroundColorDisabled;
+        }
     } else {
         [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
     }
@@ -485,6 +489,11 @@
     _selectButton.selected = model.isSelected;
     if ((long)_tzImagePickerVc.maxImagesCount > 1) {
         [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",_tzImagePickerVc.selectedModels.count,(long)_tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+        if(_tzImagePickerVc.selectedModels.count > 0) {
+            _doneButton.backgroundColor = _tzImagePickerVc.oKButtonBackGroundColorEnabled;
+        } else {
+            _doneButton.backgroundColor = _tzImagePickerVc.oKButtonBackGroundColorDisabled;
+        }
     } else {
         [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
     }
