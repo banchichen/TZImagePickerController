@@ -71,7 +71,6 @@
 - (void)setUiType:(TZImagePickerUIType)uiType{
     _uiType = uiType;
     
-    //
     if (uiType == TZImagePickerUITypeSZYUI) {
         
         self.photoSelImageName = @"icon_growup_check_selecetd";
