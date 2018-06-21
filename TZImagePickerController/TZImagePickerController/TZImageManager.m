@@ -553,7 +553,9 @@ static dispatch_once_t onceToken;
                 options.resizeMode = PHImageRequestOptionsResizeModeFast;
                 [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                     UIImage *resultImage = [UIImage imageWithData:imageData scale:0.1];
-                    resultImage = [self scaleImage:resultImage toSize:imageSize];
+                    if (![TZImagePickerConfig sharedInstance].notScaleImage) {
+                        resultImage = [self scaleImage:resultImage toSize:imageSize];
+                    }
                     if (!resultImage) {
                         resultImage = image;
                     }

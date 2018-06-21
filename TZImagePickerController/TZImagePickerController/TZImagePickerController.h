@@ -132,6 +132,10 @@
 /// Default is white color with 0.8 alpha;
 @property (strong, nonatomic) UIColor *cannotSelectLayerColor;
 
+/// Default is No, if set YES, the result photo will not be scaled to photoWidth pixel width. The photoWidth default is 828px
+/// 默认是NO，如果设置为YES，内部不会缩放图片到photoWidth像素宽
+@property (assign, nonatomic) BOOL notScaleImage;
+
 /// The photos user have selected
 /// 用户选中过的图片数组
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
@@ -330,4 +334,5 @@
 @property (assign, nonatomic) NSInteger gifPreviewMaxImagesCount;
 @property (assign, nonatomic) BOOL showSelectedIndex;
 @property (assign, nonatomic) BOOL showPhotoCannotSelectLayer;
+@property (assign, nonatomic) BOOL notScaleImage;
 @end

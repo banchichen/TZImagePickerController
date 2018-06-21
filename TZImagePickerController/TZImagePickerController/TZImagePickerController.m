@@ -271,6 +271,7 @@
     self.barItemTextFont = [UIFont systemFontOfSize:15];
     self.barItemTextColor = [UIColor whiteColor];
     self.allowPreview = YES;
+    self.notScaleImage = NO;
     self.statusBarStyle = UIStatusBarStyleLightContent;
     self.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
     self.allowCameraLocation = YES;
@@ -352,6 +353,11 @@
 - (void)setShowPhotoCannotSelectLayer:(BOOL)showPhotoCannotSelectLayer {
     _showPhotoCannotSelectLayer = showPhotoCannotSelectLayer;
     [TZImagePickerConfig sharedInstance].showPhotoCannotSelectLayer = showPhotoCannotSelectLayer;
+}
+
+- (void)setNotScaleImage:(BOOL)notScaleImage {
+    _notScaleImage = notScaleImage;
+    [TZImagePickerConfig sharedInstance].notScaleImage = notScaleImage;
 }
 
 - (void)observeAuthrizationStatusChange {
