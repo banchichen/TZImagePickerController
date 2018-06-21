@@ -31,10 +31,6 @@
 #define iOS9_1Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.1f)
 #define iOS11Later ([UIDevice currentDevice].systemVersion.floatValue >= 11.0f)
 
-typedef enum : NSUInteger {
-    TZImagePickerUITypeSZYUI = 0,       // 自定义成工程项目的样式
-    TZImagePickerUITypeOwner ,      // 为开源的UI样式
-} TZImagePickerUIType;
 
 @class TZAlbumCell, TZAssetCell;
 @protocol TZImagePickerControllerDelegate;
@@ -54,8 +50,6 @@ typedef enum : NSUInteger {
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
 
-/// 默认为公司的UI风格设置   系统的为 TZImagePickerUITypeOwner
-@property (nonatomic, assign) TZImagePickerUIType uiType;
 /// The minimum count photos user must pick, Default is 0
 /// 最小照片必选张数,默认是0
 @property (nonatomic, assign) NSInteger minImagesCount;

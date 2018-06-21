@@ -271,19 +271,21 @@
     // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
     // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
     // imagePickerVc.navigationBar.translucent = NO;
-    
+//    imagePickerVc.iconThemeColor = [UIColor colorWithRed:0 green:204/255.0 blue:1 alpha:1];
+
 //    imagePickerVc.iconThemeColor = [UIColor colorWithRed:31 / 255.0 green:185 / 255.0 blue:34 / 255.0 alpha:1.0];
     imagePickerVc.showPhotoCannotSelectLayer = YES;
     imagePickerVc.showVideoDeSelectLayer = YES;
     
-    imagePickerVc.uiType = TZImagePickerUITypeSZYUI;
-    
     imagePickerVc.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
-      /*
+    
     [imagePickerVc setPhotoPickerPageUIConfigBlock:^(UICollectionView *collectionView, UIView *bottomToolBar, UIButton *previewButton, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel, UIView *divideLine) {
-        [doneButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+        UIColor *color = [UIColor colorWithRed:0 green:204/255.0 blue:1 alpha:1];
+        [doneButton setTitleColor:color forState:UIControlStateNormal];
+//        [previewButton setTitleColor:color forState:UIControlStateNormal];
+
     }];
-  
+   /*
     [imagePickerVc setAssetCellDidSetModelBlock:^(TZAssetCell *cell, UIImageView *imageView, UIImageView *selectImageView, UILabel *indexLabel, UIView *bottomView, UILabel *timeLength, UIImageView *videoImgView) {
         cell.contentView.clipsToBounds = YES;
         cell.contentView.layer.cornerRadius = cell.contentView.tz_width * 0.5;
