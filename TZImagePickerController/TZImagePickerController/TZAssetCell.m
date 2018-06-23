@@ -224,7 +224,7 @@
 - (UIImageView *)bottomView {
     if (_bottomView == nil) {
         UIImageView *bottomView = [[UIImageView alloc] init];
-        bottomView.image = [UIImage imageNamed:@"VideoShadowIcon"];
+        bottomView.image = [UIImage imageNamedFromMyBundle:@"VideoShadowIcon"];
         [self.contentView addSubview:bottomView];
         _bottomView = bottomView;
     }
@@ -304,9 +304,9 @@
     CGFloat progressXY = (self.tz_width - progressWH) / 2;
     _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
 
-    _bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
-    _videoImgView.frame = CGRectMake(8, 1, 15, 10);
-    _timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
+    _bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 20);
+    _videoImgView.frame = CGRectMake(4, 5, 15, 10);
+    _timeLength.frame = CGRectMake(self.videoImgView.tz_right, 3, self.tz_width - self.videoImgView.tz_right - 5, 14);
     
     self.type = (NSInteger)self.model.type;
     self.showSelectBtn = self.showSelectBtn;
