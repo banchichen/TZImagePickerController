@@ -17,7 +17,7 @@
 @property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
 @property (weak, nonatomic) UIImageView *selectImageView;
 @property (weak, nonatomic) UILabel *indexLabel;
-@property (weak, nonatomic) UIView *bottomView;
+@property (weak, nonatomic) UIImageView *bottomView;
 @property (weak, nonatomic) UILabel *timeLength;
 
 @property (nonatomic, weak) UIImageView *videoImgView;
@@ -221,11 +221,10 @@
     return _selectImageView;
 }
 
-- (UIView *)bottomView {
+- (UIImageView *)bottomView {
     if (_bottomView == nil) {
-        UIView *bottomView = [[UIView alloc] init];
-        static NSInteger rgb = 0;
-        bottomView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.8];
+        UIImageView *bottomView = [[UIImageView alloc] init];
+        bottomView.image = [UIImage imageNamed:@"VideoShadowIcon"];
         [self.contentView addSubview:bottomView];
         _bottomView = bottomView;
     }
@@ -306,7 +305,7 @@
     _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
 
     _bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
-    _videoImgView.frame = CGRectMake(8, 0, 17, 17);
+    _videoImgView.frame = CGRectMake(8, 1, 15, 10);
     _timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
     
     self.type = (NSInteger)self.model.type;
