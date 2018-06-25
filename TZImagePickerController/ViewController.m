@@ -280,7 +280,7 @@
     imagePickerVc.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
     
     [imagePickerVc setPhotoPickerPageUIConfigBlock:^(UICollectionView *collectionView, UIView *bottomToolBar, UIButton *previewButton, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel, UIView *divideLine) {
-        UIColor *color = [UIColor colorWithRed:0 green:204/255.0 blue:1 alpha:1];
+        UIColor *color = [UIColor colorWithRed:0 green:170/255.0 blue:1 alpha:1];
         [doneButton setTitleColor:color forState:UIControlStateNormal];
 //        [previewButton setTitleColor:color forState:UIControlStateNormal];
 

@@ -45,7 +45,7 @@
 @end
 
 static CGSize AssetGridThumbnailSize;
-static CGFloat itemMargin = 5;
+static CGFloat itemMargin = 7;
 
 @implementation TZPhotoPickerController
 
@@ -473,8 +473,7 @@ static CGFloat itemMargin = 5;
         cell.imageView.image = tzImagePickerVc.takePictureImage;
         if ([tzImagePickerVc.takePictureImageName isEqualToString:@"takePicture80"]) {
             cell.imageView.contentMode = UIViewContentModeCenter;
-            CGFloat rgb = 223 / 255.0;
-            cell.imageView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+            cell.imageView.backgroundColor = [UIColor colorWithRed:242/255.0 green: 243/255.0 blue: 245/255.0 alpha:1.0];
         } else {
             cell.imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
         }
