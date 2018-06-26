@@ -304,7 +304,7 @@
     CGFloat progressXY = (self.tz_width - progressWH) / 2;
     _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
 
-    _bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 20);
+    _bottomView.frame = CGRectMake(0, self.tz_height - 20, self.tz_width, 20);
     _videoImgView.frame = CGRectMake(4, 5, 15, 10);
     _timeLength.frame = CGRectMake(self.videoImgView.tz_right, 3, self.tz_width - self.videoImgView.tz_right - 5, 14);
     
