@@ -825,7 +825,11 @@ static CGFloat itemMargin = 5;
         self->_model = model;
         [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
             [tzImagePickerVc hideProgressHUD];
-            
+          
+            if (models.count < 1) { // 拍照后取消处理，models 可能为空
+               return;
+            }
+          
             TZAssetModel *assetModel;
             if (tzImagePickerVc.sortAscendingByModificationDate) {
                 assetModel = [models lastObject];
