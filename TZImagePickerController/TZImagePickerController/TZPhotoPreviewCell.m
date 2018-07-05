@@ -92,7 +92,7 @@
 
 
 @interface TZPhotoPreviewView ()<UIScrollViewDelegate>
-
+@property (assign, nonatomic) BOOL isRequestingGIF;
 @end
 
 @implementation TZPhotoPreviewView
@@ -149,32 +149,39 @@
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
+    self.isRequestingGIF = NO;
     [_scrollView setZoomScale:1.0 animated:NO];
     if (model.type == TZAssetModelMediaTypePhotoGif) {
         // 先显示缩略图
         [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
             self.imageView.image = photo;
             [self resizeSubviews];
-            // 再显示gif动图
-            if (!isDegraded) {
-                [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.asset progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-                    progress = progress > 0.02 ? progress : 0.02;
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        self.progressView.progress = progress;
-                        if (progress >= 1) {
-                            self.progressView.hidden = YES;
-                        } else {
-                            self.progressView.hidden = NO;
-                        }
-                    });
-                } completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
-                    if (!isDegraded) {
-                        self.progressView.hidden = YES;
-                        self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
-                        [self resizeSubviews];
-                    }
-                }];
+            if (self.isRequestingGIF) {
+                return;
             }
+            // 再显示gif动图
+            self.isRequestingGIF = YES;
+            [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.asset progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+                progress = progress > 0.02 ? progress : 0.02;
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self.progressView.progress = progress;
+                    if (progress >= 1) {
+                        self.progressView.hidden = YES;
+                    } else {
+                        self.progressView.hidden = NO;
+                    }
+                });
+#ifdef DEBUG
+                NSLog(@"[TZImagePickerController] getOriginalPhotoDataWithAsset:%f error:%@", progress, error);
+#endif
+            } completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
+                if (!isDegraded) {
+                    self.isRequestingGIF = NO;
+                    self.progressView.hidden = YES;
+                    self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
+                    [self resizeSubviews];
+                }
+            }];
         } progressHandler:nil networkAccessAllowed:NO];
     } else {
         self.asset = model.asset;
