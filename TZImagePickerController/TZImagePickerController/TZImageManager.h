@@ -73,6 +73,7 @@
 - (void)getOriginalPhotoWithAsset:(id)asset newCompletion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion;
 // 该方法中，completion只会走一次
 - (void)getOriginalPhotoDataWithAsset:(id)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion;
+- (void)getOriginalPhotoDataWithAsset:(id)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion;
 
 /// Save photo 保存照片
 - (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(NSError *error))completion;

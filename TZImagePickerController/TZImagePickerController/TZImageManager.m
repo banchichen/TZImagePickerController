@@ -420,6 +420,9 @@ static dispatch_once_t onceToken;
             PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
             options.resizeMode = PHImageRequestOptionsResizeModeFast;
             options.networkAccessAllowed = YES;
+            if ([[model.asset valueForKey:@"filename"] hasSuffix:@"GIF"]) {
+                options.version = PHImageRequestOptionsVersionOriginal;
+            }
             [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                 if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
                 assetCount ++;
@@ -645,6 +648,10 @@ static dispatch_once_t onceToken;
 }
 
 - (void)getOriginalPhotoDataWithAsset:(id)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion {
+    [self getOriginalPhotoDataWithAsset:asset progressHandler:nil completion:completion];
+}
+
+- (void)getOriginalPhotoDataWithAsset:(id)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion {
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.networkAccessAllowed = YES;
@@ -652,6 +659,7 @@ static dispatch_once_t onceToken;
             // if version isn't PHImageRequestOptionsVersionOriginal, the gif may cann't play
             option.version = PHImageRequestOptionsVersionOriginal;
         }
+        [option setProgressHandler:progressHandler];
         option.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
         [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);

@@ -156,12 +156,25 @@
             self.imageView.image = photo;
             [self resizeSubviews];
             // 再显示gif动图
-            [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.asset completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
-                if (!isDegraded) {
-                    self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
-                    [self resizeSubviews];
-                }
-            }];
+            if (!isDegraded) {
+                [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.asset progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+                    progress = progress > 0.02 ? progress : 0.02;
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.progressView.progress = progress;
+                        if (progress >= 1) {
+                            self.progressView.hidden = YES;
+                        } else {
+                            self.progressView.hidden = NO;
+                        }
+                    });
+                } completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
+                    if (!isDegraded) {
+                        self.progressView.hidden = YES;
+                        self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
+                        [self resizeSubviews];
+                    }
+                }];
+            }
         } progressHandler:nil networkAccessAllowed:NO];
     } else {
         self.asset = model.asset;
