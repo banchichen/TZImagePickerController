@@ -222,7 +222,7 @@
     if (self.maxCountTF.text.integerValue <= 0) {
         return;
     }
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES square:YES];
     // imagePickerVc.navigationBar.translucent = NO;
     
 #pragma mark - 五类个性化设置，这些参数都可以不传，此时会走默认设置
@@ -402,7 +402,7 @@
     [picker dismissViewControllerAnimated:YES completion:nil];
     NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
     if ([type isEqualToString:@"public.image"]) {
-        TZImagePickerController *tzImagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:self];
+        TZImagePickerController *tzImagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 delegate:self square:true];
         tzImagePickerVc.sortAscendingByModificationDate = self.sortAscendingSwitch.isOn;
         [tzImagePickerVc showProgressHUD];
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];

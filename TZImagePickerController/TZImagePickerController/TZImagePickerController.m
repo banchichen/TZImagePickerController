@@ -40,7 +40,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        self = [self initWithMaxImagesCount:9 delegate:nil];
+        self = [self initWithMaxImagesCount:9 delegate:nil square:_isSquare];
     }
     return self;
 }
@@ -161,15 +161,16 @@
     return self.statusBarStyle;
 }
 
-- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate {
-    return [self initWithMaxImagesCount:maxImagesCount columnNumber:4 delegate:delegate pushPhotoPickerVc:YES];
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate square:(BOOL)square {
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:4 delegate:delegate pushPhotoPickerVc:YES square:square];
 }
 
-- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate {
-    return [self initWithMaxImagesCount:maxImagesCount columnNumber:columnNumber delegate:delegate pushPhotoPickerVc:YES];
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate square:(BOOL)square {
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:columnNumber delegate:delegate pushPhotoPickerVc:YES square:square];
 }
 
-- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc {
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square {
+    _isSquare = square;
     _pushPhotoPickerVc = pushPhotoPickerVc;
     TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
     albumPickerVc.isFirstAppear = YES;
