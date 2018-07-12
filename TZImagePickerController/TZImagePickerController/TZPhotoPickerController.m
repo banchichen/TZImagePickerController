@@ -17,8 +17,9 @@
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
+#import "LZImageCropping.h"
 
-@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate> {
+@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate,LZImageCroppingDelegate> {
     NSMutableArray *_models;
     
     UIView *_bottomToolBar;
@@ -588,10 +589,28 @@ static CGFloat itemMargin = 5;
             [self.navigationController pushViewController:gifPreviewVc animated:YES];
         }
     } else {
-        TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-        photoPreviewVc.currentIndex = index;
-        photoPreviewVc.models = _models;
-        [self pushPhotoPrevireViewController:photoPreviewVc];
+        
+//        TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+//        photoPreviewVc.currentIndex = index;
+//        photoPreviewVc.models = _models;
+//        [self pushPhotoPrevireViewController:photoPreviewVc];
+        
+        TZAssetModel *asset = _models[index];
+        [[TZImageManager manager] getOriginalPhotoWithAsset:asset.asset completion:^(UIImage *photo, NSDictionary *info) {
+            LZImageCropping *imageBrowser = [[LZImageCropping alloc]init];
+            //设置代理
+            imageBrowser.delegate = self;
+            if (self.isSquare) {
+                imageBrowser.cropSize = CGSizeMake(200, 200);
+            } else {
+                imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
+            }
+            [imageBrowser setImage:photo];
+            //设置自定义裁剪区域大小
+            //是否需要圆形
+            imageBrowser.isRound = NO;
+            [self presentViewController:imageBrowser animated:YES completion:nil];
+        }];
     }
 }
 
@@ -601,6 +620,12 @@ static CGFloat itemMargin = 5;
     if (iOS8Later) {
         // [self updateCachedAssets];
     }
+}
+
+#pragma mark - LZImageCroppingDelegate
+
+- (void)lzImageCropping:(LZImageCropping *)cropping didCropImage:(UIImage *)image {
+    [self didGetAllPhotos:@[image] assets:nil infoArr:nil];
 }
 
 #pragma mark - Private Method

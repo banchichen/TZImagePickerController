@@ -228,6 +228,8 @@
 /// Icon theme color, default is green color like wechat, the value is r:31 g:185 b:34. Currently only support image selection icon when showSelectedIndex is YES
 /// icon主题色，默认是微信的绿色，值是r:31 g:185 b:34。目前仅支持showSelectedIndex为YES时的图片选中icon
 @property (strong, nonatomic) UIColor *iconThemeColor;
+///是正方形还是长方形
+@property (assign, nonatomic) BOOL isSquare;
 
 #pragma mark -
 - (void)cancelButtonClick;
