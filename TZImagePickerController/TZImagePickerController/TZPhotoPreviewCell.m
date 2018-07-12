@@ -190,7 +190,9 @@
 
 - (void)setAsset:(id)asset {
     if (_asset && self.imageRequestID) {
-        [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+        if (iOS8Later) {
+            [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+        }
     }
     
     _asset = asset;
@@ -257,12 +259,14 @@
     _allowCrop = allowCrop;
     _scrollView.maximumZoomScale = allowCrop ? 4.0 : 2.5;
     
-    if ([self.asset isKindOfClass:[PHAsset class]]) {
-        PHAsset *phAsset = (PHAsset *)self.asset;
-        CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
-        // 优化超宽图片的显示
-        if (aspectRatio > 1.5) {
-            self.scrollView.maximumZoomScale *= aspectRatio / 1.5;
+    if (iOS8Later) {
+        if ([self.asset isKindOfClass:[PHAsset class]]) {
+            PHAsset *phAsset = (PHAsset *)self.asset;
+            CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
+            // 优化超宽图片的显示
+            if (aspectRatio > 1.5) {
+                self.scrollView.maximumZoomScale *= aspectRatio / 1.5;
+            }
         }
     }
 }

@@ -25,11 +25,23 @@
 #import "TZLocationManager.h"
 #import "TZPhotoPreviewController.h"
 
-#define iOS7Later ([UIDevice currentDevice].systemVersion.floatValue >= 7.0f)
-#define iOS8Later ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
-#define iOS9Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.0f)
+#if (defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000)
+
+#define iOS7Later   @available(iOS 7.0, *)
+#define iOS8Later   @available(iOS 8.0, *)
+#define iOS9Later   @available(iOS 9.0, *)
+#define iOS9_1Later @available(iOS 9.1, *)
+#define iOS11Later  @available(iOS 11.0, *)
+
+#else
+
+#define iOS7Later   ([UIDevice currentDevice].systemVersion.floatValue >= 7.0f)
+#define iOS8Later   ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
+#define iOS9Later   [UIDevice currentDevice].systemVersion.floatValue >= 9.0f
 #define iOS9_1Later ([UIDevice currentDevice].systemVersion.floatValue >= 9.1f)
-#define iOS11Later ([UIDevice currentDevice].systemVersion.floatValue >= 11.0f)
+#define iOS11Later  ([UIDevice currentDevice].systemVersion.floatValue >= 11.0f)
+
+#endif
 
 @class TZAlbumCell, TZAssetCell;
 @protocol TZImagePickerControllerDelegate;

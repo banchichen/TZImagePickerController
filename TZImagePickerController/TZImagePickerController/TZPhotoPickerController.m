@@ -101,21 +101,30 @@ static CGFloat itemMargin = 5;
         [tzImagePickerVc showProgressHUD];
     }
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && iOS8Later && self->_model.isCameraRoll) {
-            [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:YES completion:^(TZAlbumModel *model) {
-                self->_model = model;
-                self->_models = [NSMutableArray arrayWithArray:self->_model.models];
-                [self initSubviews];
-            }];
+        if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && self->_model.isCameraRoll) {
+            if (iOS8Later) {
+                [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:YES completion:^(TZAlbumModel *model) {
+                    self->_model = model;
+                    self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+                    [self initSubviews];
+                }];
+            }
         } else {
-            if (self->_showTakePhotoBtn || !iOS8Later || self->_isFirstAppear) {
+            if (self->_showTakePhotoBtn || self->_isFirstAppear) {
                 [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
                     self->_models = [NSMutableArray arrayWithArray:models];
                     [self initSubviews];
                 }];
-            } else {
-                self->_models = [NSMutableArray arrayWithArray:self->_model.models];
-                [self initSubviews];
+            } else {//(!self->_showTakePhotoBtn && !self->_isFirstAppear)
+                if (iOS8Later) {
+                    self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+                    [self initSubviews];
+                } else {
+                    [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
+                        self->_models = [NSMutableArray arrayWithArray:models];
+                        [self initSubviews];
+                    }];
+                }
             }
         }
     });
@@ -281,7 +290,11 @@ static CGFloat itemMargin = 5;
     CGFloat toolBarHeight = [TZCommonTools tz_isIPhoneX] ? 50 + (83 - 49) : 50;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
-        if (iOS7Later && !isStatusBarHidden) top += [TZCommonTools tz_statusBarHeight];
+        if (!isStatusBarHidden) {
+            if (iOS7Later) {
+                top += [TZCommonTools tz_statusBarHeight];
+            }
+        }
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - toolBarHeight - top : self.view.tz_height - top;;
     } else {
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - toolBarHeight : self.view.tz_height;
@@ -616,20 +629,21 @@ static CGFloat itemMargin = 5;
 /// 拍照按钮点击事件
 - (void)takePhoto {
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied) && iOS7Later) {
-        
-        NSDictionary *infoDict = [TZCommonTools tz_getInfoDictionary];
-        // 无权限 做一个友好的提示
-        NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
-        if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
-        
-        NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
-        if (iOS8Later) {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] otherButtonTitles:[NSBundle tz_localizedStringForKey:@"Setting"], nil];
-            [alert show];
-        } else {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"OK"] otherButtonTitles:nil];
-            [alert show];
+    if (authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied) {
+        if (iOS7Later) {
+            NSDictionary *infoDict = [TZCommonTools tz_getInfoDictionary];
+            // 无权限 做一个友好的提示
+            NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
+            if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
+            
+            NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
+            if (iOS8Later) {
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] otherButtonTitles:[NSBundle tz_localizedStringForKey:@"Setting"], nil];
+                [alert show];
+            } else {
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"OK"] otherButtonTitles:nil];
+                [alert show];
+            }
         }
     } else if (authStatus == AVAuthorizationStatusNotDetermined) {
         // fix issue 466, 防止用户首次拍照拒绝授权时相机页黑屏
@@ -881,7 +895,10 @@ static CGFloat itemMargin = 5;
 #pragma mark - Asset Caching
 
 - (void)resetCachedAssets {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
     [[TZImageManager manager].cachingImageManager stopCachingImagesForAllAssets];
+#endif
+    
     self.previousPreheatRect = CGRectZero;
 }
 
@@ -916,6 +933,7 @@ static CGFloat itemMargin = 5;
         NSArray *assetsToStopCaching = [self assetsAtIndexPaths:removedIndexPaths];
         
         // Update the assets the PHCachingImageManager is caching.
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
         [[TZImageManager manager].cachingImageManager startCachingImagesForAssets:assetsToStartCaching
                                                                        targetSize:AssetGridThumbnailSize
                                                                       contentMode:PHImageContentModeAspectFill
@@ -924,6 +942,7 @@ static CGFloat itemMargin = 5;
                                                                       targetSize:AssetGridThumbnailSize
                                                                      contentMode:PHImageContentModeAspectFill
                                                                          options:nil];
+#endif
         
         // Store the preheat rect to compare against in the future.
         self.previousPreheatRect = preheatRect;

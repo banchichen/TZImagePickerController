@@ -110,9 +110,18 @@
     _isStatusBarDefault = isStatusBarDefault;
     
     if (isStatusBarDefault) {
-        self.statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
+//        self.statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
+        if (iOS7Later) {
+            self.statusBarStyle = UIStatusBarStyleDefault;
+        } else {
+            self.statusBarStyle = UIStatusBarStyleBlackOpaque;
+        }
     } else {
-        self.statusBarStyle = iOS7Later ? UIStatusBarStyleLightContent : UIStatusBarStyleBlackOpaque;
+        if (iOS7Later) {
+            self.statusBarStyle = UIStatusBarStyleLightContent;
+        } else {
+            self.statusBarStyle = UIStatusBarStyleBlackOpaque;
+        }
     }
 }
 
@@ -272,7 +281,11 @@
     self.barItemTextColor = [UIColor whiteColor];
     self.allowPreview = YES;
     self.notScaleImage = NO;
-    self.statusBarStyle = UIStatusBarStyleLightContent;
+    if (iOS7Later) {
+        self.statusBarStyle = UIStatusBarStyleLightContent;
+    } else {
+        self.statusBarStyle = UIStatusBarStyleBlackOpaque;
+    }
     self.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
     self.allowCameraLocation = YES;
     
@@ -409,13 +422,21 @@
 }
 
 - (void)hideAlertView:(id)alertView {
-    if ([alertView isKindOfClass:[UIAlertController class]]) {
-        UIAlertController *alertC = alertView;
-        [alertC dismissViewControllerAnimated:YES completion:nil];
-    } else if ([alertView isKindOfClass:[UIAlertView class]]) {
-        UIAlertView *alertV = alertView;
-        [alertV dismissWithClickedButtonIndex:0 animated:YES];
+    if (iOS8Later) {
+        if ([alertView isKindOfClass:[UIAlertController class]]) {
+            UIAlertController *alertC = alertView;
+            [alertC dismissViewControllerAnimated:YES completion:nil];
+        } else if ([alertView isKindOfClass:[UIAlertView class]]) {
+            UIAlertView *alertV = alertView;
+            [alertV dismissWithClickedButtonIndex:0 animated:YES];
+        }
+    } else {
+        if ([alertView isKindOfClass:[UIAlertView class]]) {
+            UIAlertView *alertV = alertView;
+            [alertV dismissWithClickedButtonIndex:0 animated:YES];
+        }
     }
+    
     alertView = nil;
 }
 
@@ -598,7 +619,9 @@
 }
 
 - (void)settingBtnClick {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    if (iOS8Later) {
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    }
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
@@ -663,7 +686,11 @@
 - (void)willInterfaceOrientionChange {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         if (![UIApplication sharedApplication].statusBarHidden) {
-            if (iOS7Later && self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
+            if (self.needShowStatusBar) {
+                if (iOS7Later) {
+                    [UIApplication sharedApplication].statusBarHidden = NO;
+                }
+            }
         }
     });
 }
@@ -792,7 +819,11 @@
     BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
-        if (iOS7Later && !isStatusBarHidden) top += [TZCommonTools tz_statusBarHeight];
+        if (!isStatusBarHidden) {
+            if (iOS7Later) {
+                top += [TZCommonTools tz_statusBarHeight];
+            }
+        }
         tableViewHeight = self.view.tz_height - top;
     } else {
         tableViewHeight = self.view.tz_height;

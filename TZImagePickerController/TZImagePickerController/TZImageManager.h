@@ -16,7 +16,11 @@
 @protocol TZImagePickerControllerDelegate;
 @interface TZImageManager : NSObject
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+
 @property (nonatomic, strong) PHCachingImageManager *cachingImageManager;
+
+#endif
 
 + (instancetype)manager NS_SWIFT_NAME(default());
 + (void)deallocManager;

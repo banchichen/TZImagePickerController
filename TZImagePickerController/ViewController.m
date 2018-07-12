@@ -178,13 +178,21 @@
     } else { // preview photos or video / 预览照片或者视频
         id asset = _selectedAssets[indexPath.item];
         BOOL isVideo = NO;
-        if ([asset isKindOfClass:[PHAsset class]]) {
-            PHAsset *phAsset = asset;
-            isVideo = phAsset.mediaType == PHAssetMediaTypeVideo;
-        } else if ([asset isKindOfClass:[ALAsset class]]) {
-            ALAsset *alAsset = asset;
-            isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+        if (iOS8Later) {
+            if ([asset isKindOfClass:[PHAsset class]]) {
+                PHAsset *phAsset = asset;
+                isVideo = phAsset.mediaType == PHAssetMediaTypeVideo;
+            } else if ([asset isKindOfClass:[ALAsset class]]) {
+                ALAsset *alAsset = asset;
+                isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+            }
+        } else {
+            if ([asset isKindOfClass:[ALAsset class]]) {
+                ALAsset *alAsset = asset;
+                isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+            }
         }
+        
         if ([[asset valueForKey:@"filename"] tz_containsString:@"GIF"] && self.allowPickingGifSwitch.isOn && !self.allowPickingMuitlpleVideoSwitch.isOn) {
             TZGifPhotoPreviewController *vc = [[TZGifPhotoPreviewController alloc] init];
             TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhotoGif timeLength:@""];
@@ -331,7 +339,11 @@
     
     // Deprecated, Use statusBarStyle
     // imagePickerVc.isStatusBarDefault = NO;
-    imagePickerVc.statusBarStyle = UIStatusBarStyleLightContent;
+    if (iOS7Later) {
+        imagePickerVc.statusBarStyle = UIStatusBarStyleLightContent;
+    } else {
+        imagePickerVc.statusBarStyle = UIStatusBarStyleBlackOpaque;
+    }
     
     // 设置是否显示图片序号
     imagePickerVc.showSelectedIndex = self.showSelectedIndexSwitch.isOn;
@@ -368,14 +380,16 @@
 
 - (void)takePhoto {
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if ((authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied) && iOS7Later) {
-        // 无相机权限 做一个友好的提示
-        if (iOS8Later) {
-            UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
-            [alert show];
-        } else {
-            UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil];
-            [alert show];
+    if (authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied) {
+        if (iOS7Later) {
+            // 无相机权限 做一个友好的提示
+            if (iOS8Later) {
+                UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
+                [alert show];
+            } else {
+                UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil];
+                [alert show];
+            }
         }
     } else if (authStatus == AVAuthorizationStatusNotDetermined) {
         // fix issue 466, 防止用户首次拍照拒绝授权时相机页黑屏
@@ -511,9 +525,11 @@
     [_selectedPhotos addObject:image];
     [_collectionView reloadData];
     
-    if ([asset isKindOfClass:[PHAsset class]]) {
-        PHAsset *phAsset = asset;
-        NSLog(@"location:%@",phAsset.location);
+    if (iOS8Later) {
+        if ([asset isKindOfClass:[PHAsset class]]) {
+            PHAsset *phAsset = asset;
+            NSLog(@"location:%@",phAsset.location);
+        }
     }
 }
 
@@ -788,12 +804,19 @@
 - (void)printAssetsName:(NSArray *)assets {
     NSString *fileName;
     for (id asset in assets) {
-        if ([asset isKindOfClass:[PHAsset class]]) {
-            PHAsset *phAsset = (PHAsset *)asset;
-            fileName = [phAsset valueForKey:@"filename"];
-        } else if ([asset isKindOfClass:[ALAsset class]]) {
-            ALAsset *alAsset = (ALAsset *)asset;
-            fileName = alAsset.defaultRepresentation.filename;;
+        if (iOS8Later) {
+            if ([asset isKindOfClass:[PHAsset class]]) {
+                PHAsset *phAsset = (PHAsset *)asset;
+                fileName = [phAsset valueForKey:@"filename"];
+            } else if ([asset isKindOfClass:[ALAsset class]]) {
+                ALAsset *alAsset = (ALAsset *)asset;
+                fileName = alAsset.defaultRepresentation.filename;;
+            }
+        } else {
+            if ([asset isKindOfClass:[ALAsset class]]) {
+                ALAsset *alAsset = (ALAsset *)asset;
+                fileName = alAsset.defaultRepresentation.filename;;
+            }
         }
         // NSLog(@"图片名字:%@",fileName);
     }
