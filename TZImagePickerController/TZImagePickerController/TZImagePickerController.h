@@ -174,6 +174,9 @@
 @property (nonatomic, copy) NSString *settingBtnTitleStr;
 @property (nonatomic, copy) NSString *processHintStr;
 
+///是正方形还是长方形
+@property (assign, nonatomic) BOOL isSquare;
+
 #pragma mark -
 - (void)cancelButtonClick;
 
