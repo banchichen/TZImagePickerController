@@ -13,12 +13,12 @@
 		6DC358661CC8BAFD00898D29 /* TZImagePickerController.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 6DC358651CC8BAFD00898D29 /* TZImagePickerController.bundle */; };
 		6DC84D0A1DF5358500A107A9 /* TZImageCropManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DC84D091DF5358500A107A9 /* TZImageCropManager.m */; };
 		6DD0502B1DF659ED0057C78D /* TZProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DD0502A1DF659ED0057C78D /* TZProgressView.m */; };
-		88CA577320F739E40089B1C8 /* LZImageCropping.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA576F20F739E40089B1C8 /* LZImageCropping.m */; };
-		88CA577420F739E40089B1C8 /* LZImageCropping.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA576F20F739E40089B1C8 /* LZImageCropping.m */; };
-		88CA577520F739E40089B1C8 /* LZImageBrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CA577020F739E40089B1C8 /* LZImageBrowser.h */; };
-		88CA577620F739E40089B1C8 /* LZImageCropping.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CA577120F739E40089B1C8 /* LZImageCropping.h */; };
-		88CA577720F739E40089B1C8 /* LZImageBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA577220F739E40089B1C8 /* LZImageBrowser.m */; };
-		88CA577820F739E40089B1C8 /* LZImageBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA577220F739E40089B1C8 /* LZImageBrowser.m */; };
+		88CA578120F7424A0089B1C8 /* LZImageCropping.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA577D20F7424A0089B1C8 /* LZImageCropping.m */; };
+		88CA578220F7424A0089B1C8 /* LZImageCropping.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA577D20F7424A0089B1C8 /* LZImageCropping.m */; };
+		88CA578320F7424A0089B1C8 /* LZImageBrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CA577E20F7424A0089B1C8 /* LZImageBrowser.h */; };
+		88CA578420F7424A0089B1C8 /* LZImageCropping.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CA577F20F7424A0089B1C8 /* LZImageCropping.h */; };
+		88CA578520F7424A0089B1C8 /* LZImageBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA578020F7424A0089B1C8 /* LZImageBrowser.m */; };
+		88CA578620F7424A0089B1C8 /* LZImageBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA578020F7424A0089B1C8 /* LZImageBrowser.m */; };
 		900E65811C2BB8D5003D9A9E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65801C2BB8D5003D9A9E /* main.m */; };
 		900E65841C2BB8D5003D9A9E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65831C2BB8D5003D9A9E /* AppDelegate.m */; };
 		900E65871C2BB8D5003D9A9E /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65861C2BB8D5003D9A9E /* ViewController.m */; };
@@ -126,10 +126,10 @@
 		6DC84D091DF5358500A107A9 /* TZImageCropManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZImageCropManager.m; sourceTree = "<group>"; };
 		6DD050291DF659ED0057C78D /* TZProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZProgressView.h; sourceTree = "<group>"; };
 		6DD0502A1DF659ED0057C78D /* TZProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZProgressView.m; sourceTree = "<group>"; };
-		88CA576F20F739E40089B1C8 /* LZImageCropping.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LZImageCropping.m; sourceTree = "<group>"; };
-		88CA577020F739E40089B1C8 /* LZImageBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LZImageBrowser.h; sourceTree = "<group>"; };
-		88CA577120F739E40089B1C8 /* LZImageCropping.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LZImageCropping.h; sourceTree = "<group>"; };
-		88CA577220F739E40089B1C8 /* LZImageBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LZImageBrowser.m; sourceTree = "<group>"; };
+		88CA577D20F7424A0089B1C8 /* LZImageCropping.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LZImageCropping.m; sourceTree = "<group>"; };
+		88CA577E20F7424A0089B1C8 /* LZImageBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LZImageBrowser.h; sourceTree = "<group>"; };
+		88CA577F20F7424A0089B1C8 /* LZImageCropping.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LZImageCropping.h; sourceTree = "<group>"; };
+		88CA578020F7424A0089B1C8 /* LZImageBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LZImageBrowser.m; sourceTree = "<group>"; };
 		900E657C1C2BB8D5003D9A9E /* TZImagePickerController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TZImagePickerController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		900E65801C2BB8D5003D9A9E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		900E65821C2BB8D5003D9A9E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -218,15 +218,16 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
-		88CA576E20F739E40089B1C8 /* LZImageCropping */ = {
+		88CA577C20F7424A0089B1C8 /* LZImageCropping */ = {
 			isa = PBXGroup;
 			children = (
-				88CA577120F739E40089B1C8 /* LZImageCropping.h */,
-				88CA576F20F739E40089B1C8 /* LZImageCropping.m */,
-				88CA577020F739E40089B1C8 /* LZImageBrowser.h */,
-				88CA577220F739E40089B1C8 /* LZImageBrowser.m */,
+				88CA577D20F7424A0089B1C8 /* LZImageCropping.m */,
+				88CA577E20F7424A0089B1C8 /* LZImageBrowser.h */,
+				88CA577F20F7424A0089B1C8 /* LZImageCropping.h */,
+				88CA578020F7424A0089B1C8 /* LZImageBrowser.m */,
 			);
-			path = LZImageCropping;
+			name = LZImageCropping;
+			path = TZImagePickerController/LZImageCropping;
 			sourceTree = "<group>";
 		};
 		900E65731C2BB8D5003D9A9E = {
@@ -255,7 +256,7 @@
 		900E657E1C2BB8D5003D9A9E /* TZImagePickerController */ = {
 			isa = PBXGroup;
 			children = (
-				88CA576E20F739E40089B1C8 /* LZImageCropping */,
+				88CA577C20F7424A0089B1C8 /* LZImageCropping */,
 				900EEFF51C2BBF7600EA709B /* TZImagePickerController */,
 				900E65821C2BB8D5003D9A9E /* AppDelegate.h */,
 				900E65831C2BB8D5003D9A9E /* AppDelegate.m */,
@@ -371,7 +372,7 @@
 			files = (
 				9F763A6B1FA0731E00D9E526 /* TZImagePickerController.h in Headers */,
 				9F763A6D1FA0733700D9E526 /* NSBundle+TZImagePicker.h in Headers */,
-				88CA577620F739E40089B1C8 /* LZImageCropping.h in Headers */,
+				88CA578420F7424A0089B1C8 /* LZImageCropping.h in Headers */,
 				9F763A6C1FA0733100D9E526 /* TZAssetModel.h in Headers */,
 				9F763A6F1FA0741D00D9E526 /* TZPhotoPickerController.h in Headers */,
 				9F763A701FA0741D00D9E526 /* TZAssetCell.h in Headers */,
@@ -379,7 +380,7 @@
 				9F763A721FA0741D00D9E526 /* TZPhotoPreviewCell.h in Headers */,
 				9F763A731FA0741D00D9E526 /* TZVideoPlayerController.h in Headers */,
 				9F763A741FA0741D00D9E526 /* TZGifPhotoPreviewController.h in Headers */,
-				88CA577520F739E40089B1C8 /* LZImageBrowser.h in Headers */,
+				88CA578320F7424A0089B1C8 /* LZImageBrowser.h in Headers */,
 				9F763A751FA0741D00D9E526 /* TZProgressView.h in Headers */,
 				9F763A761FA0741D00D9E526 /* TZImageManager.h in Headers */,
 				9F763A771FA0741D00D9E526 /* TZImageCropManager.h in Headers */,
@@ -562,7 +563,7 @@
 				900EF00F1C2C0B1100EA709B /* TZAssetModel.m in Sources */,
 				900EEFFE1C2BD58B00EA709B /* TZPhotoPickerController.m in Sources */,
 				90EBF5D61C2E298000CB9BCC /* UIView+Layout.m in Sources */,
-				88CA577720F739E40089B1C8 /* LZImageBrowser.m in Sources */,
+				88CA578520F7424A0089B1C8 /* LZImageBrowser.m in Sources */,
 				90CE84B71C3BABB6003D0779 /* TZVideoPlayerController.m in Sources */,
 				900EF0021C2BD7E400EA709B /* TZAssetCell.m in Sources */,
 				6DD0502B1DF659ED0057C78D /* TZProgressView.m in Sources */,
@@ -574,7 +575,7 @@
 				900E65841C2BB8D5003D9A9E /* AppDelegate.m in Sources */,
 				900E65811C2BB8D5003D9A9E /* main.m in Sources */,
 				900EF0121C2C107400EA709B /* TZPhotoPreviewController.m in Sources */,
-				88CA577320F739E40089B1C8 /* LZImageCropping.m in Sources */,
+				88CA578120F7424A0089B1C8 /* LZImageCropping.m in Sources */,
 				6D5358CD1D64600F00928CC6 /* NSBundle+TZImagePicker.m in Sources */,
 				900EEFF81C2BBF9500EA709B /* TZImagePickerController.m in Sources */,
 				902938D81EE2D02C000F2F8F /* TZLocationManager.m in Sources */,
@@ -602,7 +603,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88CA577420F739E40089B1C8 /* LZImageCropping.m in Sources */,
+				88CA578220F7424A0089B1C8 /* LZImageCropping.m in Sources */,
 				9F763A501FA072E500D9E526 /* TZImagePickerController.m in Sources */,
 				9F763A521FA072E500D9E526 /* TZPhotoPickerController.m in Sources */,
 				9F763A541FA072E500D9E526 /* TZAssetCell.m in Sources */,
@@ -610,7 +611,7 @@
 				9F763A581FA072E500D9E526 /* TZPhotoPreviewController.m in Sources */,
 				9F763A5A1FA072E500D9E526 /* TZPhotoPreviewCell.m in Sources */,
 				9F763A5C1FA072E500D9E526 /* TZVideoPlayerController.m in Sources */,
-				88CA577820F739E40089B1C8 /* LZImageBrowser.m in Sources */,
+				88CA578620F7424A0089B1C8 /* LZImageBrowser.m in Sources */,
 				9F763A5E1FA072E500D9E526 /* TZGifPhotoPreviewController.m in Sources */,
 				9F763A601FA072E500D9E526 /* TZProgressView.m in Sources */,
 				9F763A621FA072E500D9E526 /* TZImageManager.m in Sources */,
