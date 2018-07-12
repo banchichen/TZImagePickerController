@@ -29,10 +29,11 @@
 @interface TZImagePickerController : UINavigationController
 
 #pragma mark -
+- (instancetype)initWithMaxImagesCountTSType:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square shouldPick:(BOOL)shouldPick;
 /// Use this init method / 用这个初始化方法
-- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate square:(BOOL)square;
-- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate square:(BOOL)square;
-- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square;
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate;
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate;
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc;
 /// This init method just for previewing photos / 用这个初始化方法以预览图片
 - (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index;
 /// This init method for crop photo / 用这个初始化方法以裁剪图片
@@ -176,6 +177,8 @@
 
 ///是正方形还是长方形
 @property (assign, nonatomic) BOOL isSquare;
+///是否需要裁剪
+@property (assign, nonatomic) BOOL shouldPick;
 
 #pragma mark -
 - (void)cancelButtonClick;
