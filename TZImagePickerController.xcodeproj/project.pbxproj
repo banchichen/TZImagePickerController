@@ -226,8 +226,7 @@
 				88CA577F20F7424A0089B1C8 /* LZImageCropping.h */,
 				88CA578020F7424A0089B1C8 /* LZImageBrowser.m */,
 			);
-			name = LZImageCropping;
-			path = TZImagePickerController/LZImageCropping;
+			path = LZImageCropping;
 			sourceTree = "<group>";
 		};
 		900E65731C2BB8D5003D9A9E = {
@@ -256,7 +255,6 @@
 		900E657E1C2BB8D5003D9A9E /* TZImagePickerController */ = {
 			isa = PBXGroup;
 			children = (
-				88CA577C20F7424A0089B1C8 /* LZImageCropping */,
 				900EEFF51C2BBF7600EA709B /* TZImagePickerController */,
 				900E65821C2BB8D5003D9A9E /* AppDelegate.h */,
 				900E65831C2BB8D5003D9A9E /* AppDelegate.m */,
@@ -305,6 +303,7 @@
 		900EEFF51C2BBF7600EA709B /* TZImagePickerController */ = {
 			isa = PBXGroup;
 			children = (
+				88CA577C20F7424A0089B1C8 /* LZImageCropping */,
 				900EEFF61C2BBF9500EA709B /* TZImagePickerController.h */,
 				900EEFF71C2BBF9500EA709B /* TZImagePickerController.m */,
 				900EEFFC1C2BD58B00EA709B /* TZPhotoPickerController.h */,
