@@ -33,6 +33,8 @@
     UILabel *_originalPhotoLabel;
     
     CGFloat _offsetItemCount;
+    
+    BOOL _didSetIsSelectOriginalPhoto;
 }
 @property (nonatomic, assign) BOOL isHideNaviBar;
 @property (nonatomic, strong) UIView *cropBgView;
@@ -47,8 +49,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [TZImageManager manager].shouldFixOrientation = YES;
-    __weak typeof(self) weakSelf = self;
-    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)weakSelf.navigationController;
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (!_didSetIsSelectOriginalPhoto) {
+        _isSelectOriginalPhoto = _tzImagePickerVc.isSelectOriginalPhoto;
+    }
     if (!self.models.count) {
         self.models = [NSMutableArray arrayWithArray:_tzImagePickerVc.selectedModels];
         _assetsTemp = [NSMutableArray arrayWithArray:_tzImagePickerVc.selectedAssets];
@@ -58,6 +62,11 @@
     [self configBottomToolBar];
     self.view.clipsToBounds = YES;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];    
+}
+
+- (void)setIsSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
+    _isSelectOriginalPhoto = isSelectOriginalPhoto;
+    _didSetIsSelectOriginalPhoto = YES;
 }
 
 - (void)setPhotos:(NSMutableArray *)photos {
