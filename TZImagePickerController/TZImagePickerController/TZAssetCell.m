@@ -38,18 +38,23 @@
         self.model.cachedImage = nil;
         int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
             // Set the cell's thumbnail image if it's still showing the same asset.
-            if (!iOS8Later) {
+            if (iOS8Later) {
+                
+            } else {
                 self.imageView.image = photo;
                 self.model.cachedImage = photo;
                 [self hideProgressView];
                 return;
             }
+            
             if ([self.representedAssetIdentifier isEqualToString:[[TZImageManager manager] getAssetIdentifier:model.asset]]) {
                 self.imageView.image = photo;
                 self.model.cachedImage = photo;
             } else {
                 // NSLog(@"this cell is showing other asset");
-                [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+                if (iOS8Later) {
+                    [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+                }
             }
             if (!isDegraded) {
                 [self hideProgressView];
@@ -57,7 +62,9 @@
             }
         } progressHandler:nil networkAccessAllowed:NO];
         if (imageRequestID && self.imageRequestID && imageRequestID != self.imageRequestID) {
-            [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+            if (iOS8Later) {
+                [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+            }
             // NSLog(@"cancelImageRequest %d",self.imageRequestID);
         }
         self.imageRequestID = imageRequestID;
@@ -158,7 +165,9 @@
 
 - (void)requestBigImage {
     if (_bigImageRequestID) {
-        [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
+        if (iOS8Later) {
+            [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
+        }
     }
     
     _bigImageRequestID = [[TZImageManager manager] requestImageDataForAsset:_model.asset completion:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
@@ -182,7 +191,9 @@
 
 - (void)cancelBigImageRequest {
     if (_bigImageRequestID) {
-        [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
+        if (iOS8Later) {
+            [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
+        }
     }
     [self hideProgressView];
 }

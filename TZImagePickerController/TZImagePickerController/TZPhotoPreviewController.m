@@ -77,8 +77,10 @@
     [super viewWillDisappear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (tzImagePickerVc.needShowStatusBar && iOS7Later) {
-        [UIApplication sharedApplication].statusBarHidden = NO;
+    if (tzImagePickerVc.needShowStatusBar) {
+        if (iOS7Later) {
+            [UIApplication sharedApplication].statusBarHidden = NO;
+        }
     }
     [TZImageManager manager].shouldFixOrientation = NO;
 }

@@ -58,14 +58,22 @@
 
 - (void)setAsset:(id)asset {
     _asset = asset;
-    if ([asset isKindOfClass:[PHAsset class]]) {
-        PHAsset *phAsset = asset;
-        _videoImageView.hidden = phAsset.mediaType != PHAssetMediaTypeVideo;
-        _gifLable.hidden = ![[phAsset valueForKey:@"filename"] tz_containsString:@"GIF"];
-    } else if ([asset isKindOfClass:[ALAsset class]]) {
-        ALAsset *alAsset = asset;
-        _videoImageView.hidden = ![[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
-        _gifLable.hidden = YES;
+    if (iOS8Later) {
+        if ([asset isKindOfClass:[PHAsset class]]) {
+            PHAsset *phAsset = asset;
+            _videoImageView.hidden = phAsset.mediaType != PHAssetMediaTypeVideo;
+            _gifLable.hidden = ![[phAsset valueForKey:@"filename"] tz_containsString:@"GIF"];
+        } else if ([asset isKindOfClass:[ALAsset class]]) {
+            ALAsset *alAsset = asset;
+            _videoImageView.hidden = ![[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+            _gifLable.hidden = YES;
+        }
+    } else {
+        if ([asset isKindOfClass:[ALAsset class]]) {
+            ALAsset *alAsset = asset;
+            _videoImageView.hidden = ![[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
+            _gifLable.hidden = YES;
+        }
     }
  }
 

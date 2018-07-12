@@ -444,25 +444,27 @@
 		900E65741C2BB8D5003D9A9E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = "谭真";
 				TargetAttributes = {
 					900E657B1C2BB8D5003D9A9E = {
 						CreatedOnToolsVersion = 7.2;
-						DevelopmentTeam = T86X98NCU2;
+						DevelopmentTeam = QEQB6EZ8G4;
 						ProvisioningStyle = Automatic;
 					};
 					900E65941C2BB8D5003D9A9E = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = QEQB6EZ8G4;
 						TestTargetID = 900E657B1C2BB8D5003D9A9E;
 					};
 					900E659F1C2BB8D5003D9A9E = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = QEQB6EZ8G4;
 						TestTargetID = 900E657B1C2BB8D5003D9A9E;
 					};
 					9F763A411FA071CF00D9E526 = {
 						CreatedOnToolsVersion = 9.0.1;
-						DevelopmentTeam = T86X98NCU2;
+						DevelopmentTeam = QEQB6EZ8G4;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -750,7 +752,7 @@
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = T86X98NCU2;
+				DEVELOPMENT_TEAM = QEQB6EZ8G4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TZImagePickerController",
@@ -758,11 +760,11 @@
 				INFOPLIST_FILE = TZImagePickerController/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = tanzhen.TZImagePickerController.www;
+				PRODUCT_BUNDLE_IDENTIFIER = tanzhen.TZImagePickerController.zzg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -773,7 +775,7 @@
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = T86X98NCU2;
+				DEVELOPMENT_TEAM = QEQB6EZ8G4;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TZImagePickerController",
@@ -781,11 +783,11 @@
 				INFOPLIST_FILE = TZImagePickerController/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = tanzhen.TZImagePickerController.www;
+				PRODUCT_BUNDLE_IDENTIFIER = tanzhen.TZImagePickerController.zzg;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -793,6 +795,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = QEQB6EZ8G4;
 				INFOPLIST_FILE = TZImagePickerControllerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = tanzhen.TZImagePickerControllerTests;
@@ -805,6 +808,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				DEVELOPMENT_TEAM = QEQB6EZ8G4;
 				INFOPLIST_FILE = TZImagePickerControllerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = tanzhen.TZImagePickerControllerTests;
@@ -816,6 +820,7 @@
 		900E65B01C2BB8D5003D9A9E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = QEQB6EZ8G4;
 				INFOPLIST_FILE = TZImagePickerControllerUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = tanzhen.TZImagePickerControllerUITests;
@@ -828,6 +833,7 @@
 		900E65B11C2BB8D5003D9A9E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				DEVELOPMENT_TEAM = QEQB6EZ8G4;
 				INFOPLIST_FILE = TZImagePickerControllerUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = tanzhen.TZImagePickerControllerUITests;
@@ -858,7 +864,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = T86X98NCU2;
+				DEVELOPMENT_TEAM = QEQB6EZ8G4;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -898,7 +904,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = T86X98NCU2;
+				DEVELOPMENT_TEAM = QEQB6EZ8G4;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
