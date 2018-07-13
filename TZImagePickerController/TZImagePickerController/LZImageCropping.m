@@ -25,6 +25,7 @@
 @property(nonatomic,strong)UIButton *sureButton;
 @property(nonatomic,strong)UIView *overLayView;
 @property(nonatomic,strong)UIView *bottomBgView;
+@property(nonatomic,strong)UIView *topLine;
 
 @end
 #define IOS11 [[UIDevice currentDevice].systemVersion floatValue] >= 11.0
@@ -83,6 +84,7 @@
     [self.view addSubview:self.overLayView];
     [self.view addSubview:self.navView];
     [self.navView addSubview:self.titleLabel];
+    [self.view addSubview:self.topLine];
 //    [self.view addSubview:self.bottomLabel];
     [self.view addSubview:self.cancleButton];
     [self.view addSubview:self.sureButton];
@@ -101,6 +103,7 @@
         [self.navView setFrame:CGRectMake(0, 0, _selfWidth, 64 + 24)];
         self.titleLabel.frame = CGRectMake(0, 0, 200, 20);
         self.titleLabel.center = CGPointMake(self.navView.frame.size.width / 2.0, self.navView.center.y + 20);
+        self.topLine.frame = CGRectMake(0, 64 + 24, self.navView.frame.size.width, 0.5);
         [self.cancleButton setFrame:CGRectMake(15, (64 + 24 - height) / 2.0,width, 20)];
         self.cancleButton.center = CGPointMake(self.cancleButton.center.x, self.titleLabel.center.y);
         [self.bottomLabel setFrame:CGRectMake(0, _selfHeight - 44 - 34.0,_selfWidth, 44 + 34.0)];
@@ -110,6 +113,7 @@
         [self.navView setFrame:CGRectMake(0, 0, _selfWidth, 64)];
         self.titleLabel.frame = CGRectMake(0, 20, 200, 20);
         self.titleLabel.center = CGPointMake(self.navView.frame.size.width / 2.0, (self.navView.frame.size.height - self.titleLabel.frame.size.height) / 2.0 + 20);
+        self.topLine.frame = CGRectMake(0, 64, self.navView.frame.size.width, 0.5);
         [self.cancleButton setFrame:CGRectMake(15, (64 - height) / 2.0,width, 20)];
         self.cancleButton.center = CGPointMake(self.cancleButton.center.x, self.titleLabel.center.y);
         [self.bottomLabel setFrame:CGRectMake(0, _selfHeight-44,_selfWidth, 44)];
@@ -154,7 +158,7 @@
     cropLayer.path = cropPath.CGPath;
     cropLayer.fillColor = [UIColor whiteColor].CGColor;
     cropLayer.strokeColor = [UIColor whiteColor].CGColor;
-    [self.overLayView.layer addSublayer:cropLayer];
+//    [self.overLayView.layer addSublayer:cropLayer];
 }
 
 //圆形裁剪区域
@@ -423,9 +427,17 @@
         _overLayView = [[UIView alloc]init];
         _overLayView.userInteractionEnabled = NO;
 //        _overLayView.backgroundColor = [[UIColor whiteColor]colorWithAlphaComponent:0.8];
-        _overLayView.backgroundColor = [UIColor colorWithWhite: 0.5 alpha:0.4];
+        _overLayView.backgroundColor = [UIColor colorWithWhite: 1 alpha:0.7];
     }
     return _overLayView;
+}
+
+- (UIView *)topLine {
+    if (!_topLine) {
+        _topLine = [[UIView alloc] init];
+        _topLine.backgroundColor = UIColor.grayColor;
+    }
+    return _topLine;
 }
 
 - (BOOL)lz_isIPhoneX {
