@@ -18,6 +18,8 @@
 @property (assign, nonatomic) BOOL shouldPick;
 ///是正方形还是长方形
 @property (assign, nonatomic) BOOL isSquare;
+///顶部title标题
+@property (nonatomic, copy) NSString *topTitle;
 @end
 
 

@@ -225,9 +225,10 @@
     return self;
 }
 
-- (instancetype)initWithMaxImagesCountTSType:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square shouldPick:(BOOL)shouldPick {
+- (instancetype)initWithMaxImagesCountTSType:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square shouldPick:(BOOL)shouldPick topTitle:(NSString *)topTitle {
     _isSquare = square;
     _shouldPick = shouldPick;
+    _topTitle = topTitle;
     _pushPhotoPickerVc = pushPhotoPickerVc;
     TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
     albumPickerVc.isFirstAppear = YES;
@@ -407,6 +408,7 @@
         photoPickerVc.columnNumber = self.columnNumber;
         photoPickerVc.isSquare = _isSquare;
         photoPickerVc.shouldPick = _shouldPick;
+        photoPickerVc.topTitle = _topTitle;
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
@@ -804,7 +806,11 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     photoPickerVc.columnNumber = self.columnNumber;
+    photoPickerVc.isSquare = imagePickerVc.isSquare;
+    photoPickerVc.shouldPick = imagePickerVc.shouldPick;
+    photoPickerVc.topTitle = imagePickerVc.topTitle;
     TZAlbumModel *model = _albumArr[indexPath.row];
     photoPickerVc.model = model;
     [self.navigationController pushViewController:photoPickerVc animated:YES];
