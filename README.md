@@ -73,7 +73,7 @@ A：请参考issue481：https://github.com/banchichen/TZImagePickerController/is
 A：请参考issue457的解释：https://github.com/banchichen/TZImagePickerController/issues/457    
 
 **Q：系统语言是中文/英文，界面上却有部分相册名字、返回按钮显示成了英文/中文？**        
-A：请参考issue443的解释：https://github.com/banchichen/TZImagePickerController/issues/443
+A：请参考 https://github.com/banchichen/TZImagePickerController/issues/443 和 https://github.com/banchichen/TZImagePickerController/issues/929          
  
 **Q：预览界面能否支持传入NSURL、UIImage对象？**       
 A：排期中，优先级高   
