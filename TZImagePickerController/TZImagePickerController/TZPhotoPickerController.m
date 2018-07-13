@@ -606,7 +606,7 @@ static CGFloat itemMargin = 5;
                 //设置代理
                 imageBrowser.delegate = self;
                 if (self.isSquare) {
-                    imageBrowser.cropSize = CGSizeMake(200, 200);
+                    imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width - 80, UIScreen.mainScreen.bounds.size.width - 80);
                 } else {
                     imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
                 }
@@ -855,7 +855,7 @@ static CGFloat itemMargin = 5;
                         //设置代理
                         imageBrowser.delegate = self;
                         if (self.isSquare) {
-                            imageBrowser.cropSize = CGSizeMake(200, 200);
+                            imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width - 80, UIScreen.mainScreen.bounds.size.width - 80);
                         } else {
                             imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
                         }
