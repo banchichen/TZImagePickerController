@@ -19,7 +19,7 @@
 @property(nonatomic,strong)UIScrollView *scrollView;
 @property(nonatomic,strong)UIImageView *imageView;
 @property(nonatomic,strong)UIImageView *cropImageView;
-@property(nonatomic,strong)UILabel *titleLabel;
+@property(nonatomic,strong)UIView *navView;
 @property(nonatomic,strong)UILabel *bottomLabel;
 @property(nonatomic,strong)UIButton *cancleButton;
 @property(nonatomic,strong)UIButton *sureButton;
@@ -40,14 +40,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self.view setBackgroundColor:[UIColor blackColor]];
+    [self.view setBackgroundColor:[UIColor whiteColor]];
     self.automaticallyAdjustsScrollViewInsets = NO;
     [self setDefaultData];
     [self createUI];
+    self.titleLabel.text = @"图片裁剪";
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [UIApplication sharedApplication].statusBarHidden = YES;
+    [UIApplication sharedApplication].statusBarHidden = NO;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -80,8 +81,9 @@
     [self.view addSubview:self.scrollView];
     [self.scrollView addSubview:self.imageView];
     [self.view addSubview:self.overLayView];
-    [self.view addSubview:self.titleLabel];
-    [self.view addSubview:self.bottomLabel];
+    [self.view addSubview:self.navView];
+    [self.navView addSubview:self.titleLabel];
+//    [self.view addSubview:self.bottomLabel];
     [self.view addSubview:self.cancleButton];
     [self.view addSubview:self.sureButton];
 }
@@ -92,17 +94,28 @@
     if (!_image) {
         return;
     }
-    
-    if ([self lz_isIPhoneX]) {
-        [self.titleLabel setFrame:CGRectMake(0, 0, _selfWidth, 64)];
-    }else{
-        [self.titleLabel setFrame:CGRectMake(0, 0, _selfWidth, 64)];
-    }
+
     CGFloat height = [UIFont systemFontOfSize:15].pointSize;
     CGFloat width = 40;
-    [self.bottomLabel setFrame:CGRectMake(0, _selfHeight-44,_selfWidth, 44)];
-    [self.cancleButton setFrame:CGRectMake(15, (64 - height) / 2.0,width, height)];
-    [self.sureButton setFrame:CGRectMake(_selfWidth - 15- width, _selfHeight-15-height, width, height)];
+    if ([self lz_isIPhoneX]) {
+        [self.navView setFrame:CGRectMake(0, 0, _selfWidth, 64 + 24)];
+        self.titleLabel.frame = CGRectMake(0, 0, 200, 20);
+        self.titleLabel.center = CGPointMake(self.navView.frame.size.width / 2.0, self.navView.center.y + 20);
+        [self.cancleButton setFrame:CGRectMake(15, (64 + 24 - height) / 2.0,width, 20)];
+        self.cancleButton.center = CGPointMake(self.cancleButton.center.x, self.titleLabel.center.y);
+        [self.bottomLabel setFrame:CGRectMake(0, _selfHeight - 44 - 34.0,_selfWidth, 44 + 34.0)];
+        [self.sureButton setFrame:CGRectMake(_selfWidth - 15- width, _selfHeight-15-height - 34.0, width, height + 34.0)];
+        self.sureButton.center = CGPointMake(self.sureButton.center.x, self.cancleButton.center.y);
+    } else {
+        [self.navView setFrame:CGRectMake(0, 0, _selfWidth, 64)];
+        self.titleLabel.frame = CGRectMake(0, 20, 200, 20);
+        self.titleLabel.center = CGPointMake(self.navView.frame.size.width / 2.0, (self.navView.frame.size.height - self.titleLabel.frame.size.height) / 2.0 + 20);
+        [self.cancleButton setFrame:CGRectMake(15, (64 - height) / 2.0,width, 20)];
+        self.cancleButton.center = CGPointMake(self.cancleButton.center.x, self.titleLabel.center.y);
+        [self.bottomLabel setFrame:CGRectMake(0, _selfHeight-44,_selfWidth, 44)];
+        [self.sureButton setFrame:CGRectMake(_selfWidth - 15- width, _selfHeight-15-height, width, height)];
+        self.sureButton.center = CGPointMake(self.sureButton.center.x, self.cancleButton.center.y);
+    }
     
     [self.overLayView setFrame:self.view.frame];
     [self.scrollView setFrame:CGRectMake(0, 0, _selfWidth, _selfHeight)];
@@ -357,21 +370,27 @@
     return _imageView;
 }
 
--(UILabel *)titleLabel{
+- (UIView*)navView {
+    if (!_navView) {
+        _navView = [[UIView alloc]init];
+        _navView.backgroundColor = [UIColor whiteColor];
+    }
+    return _navView;
+}
+- (UILabel*)titleLabel {
     if (!_titleLabel) {
         _titleLabel = [[UILabel alloc]init];
-        _titleLabel.backgroundColor = [UIColor colorWithRed:0.13 green:0.13 blue:0.13 alpha:0.7];
+        _titleLabel.font = [UIFont systemFontOfSize:17];
+        _titleLabel.textColor = [UIColor blackColor];
+        _titleLabel.textAlignment = NSTextAlignmentCenter;
     }
     return _titleLabel;
 }
-
 -(UIButton *)cancleButton{
     if (!_cancleButton) {
         _cancleButton = [[UIButton alloc]init];
-        [_cancleButton.titleLabel setFont:[UIFont systemFontOfSize:15]];
-        [_cancleButton setTitle:@"取消" forState:UIControlStateNormal];
+        [_cancleButton setImage:[UIImage imageNamed:@"topbar_back"] forState:UIControlStateNormal];
         [_cancleButton.titleLabel setFont:[UIFont systemFontOfSize:14]];
-        [_cancleButton.titleLabel setTextAlignment:NSTextAlignmentCenter];
         [_cancleButton addTarget:self action:@selector(cancleButtonClick) forControlEvents:UIControlEventTouchUpInside];
     }
     return _cancleButton;
@@ -384,6 +403,7 @@
         [_sureButton setTitle:@"完成" forState:UIControlStateNormal];
         [_sureButton.titleLabel setFont:[UIFont systemFontOfSize:14]];
         [_sureButton.titleLabel setTextAlignment:NSTextAlignmentCenter];
+        [_sureButton setTitleColor:[UIColor colorWithRed:89 / 256.0 green:182 / 256.0 blue:215 / 256.0 alpha:1] forState:UIControlStateNormal];
         [_sureButton addTarget:self action:@selector(sureButtonClick) forControlEvents:UIControlEventTouchUpInside];
     }
     return _sureButton;
@@ -402,7 +422,8 @@
     if (!_overLayView) {
         _overLayView = [[UIView alloc]init];
         _overLayView.userInteractionEnabled = NO;
-        _overLayView.backgroundColor = [[UIColor blackColor]colorWithAlphaComponent:0.5];
+//        _overLayView.backgroundColor = [[UIColor whiteColor]colorWithAlphaComponent:0.8];
+        _overLayView.backgroundColor = [UIColor colorWithWhite: 0.5 alpha:0.4];
     }
     return _overLayView;
 }

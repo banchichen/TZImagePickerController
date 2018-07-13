@@ -28,6 +28,10 @@
  裁剪区域
  */
 @property(nonatomic,assign)CGSize cropSize;
+/*
+ 顶部title
+ */
+@property(nonatomic,strong)UILabel *titleLabel;
 
 //是否裁剪成圆形
 @property(nonatomic,assign)BOOL isRound;

@@ -611,6 +611,7 @@ static CGFloat itemMargin = 5;
                     imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
                 }
                 [imageBrowser setImage:photo];
+                imageBrowser.titleLabel.text = _topTitle;
                 //设置自定义裁剪区域大小
                 //是否需要圆形
                 imageBrowser.isRound = NO;
@@ -858,6 +859,7 @@ static CGFloat itemMargin = 5;
                         } else {
                             imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
                         }
+                        imageBrowser.titleLabel.text = _topTitle;
                         [imageBrowser setImage:photo];
                         //设置自定义裁剪区域大小
                         //是否需要圆形
