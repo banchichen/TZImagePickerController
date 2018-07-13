@@ -32,4 +32,6 @@
 //是否裁剪成圆形
 @property(nonatomic,assign)BOOL isRound;
 
+@property (nonatomic, copy) void (^didFinishPickingImage)(UIImage *coverImage);
+
 @end

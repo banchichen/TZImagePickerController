@@ -297,6 +297,10 @@
 -(void)sureButtonClick{
     if ([self.delegate respondsToSelector:@selector(lzImageCropping:didCropImage:)]) {
         [self.delegate lzImageCropping:self didCropImage:[self getSubImage]];
+    } else {
+        if (self.didFinishPickingImage) {
+            self.didFinishPickingImage([self getSubImage]);
+        }
     }
     [self dismissViewControllerAnimated:YES completion:nil];
 }

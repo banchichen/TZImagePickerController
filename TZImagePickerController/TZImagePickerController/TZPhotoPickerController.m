@@ -842,18 +842,42 @@ static CGFloat itemMargin = 5;
             }
             
             if (tzImagePickerVc.maxImagesCount <= 1) {
-                if (tzImagePickerVc.allowCrop) {
-                    TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+                if (_shouldPick) {
+                    TZAssetModel *asset;
                     if (tzImagePickerVc.sortAscendingByModificationDate) {
-                        photoPreviewVc.currentIndex = _models.count - 1;
+                        asset = _models[_models.count - 1];
                     } else {
-                        photoPreviewVc.currentIndex = 0;
+                        asset = _models[0];
                     }
-                    photoPreviewVc.models = _models;
-                    [self pushPhotoPrevireViewController:photoPreviewVc];
+                    [[TZImageManager manager] getOriginalPhotoWithAsset:asset.asset completion:^(UIImage *photo, NSDictionary *info) {
+                        LZImageCropping *imageBrowser = [[LZImageCropping alloc]init];
+                        //设置代理
+                        imageBrowser.delegate = self;
+                        if (self.isSquare) {
+                            imageBrowser.cropSize = CGSizeMake(200, 200);
+                        } else {
+                            imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
+                        }
+                        [imageBrowser setImage:photo];
+                        //设置自定义裁剪区域大小
+                        //是否需要圆形
+                        imageBrowser.isRound = NO;
+                        [self presentViewController:imageBrowser animated:YES completion:nil];
+                    }];
                 } else {
-                    [tzImagePickerVc.selectedModels addObject:assetModel];
-                    [self doneButtonClick];
+                    if (tzImagePickerVc.allowCrop) {
+                        TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+                        if (tzImagePickerVc.sortAscendingByModificationDate) {
+                            photoPreviewVc.currentIndex = _models.count - 1;
+                        } else {
+                            photoPreviewVc.currentIndex = 0;
+                        }
+                        photoPreviewVc.models = _models;
+                        [self pushPhotoPrevireViewController:photoPreviewVc];
+                    } else {
+                        [tzImagePickerVc.selectedModels addObject:assetModel];
+                        [self doneButtonClick];
+                    }
                 }
                 return;
             }
