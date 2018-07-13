@@ -13,6 +13,8 @@
 		6DC358661CC8BAFD00898D29 /* TZImagePickerController.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 6DC358651CC8BAFD00898D29 /* TZImagePickerController.bundle */; };
 		6DC84D0A1DF5358500A107A9 /* TZImageCropManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DC84D091DF5358500A107A9 /* TZImageCropManager.m */; };
 		6DD0502B1DF659ED0057C78D /* TZProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DD0502A1DF659ED0057C78D /* TZProgressView.m */; };
+		90020E1320F8840800D3AB10 /* TZImagePickerController.podspec in Resources */ = {isa = PBXBuildFile; fileRef = 90020E1220F8840800D3AB10 /* TZImagePickerController.podspec */; };
+		90020E1520F8840F00D3AB10 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 90020E1420F8840E00D3AB10 /* README.md */; };
 		900E65811C2BB8D5003D9A9E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65801C2BB8D5003D9A9E /* main.m */; };
 		900E65841C2BB8D5003D9A9E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65831C2BB8D5003D9A9E /* AppDelegate.m */; };
 		900E65871C2BB8D5003D9A9E /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65861C2BB8D5003D9A9E /* ViewController.m */; };
@@ -119,6 +121,8 @@
 		6DC84D091DF5358500A107A9 /* TZImageCropManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZImageCropManager.m; sourceTree = "<group>"; };
 		6DD050291DF659ED0057C78D /* TZProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZProgressView.h; sourceTree = "<group>"; };
 		6DD0502A1DF659ED0057C78D /* TZProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZProgressView.m; sourceTree = "<group>"; };
+		90020E1220F8840800D3AB10 /* TZImagePickerController.podspec */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TZImagePickerController.podspec; sourceTree = SOURCE_ROOT; };
+		90020E1420F8840E00D3AB10 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		900E657C1C2BB8D5003D9A9E /* TZImagePickerController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TZImagePickerController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		900E65801C2BB8D5003D9A9E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		900E65821C2BB8D5003D9A9E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -241,6 +245,8 @@
 				6D32B9BC1CD83640005CE1E0 /* LxGridViewFlowLayout.m */,
 				9038D58F1C3974F0007DE549 /* TZTestCell.h */,
 				9038D5901C3974F0007DE549 /* TZTestCell.m */,
+				90020E1420F8840E00D3AB10 /* README.md */,
+				90020E1220F8840800D3AB10 /* TZImagePickerController.podspec */,
 				900E65881C2BB8D5003D9A9E /* Main.storyboard */,
 				900E658B1C2BB8D5003D9A9E /* Assets.xcassets */,
 				900E658D1C2BB8D5003D9A9E /* LaunchScreen.storyboard */,
@@ -495,8 +501,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90020E1320F8840800D3AB10 /* TZImagePickerController.podspec in Resources */,
 				90A74B85203287C200D84C2A /* Localizable.strings in Resources */,
 				900E658F1C2BB8D5003D9A9E /* LaunchScreen.storyboard in Resources */,
+				90020E1520F8840F00D3AB10 /* README.md in Resources */,
 				6DC358661CC8BAFD00898D29 /* TZImagePickerController.bundle in Resources */,
 				900E658C1C2BB8D5003D9A9E /* Assets.xcassets in Resources */,
 				900E658A1C2BB8D5003D9A9E /* Main.storyboard in Resources */,
