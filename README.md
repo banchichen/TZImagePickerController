@@ -8,7 +8,7 @@
  
  ## 重要提示1：提issue前请先搜索，先从已有issue里找找线索。如果发现bug，请先和Demo对照自查下，如果Demo也有bug，请再提issue。Demo正常你那不正常的，提issue时请贴上你的初始化代码，注明必要的复现步骤。这样能避免多余的沟通，帮助你更快获取答案。
  
- ## 重要提示2：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.1
+ ## 重要提示2：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.2
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
@@ -103,7 +103,7 @@ A：有QQ群：778723997
 A：请先加QQ群和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。                    
 
       最近更新     
-2.2.1 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
+2.2.2 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
 2.1.8 优化gif图播放的体验，加入iCloud同步进度条；新增notScaleImage属性，设置为YES时内部不去缩放图片             
 2.1.6 新增allowCameraLocation属性，默认为YES，置为NO时不会在照相/摄像时定位，修复一个序号紊乱的bug              
 2.1.5 修复开启showSelectedIndex后照片列表页iCloud图片进度条紊乱的bug              

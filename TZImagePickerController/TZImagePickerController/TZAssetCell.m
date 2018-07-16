@@ -19,6 +19,7 @@
 @property (weak, nonatomic) UILabel *indexLabel;
 @property (weak, nonatomic) UIView *bottomView;
 @property (weak, nonatomic) UILabel *timeLength;
+@property (strong, nonatomic) UITapGestureRecognizer *tapGesture;
 
 @property (nonatomic, weak) UIImageView *videoImgView;
 @property (nonatomic, strong) TZProgressView *progressView;
@@ -134,6 +135,17 @@
     }
 }
 
+- (void)setAllowPreview:(BOOL)allowPreview {
+    _allowPreview = allowPreview;
+    if (allowPreview) {
+        _imageView.userInteractionEnabled = NO;
+        _tapGesture.enabled = NO;
+    } else {
+        _imageView.userInteractionEnabled = YES;
+        _tapGesture.enabled = YES;
+    }
+}
+
 - (void)selectPhotoButtonClick:(UIButton *)sender {
     if (self.didSelectPhotoBlock) {
         self.didSelectPhotoBlock(sender.isSelected);
@@ -147,6 +159,13 @@
         [self requestBigImage];
     } else { // 取消选中，取消大图的获取
         [self cancelBigImageRequest];
+    }
+}
+
+/// 只在单选状态且allowPreview为NO时会有该事件
+- (void)didTapImageView {
+    if (self.didSelectPhotoBlock) {
+        self.didSelectPhotoBlock(NO);
     }
 }
 
@@ -207,6 +226,9 @@
         imageView.clipsToBounds = YES;
         [self.contentView addSubview:imageView];
         _imageView = imageView;
+        
+        _tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapImageView)];
+        [_imageView addGestureRecognizer:_tapGesture];
     }
     return _imageView;
 }

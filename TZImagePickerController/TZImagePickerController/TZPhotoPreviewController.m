@@ -512,7 +512,7 @@
     TZAssetModel *model = _models[_currentIndex];
     _selectButton.selected = model.isSelected;
     [self refreshSelectButtonImageViewContentMode];
-    if (_selectButton.isSelected && _tzImagePickerVc.showSelectedIndex) {
+    if (_selectButton.isSelected && _tzImagePickerVc.showSelectedIndex && _tzImagePickerVc.showSelectBtn) {
         NSString *assetId = [[TZImageManager manager] getAssetIdentifier:model.asset];
         NSString *index = [NSString stringWithFormat:@"%zd", [_tzImagePickerVc.selectedAssetIds indexOfObject:assetId] + 1];
         _indexLabel.text = index;
