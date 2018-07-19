@@ -16,8 +16,9 @@
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
+#import "LZImageCropping.h"
 
-@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate> {
+@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate,LZImageCroppingDelegate> {
     NSMutableArray *_models;
     
     UIView *_bottomToolBar;
@@ -598,10 +599,30 @@ static CGFloat itemMargin = 5;
             [self.navigationController pushViewController:gifPreviewVc animated:YES];
         }
     } else {
-        TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-        photoPreviewVc.currentIndex = index;
-        photoPreviewVc.models = _models;
-        [self pushPhotoPrevireViewController:photoPreviewVc];
+        if (_shouldPick) {
+            TZAssetModel *asset = _models[index];
+            [[TZImageManager manager] getOriginalPhotoWithAsset:asset.asset completion:^(UIImage *photo, NSDictionary *info) {
+                LZImageCropping *imageBrowser = [[LZImageCropping alloc]init];
+                //设置代理
+                imageBrowser.delegate = self;
+                if (self.isSquare) {
+                    imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width - 80, UIScreen.mainScreen.bounds.size.width - 80);
+                } else {
+                    imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
+                }
+                [imageBrowser setImage:photo];
+                imageBrowser.titleLabel.text = _topTitle;
+                //设置自定义裁剪区域大小
+                //是否需要圆形
+                imageBrowser.isRound = NO;
+                [self presentViewController:imageBrowser animated:YES completion:nil];
+            }];
+        } else {
+            TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+            photoPreviewVc.currentIndex = index;
+            photoPreviewVc.models = _models;
+            [self pushPhotoPrevireViewController:photoPreviewVc];
+        }
     }
 }
 
@@ -611,6 +632,11 @@ static CGFloat itemMargin = 5;
     if (iOS8Later) {
         // [self updateCachedAssets];
     }
+}
+
+#pragma mark - LZImageCroppingDelegate
+- (void)lzImageCropping:(LZImageCropping *)cropping didCropImage:(UIImage *)image {
+    [self didGetAllPhotos:@[image] assets:nil infoArr:nil];
 }
 
 #pragma mark - Private Method
@@ -817,18 +843,43 @@ static CGFloat itemMargin = 5;
             }
             
             if (tzImagePickerVc.maxImagesCount <= 1) {
-                if (tzImagePickerVc.allowCrop) {
-                    TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+                if (_shouldPick) {
+                    TZAssetModel *asset;
                     if (tzImagePickerVc.sortAscendingByModificationDate) {
-                        photoPreviewVc.currentIndex = _models.count - 1;
+                        asset = _models[_models.count - 1];
                     } else {
-                        photoPreviewVc.currentIndex = 0;
+                        asset = _models[0];
                     }
-                    photoPreviewVc.models = _models;
-                    [self pushPhotoPrevireViewController:photoPreviewVc];
+                    [[TZImageManager manager] getOriginalPhotoWithAsset:asset.asset completion:^(UIImage *photo, NSDictionary *info) {
+                        LZImageCropping *imageBrowser = [[LZImageCropping alloc]init];
+                        //设置代理
+                        imageBrowser.delegate = self;
+                        if (self.isSquare) {
+                            imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width - 80, UIScreen.mainScreen.bounds.size.width - 80);
+                        } else {
+                            imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
+                        }
+                        imageBrowser.titleLabel.text = _topTitle;
+                        [imageBrowser setImage:photo];
+                        //设置自定义裁剪区域大小
+                        //是否需要圆形
+                        imageBrowser.isRound = NO;
+                        [self presentViewController:imageBrowser animated:YES completion:nil];
+                    }];
                 } else {
-                    [tzImagePickerVc.selectedModels addObject:assetModel];
-                    [self doneButtonClick];
+                    if (tzImagePickerVc.allowCrop) {
+                        TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
+                        if (tzImagePickerVc.sortAscendingByModificationDate) {
+                            photoPreviewVc.currentIndex = _models.count - 1;
+                        } else {
+                            photoPreviewVc.currentIndex = 0;
+                        }
+                        photoPreviewVc.models = _models;
+                        [self pushPhotoPrevireViewController:photoPreviewVc];
+                    } else {
+                        [tzImagePickerVc.selectedModels addObject:assetModel];
+                        [self doneButtonClick];
+                    }
                 }
                 return;
             }

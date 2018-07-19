@@ -29,6 +29,7 @@
 @interface TZImagePickerController : UINavigationController
 
 #pragma mark -
+- (instancetype)initWithMaxImagesCountTSType:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square shouldPick:(BOOL)shouldPick topTitle:(NSString *)topTitle;
 /// Use this init method / 用这个初始化方法
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate;
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate;
@@ -173,6 +174,13 @@
 @property (nonatomic, copy) NSString *fullImageBtnTitleStr;
 @property (nonatomic, copy) NSString *settingBtnTitleStr;
 @property (nonatomic, copy) NSString *processHintStr;
+
+///是正方形还是长方形
+@property (assign, nonatomic) BOOL isSquare;
+///是否需要裁剪
+@property (assign, nonatomic) BOOL shouldPick;
+///顶部title标题
+@property (nonatomic, copy) NSString *topTitle;
 
 #pragma mark -
 - (void)cancelButtonClick;
