@@ -544,7 +544,7 @@ static CGFloat itemMargin = 5;
                 if (tzImagePickerVc.maxImagesCount == 1 && !tzImagePickerVc.allowPreview) {
                     model.isSelected = YES;
                     [tzImagePickerVc addSelectedModel:model];
-                    [self doneButtonClick];
+                    [strongSelf doneButtonClick];
                     return;
                 }
                 strongCell.selectPhotoButton.selected = YES;
