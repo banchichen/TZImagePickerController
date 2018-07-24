@@ -12,5 +12,7 @@
 @interface ZLEditVideoController : UIViewController
 
 @property (nonatomic, strong) PHAsset *asset;
+///封面回调
+@property (nonatomic, copy) void (^coverImageBlock)(UIImage *coverImage, NSURL *videoPath);
 
 @end

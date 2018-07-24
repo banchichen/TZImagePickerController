@@ -11,10 +11,11 @@
 #import <objc/runtime.h>
 #import <sys/utsname.h>
 #import "TZImagePickerController.h"
+#import "TSLocalVideoCoverSelectedVC.h"
 
 #define kItemWidth kItemHeight * 2/3
 #define kItemHeight 50
-#define maxEditVideoTime 15
+#define maxEditVideoTime 5
 /*
  固定底部固定铺满10个item
  */
@@ -263,28 +264,17 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     NSLog(@"---- %s", __FUNCTION__);
 }
 
-- (AVAssetImageGenerator *)generator
-{
-    if (!_generator) {
-        _generator = [[AVAssetImageGenerator alloc] initWithAsset:_avAsset];
-        _generator.maximumSize = CGSizeMake(kItemWidth*4, kItemHeight*4);
-        _generator.appliesPreferredTrackTransform = YES;
-        _generator.requestedTimeToleranceBefore = kCMTimeZero;
-        _generator.requestedTimeToleranceAfter = kCMTimeZero;
-        _generator.apertureMode = AVAssetImageGeneratorApertureModeProductionAperture;
-    }
-    return _generator;
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.bgView = [[UIView alloc]initWithFrame:CGRectMake(0, ([self zl_isIPhoneX] ? 24 : 0) + 20, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
     [self.view addSubview:self.bgView];
     self.bgView.backgroundColor = [UIColor blackColor];
     self.navigationController.navigationBar.backgroundColor = [UIColor whiteColor];
-    [self setupUI];
-    [self analysisAssetImages];
     
+
+    [self analysisAssetImages];
+    [self setupUI];
+
     _queue = [[NSOperationQueue alloc] init];
     _queue.maxConcurrentOperationCount = 3;
     
@@ -312,10 +302,17 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 - (void)navLeftBarButtonClick{
+    [self.playerLayer.player pause];
+    self.playerLayer.player = nil;
+    [self.playerLayer removeFromSuperlayer];
+    self.playerLayer = nil;
+    [self stopTimer];
     [self.navigationController popViewControllerAnimated:YES];
 }
 - (void)rightButtonClick {
     NSLog(@"完成\n\n");
+    [self saveBtnClick];
+
 }
 
 - (BOOL)zl_isIPhoneX {
@@ -333,16 +330,12 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
+    [self startTimer];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
-    [self.playerLayer.player pause];
-    self.playerLayer.player = nil;
-    [self.playerLayer removeFromSuperlayer];
-    self.playerLayer = nil;
     [self stopTimer];
 }
 
@@ -462,8 +455,15 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
     options.networkAccessAllowed = YES;
     [[PHImageManager defaultManager] requestAVAssetForVideo:self.asset options:options resultHandler:^(AVAsset * _Nullable asset, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
+        NSLog(@"requestAVAssetForVideo asset-%@ -%@", asset, info);
         __weak typeof(self) weakSelf = self;
         _avAsset = asset;
+        _generator = [[AVAssetImageGenerator alloc] initWithAsset:_avAsset];
+        //        _generator.maximumSize = CGSizeMake(kItemWidth*4, kItemHeight*4);
+        _generator.appliesPreferredTrackTransform = YES;
+        _generator.requestedTimeToleranceBefore = kCMTimeZero;
+        _generator.requestedTimeToleranceAfter = kCMTimeZero;
+        _generator.apertureMode = AVAssetImageGeneratorApertureModeProductionAperture;
         dispatch_async(dispatch_get_main_queue(), ^{
             [weakSelf.collectionView reloadData];
         });
@@ -486,7 +486,19 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     __weak typeof(self) weakSelf = self;
     [self exportPHAsset:self.asset range:[self getTimeRange] complete:^(NSString *exportFilePath, NSError *error) {
         NSLog(@"error -%@",error);
-        [weakSelf dismissViewControllerAnimated:YES completion:nil];
+        // sot todo
+        if (error == nil) {
+            TSLocalVideoCoverSelectedVC *vc = [[TSLocalVideoCoverSelectedVC alloc]init];
+            vc.videoPath = [NSURL fileURLWithPath:exportFilePath];
+            vc.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
+                if (self.coverImageBlock) {
+                    self.coverImageBlock(coverImage, videoPath);
+                }
+            };
+            [self.navigationController pushViewController:vc animated:YES];
+        } else {
+            
+        }
     }];
 }
 
@@ -551,6 +563,7 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
 
 - (NSString *)getUniqueStrByUUID
 {
+    
     CFUUIDRef uuidObj = CFUUIDCreate(nil);//create a new UUID
     //get the string representation of the UUID
     CFStringRef uuidString = CFUUIDCreateString(nil, uuidObj);
