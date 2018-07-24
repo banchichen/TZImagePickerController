@@ -103,7 +103,10 @@ A：有QQ群：778723997
 A：请先加QQ群和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。                 
 
 **Q：demo在真机上跑不起来？**             
-A：1、team选你自己的；2、bundleId也改成你自己的或改成一个不会和别人重复的。可参考[简书的这篇博客](https://www.jianshu.com/p/cbe59138fca6)          
+A：1、team选你自己的；2、bundleId也改成你自己的或改成一个不会和别人重复的。可参考[简书的这篇博客](https://www.jianshu.com/p/cbe59138fca6)             
+
+**Q：设置导航栏颜色无效？导航栏颜色总是白色？**            
+A：是否有集成WRNavigationBar？如有，参考其readme调一下它的wr_setBlackList，把TZImagePickerController相关的控制器放到黑名单里，使得不受WRNavigationBar的影响。如果没有集成，可在issues列表里搜一下看看类似的issue参考下，如实在没头绪，可加群提供个能复现该问题的demo，0~2天给你解决。                          
 
       最近更新     
 2.2.2 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
