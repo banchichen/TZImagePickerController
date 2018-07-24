@@ -13,12 +13,40 @@
 #import "TZImagePickerController.h"
 #import "TSLocalVideoCoverSelectedVC.h"
 
-#define kItemWidth kItemHeight * 2/3
-#define kItemHeight 50
-#define maxEditVideoTime 5
-/*
- 固定底部固定铺满10个item
- */
+#define maxEditVideoTime 15
+
+@interface ZLEditVideoUX : NSObject
+
+@property (nonatomic, assign) CGRect validRect;
+
+@property (nonatomic, assign, readonly) CGFloat collectionItemHeight;
+@property (nonatomic, assign) CGFloat collectionItemWidth;
+// 裁剪左右指示器的宽度，高度默认和整个选择器等高
+@property (nonatomic, assign, readonly) CGFloat editIndicatorViewWidth;
+
++ (ZLEditVideoUX*)share;
+
+@end
+
+@implementation ZLEditVideoUX
++ (ZLEditVideoUX*)share {
+    static ZLEditVideoUX *_share;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        _share = [[ZLEditVideoUX alloc]init];
+        _share.collectionItemWidth = 50 * 2 / 3.0;
+    });
+    return _share;
+}
+// 默认设置高度
+- (CGFloat)collectionItemHeight {
+    return 50;
+}
+// 左右选择指示器的宽度
+- (CGFloat)editIndicatorViewWidth {
+    return 10;
+}
+@end
 static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHeightFixed, CGFloat fixedValue) {
     CGSize size;
     if (isHeightFixed) {
@@ -97,10 +125,10 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
 {
     //扩大下有效范围
     CGRect left = _leftView.frame;
-    left.origin.x -= kItemWidth/2;
-    left.size.width += kItemWidth/2;
+    left.origin.x -= [ZLEditVideoUX share].collectionItemWidth/2;
+    left.size.width += [ZLEditVideoUX share].collectionItemWidth/2;
     CGRect right = _rightView.frame;
-    right.size.width += kItemWidth/2;
+    right.size.width += [ZLEditVideoUX share].collectionItemWidth/2;
     
     if (CGRectContainsPoint(left, point)) {
         return _leftView;
@@ -142,7 +170,7 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     switch (pan.view.tag) {
         case 0: {
             //left
-            maxX = rct.origin.x + rct.size.width - kItemWidth;
+            maxX = rct.origin.x + rct.size.width - [ZLEditVideoUX share].collectionItemWidth;
             
             point.x = MAX(minX, MIN(point.x, maxX));
             point.y = 0;
@@ -155,13 +183,13 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
         case 1:
         {
             //right
-            minX = rct.origin.x + kItemWidth/2;
-            maxX = W - kItemWidth/2;
+            minX = rct.origin.x + 10;
+            maxX = W - 10 / 2.0;
             
             point.x = MAX(minX, MIN(point.x, maxX));
             point.y = 0;
             
-            rct.size.width = (point.x - rct.origin.x + kItemWidth/2);
+            rct.size.width = (point.x - rct.origin.x);
         }
             break;
     }
@@ -193,8 +221,11 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
 - (void)setValidRect:(CGRect)validRect
 {
     _validRect = validRect;
-    _leftView.frame = CGRectMake(validRect.origin.x, 0, kItemWidth/2, kItemHeight);
-    _rightView.frame = CGRectMake(validRect.origin.x+validRect.size.width-kItemWidth/2, 0, kItemWidth/2, kItemHeight);
+    _leftView.frame = CGRectMake(validRect.origin.x > 10 / 2.0 ?  (validRect.origin.x - 10 / 2.0) : validRect.origin.x, 0, 10, [ZLEditVideoUX share].collectionItemHeight);
+    _rightView.frame = CGRectMake(validRect.origin.x + validRect.size.width - 10.0, 0, 10, [ZLEditVideoUX share].collectionItemHeight);
+
+//    _leftView.frame = CGRectMake(validRect.origin.x, 0, [ZLEditVideoUX share].collectionItemWidth/2, [ZLEditVideoUX share].collectionItemHeight);
+//    _rightView.frame = CGRectMake(validRect.origin.x+validRect.size.width-[ZLEditVideoUX share].collectionItemWidth/2, 0, [ZLEditVideoUX share].collectionItemWidth/2, [ZLEditVideoUX share].collectionItemHeight);
     
     [self setNeedsDisplay];
 }
@@ -212,8 +243,8 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     topPoints[0] = CGPointMake(self.validRect.origin.x, 0);
     topPoints[1] = CGPointMake(self.validRect.origin.x+self.validRect.size.width, 0);
     CGPoint bottomPoints[2];
-    bottomPoints[0] = CGPointMake(self.validRect.origin.x, kItemHeight);
-    bottomPoints[1] = CGPointMake(self.validRect.origin.x+self.validRect.size.width, kItemHeight);
+    bottomPoints[0] = CGPointMake(self.validRect.origin.x, [ZLEditVideoUX share].collectionItemHeight);
+    bottomPoints[1] = CGPointMake(self.validRect.origin.x+self.validRect.size.width, [ZLEditVideoUX share].collectionItemHeight);
     
     CGContextAddLines(context, topPoints, 2);
     CGContextAddLines(context, bottomPoints, 2);
@@ -251,6 +282,7 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
 @property (nonatomic, strong) ZLEditFrameView *editView;
 @property (nonatomic, strong) AVAssetImageGenerator *generator;
 @property (nonatomic, strong) UIView *bgView;
+@property (nonatomic, assign) BOOL collectionViewCouldScroll;
 
 @end
 
@@ -272,8 +304,9 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     self.navigationController.navigationBar.backgroundColor = [UIColor whiteColor];
     
 
-    [self analysisAssetImages];
-    [self setupUI];
+    [self analysisAssetImages:^{
+        [self setupUI];
+    }];
 
     _queue = [[NSOperationQueue alloc] init];
     _queue.maxConcurrentOperationCount = 3;
@@ -347,15 +380,20 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     if (@available(iOS 11, *)) {
         inset = self.view.safeAreaInsets;
     }
-    self.editView.frame = CGRectMake(([[UIScreen mainScreen] bounds].size.width-kItemWidth*10)/2,0, kItemWidth*10, kItemHeight);
+//    self.editView.frame = CGRectMake(([[UIScreen mainScreen] bounds].size.width-[ZLEditVideoUX share].collectionItemWidth*10)/2,0, [ZLEditVideoUX share].collectionItemWidth*10, [ZLEditVideoUX share].collectionItemHeight);
+//    self.editView.validRect = self.editView.bounds;
+    self.collectionView.frame = CGRectMake(inset.left, 0, [[UIScreen mainScreen] bounds].size.width - inset.left - inset.right, [ZLEditVideoUX share].collectionItemHeight);
+    self.editView.frame = self.collectionView.bounds;
     self.editView.validRect = self.editView.bounds;
-    self.collectionView.frame = CGRectMake(inset.left, 0, [[UIScreen mainScreen] bounds].size.width - inset.left - inset.right, kItemHeight);
     
-    CGFloat leftOffset = (([[UIScreen mainScreen] bounds].size.width-kItemWidth*10)/2-inset.left);
-    CGFloat rightOffset = (([[UIScreen mainScreen] bounds].size.width-kItemWidth*10)/2-inset.right);
+    CGFloat left = ([[UIScreen mainScreen] bounds].size.width - [ZLEditVideoUX share].collectionItemWidth * 10)/2;
+    left = left > 0 ? left : 10;
+    CGFloat leftOffset = left - inset.left;
+    CGFloat rightOffset = left - inset.right;
+    
     [self.collectionView setContentInset:UIEdgeInsetsMake(0, leftOffset, 0, rightOffset)];
     [self.collectionView setContentOffset:CGPointMake(_offsetX-leftOffset, 0)];
-    _bottomView.frame = CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - kItemHeight - 15 -inset.bottom, [[UIScreen mainScreen] bounds].size.width, kItemHeight);
+    _bottomView.frame = CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - [ZLEditVideoUX share].collectionItemHeight - 15 -inset.bottom, [[UIScreen mainScreen] bounds].size.width, [ZLEditVideoUX share].collectionItemHeight);
     self.playerLayer.frame = CGRectMake(0, self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height,[[UIScreen mainScreen] bounds].size.width, _bottomView.frame.origin.y - ( self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height));
 }
 
@@ -392,7 +430,7 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     self.playerLayer.backgroundColor = [UIColor clearColor].CGColor;
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.itemSize = CGSizeMake(kItemWidth, kItemHeight);
+    layout.itemSize = CGSizeMake([ZLEditVideoUX share].collectionItemWidth, [ZLEditVideoUX share].collectionItemHeight);
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     layout.minimumInteritemSpacing = 0;
     layout.minimumLineSpacing = 0;
@@ -403,7 +441,7 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     self.collectionView.backgroundColor = [UIColor clearColor];
     self.collectionView.showsHorizontalScrollIndicator = NO;
     [self.collectionView registerClass:ZLEditVideoCell.class forCellWithReuseIdentifier:@"ZLEditVideoCell"];
-    
+    self.collectionView.scrollEnabled = self.collectionViewCouldScroll;
     [self creatBottomView];
     [_bottomView addSubview:self.collectionView];
 
@@ -411,7 +449,7 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
     self.editView.delegate = self;
     [_bottomView addSubview:self.editView];
     
-    _indicatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, kItemHeight)];
+    _indicatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, [ZLEditVideoUX share].collectionItemHeight)];
     _indicatorLine.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:.7];
 }
 
@@ -424,32 +462,33 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
 }
 
 #pragma mark - 解析视频每一帧图片
-- (void)analysisAssetImages
-{
+- (void)analysisAssetImages:(void (^)(void))completion {
     float duration = roundf(self.asset.duration);
-    if (duration <= maxEditVideoTime) {
-        UIEdgeInsets inset = UIEdgeInsetsZero;
-        if (@available(iOS 11, *)) {
-            inset = self.view.safeAreaInsets;
+    // 最大裁剪时长是否大于10秒
+    if (maxEditVideoTime >= 10) {
+        // 满足1秒一个item的最低要求
+        if (duration <= maxEditVideoTime) {
+            UIEdgeInsets inset = UIEdgeInsetsZero;
+            if (@available(iOS 11, *)) {
+                inset = self.view.safeAreaInsets;
+            }
+            _measureCount = 10;
+            _interval = duration / _measureCount;
+            self.collectionViewCouldScroll = NO;
+        } else {
+            // 固定单个图片的时间为1s
+            _interval = 1.0;
+            _measureCount = (NSInteger)duration;
+            self.collectionViewCouldScroll = YES;
         }
+    } else {
+        // 拆解1秒
         _measureCount = 10;
         _interval = duration / _measureCount;
-        self.collectionView.scrollEnabled = NO;
-    } else {
-        // 固定单个图片的时间为1s
-        _interval = 1.0;
-        _measureCount = (NSInteger)duration;
-        self.collectionView.scrollEnabled = YES;
+        self.collectionViewCouldScroll = NO;
     }
+    [ZLEditVideoUX share].collectionItemWidth = [UIScreen mainScreen].bounds.size.width / 10.0;
 
-    [[PHCachingImageManager defaultManager] requestPlayerItemForVideo:self.asset options:nil resultHandler:^(AVPlayerItem * _Nullable playerItem, NSDictionary * _Nullable info) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                if (!playerItem) return;
-                AVPlayer *player = [AVPlayer playerWithPlayerItem:playerItem];
-                self.playerLayer.player = player;
-                [self startTimer];
-            });
-    }];
     PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
     options.version = PHVideoRequestOptionsVersionOriginal;
     options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
@@ -459,14 +498,39 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
         __weak typeof(self) weakSelf = self;
         _avAsset = asset;
         _generator = [[AVAssetImageGenerator alloc] initWithAsset:_avAsset];
-        //        _generator.maximumSize = CGSizeMake(kItemWidth*4, kItemHeight*4);
         _generator.appliesPreferredTrackTransform = YES;
         _generator.requestedTimeToleranceBefore = kCMTimeZero;
         _generator.requestedTimeToleranceAfter = kCMTimeZero;
         _generator.apertureMode = AVAssetImageGeneratorApertureModeProductionAperture;
+        
+//        NSError *error = nil;
+//        CGImageRef img = [self.generator copyCGImageAtTime:CMTimeMake(0, asset.duration.timescale) actualTime:NULL error:&error];
+//        if (img != nil) {
+//            UIImage *image = [UIImage imageWithCGImage:img];
+//            CGFloat WHScale = image.size.width / image.size.height;
+////            [ZLEditVideoUX share].collectionItemWidth = [ZLEditVideoUX share].collectionItemHeight * WHScale;
+//            CGImageRelease(img);
+//
+//            dispatch_async(dispatch_get_main_queue(), ^{
+//                if (completion) {
+//                    completion();
+//                }
+//            });
+//        }
         dispatch_async(dispatch_get_main_queue(), ^{
-            [weakSelf.collectionView reloadData];
+            if (completion) {
+                completion();
+            }
         });
+        [[PHCachingImageManager defaultManager] requestPlayerItemForVideo:self.asset options:nil resultHandler:^(AVPlayerItem * _Nullable playerItem, NSDictionary * _Nullable info) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (!playerItem) return;
+                AVPlayer *player = [AVPlayer playerWithPlayerItem:playerItem];
+                self.playerLayer.player = player;
+                [self startTimer];
+                [weakSelf.collectionView reloadData];
+            });
+        }];
     }];
 }
 
@@ -578,15 +642,15 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
 {
     [self stopTimer];
     
-    CGFloat duration = _interval * self.editView.validRect.size.width / (kItemWidth);
+    CGFloat duration = _interval * self.editView.validRect.size.width / ([ZLEditVideoUX share].collectionItemWidth);
     _timer = [NSTimer scheduledTimerWithTimeInterval:duration target:self selector:@selector(playPartVideo:) userInfo:nil repeats:YES];
     [_timer fire];
     [[NSRunLoop mainRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
     
-    _indicatorLine.frame = CGRectMake(self.editView.validRect.origin.x, 0, 2, kItemHeight);
+    _indicatorLine.frame = CGRectMake(self.editView.validRect.origin.x, 0, 2, [ZLEditVideoUX share].collectionItemHeight);
     [self.editView addSubview:_indicatorLine];
     [UIView animateWithDuration:duration delay:.0 options:UIViewAnimationOptionRepeat|UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionCurveLinear animations:^{
-        _indicatorLine.frame = CGRectMake(CGRectGetMaxX(self.editView.validRect)-2, 0, 2, kItemHeight);
+        _indicatorLine.frame = CGRectMake(CGRectGetMaxX(self.editView.validRect)-2, 0, 2, [ZLEditVideoUX share].collectionItemHeight);
     } completion:nil];
 }
 
@@ -601,14 +665,14 @@ static inline CGFloat GetMatchValue(NSString *text, CGFloat fontSize, BOOL isHei
 - (CMTime)getStartTime
 {
     CGRect rect = [self.collectionView convertRect:self.editView.validRect fromView:self.editView];
-    CGFloat s = MAX(0, _interval * rect.origin.x / (kItemWidth));
+    CGFloat s = MAX(0, _interval * rect.origin.x / ([ZLEditVideoUX share].collectionItemWidth));
     return CMTimeMakeWithSeconds(s, self.playerLayer.player.currentTime.timescale);
 }
 
 - (CMTimeRange)getTimeRange
 {
     CMTime start = [self getStartTime];
-    CGFloat d = _interval * self.editView.validRect.size.width / (kItemWidth);
+    CGFloat d = _interval * self.editView.validRect.size.width / ([ZLEditVideoUX share].collectionItemWidth);
     CMTime duration = CMTimeMakeWithSeconds(d, self.playerLayer.player.currentTime.timescale);
     return CMTimeRangeMake(start, duration);
 }
@@ -683,9 +747,9 @@ static const char _ZLOperationCellKey;
     
      NSBlockOperation *op = [NSBlockOperation blockOperationWithBlock:^{
         NSInteger row = indexPath.row;
-        NSInteger i = row  * _interval;
+        NSInteger i = (row + 0.5) * _interval;
         
-        CMTime time = CMTimeMake((i+0.35) * _avAsset.duration.timescale, _avAsset.duration.timescale);
+        CMTime time = CMTimeMake(i * _avAsset.duration.timescale, _avAsset.duration.timescale);
         
         NSError *error = nil;
         CGImageRef cgImg = [self.generator copyCGImageAtTime:time actualTime:NULL error:&error];
@@ -708,6 +772,29 @@ static const char _ZLOperationCellKey;
                 }
             });
             [_opCache removeObjectForKey:@(row).stringValue];
+        } else {
+            NSError *error = nil;
+            CGImageRef cgImg = [self.generator copyCGImageAtTime:time actualTime:NULL error:&error];
+            if (!error && cgImg) {
+                UIImage *image = [UIImage imageWithCGImage:cgImg];
+                CGImageRelease(cgImg);
+                
+                [_imageCache setValue:image forKey:@(row).stringValue];
+                
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                    NSIndexPath *nowIndexPath = [collectionView indexPathForCell:cell];
+                    if (row == nowIndexPath.row) {
+                        [(ZLEditVideoCell *)cell imageView].image = image;
+                    } else {
+                        UIImage *cacheImage = _imageCache[@(nowIndexPath.row).stringValue];
+                        if (cacheImage) {
+                            [(ZLEditVideoCell *)cell imageView].image = cacheImage;
+                        }
+                    }
+                });
+                [_opCache removeObjectForKey:@(row).stringValue];
+            }
         }
         objc_removeAssociatedObjects(cell);
     }];
