@@ -321,7 +321,6 @@
         NSLog(@"error -%@",error);
         btn.userInteractionEnabled = YES;
         [imagePickerVc hideProgressHUD];
-        // sot todo
         if (error == nil) {
             TSLocalVideoCoverSelectedVC *vc = [[TSLocalVideoCoverSelectedVC alloc]init];
             vc.videoPath = [NSURL fileURLWithPath:exportFilePath];
@@ -708,59 +707,42 @@ static const char _ZLOperationCellKey;
     __weak ZLEditVideoController *weakSelf = self;
      NSBlockOperation *op = [NSBlockOperation blockOperationWithBlock:^{
         NSInteger row = indexPath.row;
-        NSInteger i = (row + 0.5) * weakSelf.perItemSeconds;
-        
-        CMTime time = CMTimeMake(i * weakSelf.avAsset.duration.timescale, weakSelf.avAsset.duration.timescale);
-        
-        NSError *error = nil;
-        CGImageRef cgImg = [weakSelf.generator copyCGImageAtTime:time actualTime:NULL error:&error];
-        if (!error && cgImg) {
-            UIImage *image = [UIImage imageWithCGImage:cgImg];
-            CGImageRelease(cgImg);
-
-            [weakSelf.imageCache setValue:image forKey:@(row).stringValue];
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-
-                NSIndexPath *nowIndexPath = [collectionView indexPathForCell:cell];
-                if (row == nowIndexPath.row) {
-                    [(ZLEditVideoCell *)cell imageView].image = image;
-                } else {
-                    UIImage *cacheImage = weakSelf.imageCache[@(nowIndexPath.row).stringValue];
-                    if (cacheImage) {
-                        [(ZLEditVideoCell *)cell imageView].image = cacheImage;
-                    }
-                }
-            });
-            [weakSelf.operationCache removeObjectForKey:@(row).stringValue];
-        } else {
-            NSError *error = nil;
-            CGImageRef cgImg = [weakSelf.generator copyCGImageAtTime:time actualTime:NULL error:&error];
-            if (!error && cgImg) {
-                UIImage *image = [UIImage imageWithCGImage:cgImg];
-                CGImageRelease(cgImg);
-                
-                [weakSelf.imageCache setValue:image forKey:@(row).stringValue];
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    NSIndexPath *nowIndexPath = [collectionView indexPathForCell:cell];
-                    if (row == nowIndexPath.row) {
-                        [(ZLEditVideoCell *)cell imageView].image = image;
-                    } else {
-                        UIImage *cacheImage = weakSelf.imageCache[@(nowIndexPath.row).stringValue];
-                        if (cacheImage) {
-                            [(ZLEditVideoCell *)cell imageView].image = cacheImage;
-                        }
-                    }
-                });
-                [weakSelf.operationCache removeObjectForKey:@(row).stringValue];
-            }
-        }
+        NSInteger timeDur = (row + 0.5) * weakSelf.perItemSeconds;
+         // 每次尝试7次截图，如果都获取不到那就只有黑屏
+         int j = 0;
+         for (int i = 0; i < 7; i ++) {
+             if (i % 2 > 0) {
+                 j ++;
+             }
+             CGFloat offset = (i % 2) > 0 ? -1 * j / 10.0 : j / 10.0;
+             NSInteger timeDur = (row + 0.5 + offset) * weakSelf.perItemSeconds;
+             CMTime time = CMTimeMake(timeDur * weakSelf.avAsset.duration.timescale, weakSelf.avAsset.duration.timescale);
+             NSError *error = nil;
+             CGImageRef cgImg = [weakSelf.generator copyCGImageAtTime:time actualTime:NULL error:&error];
+             if (!error && cgImg) {
+                 UIImage *image = [UIImage imageWithCGImage:cgImg];
+                 CGImageRelease(cgImg);
+                 
+                 [weakSelf.imageCache setValue:image forKey:@(row).stringValue];
+                 dispatch_async(dispatch_get_main_queue(), ^{
+                     NSIndexPath *nowIndexPath = [collectionView indexPathForCell:cell];
+                     if (row == nowIndexPath.row) {
+                         [(ZLEditVideoCell *)cell imageView].image = image;
+                     } else {
+                         UIImage *cacheImage = weakSelf.imageCache[@(nowIndexPath.row).stringValue];
+                         if (cacheImage) {
+                             [(ZLEditVideoCell *)cell imageView].image = cacheImage;
+                         }
+                     }
+                 });
+                 [weakSelf.operationCache removeObjectForKey:@(row).stringValue];
+                 break;
+             }
+         }
         objc_removeAssociatedObjects(cell);
     }];
     [self.getImageCacheQueue addOperation:op];
     [self.operationCache setValue:op forKey:@(indexPath.row).stringValue];
-    
     objc_setAssociatedObject(cell, &_ZLOperationCellKey, op, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
