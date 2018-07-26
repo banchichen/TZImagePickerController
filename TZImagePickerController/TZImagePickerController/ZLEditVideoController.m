@@ -288,7 +288,7 @@
     rightButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [rightButton setTitle: @"完成" forState:UIControlStateNormal];
     [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
-    [rightButton addTarget:self action:@selector(rightButtonClick) forControlEvents:UIControlEventTouchUpInside];
+    [rightButton addTarget:self action:@selector(rightButtonClick:) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
     
     UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -311,10 +311,30 @@
     [self stopTimer];
     [self.navigationController popViewControllerAnimated:YES];
 }
-- (void)rightButtonClick {
-    NSLog(@"完成\n\n");
-    [self saveBtnClick];
-
+- (void)rightButtonClick:(UIButton *)btn {
+    btn.userInteractionEnabled = NO;
+    [self stopTimer];
+    __weak typeof(self) weakSelf = self;
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    [imagePickerVc showProgressHUD];
+    [self exportPHAsset:self.asset range:[self getTimeRange] complete:^(NSString *exportFilePath, NSError *error) {
+        NSLog(@"error -%@",error);
+        btn.userInteractionEnabled = YES;
+        [imagePickerVc hideProgressHUD];
+        // sot todo
+        if (error == nil) {
+            TSLocalVideoCoverSelectedVC *vc = [[TSLocalVideoCoverSelectedVC alloc]init];
+            vc.videoPath = [NSURL fileURLWithPath:exportFilePath];
+            vc.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
+                if (self.coverImageBlock) {
+                    self.coverImageBlock(coverImage, videoPath);
+                }
+            };
+            [self.navigationController pushViewController:vc animated:YES];
+        } else {
+            
+        }
+    }];
 }
 
 - (BOOL)zl_isIPhoneX {
@@ -499,27 +519,6 @@
     }
 }
 
-- (void)saveBtnClick {
-    [self stopTimer];
-    __weak typeof(self) weakSelf = self;
-    [self exportPHAsset:self.asset range:[self getTimeRange] complete:^(NSString *exportFilePath, NSError *error) {
-        NSLog(@"error -%@",error);
-        // sot todo
-        if (error == nil) {
-            TSLocalVideoCoverSelectedVC *vc = [[TSLocalVideoCoverSelectedVC alloc]init];
-            vc.videoPath = [NSURL fileURLWithPath:exportFilePath];
-            vc.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
-                if (self.coverImageBlock) {
-                    self.coverImageBlock(coverImage, videoPath);
-                }
-            };
-            [self.navigationController pushViewController:vc animated:YES];
-        } else {
-            
-        }
-    }];
-}
-
 - (void)exportPHAsset:(PHAsset *)PHasset range:(CMTimeRange)range complete:(void (^)(NSString *exportFilePath, NSError *error))complete {
     if (PHasset.mediaType != PHAssetMediaTypeVideo) {
         if (complete) complete(nil, [NSError errorWithDomain:@"导出失败" code:-1 userInfo:@{@"message": @"导出对象不是视频对象"}]);
@@ -541,7 +540,12 @@
 }
 - (void)export:(AVAsset *)asset range:(CMTimeRange)range complete:(void (^)(NSString *exportFilePath, NSError *error))complete
 {
-    NSString *exportFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@", [self getUniqueStrByUUID],  @"mp4"]];
+    NSString *exportFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@",@"exportVideo",@"mp4"]];
+    if ([[NSFileManager defaultManager] fileExistsAtPath:exportFilePath]) {
+        // 移除上一个
+        NSError *removeErr;
+        [[NSFileManager defaultManager] removeItemAtPath:exportFilePath error: &removeErr];
+    }
     AVAssetExportSession *exportSession = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPreset1280x720];
     
     NSURL *exportFileUrl = [NSURL fileURLWithPath:exportFilePath];
