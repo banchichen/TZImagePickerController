@@ -94,19 +94,6 @@
     }
     return self;
 }
-
-- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
-{
-    //扩大下有效范围
-    CGRect left = _selectedView.frame;
-    left.origin.x -= [TSLocalVideoCoverSelectedUX  share].collectionItemWidth/2;
-    left.size.width += [TSLocalVideoCoverSelectedUX  share].collectionItemWidth/2;
-    if (CGRectContainsPoint(left, point)) {
-        return _selectedView;
-    }
-    return nil;
-}
-
 - (void)creatUI
 {
     self.backgroundColor = [UIColor clearColor];
