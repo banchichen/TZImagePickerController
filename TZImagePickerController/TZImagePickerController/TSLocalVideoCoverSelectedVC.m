@@ -301,7 +301,7 @@
         self.perItemSeconds = 1.0;
         self.videoItemCount = (NSInteger)duration;
     }
-    
+
     NSDictionary *opts = [NSDictionary dictionaryWithObject:[NSNumber numberWithBool:NO] forKey:AVURLAssetPreferPreciseDurationAndTimingKey];
     AVURLAsset *urlAsset = [AVURLAsset URLAssetWithURL:self.videoPath options:opts];
     AVAssetImageGenerator *generator = [AVAssetImageGenerator assetImageGeneratorWithAsset:urlAsset];
@@ -315,6 +315,10 @@
         UIImage *image = [UIImage imageWithCGImage:img];
         CGFloat WHScale = image.size.width / image.size.height;
         [TSLocalVideoCoverSelectedUX  share].collectionItemWidth = [TSLocalVideoCoverSelectedUX  share].collectionItemHeight * WHScale;
+        // 如果不能铺满整个collocationView就不按原始图片比例
+        if ([TSLocalVideoCoverSelectedUX  share].collectionItemWidth * self.videoItemCount < [UIScreen mainScreen].bounds.size.width) {
+            [TSLocalVideoCoverSelectedUX share].collectionItemWidth = [UIScreen mainScreen].bounds.size.width / self.videoItemCount;
+        }
         self.selectedImage = image;
         CGImageRelease(img);
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -329,6 +333,10 @@
             UIImage *image = [UIImage imageWithCGImage:img];
             CGFloat WHScale = image.size.width / image.size.height;
             [TSLocalVideoCoverSelectedUX  share].collectionItemWidth = [TSLocalVideoCoverSelectedUX  share].collectionItemHeight * WHScale;
+            // 如果不能铺满整个collocationView就不按原始图片比例
+            if ([TSLocalVideoCoverSelectedUX  share].collectionItemWidth * self.videoItemCount < [UIScreen mainScreen].bounds.size.width) {
+                [TSLocalVideoCoverSelectedUX share].collectionItemWidth = [UIScreen mainScreen].bounds.size.width / self.videoItemCount;
+            }
             self.selectedImage = image;
             CGImageRelease(img);
             dispatch_async(dispatch_get_main_queue(), ^{
