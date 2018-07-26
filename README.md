@@ -8,7 +8,7 @@
  
  ## 重要提示1：提issue前请先搜索，先从已有issue里找找线索。如果发现bug，请先和Demo对照自查下，如果Demo也有bug，请再提issue。Demo正常你那不正常的，提issue时请贴上你的初始化代码，注明必要的复现步骤。这样能避免多余的沟通，帮助你更快获取答案。
  
- ## 重要提示2：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.2
+ ## 重要提示2：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.3
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
@@ -109,7 +109,7 @@ A：1、team选你自己的；2、bundleId也改成你自己的或改成一个�
 A：是否有集成WRNavigationBar？如有，参考其readme调一下它的wr_setBlackList，把TZImagePickerController相关的控制器放到黑名单里，使得不受WRNavigationBar的影响。如果没有集成，可在issues列表里搜一下看看类似的issue参考下，如实在没头绪，可加群提供个能复现该问题的demo，0~2天给你解决。                          
 
       最近更新     
-2.2.2 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
+2.2.3 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
 2.1.8 优化gif图播放的体验，加入iCloud同步进度条；新增notScaleImage属性，设置为YES时内部不去缩放图片             
 2.1.6 新增allowCameraLocation属性，默认为YES，置为NO时不会在照相/摄像时定位，修复一个序号紊乱的bug              
 2.1.5 修复开启showSelectedIndex后照片列表页iCloud图片进度条紊乱的bug              
