@@ -204,32 +204,23 @@
     _validRect = validRect;
     _leftView.frame = CGRectMake(validRect.origin.x > 10 / 2.0 ?  (validRect.origin.x - 10 / 2.0) : validRect.origin.x, 0, 10, [ZLEditVideoUX share].collectionItemHeight);
     _rightView.frame = CGRectMake(validRect.origin.x + validRect.size.width - 10.0, 0, 10, [ZLEditVideoUX share].collectionItemHeight);
-
-//    _leftView.frame = CGRectMake(validRect.origin.x, 0, [ZLEditVideoUX share].collectionItemWidth/2, [ZLEditVideoUX share].collectionItemHeight);
-//    _rightView.frame = CGRectMake(validRect.origin.x+validRect.size.width-[ZLEditVideoUX share].collectionItemWidth/2, 0, [ZLEditVideoUX share].collectionItemWidth/2, [ZLEditVideoUX share].collectionItemHeight);
-    
     [self setNeedsDisplay];
 }
 
 - (void)drawRect:(CGRect)rect
 {
     CGContextRef context = UIGraphicsGetCurrentContext();
-    
     CGContextClearRect(context, self.validRect);
-    
     CGContextSetStrokeColorWithColor(context, [UIColor grayColor].CGColor);
     CGContextSetLineWidth(context, 4.0);
-    
     CGPoint topPoints[2];
     topPoints[0] = CGPointMake(self.validRect.origin.x, 0);
     topPoints[1] = CGPointMake(self.validRect.origin.x+self.validRect.size.width, 0);
     CGPoint bottomPoints[2];
     bottomPoints[0] = CGPointMake(self.validRect.origin.x, [ZLEditVideoUX share].collectionItemHeight);
     bottomPoints[1] = CGPointMake(self.validRect.origin.x+self.validRect.size.width, [ZLEditVideoUX share].collectionItemHeight);
-    
     CGContextAddLines(context, topPoints, 2);
     CGContextAddLines(context, bottomPoints, 2);
-    
     CGContextDrawPath(context, kCGPathStroke);
 }
 
@@ -239,31 +230,28 @@
 ///////-----editvc
 @interface ZLEditVideoController () <UIScrollViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, ZLEditFrameViewDelegate>
 {
-    UIView *_bottomView;
-    NSTimer *_timer;
-    
     //下方collectionview偏移量
     CGFloat _offsetX;
     BOOL _orientationChanged;
-    
-    UIView *_indicatorLine;
-    
-    AVAsset *_avAsset;
-    
-    NSTimeInterval _interval;
-    
-    NSInteger _measureCount;
-    NSOperationQueue *_queue;
-    NSMutableDictionary<NSString *, UIImage *> *_imageCache;
-    NSMutableDictionary<NSString *, NSBlockOperation *> *_opCache;
 }
-
+// Jar
+@property (nonatomic, strong) NSMutableDictionary<NSString *, UIImage *> *imageCache;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSBlockOperation *> *operationCache;
+// UI
 @property (nonatomic, strong) AVPlayerLayer *playerLayer;
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) ZLEditFrameView *editView;
-@property (nonatomic, strong) AVAssetImageGenerator *generator;
 @property (nonatomic, strong) UIView *bgView;
+@property (nonatomic, strong) UIView *indicatorLine;
+@property (nonatomic, strong) UIView *bottomView;
+// Other
+@property (nonatomic, strong) AVAssetImageGenerator *generator;
 @property (nonatomic, assign) BOOL collectionViewCouldScroll;
+@property (nonatomic, strong) AVAsset *avAsset;
+@property (nonatomic, assign) NSTimeInterval perItemSeconds;
+@property (nonatomic, assign) NSInteger itemCount;
+@property (nonatomic, strong) NSOperationQueue *getImageCacheQueue;
+@property (nonatomic, strong) NSTimer *timer;
 
 @end
 
@@ -271,7 +259,7 @@
 
 - (void)dealloc
 {
-    [_queue cancelAllOperations];
+    [self.getImageCacheQueue cancelAllOperations];
     [self stopTimer];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     NSLog(@"---- %s", __FUNCTION__);
@@ -289,11 +277,11 @@
         [self setupUI];
     }];
 
-    _queue = [[NSOperationQueue alloc] init];
-    _queue.maxConcurrentOperationCount = 3;
+    self.getImageCacheQueue = [[NSOperationQueue alloc] init];
+    self.getImageCacheQueue.maxConcurrentOperationCount = 3;
     
-    _imageCache = [NSMutableDictionary dictionary];
-    _opCache = [NSMutableDictionary dictionary];
+    self.imageCache = [NSMutableDictionary dictionary];
+    self.operationCache = [NSMutableDictionary dictionary];
     UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
     
     rightButton.frame = CGRectMake(0, 0, 44, 44);
@@ -374,8 +362,8 @@
     
     [self.collectionView setContentInset:UIEdgeInsetsMake(0, leftOffset, 0, rightOffset)];
     [self.collectionView setContentOffset:CGPointMake(_offsetX-leftOffset, 0)];
-    _bottomView.frame = CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - [ZLEditVideoUX share].collectionItemHeight - 15 -inset.bottom, [[UIScreen mainScreen] bounds].size.width, [ZLEditVideoUX share].collectionItemHeight);
-    self.playerLayer.frame = CGRectMake(0, self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height,[[UIScreen mainScreen] bounds].size.width, _bottomView.frame.origin.y - ( self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height));
+    self.bottomView.frame = CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - [ZLEditVideoUX share].collectionItemHeight - 15 -inset.bottom, [[UIScreen mainScreen] bounds].size.width, [ZLEditVideoUX share].collectionItemHeight);
+    self.playerLayer.frame = CGRectMake(0, self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height,[[UIScreen mainScreen] bounds].size.width, self.bottomView.frame.origin.y - ( self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height));
     [self startTimer];
 }
 
@@ -425,22 +413,22 @@
     [self.collectionView registerClass:ZLEditVideoCell.class forCellWithReuseIdentifier:@"ZLEditVideoCell"];
     self.collectionView.scrollEnabled = self.collectionViewCouldScroll;
     [self creatBottomView];
-    [_bottomView addSubview:self.collectionView];
+    [self.bottomView addSubview:self.collectionView];
 
     self.editView = [[ZLEditFrameView alloc] init];
     self.editView.delegate = self;
-    [_bottomView addSubview:self.editView];
+    [self.bottomView addSubview:self.editView];
     
-    _indicatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, [ZLEditVideoUX share].collectionItemHeight)];
-    _indicatorLine.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:.7];
+    self.indicatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, [ZLEditVideoUX share].collectionItemHeight)];
+    self.indicatorLine.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:.7];
 }
 
 - (void)creatBottomView
 {
     //下方视图
-    _bottomView = [[UIView alloc] init];
-    _bottomView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:1];
-    [self.view addSubview:_bottomView];
+    self.bottomView = [[UIView alloc] init];
+    self.bottomView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:1];
+    [self.view addSubview:self.bottomView];
 }
 
 #pragma mark - 解析视频每一帧图片
@@ -454,19 +442,19 @@
             if (@available(iOS 11, *)) {
                 inset = self.view.safeAreaInsets;
             }
-            _measureCount = 10;
-            _interval = duration / _measureCount;
+            self.itemCount = 10;
+            self.perItemSeconds = duration / self.itemCount;
             self.collectionViewCouldScroll = NO;
         } else {
             // 固定单个图片的时间为1s
-            _interval = 1.0;
-            _measureCount = (NSInteger)duration;
+            self.perItemSeconds = 1.0;
+            self.itemCount = (NSInteger)duration;
             self.collectionViewCouldScroll = YES;
         }
     } else {
         // 拆解1秒
-        _measureCount = 10;
-        _interval = duration / _measureCount;
+        self.itemCount = 10;
+        self.perItemSeconds = duration / self.itemCount;
         self.collectionViewCouldScroll = NO;
     }
     [ZLEditVideoUX share].collectionItemWidth = [UIScreen mainScreen].bounds.size.width / 10.0;
@@ -478,12 +466,12 @@
     [[PHImageManager defaultManager] requestAVAssetForVideo:self.asset options:options resultHandler:^(AVAsset * _Nullable asset, AVAudioMix * _Nullable audioMix, NSDictionary * _Nullable info) {
         NSLog(@"requestAVAssetForVideo asset-%@ -%@", asset, info);
         __weak typeof(self) weakSelf = self;
-        _avAsset = asset;
-        _generator = [[AVAssetImageGenerator alloc] initWithAsset:_avAsset];
-        _generator.appliesPreferredTrackTransform = YES;
-        _generator.requestedTimeToleranceBefore = kCMTimeZero;
-        _generator.requestedTimeToleranceAfter = kCMTimeZero;
-        _generator.apertureMode = AVAssetImageGeneratorApertureModeProductionAperture;
+        self.avAsset = asset;
+        self.generator = [[AVAssetImageGenerator alloc] initWithAsset:self.avAsset];
+        self.generator.appliesPreferredTrackTransform = YES;
+        self.generator.requestedTimeToleranceBefore = kCMTimeZero;
+        self.generator.requestedTimeToleranceAfter = kCMTimeZero;
+        self.generator.apertureMode = AVAssetImageGeneratorApertureModeProductionAperture;
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) {
                 completion();
@@ -505,7 +493,6 @@
 - (void)cancelBtn_click
 {
     [self stopTimer];
-
     UIViewController *vc = [self.navigationController popViewControllerAnimated:NO];
     if (!vc) {
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -612,15 +599,15 @@
         return;
     }
     
-    CGFloat duration = _interval * self.editView.validRect.size.width / ([ZLEditVideoUX share].collectionItemWidth);
+    CGFloat duration = self.perItemSeconds * self.editView.validRect.size.width / ([ZLEditVideoUX share].collectionItemWidth);
     _timer = [NSTimer scheduledTimerWithTimeInterval:duration target:self selector:@selector(playPartVideo:) userInfo:nil repeats:YES];
     [_timer fire];
     [[NSRunLoop mainRunLoop] addTimer:_timer forMode:NSRunLoopCommonModes];
     
-    _indicatorLine.frame = CGRectMake(self.editView.validRect.origin.x, 0, 2, [ZLEditVideoUX share].collectionItemHeight);
-    [self.editView addSubview:_indicatorLine];
+    self.indicatorLine.frame = CGRectMake(self.editView.validRect.origin.x, 0, 2, [ZLEditVideoUX share].collectionItemHeight);
+    [self.editView addSubview:self.indicatorLine];
     [UIView animateWithDuration:duration delay:.0 options:UIViewAnimationOptionRepeat|UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionCurveLinear animations:^{
-        _indicatorLine.frame = CGRectMake(CGRectGetMaxX(self.editView.validRect)-2, 0, 2, [ZLEditVideoUX share].collectionItemHeight);
+        self.indicatorLine.frame = CGRectMake(CGRectGetMaxX(self.editView.validRect)-2, 0, 2, [ZLEditVideoUX share].collectionItemHeight);
     } completion:nil];
 }
 
@@ -628,21 +615,21 @@
 {
     [_timer invalidate];
     _timer = nil;
-    [_indicatorLine removeFromSuperview];
+    [self.indicatorLine removeFromSuperview];
     [self.playerLayer.player pause];
 }
 
 - (CMTime)getStartTime
 {
     CGRect rect = [self.collectionView convertRect:self.editView.validRect fromView:self.editView];
-    CGFloat s = MAX(0, _interval * rect.origin.x / ([ZLEditVideoUX share].collectionItemWidth));
+    CGFloat s = MAX(0, self.perItemSeconds * rect.origin.x / ([ZLEditVideoUX share].collectionItemWidth));
     return CMTimeMakeWithSeconds(s, self.playerLayer.player.currentTime.timescale);
 }
 
 - (CMTimeRange)getTimeRange
 {
     CMTime start = [self getStartTime];
-    CGFloat d = _interval * self.editView.validRect.size.width / ([ZLEditVideoUX share].collectionItemWidth);
+    CGFloat d = self.perItemSeconds * self.editView.validRect.size.width / ([ZLEditVideoUX share].collectionItemWidth);
     CMTime duration = CMTimeMakeWithSeconds(d, self.playerLayer.player.currentTime.timescale);
     return CMTimeRangeMake(start, duration);
 }
@@ -691,14 +678,14 @@
 #pragma mark - collection view data sources
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return _measureCount;
+    return self.itemCount;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ZLEditVideoCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"ZLEditVideoCell" forIndexPath:indexPath];
     
-    UIImage *image = _imageCache[@(indexPath.row).stringValue];
+    UIImage *image = self.imageCache[@(indexPath.row).stringValue];
     if (image) {
         cell.imageView.image = image;
     }
@@ -709,25 +696,25 @@
 static const char _ZLOperationCellKey;
 - (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (!_avAsset) return;
+    if (!self.avAsset) return;
     
-    if (_imageCache[@(indexPath.row).stringValue] || _opCache[@(indexPath.row).stringValue]) {
+    if (self.imageCache[@(indexPath.row).stringValue] || self.operationCache[@(indexPath.row).stringValue]) {
         return;
     }
-    
+    __weak ZLEditVideoController *weakSelf = self;
      NSBlockOperation *op = [NSBlockOperation blockOperationWithBlock:^{
         NSInteger row = indexPath.row;
-        NSInteger i = (row + 0.5) * _interval;
+        NSInteger i = (row + 0.5) * weakSelf.perItemSeconds;
         
-        CMTime time = CMTimeMake(i * _avAsset.duration.timescale, _avAsset.duration.timescale);
+        CMTime time = CMTimeMake(i * weakSelf.avAsset.duration.timescale, weakSelf.avAsset.duration.timescale);
         
         NSError *error = nil;
-        CGImageRef cgImg = [self.generator copyCGImageAtTime:time actualTime:NULL error:&error];
+        CGImageRef cgImg = [weakSelf.generator copyCGImageAtTime:time actualTime:NULL error:&error];
         if (!error && cgImg) {
             UIImage *image = [UIImage imageWithCGImage:cgImg];
             CGImageRelease(cgImg);
 
-            [_imageCache setValue:image forKey:@(row).stringValue];
+            [weakSelf.imageCache setValue:image forKey:@(row).stringValue];
 
             dispatch_async(dispatch_get_main_queue(), ^{
 
@@ -735,41 +722,40 @@ static const char _ZLOperationCellKey;
                 if (row == nowIndexPath.row) {
                     [(ZLEditVideoCell *)cell imageView].image = image;
                 } else {
-                    UIImage *cacheImage = _imageCache[@(nowIndexPath.row).stringValue];
+                    UIImage *cacheImage = weakSelf.imageCache[@(nowIndexPath.row).stringValue];
                     if (cacheImage) {
                         [(ZLEditVideoCell *)cell imageView].image = cacheImage;
                     }
                 }
             });
-            [_opCache removeObjectForKey:@(row).stringValue];
+            [weakSelf.operationCache removeObjectForKey:@(row).stringValue];
         } else {
             NSError *error = nil;
-            CGImageRef cgImg = [self.generator copyCGImageAtTime:time actualTime:NULL error:&error];
+            CGImageRef cgImg = [weakSelf.generator copyCGImageAtTime:time actualTime:NULL error:&error];
             if (!error && cgImg) {
                 UIImage *image = [UIImage imageWithCGImage:cgImg];
                 CGImageRelease(cgImg);
                 
-                [_imageCache setValue:image forKey:@(row).stringValue];
+                [weakSelf.imageCache setValue:image forKey:@(row).stringValue];
                 
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    
                     NSIndexPath *nowIndexPath = [collectionView indexPathForCell:cell];
                     if (row == nowIndexPath.row) {
                         [(ZLEditVideoCell *)cell imageView].image = image;
                     } else {
-                        UIImage *cacheImage = _imageCache[@(nowIndexPath.row).stringValue];
+                        UIImage *cacheImage = weakSelf.imageCache[@(nowIndexPath.row).stringValue];
                         if (cacheImage) {
                             [(ZLEditVideoCell *)cell imageView].image = cacheImage;
                         }
                     }
                 });
-                [_opCache removeObjectForKey:@(row).stringValue];
+                [weakSelf.operationCache removeObjectForKey:@(row).stringValue];
             }
         }
         objc_removeAssociatedObjects(cell);
     }];
-    [_queue addOperation:op];
-    [_opCache setValue:op forKey:@(indexPath.row).stringValue];
+    [self.getImageCacheQueue addOperation:op];
+    [self.operationCache setValue:op forKey:@(indexPath.row).stringValue];
     
     objc_setAssociatedObject(cell, &_ZLOperationCellKey, op, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
@@ -780,7 +766,7 @@ static const char _ZLOperationCellKey;
     if (op) {
         [op cancel];
         objc_removeAssociatedObjects(cell);
-        [_opCache removeObjectForKey:@(indexPath.row).stringValue];
+        [self.operationCache removeObjectForKey:@(indexPath.row).stringValue];
     }
 }
 
