@@ -183,8 +183,8 @@
 @property (nonatomic, strong) AVAssetImageGenerator *generator;
 @property (nonatomic, assign) NSTimeInterval perItemSeconds;
 @property (nonatomic, strong) NSOperationQueue *getImageCacheQueue;
-@property (nonatomic, strong) AVURLAsset * asset ;
-@property (nonatomic, strong) UIImage * selectedImage ;
+@property (nonatomic, strong) AVURLAsset *asset;
+@property (nonatomic, strong) UIImage *selectedImage ;
 @property (nonatomic, assign) NSInteger videoItemCount;
 
 @end
@@ -482,62 +482,38 @@ static const char _TSOperationCellKey;
     }
     __weak TSLocalVideoCoverSelectedVC *wkSelf = self;
      NSBlockOperation *op = [NSBlockOperation blockOperationWithBlock:^{
-        NSInteger row = indexPath.row;
-        CGFloat i = (row +0.5) * self.perItemSeconds;
-        CMTime time = CMTimeMake((i) * self.asset.duration.timescale, self.asset.duration.timescale);
-         // copy image
-        NSError *error = nil;
-        CGImageRef cgImg = [self.generator copyCGImageAtTime:time actualTime:NULL error:&error];
-        if (!error && cgImg) {
-            UIImage *image = [UIImage imageWithCGImage:cgImg];
-            CGImageRelease(cgImg);
-            NSLog(@"第一次 %@", image);
-
-            [wkSelf.imageCache setValue:image forKey:@(row).stringValue];
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-                NSIndexPath *nowIndexPath = [collectionView indexPathForCell:cell];
-                if (row == nowIndexPath.row) {
-                    [(TSLocalEditVideoCell *)cell imageView].image = image;
-                } else {
-                    UIImage *cacheImage = wkSelf.imageCache[@(nowIndexPath.row).stringValue];
-                    if (cacheImage) {
-                        [(TSLocalEditVideoCell *)cell imageView].image = cacheImage;
-                    }
-                }
-            });
-            [wkSelf.operationCache removeObjectForKey:@(row).stringValue];
-        } else {
-            NSLog(@"第一次 copyCGImageAtTime error -%@",error.description);
-
-            // 尝试获取下一个时间点
-            CMTime time2 = CMTimeMake((i+0.1) * self.asset.duration.timescale, self.asset.duration.timescale);
-            NSError *error2 = nil;
-            CGImageRef cgImg2 = [wkSelf.generator copyCGImageAtTime:time2 actualTime:NULL error:&error2];
-            if (!error2 && cgImg2) {
-                UIImage *image2 = [UIImage imageWithCGImage:cgImg2];
-                NSLog(@"第二次 %@", image2);
-                CGImageRelease(cgImg2);
-                
-                [wkSelf.imageCache setValue:image2 forKey:@(row).stringValue];
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    
-                    NSIndexPath *nowIndexPath = [collectionView indexPathForCell:cell];
-                    if (row == nowIndexPath.row) {
-                        [(TSLocalEditVideoCell *)cell imageView].image = image2;
-                    } else {
-                        UIImage *cacheImage = wkSelf.imageCache[@(nowIndexPath.row).stringValue];
-                        if (cacheImage) {
-                            [(TSLocalEditVideoCell *)cell imageView].image = cacheImage;
-                        }
-                    }
-                });
-                [wkSelf.operationCache removeObjectForKey:@(row).stringValue];
-            } else {
-                NSLog(@"第二次 copyCGImageAtTime error -%@",error.description);
-            }
-        }
+         NSInteger row = indexPath.row;
+         NSInteger timeDur = (row + 0.5) * wkSelf.perItemSeconds;
+         // 每次尝试7次截图，如果都获取不到那就只有黑屏
+         int j = 0;
+         for (int i = 0; i < 7; i ++) {
+             if (i % 2 > 0) {
+                 j ++;
+             }
+             CGFloat offset = (i % 2) > 0 ? -1 * j / 10.0 : j / 10.0;
+             CMTime time = CMTimeMake((i) * wkSelf.asset.duration.timescale, wkSelf.asset.duration.timescale);
+             NSError *error = nil;
+             CGImageRef cgImg = [wkSelf.generator copyCGImageAtTime:time actualTime:NULL error:&error];
+             if (!error && cgImg) {
+                 UIImage *image = [UIImage imageWithCGImage:cgImg];
+                 CGImageRelease(cgImg);
+                 [wkSelf.imageCache setValue:image forKey:@(row).stringValue];
+                 
+                 dispatch_async(dispatch_get_main_queue(), ^{
+                     NSIndexPath *nowIndexPath = [collectionView indexPathForCell:cell];
+                     if (row == nowIndexPath.row) {
+                         [(TSLocalEditVideoCell *)cell imageView].image = image;
+                     } else {
+                         UIImage *cacheImage = wkSelf.imageCache[@(nowIndexPath.row).stringValue];
+                         if (cacheImage) {
+                             [(TSLocalEditVideoCell *)cell imageView].image = cacheImage;
+                         }
+                     }
+                 });
+                 [wkSelf.operationCache removeObjectForKey:@(row).stringValue];
+                 break;
+             }
+         }
         objc_removeAssociatedObjects(cell);
     }];
     [self.getImageCacheQueue addOperation:op];
