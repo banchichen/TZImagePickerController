@@ -17,6 +17,7 @@
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
 #import "LZImageCropping.h"
+#import "ZLEditVideoController.h"
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate,LZImageCroppingDelegate> {
     NSMutableArray *_models;
@@ -572,6 +573,27 @@ static CGFloat itemMargin = 5;
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
             [imagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Can not choose both video and photo"]];
         } else {
+            // sot todo
+//            TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+//            if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
+//                [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingVideo:nil sourceAssets:nil];
+//            }
+//            return;
+            
+            TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+            ZLEditVideoController *editVC = [[ZLEditVideoController alloc]init];
+            editVC.asset = model.asset;
+            editVC.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
+                [imagePickerVc dismissViewControllerAnimated:YES completion:^{
+                    if (coverImage != nil && videoPath != nil) {
+                        if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishEditVideoCoverImage:videoURL:)]) {
+                            [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishEditVideoCoverImage:coverImage videoURL:videoPath];
+                        }
+                    }
+                }];
+            };
+            [self.navigationController pushViewController:editVC animated:YES];
+            return;
             // TODO: 后续如果需要修改代码和旧代码共存,增进一个协议函数返回Bool值决定是否调整即可
             [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
                 if (!isDegraded && photo) {
