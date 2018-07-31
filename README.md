@@ -109,6 +109,9 @@ A：1、team选你自己的；2、bundleId也改成你自己的或改成一个�
 **Q：设置导航栏颜色无效？导航栏颜色总是白色？**            
 A：是否有集成WRNavigationBar？如有，参考其readme调一下它的wr_setBlackList，把TZImagePickerController相关的控制器放到黑名单里，使得不受WRNavigationBar的影响。如果没有集成，可在issues列表里搜一下看看类似的issue参考下，如实在没头绪，可加群提供个能复现该问题的demo，0~2天给你解决。最近发现WRNavigationBar的黑名单会有不生效的情况，临时解决方案大家可参考：[https://github.com/wangrui460/WRNavigationBar/issues/145](https://github.com/wangrui460/WRNavigationBar/issues/145)                          
 
+**Q：导航栏没了？**            
+A：是否有集成GKNavigationBarViewController？目前需改其源码，过滤掉TZImagePickerController，方案详见issue：[https://github.com/QuintGao/GKNavigationBarViewController/issues/7](https://github.com/QuintGao/GKNavigationBarViewController/issues/7)。       
+
 ## 六. Release Notes 最近更新     
 
 2.2.3 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
