@@ -6,9 +6,11 @@
  A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, support iOS6+.   
  一个支持多选、选原图和视频的图片选择器，同时有预览功能，支持iOS6+。
  
- ## 重要提示1：提issue前请先搜索，先从已有issue里找找线索。如果发现bug，请先和Demo对照自查下，如果Demo也有bug，请再提issue。Demo正常你那不正常的，提issue时请贴上你的初始化代码，注明必要的复现步骤。这样能避免多余的沟通，帮助你更快获取答案。
+ ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试，还有问题请按下面要求提issue。Demo不正常的，如有改动过代码请贴上，描述清楚复现步骤。          
+  
+ ## 重要提示2：issue未说明下面必要情况的不予处理：1、我的demo是否正常？ 2、你用的什么版本？ 3、你的初始化TZImagePicker的代码 4、你是pod安装还是源码导入的？是否有改动TZImagePicker内部代码？                 
  
- ## 重要提示2：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.3
+ ## 重要提示3：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.3          
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
@@ -60,9 +62,8 @@
       关于issue: 
   请尽可能详细地描述**系统版本**、**手机型号**、**库的版本**、**崩溃日志**和**复现步骤**，**请先更新到最新版再测试一下**，如果新版还存在再提~如果已有开启的类似issue，请直接在该issue下评论说出你的问题
   
-## 五. Other 其它    
+## 五. FAQ 常见问题    
 
-      常见问题
 **Q：pod search TZImagePickerController 搜索出来的不是最新版本**       
 A：需要在终端执行cd转换文件路径命令退回到Desktop，然后执行pod setup命令更新本地spec缓存（可能需要几分钟）,然后再搜索就可以了       
      
@@ -108,7 +109,8 @@ A：1、team选你自己的；2、bundleId也改成你自己的或改成一个�
 **Q：设置导航栏颜色无效？导航栏颜色总是白色？**            
 A：是否有集成WRNavigationBar？如有，参考其readme调一下它的wr_setBlackList，把TZImagePickerController相关的控制器放到黑名单里，使得不受WRNavigationBar的影响。如果没有集成，可在issues列表里搜一下看看类似的issue参考下，如实在没头绪，可加群提供个能复现该问题的demo，0~2天给你解决。最近发现WRNavigationBar的黑名单会有不生效的情况，临时解决方案大家可参考：[https://github.com/wangrui460/WRNavigationBar/issues/145](https://github.com/wangrui460/WRNavigationBar/issues/145)                          
 
-      最近更新     
+## 六. Release Notes 最近更新     
+
 2.2.3 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
 2.1.8 优化gif图播放的体验，加入iCloud同步进度条；新增notScaleImage属性，设置为YES时内部不去缩放图片             
 2.1.6 新增allowCameraLocation属性，默认为YES，置为NO时不会在照相/摄像时定位，修复一个序号紊乱的bug              
