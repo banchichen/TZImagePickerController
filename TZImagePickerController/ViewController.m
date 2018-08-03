@@ -21,7 +21,7 @@
 #import "TZAssetCell.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 
-@interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIActionSheetDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
+@interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
     NSMutableArray *_selectedAssets;
     BOOL _isSelectOriginalPhoto;
@@ -170,8 +170,25 @@
             } else if (self.showTakeVideoBtnSwitch.isOn) {
                 takePhotoTitle = @"拍摄";
             }
-            UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:nil delegate:self cancelButtonTitle:@"取消" destructiveButtonTitle:nil otherButtonTitles:takePhotoTitle,@"去相册选择", nil];
-            [sheet showInView:self.view];
+            UIAlertController *alertVc = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+            UIAlertAction *takePhotoAction = [UIAlertAction actionWithTitle:takePhotoTitle style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self takePhoto];
+            }];
+            [alertVc addAction:takePhotoAction];
+            UIAlertAction *imagePickerAction = [UIAlertAction actionWithTitle:@"去相册选择" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                [self pushTZImagePickerController];
+            }];
+            [alertVc addAction:imagePickerAction];
+            UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+            [alertVc addAction:cancelAction];
+            UIPopoverPresentationController *popover = alertVc.popoverPresentationController;
+            UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
+            if (popover) {
+                popover.sourceView = cell;
+                popover.sourceRect = cell.bounds;
+                popover.permittedArrowDirections = UIPopoverArrowDirectionAny;
+            }
+            [self presentViewController:alertVc animated:YES completion:nil];
         } else {
             [self pushTZImagePickerController];
         }
@@ -520,16 +537,6 @@
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     if ([picker isKindOfClass:[UIImagePickerController class]]) {
         [picker dismissViewControllerAnimated:YES completion:nil];
-    }
-}
-
-#pragma mark - UIActionSheetDelegate
-
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
-    if (buttonIndex == 0) { // take photo / 去拍照
-        [self takePhoto];
-    } else if (buttonIndex == 1) {
-        [self pushTZImagePickerController];
     }
 }
 
