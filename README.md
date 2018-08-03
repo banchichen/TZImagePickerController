@@ -10,7 +10,7 @@
   
  ## 重要提示2：issue未说明下面必要情况的不予处理：1、我的demo是否正常？ 2、你用的什么版本？ 3、你的初始化TZImagePicker的代码 4、你是pod安装还是源码导入的？是否有改动TZImagePicker内部代码？                 
  
- ## 重要提示3：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.3          
+ ## 重要提示3：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.4          
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
@@ -114,7 +114,7 @@ A：是否有集成GKNavigationBarViewController？需要升级到2.0.4及以上
 
 ## 六. Release Notes 最近更新     
 
-2.2.3 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
+2.2.4 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
 2.1.8 优化gif图播放的体验，加入iCloud同步进度条；新增notScaleImage属性，设置为YES时内部不去缩放图片             
 2.1.6 新增allowCameraLocation属性，默认为YES，置为NO时不会在照相/摄像时定位，修复一个序号紊乱的bug              
 2.1.5 修复开启showSelectedIndex后照片列表页iCloud图片进度条紊乱的bug              
