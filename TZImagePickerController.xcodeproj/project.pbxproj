@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		38B06231211896340035DCE3 /* ZLEditVideoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38B0622F211896340035DCE3 /* ZLEditVideoController.m */; };
+		38B06232211896340035DCE3 /* ZLEditVideoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 38B0622F211896340035DCE3 /* ZLEditVideoController.m */; };
+		38B06233211896340035DCE3 /* ZLEditVideoController.h in Headers */ = {isa = PBXBuildFile; fileRef = 38B06230211896340035DCE3 /* ZLEditVideoController.h */; };
+		38B06236211897360035DCE3 /* TSLocalVideoCoverSelectedVC.h in Headers */ = {isa = PBXBuildFile; fileRef = 38B06234211897360035DCE3 /* TSLocalVideoCoverSelectedVC.h */; };
+		38B06237211897360035DCE3 /* TSLocalVideoCoverSelectedVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 38B06235211897360035DCE3 /* TSLocalVideoCoverSelectedVC.m */; };
+		38B06238211897360035DCE3 /* TSLocalVideoCoverSelectedVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 38B06235211897360035DCE3 /* TSLocalVideoCoverSelectedVC.m */; };
 		6D32B9BD1CD83640005CE1E0 /* LxGridViewFlowLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D32B9BC1CD83640005CE1E0 /* LxGridViewFlowLayout.m */; };
 		6D4608311DFFC60D004FB009 /* TZGifPhotoPreviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D4608301DFFC60D004FB009 /* TZGifPhotoPreviewController.m */; };
 		6D5358CD1D64600F00928CC6 /* NSBundle+TZImagePicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 6D5358CC1D64600F00928CC6 /* NSBundle+TZImagePicker.m */; };
@@ -19,7 +25,6 @@
 		88CA578E20F748370089B1C8 /* LZImageCropping.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CA578920F748370089B1C8 /* LZImageCropping.h */; };
 		88CA578F20F748370089B1C8 /* LZImageCropping.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA578A20F748370089B1C8 /* LZImageCropping.m */; };
 		88CA579020F748370089B1C8 /* LZImageCropping.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA578A20F748370089B1C8 /* LZImageCropping.m */; };
-		8814B7D02100318D00A8470B /* ZLEditVideoController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8814B7CF2100318D00A8470B /* ZLEditVideoController.m */; };
 		900E65811C2BB8D5003D9A9E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65801C2BB8D5003D9A9E /* main.m */; };
 		900E65841C2BB8D5003D9A9E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65831C2BB8D5003D9A9E /* AppDelegate.m */; };
 		900E65871C2BB8D5003D9A9E /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 900E65861C2BB8D5003D9A9E /* ViewController.m */; };
@@ -114,6 +119,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		38B0622F211896340035DCE3 /* ZLEditVideoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZLEditVideoController.m; sourceTree = "<group>"; };
+		38B06230211896340035DCE3 /* ZLEditVideoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZLEditVideoController.h; sourceTree = "<group>"; };
+		38B06234211897360035DCE3 /* TSLocalVideoCoverSelectedVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSLocalVideoCoverSelectedVC.h; sourceTree = "<group>"; };
+		38B06235211897360035DCE3 /* TSLocalVideoCoverSelectedVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TSLocalVideoCoverSelectedVC.m; sourceTree = "<group>"; };
 		6D12FC191D66B71E00182C44 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Main.strings"; sourceTree = "<group>"; };
 		6D12FC1A1D66B71E00182C44 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
 		6D32B9BB1CD83640005CE1E0 /* LxGridViewFlowLayout.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LxGridViewFlowLayout.h; sourceTree = "<group>"; };
@@ -131,8 +140,6 @@
 		88CA578820F748370089B1C8 /* LZImageBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LZImageBrowser.m; sourceTree = "<group>"; };
 		88CA578920F748370089B1C8 /* LZImageCropping.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LZImageCropping.h; sourceTree = "<group>"; };
 		88CA578A20F748370089B1C8 /* LZImageCropping.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LZImageCropping.m; sourceTree = "<group>"; };
-		8814B7CE2100318D00A8470B /* ZLEditVideoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZLEditVideoController.h; sourceTree = "<group>"; };
-		8814B7CF2100318D00A8470B /* ZLEditVideoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZLEditVideoController.m; sourceTree = "<group>"; };
 		900E657C1C2BB8D5003D9A9E /* TZImagePickerController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TZImagePickerController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		900E65801C2BB8D5003D9A9E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		900E65821C2BB8D5003D9A9E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -295,12 +302,14 @@
 		900EEFF51C2BBF7600EA709B /* TZImagePickerController */ = {
 			isa = PBXGroup;
 			children = (
+				38B06234211897360035DCE3 /* TSLocalVideoCoverSelectedVC.h */,
+				38B06235211897360035DCE3 /* TSLocalVideoCoverSelectedVC.m */,
+				38B06230211896340035DCE3 /* ZLEditVideoController.h */,
+				38B0622F211896340035DCE3 /* ZLEditVideoController.m */,
 				88CA578720F748370089B1C8 /* LZImageBrowser.h */,
 				88CA578820F748370089B1C8 /* LZImageBrowser.m */,
 				88CA578920F748370089B1C8 /* LZImageCropping.h */,
 				88CA578A20F748370089B1C8 /* LZImageCropping.m */,
-				8814B7CE2100318D00A8470B /* ZLEditVideoController.h */,
-				8814B7CF2100318D00A8470B /* ZLEditVideoController.m */,
 				900EEFF61C2BBF9500EA709B /* TZImagePickerController.h */,
 				900EEFF71C2BBF9500EA709B /* TZImagePickerController.m */,
 				900EEFFC1C2BD58B00EA709B /* TZPhotoPickerController.h */,
@@ -369,10 +378,12 @@
 				9F763A6B1FA0731E00D9E526 /* TZImagePickerController.h in Headers */,
 				9F763A6D1FA0733700D9E526 /* NSBundle+TZImagePicker.h in Headers */,
 				88CA578E20F748370089B1C8 /* LZImageCropping.h in Headers */,
+				38B06236211897360035DCE3 /* TSLocalVideoCoverSelectedVC.h in Headers */,
 				9F763A6C1FA0733100D9E526 /* TZAssetModel.h in Headers */,
 				9F763A6F1FA0741D00D9E526 /* TZPhotoPickerController.h in Headers */,
 				9F763A701FA0741D00D9E526 /* TZAssetCell.h in Headers */,
 				9F763A711FA0741D00D9E526 /* TZPhotoPreviewController.h in Headers */,
+				38B06233211896340035DCE3 /* ZLEditVideoController.h in Headers */,
 				9F763A721FA0741D00D9E526 /* TZPhotoPreviewCell.h in Headers */,
 				9F763A731FA0741D00D9E526 /* TZVideoPlayerController.h in Headers */,
 				9F763A741FA0741D00D9E526 /* TZGifPhotoPreviewController.h in Headers */,
@@ -474,7 +485,6 @@
 						CreatedOnToolsVersion = 7.2;
 						DevelopmentTeam = 5QQ23A4NX6;
 						ProvisioningStyle = Manual;
-
 					};
 					900E65941C2BB8D5003D9A9E = {
 						CreatedOnToolsVersion = 7.2;
@@ -556,7 +566,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9038D5911C3974F0007DE549 /* TZTestCell.m in Sources */,
-				8814B7D02100318D00A8470B /* ZLEditVideoController.m in Sources */,
 				900EF00F1C2C0B1100EA709B /* TZAssetModel.m in Sources */,
 				900EEFFE1C2BD58B00EA709B /* TZPhotoPickerController.m in Sources */,
 				90EBF5D61C2E298000CB9BCC /* UIView+Layout.m in Sources */,
@@ -565,7 +574,9 @@
 				900EF0021C2BD7E400EA709B /* TZAssetCell.m in Sources */,
 				6DD0502B1DF659ED0057C78D /* TZProgressView.m in Sources */,
 				6D32B9BD1CD83640005CE1E0 /* LxGridViewFlowLayout.m in Sources */,
+				38B06231211896340035DCE3 /* ZLEditVideoController.m in Sources */,
 				6D4608311DFFC60D004FB009 /* TZGifPhotoPreviewController.m in Sources */,
+				38B06237211897360035DCE3 /* TSLocalVideoCoverSelectedVC.m in Sources */,
 				900EF0161C2C134900EA709B /* TZPhotoPreviewCell.m in Sources */,
 				900E65871C2BB8D5003D9A9E /* ViewController.m in Sources */,
 				90CE84AE1C3A89EF003D0779 /* TZImageManager.m in Sources */,
@@ -606,6 +617,8 @@
 				9F763A561FA072E500D9E526 /* TZAssetModel.m in Sources */,
 				88CA578D20F748370089B1C8 /* LZImageBrowser.m in Sources */,
 				9F763A581FA072E500D9E526 /* TZPhotoPreviewController.m in Sources */,
+				38B06238211897360035DCE3 /* TSLocalVideoCoverSelectedVC.m in Sources */,
+				38B06232211896340035DCE3 /* ZLEditVideoController.m in Sources */,
 				9F763A5A1FA072E500D9E526 /* TZPhotoPreviewCell.m in Sources */,
 				88CA579020F748370089B1C8 /* LZImageCropping.m in Sources */,
 				9F763A5C1FA072E500D9E526 /* TZVideoPlayerController.m in Sources */,
@@ -778,7 +791,6 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-
 				CODE_SIGN_STYLE = Manual;
 				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
