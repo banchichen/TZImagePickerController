@@ -104,7 +104,16 @@
     [_selectedView addGestureRecognizer:lg];
     [self addSubview:_selectedView];
 }
-
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+    CGRect left = _selectedView.frame;
+    left.origin.x -= 30 / 2;
+    left.size.width += 30 / 2;
+    if (CGRectContainsPoint(left, point)) {
+        return _selectedView;
+    }
+    return nil;
+}
 - (void)panAction:(UIGestureRecognizer *)pan
 {
     CGPoint point = [pan locationInView:self];
@@ -144,8 +153,7 @@
 - (void)setValidRect:(CGRect)validRect
 {
     _validRect = validRect;
-    _selectedView.frame = CGRectMake(validRect.origin.x, 0, [TSLocalVideoCoverSelectedUX  share].collectionItemWidth/2, [TSLocalVideoCoverSelectedUX  share].collectionItemHeight);
-    _selectedView.frame = CGRectMake(validRect.origin.x > 30 / 2.0 ?  (validRect.origin.x - 30 / 2.0) : validRect.origin.x, 0, 30, [TSLocalVideoCoverSelectedUX  share].collectionItemHeight);
+    _selectedView.frame = CGRectMake(validRect.origin.x >= 30 / 2.0 ?  (validRect.origin.x - 30 / 2.0) : validRect.origin.x - 30.0 / 2, 0, 30, [TSLocalVideoCoverSelectedUX  share].collectionItemHeight);
     [self setNeedsDisplay];
 }
 
