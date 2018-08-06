@@ -14,6 +14,7 @@
 #import "TSLocalVideoCoverSelectedVC.h"
 
 #define maxEditVideoTime 15
+#define minEditVideoTime 3
 
 @interface ZLEditVideoUX : NSObject
 
@@ -87,6 +88,7 @@
 }
 
 @property (nonatomic, assign) CGRect validRect;
+@property (nonatomic, assign) CGFloat minValidRectWidth;
 @property (nonatomic, weak) id<ZLEditFrameViewDelegate> delegate;
 
 @end
@@ -201,6 +203,12 @@
 
 - (void)setValidRect:(CGRect)validRect
 {
+    if (validRect.size.width < self.minValidRectWidth) {
+        validRect = CGRectMake(validRect.origin.x, validRect.origin.y, self.minValidRectWidth, validRect.size.height);
+    }
+    if (validRect.origin.x + validRect.size.width > self.frame.size.width) {
+        validRect = CGRectMake(self.frame.size.width - validRect.size.width, validRect.origin.y, self.minValidRectWidth, validRect.size.height);
+    }
     _validRect = validRect;
     _leftView.frame = CGRectMake(validRect.origin.x > 10 / 2.0 ?  (validRect.origin.x - 10 / 2.0) : validRect.origin.x, 0, 10, [ZLEditVideoUX share].collectionItemHeight);
     _rightView.frame = CGRectMake(validRect.origin.x + validRect.size.width - 10.0, 0, 10, [ZLEditVideoUX share].collectionItemHeight);
@@ -437,7 +445,9 @@
     self.editView = [[ZLEditFrameView alloc] init];
     self.editView.delegate = self;
     [self.bottomView addSubview:self.editView];
-    
+    // 更新最小可编辑区域
+    self.editView.minValidRectWidth = minEditVideoTime / self.perItemSeconds * [ZLEditVideoUX share].collectionItemWidth;
+    NSLog(@"minValidRectWidth -%f", self.editView.minValidRectWidth);
     self.indicatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, [ZLEditVideoUX share].collectionItemHeight)];
     self.indicatorLine.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:.7];
 }
@@ -707,7 +717,6 @@ static const char _ZLOperationCellKey;
     __weak ZLEditVideoController *weakSelf = self;
      NSBlockOperation *op = [NSBlockOperation blockOperationWithBlock:^{
         NSInteger row = indexPath.row;
-        NSInteger timeDur = (row + 0.5) * weakSelf.perItemSeconds;
          // 每次尝试7次截图，如果都获取不到那就只有黑屏
          int j = 0;
          for (int i = 0; i < 7; i ++) {
