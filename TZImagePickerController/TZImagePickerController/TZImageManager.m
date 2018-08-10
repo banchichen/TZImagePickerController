@@ -1047,6 +1047,18 @@ static dispatch_once_t onceToken;
     }
 }
 
+/// 判断asset是否是视频
+- (BOOL)isVideo:(id)asset {
+    if (iOS8Later) {
+        PHAsset *phAsset = asset;
+        return phAsset.mediaType == PHAssetMediaTypeVideo;
+    } else {
+        ALAsset *alAsset = asset;
+        NSString *alAssetType = [[alAsset valueForProperty:ALAssetPropertyType] stringValue];
+        return [alAssetType isEqualToString:ALAssetTypeVideo];
+    }
+}
+
 - (ALAssetOrientation)orientationFromImage:(UIImage *)image {
     NSInteger orientation = image.imageOrientation;
     return orientation;

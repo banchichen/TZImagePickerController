@@ -114,6 +114,9 @@
 /// 缩放图片至新尺寸
 - (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size;
 
+/// 判断asset是否是视频
+- (BOOL)isVideo:(id)asset;
+
 @end
 
 //@interface TZSortDescriptor : NSSortDescriptor

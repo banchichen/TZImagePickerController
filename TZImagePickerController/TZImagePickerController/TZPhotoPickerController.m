@@ -436,14 +436,16 @@ static CGFloat itemMargin = 5;
 
 - (void)callDelegateMethodWithPhotos:(NSArray *)photos assets:(NSArray *)assets infoArr:(NSArray *)infoArr {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (!tzImagePickerVc.allowPickingImage && tzImagePickerVc.allowPickingVideo && tzImagePickerVc.maxImagesCount == 1) {
-        if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
-            [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingVideo:[photos firstObject] sourceAssets:[assets firstObject]];
+    if (tzImagePickerVc.allowPickingVideo && tzImagePickerVc.maxImagesCount == 1) {
+        if ([[TZImageManager manager] isVideo:[assets firstObject]]) {
+            if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
+                [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingVideo:[photos firstObject] sourceAssets:[assets firstObject]];
+            }
+            if (tzImagePickerVc.didFinishPickingVideoHandle) {
+                tzImagePickerVc.didFinishPickingVideoHandle([photos firstObject], [assets firstObject]);
+            }
+            return;
         }
-        if (tzImagePickerVc.didFinishPickingVideoHandle) {
-            tzImagePickerVc.didFinishPickingVideoHandle([photos firstObject], [assets firstObject]);
-        }
-        return;
     }
     
     if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:)]) {
