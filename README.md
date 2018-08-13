@@ -86,14 +86,14 @@ A：可以的，参照Demo的isAssetCanSelect方法实现。我会返回asset出
 A：1.8.4版本已支持    
 
 **Q：可否加入视频拍摄功能？**      
-A：排期中，优先级中   
+A：2.1.0.3版本已支持，设置allowTakeVideo为YES    
 
 **Q：可否加入视频多选功能？**         
-A：1.8.4版本已支持   
+A：1.8.4版本已支持，设置allowPickingMultipleVideo为YES     
 
 **Q：可否让视频和图片允许一起选？**         
-A：1.8.4版本已支持   
-  
+A：1.8.4版本已支持，设置allowPickingMultipleVideo为YES      
+   
 **Q：可否增加微信编辑图片的功能？**           
 A：考虑下，优先级低  
 
