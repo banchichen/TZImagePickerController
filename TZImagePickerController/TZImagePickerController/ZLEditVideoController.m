@@ -467,17 +467,13 @@
     if (maxEditVideoTime >= 10) {
         // 满足1秒一个item的最低要求
         if (duration <= maxEditVideoTime) {
-            UIEdgeInsets inset = UIEdgeInsetsZero;
-            if (@available(iOS 11, *)) {
-                inset = self.view.safeAreaInsets;
-            }
             self.itemCount = 10;
             self.perItemSeconds = duration / self.itemCount;
             self.collectionViewCouldScroll = NO;
         } else {
-            // 固定单个图片的时间为1s
-            self.perItemSeconds = 1.0;
-            self.itemCount = (NSInteger)duration;
+            // 整个裁剪栏整个宽度（默认显示10个item）为允许的最大裁剪时长
+            self.perItemSeconds = (maxEditVideoTime * 1.0) / 10;
+            self.itemCount = duration / self.perItemSeconds;
             self.collectionViewCouldScroll = YES;
         }
     } else {
