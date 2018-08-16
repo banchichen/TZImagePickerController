@@ -315,6 +315,8 @@
     [self.playerLayer.player pause];
     self.playerLayer.player = nil;
     [self.playerLayer removeFromSuperlayer];
+    [self.getImageCacheQueue cancelAllOperations];
+    self.playerLayer.delegate = nil;
     self.playerLayer = nil;
     [self stopTimer];
     [self.navigationController popViewControllerAnimated:YES];
@@ -333,11 +335,18 @@
             TSLocalVideoCoverSelectedVC *vc = [[TSLocalVideoCoverSelectedVC alloc]init];
             vc.videoPath = [NSURL fileURLWithPath:exportFilePath];
             vc.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
-                if (self.coverImageBlock) {
-                    self.coverImageBlock(coverImage, videoPath);
+                if (weakSelf.coverImageBlock) {
+                    weakSelf.coverImageBlock(coverImage, videoPath);
                 }
+                [weakSelf stopTimer];
+                [weakSelf.getImageCacheQueue cancelAllOperations];
+                [weakSelf.playerLayer.player pause];
+                weakSelf.playerLayer.delegate = nil;
+                weakSelf.playerLayer.player = nil;
+                [weakSelf.playerLayer removeFromSuperlayer];
+                weakSelf.playerLayer = nil;
             };
-            [self.navigationController pushViewController:vc animated:YES];
+            [weakSelf.navigationController pushViewController:vc animated:YES];
         } else {
             
         }
