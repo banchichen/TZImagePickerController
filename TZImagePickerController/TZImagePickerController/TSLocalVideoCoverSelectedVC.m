@@ -10,8 +10,6 @@
 #import <objc/runtime.h>
 #import <sys/utsname.h>
 #import "TZImagePickerController.h"
-
-#define maxEditVideoTime 15
 /*
  固定底部固定铺满10个item
  */
@@ -297,7 +295,8 @@
 // 解析默认第一帧图片
 - (void)getDefaultImage:(void (^)(void))completion {
     float duration = CMTimeGetSeconds(self.asset.duration);
-    if (duration <= maxEditVideoTime) {
+    // 底部的预览栏目
+    if (duration <= 10) {
         UIEdgeInsets inset = UIEdgeInsetsZero;
         if (@available(iOS 11, *)) {
             inset = self.view.safeAreaInsets;
@@ -413,8 +412,6 @@
     CGImageRef img = [self.generator copyCGImageAtTime:[self getSelectedNowTime] actualTime:NULL error:&error];
     if (img != nil) {
         UIImage *image = [UIImage imageWithCGImage:img];
-        NSLog(@"editViewValidRectChanged reload image -%@", image);
-        
         self.centerImageView.image = image;
         CGImageRelease(img);
     } else {
@@ -494,7 +491,8 @@ static const char _TSOperationCellKey;
                  j ++;
              }
              CGFloat offset = (i % 2) > 0 ? -1 * j / 10.0 : j / 10.0;
-             CMTime time = CMTimeMake((i) * wkSelf.asset.duration.timescale, wkSelf.asset.duration.timescale);
+             CGFloat timeDur = (row + 0.5 + offset) * wkSelf.perItemSeconds;
+             CMTime time = CMTimeMake((timeDur) * wkSelf.asset.duration.timescale, wkSelf.asset.duration.timescale);
              NSError *error = nil;
              CGImageRef cgImg = [wkSelf.generator copyCGImageAtTime:time actualTime:NULL error:&error];
              if (!error && cgImg) {

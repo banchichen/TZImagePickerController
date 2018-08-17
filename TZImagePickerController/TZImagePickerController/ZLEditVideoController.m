@@ -729,7 +729,7 @@ static const char _ZLOperationCellKey;
                  j ++;
              }
              CGFloat offset = (i % 2) > 0 ? -1 * j / 10.0 : j / 10.0;
-             NSInteger timeDur = (row + 0.5 + offset) * weakSelf.perItemSeconds;
+             CGFloat timeDur = (row + 0.5 + offset) * weakSelf.perItemSeconds;
              CMTime time = CMTimeMake(timeDur * weakSelf.avAsset.duration.timescale, weakSelf.avAsset.duration.timescale);
              NSError *error = nil;
              CGImageRef cgImg = [weakSelf.generator copyCGImageAtTime:time actualTime:NULL error:&error];
