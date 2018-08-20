@@ -576,6 +576,7 @@ static CGFloat itemMargin = 5;
             // 先判断试是否是低于5min的视频
             // 小于等于5min弹窗提示支持快速上传，以及编辑后上传
             // 大于5min，直接进入编辑页面
+
             NSArray *timeArr = [model.timeLength componentsSeparatedByString:@":"];
             if (timeArr.count == 2 && (([timeArr[1] integerValue] == 0 && [timeArr[0] integerValue] <= 5) || ([timeArr[1] integerValue] > 0 && [timeArr[0] integerValue] <= 4))) {
                 UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"" message:@"温馨提示" preferredStyle:UIAlertControllerStyleActionSheet];
@@ -583,7 +584,7 @@ static CGFloat itemMargin = 5;
                     NSLog(@"uploadAction");
                     [tzImagePickerVc showProgressHUD];
                     // 默认导出720p中等画质的视频
-                    [[TZImageManager alloc] getVideoOutputPathWithAsset:model.asset presetName:AVAssetExportPreset1280x720 version:PHVideoRequestOptionsDeliveryModeMediumQualityFormat success:^(NSString *outputPath) {
+                    [[TZImageManager alloc] getVideoOutputPathWithAsset:model.asset presetName:AVAssetExportPresetMediumQuality version:PHVideoRequestOptionsVersionOriginal success:^(NSString *outputPath) {
                         NSString *exportFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@",@"exportVideo",@"mp4"]];
                         if ([[NSFileManager defaultManager] fileExistsAtPath:exportFilePath]) {
                             // 移除上一个
