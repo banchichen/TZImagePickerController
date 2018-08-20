@@ -746,6 +746,25 @@ static dispatch_once_t onceToken;
         [self startExportVideoWithVideoAsset:videoAsset presetName:presetName success:success failure:failure];
     }
 }
+- (void)getVideoOutputPathWithAsset:(id)asset presetName:(NSString *)presetName version:(PHVideoRequestOptionsVersion)version success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+    if ([asset isKindOfClass:[PHAsset class]]) {
+        PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
+        options.version = version;
+        options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
+        options.networkAccessAllowed = YES;
+        [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:options resultHandler:^(AVAsset* avasset, AVAudioMix* audioMix, NSDictionary* info){
+            // NSLog(@"Info:\n%@",info);
+            AVURLAsset *videoAsset = (AVURLAsset*)avasset;
+            // NSLog(@"AVAsset URL: %@",myAsset.URL);
+            [self startExportVideoWithVideoAsset:videoAsset presetName:presetName success:success failure:failure];
+        }];
+    } else if ([asset isKindOfClass:[ALAsset class]]) {
+        NSURL *videoURL =[asset valueForProperty:ALAssetPropertyAssetURL]; // ALAssetPropertyURLs
+        AVURLAsset *videoAsset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
+        [self startExportVideoWithVideoAsset:videoAsset presetName:presetName success:success failure:failure];
+    }
+}
+
 
 /// Deprecated, Use -getVideoOutputPathWithAsset:failure:success:
 - (void)getVideoOutputPathWithAsset:(id)asset completion:(void (^)(NSString *outputPath))completion {
