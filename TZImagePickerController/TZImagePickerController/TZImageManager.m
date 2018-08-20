@@ -420,7 +420,7 @@ static dispatch_once_t onceToken;
             PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
             options.resizeMode = PHImageRequestOptionsResizeModeFast;
             options.networkAccessAllowed = YES;
-            if ([[model.asset valueForKey:@"filename"] hasSuffix:@"GIF"]) {
+            if (model.type == TZAssetModelMediaTypePhotoGif) {
                 options.version = PHImageRequestOptionsVersionOriginal;
             }
             [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
