@@ -271,7 +271,8 @@
     self.barItemTextFont = [UIFont systemFontOfSize:15];
     self.barItemTextColor = [UIColor whiteColor];
     self.allowPreview = YES;
-    self.notScaleImage = NO;
+    // 2.2.26版本，不主动缩放图片，降低内存占用
+    self.notScaleImage = YES;
     self.statusBarStyle = UIStatusBarStyleLightContent;
     self.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
     self.allowCameraLocation = YES;
