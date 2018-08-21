@@ -888,12 +888,14 @@ static dispatch_once_t onceToken;
             [[NSFileManager defaultManager] createDirectoryAtPath:[NSHomeDirectory() stringByAppendingFormat:@"/tmp"] withIntermediateDirectories:YES attributes:nil error:nil];
         }
         
-        AVMutableVideoComposition *videoComposition = [self fixedCompositionWithAsset:videoAsset];
-        if (videoComposition.renderSize.width) {
-            // 修正视频转向
-            session.videoComposition = videoComposition;
+        if ([TZImagePickerConfig sharedInstance].needFixComposition) {
+            AVMutableVideoComposition *videoComposition = [self fixedCompositionWithAsset:videoAsset];
+            if (videoComposition.renderSize.width) {
+                // 修正视频转向
+                session.videoComposition = videoComposition;
+            }
         }
-        
+
         // Begin to export video to the output path asynchronously.
         [session exportAsynchronouslyWithCompletionHandler:^(void) {
             dispatch_async(dispatch_get_main_queue(), ^{

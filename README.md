@@ -10,7 +10,7 @@
   
  ## 重要提示2：issue未说明下面必要情况的不予处理：1、我的demo是否正常？ 2、你用的什么版本？ 3、你的初始化TZImagePicker的代码 4、你是pod安装还是源码导入的？是否有改动TZImagePicker内部代码？                 
  
- ## 重要提示3：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.5          
+ ## 重要提示3：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。目前最新版本2.2.6          
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
@@ -112,8 +112,15 @@ A：是否有集成WRNavigationBar？如有，参考其readme调一下它的wr_s
 **Q：导航栏没了？**            
 A：是否有集成GKNavigationBarViewController？需要升级到2.0.4及以上版本，详见issue：[https://github.com/QuintGao/GKNavigationBarViewController/issues/7](https://github.com/QuintGao/GKNavigationBarViewController/issues/7)。       
 
+**Q：有的视频导出失败？**            
+A：升级到2.2.6及以上版本试试，发现是修正视频转向导致的，2.2.6开始默认不再主动修正。如需打开，可设置needFixComposition为YES，但有几率导致安卓拍的视频导出失败。       
+
+**Q：视频导出慢？**            
+A：视频导出分两步，第一步是通过PHAsset获取AVURLAsset，如是iCloud视频则涉及到网络请求，耗时容易不可控，第二步是通过AVURLAsset把视频保存到沙盒，耗时不算多。但第一步耗时不可控，你可以拷贝我源码出来拿到第一步的进度给用户一个进度提示...          
+
 ## 六. Release Notes 最近更新     
 
+2.2.6 新增needFixComposition属性，默认为NO，不再主动修正视频转向，防止部分安卓拍的视频导出失败          
 2.2.5 修复minPhotoWidthSelectable不生效的问题， 使用@available消除警告            
 2.1.8 优化gif图播放的体验，加入iCloud同步进度条；新增notScaleImage属性，设置为YES时内部不去缩放图片             
 2.1.6 新增allowCameraLocation属性，默认为YES，置为NO时不会在照相/摄像时定位，修复一个序号紊乱的bug              

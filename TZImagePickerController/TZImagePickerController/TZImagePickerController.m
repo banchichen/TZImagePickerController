@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.2.5 - 2018.08.10
+//  version 2.2.6 - 2018.08.21
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -273,6 +273,7 @@
     self.allowPreview = YES;
     // 2.2.26版本，不主动缩放图片，降低内存占用
     self.notScaleImage = YES;
+    self.needFixComposition = NO;
     self.statusBarStyle = UIStatusBarStyleLightContent;
     self.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
     self.allowCameraLocation = YES;
@@ -359,6 +360,11 @@
 - (void)setNotScaleImage:(BOOL)notScaleImage {
     _notScaleImage = notScaleImage;
     [TZImagePickerConfig sharedInstance].notScaleImage = notScaleImage;
+}
+
+- (void)setNeedFixComposition:(BOOL)needFixComposition {
+    _needFixComposition = needFixComposition;
+    [TZImagePickerConfig sharedInstance].needFixComposition = needFixComposition;
 }
 
 - (void)observeAuthrizationStatusChange {

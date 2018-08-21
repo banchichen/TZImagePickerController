@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.2.5 - 2018.08.10
+//  version 2.2.6 - 2018.08.21
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -132,6 +132,9 @@
 /// Default is No, if set YES, the result photo will not be scaled to photoWidth pixel width. The photoWidth default is 828px
 /// 默认是NO，如果设置为YES，内部不会缩放图片到photoWidth像素宽
 @property (assign, nonatomic) BOOL notScaleImage;
+
+/// 默认是NO，如果设置为YES，导出视频时会修正转向（慎重设为YES，可能导致部分安卓下拍的视频导出失败）
+@property (assign, nonatomic) BOOL needFixComposition;
 
 /// The photos user have selected
 /// 用户选中过的图片数组
@@ -332,4 +335,5 @@
 @property (assign, nonatomic) BOOL showSelectedIndex;
 @property (assign, nonatomic) BOOL showPhotoCannotSelectLayer;
 @property (assign, nonatomic) BOOL notScaleImage;
+@property (assign, nonatomic) BOOL needFixComposition;
 @end
