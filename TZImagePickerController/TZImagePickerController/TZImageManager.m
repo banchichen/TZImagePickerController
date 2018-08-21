@@ -1059,6 +1059,28 @@ static dispatch_once_t onceToken;
     }
 }
 
+/// 判断asset是否是GIF
+- (void)isGIF:(id)asset completion:(void (^)(BOOL isGIF))completion {
+    if (completion && asset) {
+        if ([asset isKindOfClass:[PHAsset class]]) {
+            PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
+            options.deliveryMode = PHImageRequestOptionsDeliveryModeFastFormat;
+            [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+                // File signatures table: http://www.garykessler.net/library/file_sigs.html
+                uint8_t c;
+                [imageData getBytes:&c length:1];
+                completion(c == 0x47);
+            }];
+        } else if ([asset isKindOfClass:[ALAsset class]]) {
+            ALAsset *alAsset = (ALAsset *)asset;
+            ALAssetRepresentation *assetRep = [alAsset defaultRepresentation];
+            uint8_t c;
+            [assetRep getBytes:&c fromOffset:0 length:1 error:nil];
+            completion(c == 0x47);
+        }
+    }
+}
+
 - (ALAssetOrientation)orientationFromImage:(UIImage *)image {
     NSInteger orientation = image.imageOrientation;
     return orientation;

@@ -116,6 +116,8 @@
 
 /// 判断asset是否是视频
 - (BOOL)isVideo:(id)asset;
+/// 判断asset是否是GIF
+- (void)isGIF:(id)asset completion:(void (^)(BOOL isGIF))completion;
 
 @end
 
