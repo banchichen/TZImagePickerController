@@ -576,14 +576,17 @@ static CGFloat itemMargin = 5;
             // 先判断试是否是低于5min的视频
             // 小于等于5min弹窗提示支持快速上传，以及编辑后上传
             // 大于5min，直接进入编辑页面
+
             NSArray *timeArr = [model.timeLength componentsSeparatedByString:@":"];
             if (timeArr.count == 2 && (([timeArr[1] integerValue] == 0 && [timeArr[0] integerValue] <= 5) || ([timeArr[1] integerValue] > 0 && [timeArr[0] integerValue] <= 4))) {
                 UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"" message:@"温馨提示" preferredStyle:UIAlertControllerStyleActionSheet];
                 UIAlertAction *uploadAction = [UIAlertAction actionWithTitle:@"快速上传(支持5分钟以内)" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     NSLog(@"uploadAction");
                     [tzImagePickerVc showProgressHUD];
+                    // 禁止用户操作
+                    tzImagePickerVc.view.userInteractionEnabled = NO;
                     // 默认导出720p中等画质的视频
-                    [[TZImageManager alloc] getVideoOutputPathWithAsset:model.asset presetName:AVAssetExportPreset1280x720 version:PHVideoRequestOptionsDeliveryModeMediumQualityFormat success:^(NSString *outputPath) {
+                    [[TZImageManager alloc] getVideoOutputPathWithAsset:model.asset presetName:AVAssetExportPresetMediumQuality version:PHVideoRequestOptionsVersionOriginal success:^(NSString *outputPath) {
                         NSString *exportFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@",@"exportVideo",@"mp4"]];
                         if ([[NSFileManager defaultManager] fileExistsAtPath:exportFilePath]) {
                             // 移除上一个
@@ -618,6 +621,8 @@ static CGFloat itemMargin = 5;
                                 }
                                 NSLog(@"error\n\n -%@", error);
                             }
+                            // 允许用户操作
+                            tzImagePickerVc.view.userInteractionEnabled = YES;
                             [tzImagePickerVc hideProgressHUD];
                             if (coverImage != nil && exportFilePath != nil) {
                                 [tzImagePickerVc dismissViewControllerAnimated:YES completion:^{
@@ -626,10 +631,14 @@ static CGFloat itemMargin = 5;
                                     }
                                 }];
                             } else {
+                                // 允许用户操作
+                                tzImagePickerVc.view.userInteractionEnabled = YES;
                                 [tzImagePickerVc showAlertWithTitle:@"封面获取出问题啦，请手动编辑"];
                             }
                         }];
                     } failure:^(NSString *errorMessage, NSError *error) {
+                        // 允许用户操作
+                        tzImagePickerVc.view.userInteractionEnabled = YES;
                         [tzImagePickerVc showAlertWithTitle:@"自动导出出问题啦，请手动编辑"];
                     }];
                 }];
