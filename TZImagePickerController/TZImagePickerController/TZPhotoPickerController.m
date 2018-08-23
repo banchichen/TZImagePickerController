@@ -56,9 +56,7 @@ static CGFloat itemMargin = 5;
         _imagePickerVc = [[UIImagePickerController alloc] init];
         _imagePickerVc.delegate = self;
         // set appearance / 改变相册选择页的导航栏外观
-        if (iOS7Later) {
-            _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
-        }
+        _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
         _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
         UIBarButtonItem *tzBarItem, *BarItem;
         if (@available(iOS 9, *)) {
@@ -103,14 +101,14 @@ static CGFloat itemMargin = 5;
         [tzImagePickerVc showProgressHUD];
     }
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
-        if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && iOS8Later && self->_model.isCameraRoll) {
+        if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && self->_model.isCameraRoll) {
             [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:YES completion:^(TZAlbumModel *model) {
                 self->_model = model;
                 self->_models = [NSMutableArray arrayWithArray:self->_model.models];
                 [self initSubviews];
             }];
         } else {
-            if (self->_showTakePhotoBtn || !iOS8Later || self->_isFirstAppear) {
+            if (self->_showTakePhotoBtn || self->_isFirstAppear) {
                 [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
                     self->_models = [NSMutableArray arrayWithArray:models];
                     [self initSubviews];
@@ -183,9 +181,7 @@ static CGFloat itemMargin = 5;
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    if (iOS8Later) {
-        // [self updateCachedAssets];
-    }
+    // [self updateCachedAssets];
 }
 
 - (void)configBottomToolBar {
@@ -283,7 +279,7 @@ static CGFloat itemMargin = 5;
     CGFloat toolBarHeight = [TZCommonTools tz_isIPhoneX] ? 50 + (83 - 49) : 50;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
-        if (iOS7Later && !isStatusBarHidden) top += [TZCommonTools tz_statusBarHeight];
+        if (!isStatusBarHidden) top += [TZCommonTools tz_statusBarHeight];
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - toolBarHeight - top : self.view.tz_height - top;;
     } else {
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - toolBarHeight : self.view.tz_height;
@@ -303,19 +299,19 @@ static CGFloat itemMargin = 5;
     if (!self.navigationController.navigationBar.isHidden) {
         toolBarTop = self.view.tz_height - toolBarHeight;
     } else {
-        CGFloat navigationHeight = naviBarHeight;
-        if (iOS7Later) navigationHeight += [TZCommonTools tz_statusBarHeight];
+        CGFloat navigationHeight = naviBarHeight + [TZCommonTools tz_statusBarHeight];
         toolBarTop = self.view.tz_height - toolBarHeight - navigationHeight;
     }
     _bottomToolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
-    CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr tz_calculateSizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} maxSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)].width + 2;
+    
+    CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width + 2;    
     if (!tzImagePickerVc.allowPreview) {
         previewWidth = 0.0;
     }
     _previewButton.frame = CGRectMake(10, 3, previewWidth, 44);
     _previewButton.tz_width = !tzImagePickerVc.showSelectBtn ? 0 : previewWidth;
     if (tzImagePickerVc.allowPickingOriginalPhoto) {
-        CGFloat fullImageWidth = [tzImagePickerVc.fullImageBtnTitleStr tz_calculateSizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} maxSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)].width;
+        CGFloat fullImageWidth = [tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
         _originalPhotoButton.frame = CGRectMake(CGRectGetMaxX(_previewButton.frame), 0, fullImageWidth + 56, 50);
         _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 46, 0, 80, 50);
     }
@@ -382,7 +378,7 @@ static CGFloat itemMargin = 5;
         
         __block BOOL havenotShowAlert = YES;
         [TZImageManager manager].shouldFixOrientation = YES;
-        __block id alertView;
+        __block UIAlertController *alertView;
         for (NSInteger i = 0; i < tzImagePickerVc.selectedModels.count; i++) {
             TZAssetModel *model = tzImagePickerVc.selectedModels[i];
             [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
@@ -503,8 +499,7 @@ static CGFloat itemMargin = 5;
     cell.allowPickingGif = tzImagePickerVc.allowPickingGif;
     cell.model = model;
     if (model.isSelected && tzImagePickerVc.showSelectedIndex) {
-        NSString *assetId = [[TZImageManager manager] getAssetIdentifier:model.asset];
-        cell.index = [tzImagePickerVc.selectedAssetIds indexOfObject:assetId] + 1;
+        cell.index = [tzImagePickerVc.selectedAssetIds indexOfObject:model.asset.localIdentifier] + 1;
     }
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     cell.allowPreview = tzImagePickerVc.allowPreview;
@@ -530,7 +525,7 @@ static CGFloat itemMargin = 5;
             model.isSelected = NO;
             NSArray *selectedModels = [NSArray arrayWithArray:tzImagePickerVc.selectedModels];
             for (TZAssetModel *model_item in selectedModels) {
-                if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
+                if ([model.asset.localIdentifier isEqualToString:model_item.asset.localIdentifier]) {
                     [tzImagePickerVc removeSelectedModel:model_item];
                     break;
                 }
@@ -608,9 +603,7 @@ static CGFloat itemMargin = 5;
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    if (iOS8Later) {
-        // [self updateCachedAssets];
-    }
+    // [self updateCachedAssets];
 }
 
 #pragma mark - Private Method
@@ -626,7 +619,7 @@ static CGFloat itemMargin = 5;
 /// 拍照按钮点击事件
 - (void)takePhoto {
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied) && iOS7Later) {
+    if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied)) {
         
         NSDictionary *infoDict = [TZCommonTools tz_getInfoDictionary];
         // 无权限 做一个友好的提示
@@ -634,26 +627,17 @@ static CGFloat itemMargin = 5;
         if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
         
         NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
-        if (iOS8Later) {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] otherButtonTitles:[NSBundle tz_localizedStringForKey:@"Setting"], nil];
-            [alert show];
-        } else {
-            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"OK"] otherButtonTitles:nil];
-            [alert show];
-        }
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Can not use camera"] message:message delegate:self cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] otherButtonTitles:[NSBundle tz_localizedStringForKey:@"Setting"], nil];
+        [alert show];
     } else if (authStatus == AVAuthorizationStatusNotDetermined) {
         // fix issue 466, 防止用户首次拍照拒绝授权时相机页黑屏
-        if (iOS7Later) {
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                if (granted) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self pushImagePickerController];
-                    });
-                }
-            }];
-        } else {
-            [self pushImagePickerController];
-        }
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+            if (granted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self pushImagePickerController];
+                });
+            }
+        }];
     } else {
         [self pushImagePickerController];
     }
@@ -686,9 +670,7 @@ static CGFloat itemMargin = 5;
             self.imagePickerVc.videoMaximumDuration = tzImagePickerVc.videoMaximumDuration;
         }
         self.imagePickerVc.mediaTypes= mediaTypes;
-        if (iOS8Later) {
-            _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-        }
+        _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
         if (tzImagePickerVc.uiImagePickerControllerSettingBlock) {
             tzImagePickerVc.uiImagePickerControllerSettingBlock(_imagePickerVc);
         }
@@ -781,7 +763,7 @@ static CGFloat itemMargin = 5;
     }
     for (TZAssetModel *model in _models) {
         model.isSelected = NO;
-        if ([[TZImageManager manager] isAssetsArray:selectedAssets containAsset:model.asset]) {
+        if ([selectedAssets containsObject:model.asset]) {
             model.isSelected = YES;
         }
     }
@@ -791,9 +773,7 @@ static CGFloat itemMargin = 5;
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (buttonIndex == 1) { // 去设置界面，开启相机访问权限
-        if (iOS8Later) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-        }
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
     }
 }
 

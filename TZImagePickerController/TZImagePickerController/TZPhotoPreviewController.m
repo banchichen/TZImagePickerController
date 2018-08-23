@@ -41,7 +41,7 @@
 @property (nonatomic, strong) UIView *cropView;
 
 @property (nonatomic, assign) double progress;
-@property (strong, nonatomic) id alertView;
+@property (strong, nonatomic) UIAlertController *alertView;
 @end
 
 @implementation TZPhotoPreviewController
@@ -77,7 +77,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = YES;
+    [UIApplication sharedApplication].statusBarHidden = YES;
     if (_currentIndex) [_collectionView setContentOffset:CGPointMake((self.view.tz_width + 20) * _currentIndex, 0) animated:NO];
     [self refreshNaviBarAndBottomBarState];
 }
@@ -86,7 +86,7 @@
     [super viewWillDisappear:animated];
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (tzImagePickerVc.needShowStatusBar && iOS7Later) {
+    if (tzImagePickerVc.needShowStatusBar) {
         [UIApplication sharedApplication].statusBarHidden = NO;
     }
     [TZImageManager manager].shouldFixOrientation = NO;
@@ -268,7 +268,7 @@
     CGFloat toolBarTop = self.view.tz_height - toolBarHeight;
     _toolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
     if (_tzImagePickerVc.allowPickingOriginalPhoto) {
-        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr tz_calculateSizeWithAttributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} maxSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)].width;
+        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
         _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
         _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
     }
@@ -315,7 +315,7 @@
     } else {
         NSArray *selectedModels = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
         for (TZAssetModel *model_item in selectedModels) {
-            if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
+            if ([model.asset.localIdentifier isEqualToString:model_item.asset.localIdentifier]) {
                 // 1.6.7版本更新:防止有多个一样的model,一次性被移除了
                 NSArray *selectedModelsTmp = [NSArray arrayWithArray:_tzImagePickerVc.selectedModels];
                 for (NSInteger i = 0; i < selectedModelsTmp.count; i++) {
@@ -513,8 +513,7 @@
     _selectButton.selected = model.isSelected;
     [self refreshSelectButtonImageViewContentMode];
     if (_selectButton.isSelected && _tzImagePickerVc.showSelectedIndex && _tzImagePickerVc.showSelectBtn) {
-        NSString *assetId = [[TZImageManager manager] getAssetIdentifier:model.asset];
-        NSString *index = [NSString stringWithFormat:@"%zd", [_tzImagePickerVc.selectedAssetIds indexOfObject:assetId] + 1];
+        NSString *index = [NSString stringWithFormat:@"%zd", [_tzImagePickerVc.selectedAssetIds indexOfObject:model.asset.localIdentifier] + 1];
         _indexLabel.text = index;
         _indexLabel.hidden = NO;
     } else {

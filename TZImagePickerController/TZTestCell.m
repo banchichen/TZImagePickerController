@@ -9,7 +9,6 @@
 #import "TZTestCell.h"
 #import "UIView+Layout.h"
 #import <Photos/Photos.h>
-#import <AssetsLibrary/AssetsLibrary.h>
 #import "TZImagePickerController/TZImagePickerController.h"
 
 @implementation TZTestCell
@@ -56,18 +55,11 @@
     _videoImageView.frame = CGRectMake(width, width, width, width);
 }
 
-- (void)setAsset:(id)asset {
+- (void)setAsset:(PHAsset *)asset {
     _asset = asset;
-    if ([asset isKindOfClass:[PHAsset class]]) {
-        PHAsset *phAsset = asset;
-        _videoImageView.hidden = phAsset.mediaType != PHAssetMediaTypeVideo;
-        _gifLable.hidden = ![[phAsset valueForKey:@"filename"] tz_containsString:@"GIF"];
-    } else if ([asset isKindOfClass:[ALAsset class]]) {
-        ALAsset *alAsset = asset;
-        _videoImageView.hidden = ![[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
-        _gifLable.hidden = YES;
-    }
- }
+    _videoImageView.hidden = asset.mediaType != PHAssetMediaTypeVideo;
+    _gifLable.hidden = ![[asset valueForKey:@"filename"] containsString:@"GIF"];
+}
 
 - (void)setRow:(NSInteger)row {
     _row = row;

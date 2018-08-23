@@ -10,7 +10,6 @@
 #import "TZImagePickerController.h"
 #import "UIView+Layout.h"
 #import "TZTestCell.h"
-#import <AssetsLibrary/AssetsLibrary.h>
 #import <Photos/Photos.h>
 #import "LxGridViewFlowLayout.h"
 #import "TZImageManager.h"
@@ -61,9 +60,7 @@
         _imagePickerVc = [[UIImagePickerController alloc] init];
         _imagePickerVc.delegate = self;
         // set appearance / 改变相册选择页的导航栏外观
-        if (iOS7Later) {
-            _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
-        }
+        _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
         _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
         UIBarButtonItem *tzBarItem, *BarItem;
         if (@available(iOS 9, *)) {
@@ -193,16 +190,10 @@
             [self pushTZImagePickerController];
         }
     } else { // preview photos or video / 预览照片或者视频
-        id asset = _selectedAssets[indexPath.item];
+        PHAsset *asset = _selectedAssets[indexPath.item];
         BOOL isVideo = NO;
-        if ([asset isKindOfClass:[PHAsset class]]) {
-            PHAsset *phAsset = asset;
-            isVideo = phAsset.mediaType == PHAssetMediaTypeVideo;
-        } else if ([asset isKindOfClass:[ALAsset class]]) {
-            ALAsset *alAsset = asset;
-            isVideo = [[alAsset valueForProperty:ALAssetPropertyType] isEqualToString:ALAssetTypeVideo];
-        }
-        if ([[asset valueForKey:@"filename"] tz_containsString:@"GIF"] && self.allowPickingGifSwitch.isOn && !self.allowPickingMuitlpleVideoSwitch.isOn) {
+        isVideo = asset.mediaType == PHAssetMediaTypeVideo;
+        if ([[asset valueForKey:@"filename"] containsString:@"GIF"] && self.allowPickingGifSwitch.isOn && !self.allowPickingMuitlpleVideoSwitch.isOn) {
             TZGifPhotoPreviewController *vc = [[TZGifPhotoPreviewController alloc] init];
             TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypePhotoGif timeLength:@""];
             vc.model = model;
@@ -282,9 +273,7 @@
     
     // 2. Set the appearance
     // 2. 在这里设置imagePickerVc的外观
-    // if (iOS7Later) {
-        // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];
-    // }
+    // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];
     // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
     // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
     // imagePickerVc.navigationBar.translucent = NO;
@@ -385,37 +374,23 @@
 
 - (void)takePhoto {
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if ((authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied) && iOS7Later) {
+    if (authStatus == AVAuthorizationStatusRestricted || authStatus == AVAuthorizationStatusDenied) {
         // 无相机权限 做一个友好的提示
-        if (iOS8Later) {
-            UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
-            [alert show];
-        } else {
-            UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil];
-            [alert show];
-        }
+        UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
+        [alert show];
     } else if (authStatus == AVAuthorizationStatusNotDetermined) {
         // fix issue 466, 防止用户首次拍照拒绝授权时相机页黑屏
-        if (iOS7Later) {
-            [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-                if (granted) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        [self takePhoto];
-                    });
-                }
-            }];
-        } else {
-            [self takePhoto];
-        }
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+            if (granted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self takePhoto];
+                });
+            }
+        }];
         // 拍照之前还需要检查相册权限
     } else if ([TZImageManager authorizationStatus] == 2) { // 已被拒绝，没有相册权限，将无法保存拍的照片
-        if (iOS8Later) {
-            UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法访问相册" message:@"请在iPhone的""设置-隐私-相册""中允许访问相册" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
-            [alert show];
-        } else {
-            UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法访问相册" message:@"请在iPhone的""设置-隐私-相册""中允许访问相册" delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil];
-            [alert show];
-        }
+        UIAlertView * alert = [[UIAlertView alloc]initWithTitle:@"无法访问相册" message:@"请在iPhone的""设置-隐私-相册""中允许访问相册" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"设置", nil];
+        [alert show];
     } else if ([TZImageManager authorizationStatus] == 0) { // 未请求过相册权限
         [[TZImageManager manager] requestAuthorizationWithCompletion:^{
             [self takePhoto];
@@ -450,9 +425,7 @@
         if (mediaTypes.count) {
             _imagePickerVc.mediaTypes = mediaTypes;
         }
-        if (iOS8Later) {
-            _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
-        }
+        _imagePickerVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
         [self presentViewController:_imagePickerVc animated:YES completion:nil];
     } else {
         NSLog(@"模拟器中无法打开照相机,请在真机中使用");
@@ -523,7 +496,7 @@
     }
 }
 
-- (void)refreshCollectionViewWithAddedAsset:(id)asset image:(UIImage *)image {
+- (void)refreshCollectionViewWithAddedAsset:(PHAsset *)asset image:(UIImage *)image {
     [_selectedAssets addObject:asset];
     [_selectedPhotos addObject:image];
     [_collectionView reloadData];
@@ -544,9 +517,7 @@
 
 - (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex {
     if (buttonIndex == 1) { // 去设置界面，开启相机访问权限
-        if (iOS8Later) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-        }
+        [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
     }
 }
 
@@ -576,10 +547,8 @@
     // 1.打印图片名字
     [self printAssetsName:assets];
     // 2.图片位置信息
-    if (iOS8Later) {
-        for (PHAsset *phAsset in assets) {
-            NSLog(@"location:%@",phAsset.location);
-        }
+    for (PHAsset *phAsset in assets) {
+        NSLog(@"location:%@",phAsset.location);
     }
     
     /*
@@ -603,10 +572,8 @@
 }
 
 // If user picking a video, this callback will be called.
-// If system version > iOS8,asset is kind of PHAsset class, else is ALAsset class.
 // 如果用户选择了一个视频，下面的handle会被执行
-// 如果系统版本大于iOS8，asset是PHAsset类的对象，否则是ALAsset类的对象
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset {
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(PHAsset *)asset {
     _selectedPhotos = [NSMutableArray arrayWithArray:@[coverImage]];
     _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
     // open this code to send video / 打开这段代码发送视频
@@ -623,7 +590,7 @@
 
 // If user picking a gif image, this callback will be called.
 // 如果用户选择了一个gif图片，下面的handle会被执行
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(id)asset {
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(PHAsset *)asset {
     _selectedPhotos = [NSMutableArray arrayWithArray:@[animatedImage]];
     _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
     [_collectionView reloadData];
@@ -631,7 +598,7 @@
 
 // Decide album show or not't
 // 决定相册显示与否
-- (BOOL)isAlbumCanSelect:(NSString *)albumName result:(id)result {
+- (BOOL)isAlbumCanSelect:(NSString *)albumName result:(PHFetchResult *)result {
     /*
     if ([albumName isEqualToString:@"个人收藏"]) {
         return NO;
@@ -644,49 +611,30 @@
 
 // Decide asset show or not't
 // 决定asset显示与否
-- (BOOL)isAssetCanSelect:(id)asset {
+- (BOOL)isAssetCanSelect:(PHAsset *)asset {
     /*
-    if (iOS8Later) {
-        PHAsset *phAsset = asset;
-        switch (phAsset.mediaType) {
-            case PHAssetMediaTypeVideo: {
-                // 视频时长
-                // NSTimeInterval duration = phAsset.duration;
-                return NO;
-            } break;
-            case PHAssetMediaTypeImage: {
-                // 图片尺寸
-                if (phAsset.pixelWidth > 3000 || phAsset.pixelHeight > 3000) {
-                    // return NO;
-                }
-                return YES;
-            } break;
-            case PHAssetMediaTypeAudio:
-                return NO;
-                break;
-            case PHAssetMediaTypeUnknown:
-                return NO;
-                break;
-            default: break;
-        }
-    } else {
-        ALAsset *alAsset = asset;
-        NSString *alAssetType = [[alAsset valueForProperty:ALAssetPropertyType] stringValue];
-        if ([alAssetType isEqualToString:ALAssetTypeVideo]) {
+    switch (asset.mediaType) {
+        case PHAssetMediaTypeVideo: {
             // 视频时长
-            // NSTimeInterval duration = [[alAsset valueForProperty:ALAssetPropertyDuration] doubleValue];
+            // NSTimeInterval duration = phAsset.duration;
             return NO;
-        } else if ([alAssetType isEqualToString:ALAssetTypePhoto]) {
+        } break;
+        case PHAssetMediaTypeImage: {
             // 图片尺寸
-            CGSize imageSize = alAsset.defaultRepresentation.dimensions;
-            if (imageSize.width > 3000) {
+            if (phAsset.pixelWidth > 3000 || phAsset.pixelHeight > 3000) {
                 // return NO;
             }
             return YES;
-        } else if ([alAssetType isEqualToString:ALAssetTypeUnknown]) {
+        } break;
+        case PHAssetMediaTypeAudio:
             return NO;
-        }
-    }*/
+            break;
+        case PHAssetMediaTypeUnknown:
+            return NO;
+            break;
+        default: break;
+    }
+     */
     return YES;
 }
 
@@ -794,14 +742,8 @@
 /// 打印图片名字
 - (void)printAssetsName:(NSArray *)assets {
     NSString *fileName;
-    for (id asset in assets) {
-        if ([asset isKindOfClass:[PHAsset class]]) {
-            PHAsset *phAsset = (PHAsset *)asset;
-            fileName = [phAsset valueForKey:@"filename"];
-        } else if ([asset isKindOfClass:[ALAsset class]]) {
-            ALAsset *alAsset = (ALAsset *)asset;
-            fileName = alAsset.defaultRepresentation.filename;;
-        }
+    for (PHAsset *asset in assets) {
+        fileName = [asset valueForKey:@"filename"];
         // NSLog(@"图片名字:%@",fileName);
     }
 }

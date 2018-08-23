@@ -188,7 +188,7 @@
     }
 }
 
-- (void)setAsset:(id)asset {
+- (void)setAsset:(PHAsset *)asset {
     if (_asset && self.imageRequestID) {
         [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
     }
@@ -412,7 +412,7 @@
         if (currentTime.value == durationTime.value) [_player.currentItem seekToTime:CMTimeMake(0, 1)];
         [_player play];
         [_playButton setImage:nil forState:UIControlStateNormal];
-        if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = YES;
+        [UIApplication sharedApplication].statusBarHidden = YES;
         if (self.singleTapGestureBlock) {
             self.singleTapGestureBlock();
         }

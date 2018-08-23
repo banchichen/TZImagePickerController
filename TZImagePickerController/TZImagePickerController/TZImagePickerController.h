@@ -25,9 +25,6 @@
 #import "TZLocationManager.h"
 #import "TZPhotoPreviewController.h"
 
-#define iOS7Later ([UIDevice currentDevice].systemVersion.floatValue >= 7.0f)
-#define iOS8Later ([UIDevice currentDevice].systemVersion.floatValue >= 8.0f)
-
 @class TZAlbumCell, TZAssetCell;
 @protocol TZImagePickerControllerDelegate;
 @interface TZImagePickerController : UINavigationController
@@ -40,7 +37,7 @@
 /// This init method just for previewing photos / 用这个初始化方法以预览图片
 - (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index;
 /// This init method for crop photo / 用这个初始化方法以裁剪图片
-- (instancetype)initCropTypeWithAsset:(id)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,id asset))completion;
+- (instancetype)initCropTypeWithAsset:(PHAsset *)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,PHAsset *asset))completion;
 
 #pragma mark -
 /// Default is 9 / 默认最大可选9张图片
@@ -185,8 +182,8 @@
 @property (nonatomic, copy) void (^albumCellDidLayoutSubviewsBlock)(TZAlbumCell *cell, UIImageView *posterImageView, UILabel *titleLabel);
 
 #pragma mark -
-- (id)showAlertWithTitle:(NSString *)title;
-- (void)hideAlertView:(id)alertView;
+- (UIAlertController *)showAlertWithTitle:(NSString *)title;
+- (void)hideAlertView:(UIAlertController *)alertView;
 - (void)showProgressHUD;
 - (void)hideProgressHUD;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
@@ -247,10 +244,8 @@
 @property (nonatomic, copy) void (^imagePickerControllerDidCancelHandle)(void);
 
 // If user picking a video, this handle will be called.
-// If system version > iOS8,asset is kind of PHAsset class, else is ALAsset class.
 // 如果用户选择了一个视频，下面的handle会被执行
-// 如果系统版本大于iOS8，asset是PHAsset类的对象，否则是ALAsset类的对象
-@property (nonatomic, copy) void (^didFinishPickingVideoHandle)(UIImage *coverImage,id asset);
+@property (nonatomic, copy) void (^didFinishPickingVideoHandle)(UIImage *coverImage,PHAsset *asset);
 
 // If user picking a gif image, this callback will be called.
 // 如果用户选择了一个gif图片，下面的handle会被执行
@@ -279,22 +274,20 @@
 - (void)tz_imagePickerControllerDidCancel:(TZImagePickerController *)picker;
 
 // If user picking a video, this callback will be called.
-// If system version > iOS8,asset is kind of PHAsset class, else is ALAsset class.
 // 如果用户选择了一个视频，下面的handle会被执行
-// 如果系统版本大于iOS8，asset是PHAsset类的对象，否则是ALAsset类的对象
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(id)asset;
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingVideo:(UIImage *)coverImage sourceAssets:(PHAsset *)asset;
 
 // If user picking a gif image, this callback will be called.
 // 如果用户选择了一个gif图片，下面的handle会被执行
-- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(id)asset;
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(PHAsset *)asset;
 
 // Decide album show or not't
 // 决定相册显示与否 albumName:相册名字 result:相册原始数据
-- (BOOL)isAlbumCanSelect:(NSString *)albumName result:(id)result;
+- (BOOL)isAlbumCanSelect:(NSString *)albumName result:(PHFetchResult *)result;
 
 // Decide asset show or not't
 // 决定照片显示与否
-- (BOOL)isAssetCanSelect:(id)asset;
+- (BOOL)isAssetCanSelect:(PHAsset *)asset;
 @end
 
 
@@ -307,12 +300,6 @@
 
 @interface UIImage (MyBundle)
 + (UIImage *)imageNamedFromMyBundle:(NSString *)name;
-@end
-
-
-@interface NSString (TzExtension)
-- (BOOL)tz_containsString:(NSString *)string;
-- (CGSize)tz_calculateSizeWithAttributes:(NSDictionary *)attributes maxSize:(CGSize)maxSize;
 @end
 
 

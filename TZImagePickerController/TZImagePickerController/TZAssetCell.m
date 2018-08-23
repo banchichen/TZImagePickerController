@@ -30,22 +30,14 @@
 
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
-    if (iOS8Later) {
-        self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
-    }
+    self.representedAssetIdentifier = model.asset.localIdentifier;
     if (self.useCachedImage && model.cachedImage) {
         self.imageView.image = model.cachedImage;
     } else {
         self.model.cachedImage = nil;
         int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
             // Set the cell's thumbnail image if it's still showing the same asset.
-            if (!iOS8Later) {
-                self.imageView.image = photo;
-                self.model.cachedImage = photo;
-                [self hideProgressView];
-                return;
-            }
-            if ([self.representedAssetIdentifier isEqualToString:[[TZImageManager manager] getAssetIdentifier:model.asset]]) {
+            if ([self.representedAssetIdentifier isEqualToString:model.asset.localIdentifier]) {
                 self.imageView.image = photo;
                 self.model.cachedImage = photo;
             } else {
@@ -385,7 +377,7 @@
 
 /// For fitting iOS6
 - (void)layoutSubviews {
-    if (iOS7Later) [super layoutSubviews];
+    [super layoutSubviews];
     _selectedCountButton.frame = CGRectMake(self.tz_width - 24 - 30, 23, 24, 24);
     NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
     self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
@@ -397,7 +389,7 @@
 }
 
 - (void)layoutSublayersOfLayer:(CALayer *)layer {
-    if (iOS7Later) [super layoutSublayersOfLayer:layer];
+    [super layoutSublayersOfLayer:layer];
 }
 
 #pragma mark - Lazy load
