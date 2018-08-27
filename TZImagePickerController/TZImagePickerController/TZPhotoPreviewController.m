@@ -382,6 +382,7 @@
         [_tzImagePickerVc addSelectedModel:model];
     }
     if (_tzImagePickerVc.allowCrop) { // 裁剪状态
+        _doneButton.enabled = NO;
         TZImagePickerController *rootVc = self.navigationController;
         [rootVc showProgressHUD];
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:_currentIndex inSection:0];
@@ -392,6 +393,7 @@
                 cropedImage = [TZImageCropManager circularClipImage:cropedImage];
             }
             dispatch_async(dispatch_get_main_queue(), ^{
+                _doneButton.enabled = YES;
                 [rootVc hideProgressHUD];
                 if (self.doneButtonClickBlockCropMode) {
                     TZAssetModel *model = _models[_currentIndex];
