@@ -76,8 +76,8 @@ A：请参考issue457的解释：https://github.com/banchichen/TZImagePickerCont
 **Q：系统语言是中文/英文，界面上却有部分相册名字、返回按钮显示成了英文/中文？**        
 A：请参考 https://github.com/banchichen/TZImagePickerController/issues/443 和 https://github.com/banchichen/TZImagePickerController/issues/929          
  
-**Q：预览界面能否支持传入NSURL、UIImage对象？**       
-A：排期中，优先级高   
+**Q：预览界面能否支持传入NSURL、UIImage对象？**        
+A：3.0.1版本已支持，需新接一个库：[TZImagePreviewController](https://github.com/banchichen/TZImagePreviewController)，请参考里面的Demo使用。       
 
 **Q：设置可选视频的最大/最小时长？照片的最小/最大尺寸？不符合要求的不显示**       
 A：可以的，参照Demo的isAssetCanSelect方法实现。我会返回asset出来，显示与否你来决定，注意这个是一个同步方法，对于需要根据asset去异步获取的信息如视频的大小、视频是否存在iCloud里来过滤的，无法做到。如果真要这样做，相册打开速度会变慢，你需要改我源码。
@@ -120,6 +120,7 @@ A：视频导出分两步，第一步是通过PHAsset获取AVURLAsset，如是iC
 
 ## 六. Release Notes 最近更新     
 
+3.0.1 新增对[TZImagePreviewController](https://github.com/banchichen/TZImagePreviewController)库的支持，允许预览UIImage、NSURL、PHAsset对象。       
 **3.0.0 去除iOS6和7的适配代码，更轻量，最低支持iOS8**      
 2.2.6 新增needFixComposition属性，默认为NO，不再主动修正视频转向，防止部分安卓拍的视频导出失败（**最后一个支持iOS6和7的版本**）          
 2.1.5 修复开启showSelectedIndex后照片列表页iCloud图片进度条紊乱的bug              

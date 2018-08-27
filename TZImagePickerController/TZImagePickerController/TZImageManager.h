@@ -111,6 +111,9 @@
 /// 判断asset是否是视频
 - (BOOL)isVideo:(PHAsset *)asset;
 
+/// for TZImagePreviewController
+- (NSString *)getNewTimeFromDurationSecond:(NSInteger)duration;
+
 @end
 
 //@interface TZSortDescriptor : NSSortDescriptor
