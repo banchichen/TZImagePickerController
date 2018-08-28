@@ -443,53 +443,36 @@
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
         
         // save photo and get asset / 保存图片，获取到asset
-        [[TZImageManager manager] savePhotoWithImage:image location:self.location completion:^(NSError *error){
+        [[TZImageManager manager] savePhotoWithImage:image location:self.location completion:^(PHAsset *asset, NSError *error){
+            [tzImagePickerVc hideProgressHUD];
             if (error) {
-                [tzImagePickerVc hideProgressHUD];
                 NSLog(@"图片保存失败 %@",error);
             } else {
-                [[TZImageManager manager] getCameraRollAlbum:NO allowPickingImage:YES needFetchAssets:NO completion:^(TZAlbumModel *model) {
-                    [[TZImageManager manager] getAssetsFromFetchResult:model.result allowPickingVideo:NO allowPickingImage:YES completion:^(NSArray<TZAssetModel *> *models) {
-                        [tzImagePickerVc hideProgressHUD];
-                        TZAssetModel *assetModel = [models firstObject];
-                        if (tzImagePickerVc.sortAscendingByModificationDate) {
-                            assetModel = [models lastObject];
-                        }
-                        if (self.allowCropSwitch.isOn) { // 允许裁剪,去裁剪
-                            TZImagePickerController *imagePicker = [[TZImagePickerController alloc] initCropTypeWithAsset:assetModel.asset photo:image completion:^(UIImage *cropImage, id asset) {
-                                [self refreshCollectionViewWithAddedAsset:asset image:cropImage];
-                            }];
-                            imagePicker.needCircleCrop = self.needCircleCropSwitch.isOn;
-                            imagePicker.circleCropRadius = 100;
-                            [self presentViewController:imagePicker animated:YES completion:nil];
-                        } else {
-                            [self refreshCollectionViewWithAddedAsset:assetModel.asset image:image];
-                        }
+                TZAssetModel *assetModel = [[TZImageManager manager] createModelWithAsset:asset];
+                if (self.allowCropSwitch.isOn) { // 允许裁剪,去裁剪
+                    TZImagePickerController *imagePicker = [[TZImagePickerController alloc] initCropTypeWithAsset:assetModel.asset photo:image completion:^(UIImage *cropImage, id asset) {
+                        [self refreshCollectionViewWithAddedAsset:asset image:cropImage];
                     }];
-                }];
+                    imagePicker.needCircleCrop = self.needCircleCropSwitch.isOn;
+                    imagePicker.circleCropRadius = 100;
+                    [self presentViewController:imagePicker animated:YES completion:nil];
+                } else {
+                    [self refreshCollectionViewWithAddedAsset:assetModel.asset image:image];
+                }
             }
         }];
     } else if ([type isEqualToString:@"public.movie"]) {
         NSURL *videoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
         if (videoUrl) {
-            [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(NSError *error) {
+            [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(PHAsset *asset, NSError *error) {
+                [tzImagePickerVc hideProgressHUD];
                 if (!error) {
-                    [[TZImageManager manager] getCameraRollAlbum:YES allowPickingImage:NO needFetchAssets:NO completion:^(TZAlbumModel *model) {
-                        [[TZImageManager manager] getAssetsFromFetchResult:model.result allowPickingVideo:YES allowPickingImage:NO completion:^(NSArray<TZAssetModel *> *models) {
-                            [tzImagePickerVc hideProgressHUD];
-                            TZAssetModel *assetModel = [models firstObject];
-                            if (tzImagePickerVc.sortAscendingByModificationDate) {
-                                assetModel = [models lastObject];
-                            }
-                            [[TZImageManager manager] getPhotoWithAsset:assetModel.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-                                if (!isDegraded && photo) {
-                                    [self refreshCollectionViewWithAddedAsset:assetModel.asset image:photo];
-                                }
-                            }];
-                        }];
+                    TZAssetModel *assetModel = [[TZImageManager manager] createModelWithAsset:asset];
+                    [[TZImageManager manager] getPhotoWithAsset:assetModel.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+                        if (!isDegraded && photo) {
+                            [self refreshCollectionViewWithAddedAsset:assetModel.asset image:photo];
+                        }
                     }];
-                } else {
-                    [tzImagePickerVc hideProgressHUD];
                 }
             }];
         }

@@ -787,9 +787,9 @@ static CGFloat itemMargin = 5;
         [imagePickerVc showProgressHUD];
         UIImage *photo = [info objectForKey:UIImagePickerControllerOriginalImage];
         if (photo) {
-            [[TZImageManager manager] savePhotoWithImage:photo location:self.location completion:^(NSError *error){
+            [[TZImageManager manager] savePhotoWithImage:photo location:self.location completion:^(PHAsset *asset, NSError *error){
                 if (!error) {
-                    [self reloadPhotoArrayWithMediaType:type];
+                    [self addPHAsset:asset];
                 }
             }];
             self.location = nil;
@@ -799,9 +799,9 @@ static CGFloat itemMargin = 5;
         [imagePickerVc showProgressHUD];
         NSURL *videoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
         if (videoUrl) {
-            [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(NSError *error) {
+            [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(PHAsset *asset, NSError *error) {
                 if (!error) {
-                    [self reloadPhotoArrayWithMediaType:type];
+                    [self addPHAsset:asset];
                 }
             }];
             self.location = nil;
@@ -809,55 +809,47 @@ static CGFloat itemMargin = 5;
     }
 }
 
-- (void)reloadPhotoArrayWithMediaType:(NSString *)mediaType {
+- (void)addPHAsset:(PHAsset *)asset {
+    TZAssetModel *assetModel = [[TZImageManager manager] createModelWithAsset:asset];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
-        self->_model = model;
-        [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
-            [tzImagePickerVc hideProgressHUD];
-            
-            TZAssetModel *assetModel;
+    [tzImagePickerVc hideProgressHUD];
+    if (tzImagePickerVc.sortAscendingByModificationDate) {
+        [_models addObject:assetModel];
+    } else {
+        [_models insertObject:assetModel atIndex:0];
+    }
+    
+    if (tzImagePickerVc.maxImagesCount <= 1) {
+        if (tzImagePickerVc.allowCrop && asset.mediaType == PHAssetMediaTypeImage) {
+            TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
             if (tzImagePickerVc.sortAscendingByModificationDate) {
-                assetModel = [models lastObject];
-                [self->_models addObject:assetModel];
+                photoPreviewVc.currentIndex = _models.count - 1;
             } else {
-                assetModel = [models firstObject];
-                [self->_models insertObject:assetModel atIndex:0];
+                photoPreviewVc.currentIndex = 0;
             }
-            
-            if (tzImagePickerVc.maxImagesCount <= 1) {
-                if (tzImagePickerVc.allowCrop) {
-                    TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-                    if (tzImagePickerVc.sortAscendingByModificationDate) {
-                        photoPreviewVc.currentIndex = self->_models.count - 1;
-                    } else {
-                        photoPreviewVc.currentIndex = 0;
-                    }
-                    photoPreviewVc.models = self->_models;
-                    [self pushPhotoPrevireViewController:photoPreviewVc];
-                } else {
-                    [tzImagePickerVc addSelectedModel:assetModel];
-                    [self doneButtonClick];
-                }
-                return;
-            }
-            
-            if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
-                if ([mediaType isEqualToString:@"public.movie"] && !tzImagePickerVc.allowPickingMultipleVideo) {
-                    // 不能多选视频的情况下，不选中拍摄的视频
-                } else {
-                    assetModel.isSelected = YES;
-                    [tzImagePickerVc addSelectedModel:assetModel];
-                    [self refreshBottomToolBarStatus];
-                }
-            }
-            self->_collectionView.hidden = YES;
-            [self->_collectionView reloadData];
-            
-            self->_shouldScrollToBottom = YES;
-            [self scrollCollectionViewToBottom];
-        }];
-    }];
+            photoPreviewVc.models = _models;
+            [self pushPhotoPrevireViewController:photoPreviewVc];
+        } else {
+            [tzImagePickerVc addSelectedModel:assetModel];
+            [self doneButtonClick];
+        }
+        return;
+    }
+    
+    if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
+        if (assetModel.type == TZAssetModelMediaTypeVideo && !tzImagePickerVc.allowPickingMultipleVideo) {
+            // 不能多选视频的情况下，不选中拍摄的视频
+        } else {
+            assetModel.isSelected = YES;
+            [tzImagePickerVc addSelectedModel:assetModel];
+            [self refreshBottomToolBarStatus];
+        }
+    }
+    _collectionView.hidden = YES;
+    [_collectionView reloadData];
+    
+    _shouldScrollToBottom = YES;
+    [self scrollCollectionViewToBottom];
 }
 
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
