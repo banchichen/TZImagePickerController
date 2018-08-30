@@ -625,11 +625,14 @@ static CGFloat itemMargin = 5;
                             tzImagePickerVc.view.userInteractionEnabled = YES;
                             [tzImagePickerVc hideProgressHUD];
                             if (coverImage != nil && exportFilePath != nil) {
-                                [tzImagePickerVc dismissViewControllerAnimated:YES completion:^{
-                                    if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishEditVideoCoverImage:videoURL:)]) {
-                                        [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishEditVideoCoverImage:coverImage videoURL:[NSURL fileURLWithPath:exportFilePath]];
-                                    }
-                                }];
+                                /// 切换到主线程
+                                dispatch_sync(dispatch_get_main_queue(), ^{
+                                    [tzImagePickerVc dismissViewControllerAnimated:YES completion:^{
+                                        if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishEditVideoCoverImage:videoURL:)]) {
+                                            [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishEditVideoCoverImage:coverImage videoURL:[NSURL fileURLWithPath:exportFilePath]];
+                                        }
+                                    }];
+                                });
                             } else {
                                 // 允许用户操作
                                 tzImagePickerVc.view.userInteractionEnabled = YES;
