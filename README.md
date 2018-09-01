@@ -22,8 +22,8 @@
 ## 一. Installation 安装
 
 #### CocoaPods
-> pod 'TZImagePickerController'   #iOS8 and later
-> pod 'TZImagePickerController', '2.2.6'   #iOS6、iOS7
+> pod 'TZImagePickerController'   #iOS8 and later        
+> pod 'TZImagePickerController', '2.2.6'   #iOS6、iOS7        
 
 #### Carthage
 > github "banchichen/TZImagePickerController"
@@ -51,9 +51,9 @@
    如果运行在iOS6或7系统上，用的是AssetsLibrary库获取照片资源。  
    如果运行在iOS8及以上系统上，用的是PhotoKit库获取照片资源。
    
-   TZImagePickerController uses Camera、Location、Microphone、Photo Library，you need add these properties to info.plist like Demo：    
-   TZImagePickerController使用了相机、定位、麦克风、相册，请参考Demo添加下列属性到info.plist文件：
-	`Privacy - Camera Usage Description`     
+   TZImagePickerController uses Camera、Location、Microphone、Photo Library，you need add these properties to info.plist like Demo：       
+   TZImagePickerController使用了相机、定位、麦克风、相册，请参考Demo添加下列属性到info.plist文件：        
+   	`Privacy - Camera Usage Description`     
 	`Privacy - Location When In Use Usage Description`    
  	`Privacy - Microphone Usage Description`   
  	`Privacy - Photo Library Usage Description`   
