@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.0.3 - 2018.09.04
+//  version 3.0.4 - 2018.09.04
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -433,6 +433,7 @@
     }
     [_HUDIndicatorView startAnimating];
     [[UIApplication sharedApplication].delegate.window addSubview:_progressHUD];
+    [self.view setNeedsLayout];
     
     // if over time, dismiss HUD automatic
     __weak typeof(self) weakSelf = self;
@@ -645,11 +646,11 @@
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     
-    _HUDContainer.frame = CGRectMake((self.view.tz_width - 120) / 2, (self.view.tz_height - 90) / 2, 120, 90);
-    _HUDIndicatorView.frame = CGRectMake(45, 15, 30, 30);
-    _HUDLabel.frame = CGRectMake(0,40, 120, 50);
     CGFloat progressHUDY = CGRectGetMaxY(self.navigationBar.frame);
     _progressHUD.frame = CGRectMake(0, progressHUDY, self.view.tz_width, self.view.tz_height - progressHUDY);
+    _HUDContainer.frame = CGRectMake((self.view.tz_width - 120) / 2, (_progressHUD.tz_height - 90 - progressHUDY) / 2, 120, 90);
+    _HUDIndicatorView.frame = CGRectMake(45, 15, 30, 30);
+    _HUDLabel.frame = CGRectMake(0,40, 120, 50);
 }
 
 #pragma mark - Public
