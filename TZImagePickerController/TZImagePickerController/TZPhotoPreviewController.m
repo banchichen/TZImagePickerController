@@ -383,24 +383,19 @@
     }
     if (_tzImagePickerVc.allowCrop) { // 裁剪状态
         _doneButton.enabled = NO;
-        TZImagePickerController *rootVc = self.navigationController;
-        [rootVc showProgressHUD];
+        [_tzImagePickerVc showProgressHUD];
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:_currentIndex inSection:0];
         TZPhotoPreviewCell *cell = (TZPhotoPreviewCell *)[_collectionView cellForItemAtIndexPath:indexPath];
-        dispatch_async(dispatch_get_global_queue(0, 0), ^{
-            UIImage *cropedImage = [TZImageCropManager cropImageView:cell.previewView.imageView toRect:_tzImagePickerVc.cropRect zoomScale:cell.previewView.scrollView.zoomScale containerView:self.view];
-            if (_tzImagePickerVc.needCircleCrop) {
-                cropedImage = [TZImageCropManager circularClipImage:cropedImage];
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{
-                _doneButton.enabled = YES;
-                [rootVc hideProgressHUD];
-                if (self.doneButtonClickBlockCropMode) {
-                    TZAssetModel *model = _models[_currentIndex];
-                    self.doneButtonClickBlockCropMode(cropedImage,model.asset);
-                }
-            });
-        });
+        UIImage *cropedImage = [TZImageCropManager cropImageView:cell.previewView.imageView toRect:_tzImagePickerVc.cropRect zoomScale:cell.previewView.scrollView.zoomScale containerView:self.view];
+        if (_tzImagePickerVc.needCircleCrop) {
+            cropedImage = [TZImageCropManager circularClipImage:cropedImage];
+        }
+        _doneButton.enabled = YES;
+        [_tzImagePickerVc hideProgressHUD];
+        if (self.doneButtonClickBlockCropMode) {
+            TZAssetModel *model = _models[_currentIndex];
+            self.doneButtonClickBlockCropMode(cropedImage,model.asset);
+        }
     } else if (self.doneButtonClickBlock) { // 非裁剪状态
         self.doneButtonClickBlock(_isSelectOriginalPhoto);
     }

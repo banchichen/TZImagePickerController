@@ -457,17 +457,19 @@ static dispatch_once_t onceToken;
 
 #pragma mark - Save photo
 
-- (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(NSError *error))completion {
+- (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(PHAsset *asset, NSError *error))completion {
     [self savePhotoWithImage:image location:nil completion:completion];
 }
 
-- (void)savePhotoWithImage:(UIImage *)image location:(CLLocation *)location completion:(void (^)(NSError *error))completion {
+- (void)savePhotoWithImage:(UIImage *)image location:(CLLocation *)location completion:(void (^)(PHAsset *asset, NSError *error))completion {
+    __block NSString *localIdentifier = nil;
     [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
         if (@available(iOS 9, *)) {
             NSData *data = UIImageJPEGRepresentation(image, 0.9);
             PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
             options.shouldMoveFile = YES;
             PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];
+            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
             [request addResourceWithType:PHAssetResourceTypePhoto data:data options:options];
             if (location) {
                 request.location = location;
@@ -475,6 +477,7 @@ static dispatch_once_t onceToken;
             request.creationDate = [NSDate date];
         } else {
             PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
             if (location) {
                 request.location = location;
             }
@@ -483,11 +486,12 @@ static dispatch_once_t onceToken;
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (success && completion) {
-                completion(nil);
+                PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
+                completion(asset, nil);
             } else if (error) {
                 NSLog(@"保存照片出错:%@",error.localizedDescription);
                 if (completion) {
-                    completion(error);
+                    completion(nil, error);
                 }
             }
         });
@@ -496,16 +500,18 @@ static dispatch_once_t onceToken;
 
 #pragma mark - Save video
 
-- (void)saveVideoWithUrl:(NSURL *)url completion:(void (^)(NSError *error))completion {
+- (void)saveVideoWithUrl:(NSURL *)url completion:(void (^)(PHAsset *asset, NSError *error))completion {
     [self saveVideoWithUrl:url location:nil completion:completion];
 }
 
-- (void)saveVideoWithUrl:(NSURL *)url location:(CLLocation *)location completion:(void (^)(NSError *error))completion {
+- (void)saveVideoWithUrl:(NSURL *)url location:(CLLocation *)location completion:(void (^)(PHAsset *asset, NSError *error))completion {
+    __block NSString *localIdentifier = nil;
     [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
         if (@available(iOS 9, *)) {
             PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
             options.shouldMoveFile = YES;
             PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];
+            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
             [request addResourceWithType:PHAssetResourceTypeVideo fileURL:url options:options];
             if (location) {
                 request.location = location;
@@ -513,6 +519,7 @@ static dispatch_once_t onceToken;
             request.creationDate = [NSDate date];
         } else {
             PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url];
+            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
             if (location) {
                 request.location = location;
             }
@@ -521,11 +528,12 @@ static dispatch_once_t onceToken;
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (success && completion) {
-                completion(nil);
+                PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
+                completion(asset, nil);
             } else if (error) {
                 NSLog(@"保存视频出错:%@",error.localizedDescription);
                 if (completion) {
-                    completion(error);
+                    completion(nil, error);
                 }
             }
         });
@@ -732,6 +740,14 @@ static dispatch_once_t onceToken;
 /// 判断asset是否是视频
 - (BOOL)isVideo:(PHAsset *)asset {
     return asset.mediaType == PHAssetMediaTypeVideo;
+}
+
+- (TZAssetModel *)createModelWithAsset:(PHAsset *)asset {
+    TZAssetModelMediaType type = [[TZImageManager manager] getAssetType:asset];
+    NSString *timeLength = type == TZAssetModelMediaTypeVideo ? [NSString stringWithFormat:@"%0.0f",asset.duration] : @"";
+    timeLength = [[TZImageManager manager] getNewTimeFromDurationSecond:timeLength.integerValue];
+    TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:type timeLength:timeLength];
+    return model;
 }
 
 /// 获取优化后的视频转向信息
