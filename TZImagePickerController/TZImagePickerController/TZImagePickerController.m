@@ -432,7 +432,13 @@
         [_progressHUD addSubview:_HUDContainer];
     }
     [_HUDIndicatorView startAnimating];
-    [[UIApplication sharedApplication].delegate.window addSubview:_progressHUD];
+    UIWindow *applicationWindow;
+    if ([[[UIApplication sharedApplication] delegate] respondsToSelector:@selector(window)]) {
+        applicationWindow = [[[UIApplication sharedApplication] delegate] window];
+    } else {
+        applicationWindow = [[UIApplication sharedApplication] keyWindow];
+    }
+    [applicationWindow addSubview:_progressHUD];
     [self.view setNeedsLayout];
     
     // if over time, dismiss HUD automatic
