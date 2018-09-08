@@ -128,7 +128,7 @@ A：视频导出分两步，第一步是通过PHAsset获取AVURLAsset，如是iC
 
 ## 六. Release Notes 最近更新     
 
-3.0.4 优化保存照片、视频的方法        
+3.0.5 优化保存照片、视频的方法        
 3.0.1 新增对[TZImagePreviewController](https://github.com/banchichen/TZImagePreviewController)库的支持，允许预览UIImage、NSURL、PHAsset对象       
 **3.0.0 去除iOS6和7的适配代码，更轻量，最低支持iOS8**      
 2.2.6 新增needFixComposition属性，默认为NO，不再主动修正视频转向，防止部分安卓拍的视频导出失败（**最后一个支持iOS6和7的版本**）          
