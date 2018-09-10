@@ -464,25 +464,12 @@ static dispatch_once_t onceToken;
 - (void)savePhotoWithImage:(UIImage *)image location:(CLLocation *)location completion:(void (^)(PHAsset *asset, NSError *error))completion {
     __block NSString *localIdentifier = nil;
     [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-        if (@available(iOS 9, *)) {
-            NSData *data = UIImageJPEGRepresentation(image, 0.9);
-            PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
-            options.shouldMoveFile = YES;
-            PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];
-            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
-            [request addResourceWithType:PHAssetResourceTypePhoto data:data options:options];
-            if (location) {
-                request.location = location;
-            }
-            request.creationDate = [NSDate date];
-        } else {
-            PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
-            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
-            if (location) {
-                request.location = location;
-            }
-            request.creationDate = [NSDate date];
+        PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+        localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
+        if (location) {
+            request.location = location;
         }
+        request.creationDate = [NSDate date];
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (success && completion) {
@@ -507,24 +494,12 @@ static dispatch_once_t onceToken;
 - (void)saveVideoWithUrl:(NSURL *)url location:(CLLocation *)location completion:(void (^)(PHAsset *asset, NSError *error))completion {
     __block NSString *localIdentifier = nil;
     [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
-        if (@available(iOS 9, *)) {
-            PHAssetResourceCreationOptions *options = [[PHAssetResourceCreationOptions alloc] init];
-            options.shouldMoveFile = YES;
-            PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];
-            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
-            [request addResourceWithType:PHAssetResourceTypeVideo fileURL:url options:options];
-            if (location) {
-                request.location = location;
-            }
-            request.creationDate = [NSDate date];
-        } else {
-            PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url];
-            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
-            if (location) {
-                request.location = location;
-            }
-            request.creationDate = [NSDate date];
+        PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromVideoAtFileURL:url];
+        localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
+        if (location) {
+            request.location = location;
         }
+        request.creationDate = [NSDate date];
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (success && completion) {
