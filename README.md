@@ -12,7 +12,7 @@
  
  ## 重要提示3：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。
  
-  ## 重要提示4 **3.0.7 适配iPhoneXR、XS、XS Max，建议大家尽快更新**            
+ ## 重要提示4: 3.0.7版本适配了iPhoneXR、XS、XS Max，建议大家尽快更新            
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
