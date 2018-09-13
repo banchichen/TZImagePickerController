@@ -12,6 +12,8 @@
  
  ## 重要提示3：1.9.0版本后移除了"prefs:root="的调用，这个API已经被列为私有API，请大家尽快升级。
  
+  ## 重要提示4 **3.0.7 适配iPhoneXR、XS、XS Max，建议大家尽快更新**            
+ 
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
     
@@ -128,6 +130,7 @@ A：视频导出分两步，第一步是通过PHAsset获取AVURLAsset，如是iC
 
 ## 六. Release Notes 最近更新     
 
+**3.0.7 适配iPhoneXR、XS、XS Max，建议大家尽快更新**           
 3.0.6 优化保存照片、视频的方法        
 3.0.1 新增对[TZImagePreviewController](https://github.com/banchichen/TZImagePreviewController)库的支持，允许预览UIImage、NSURL、PHAsset对象       
 **3.0.0 去除iOS6和7的适配代码，更轻量，最低支持iOS8**      
