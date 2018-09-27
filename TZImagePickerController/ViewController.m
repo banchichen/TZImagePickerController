@@ -19,6 +19,7 @@
 #import "TZLocationManager.h"
 #import "TZAssetCell.h"
 #import <MobileCoreServices/MobileCoreServices.h>
+#import "FLAnimatedImage.h"
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
@@ -342,6 +343,25 @@
     // 设置是否显示图片序号
     imagePickerVc.showSelectedIndex = self.showSelectedIndexSwitch.isOn;
     
+    // 自定义gif播放方案
+    [[TZImagePickerConfig sharedInstance] setGifImagePlayBlock:^(TZPhotoPreviewView *view, UIImageView *imageView, NSData *gifData, NSDictionary *info) {
+        FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:gifData];
+        FLAnimatedImageView *animatedImageView;
+        for (UIView *subview in imageView.subviews) {
+            if ([subview isKindOfClass:[FLAnimatedImageView class]]) {
+                animatedImageView = (FLAnimatedImageView *)subview;
+                animatedImageView.frame = imageView.bounds;
+                animatedImageView.animatedImage = nil;
+            }
+        }
+        if (!animatedImageView) {
+            animatedImageView = [[FLAnimatedImageView alloc] initWithFrame:imageView.bounds];
+            animatedImageView.runLoopMode = NSDefaultRunLoopMode;
+            [imageView addSubview:animatedImageView];
+        }
+        animatedImageView.animatedImage = animatedImage;
+    }];
+    
     // 设置首选语言 / Set preferred language
     // imagePickerVc.preferredLanguage = @"zh-Hans";
     
@@ -353,7 +373,7 @@
     // You can get the photos by block, the same as by delegate.
     // 你可以通过block或者代理，来得到用户选择的照片.
     [imagePickerVc setDidFinishPickingPhotosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
-        
+
     }];
     
     [self presentViewController:imagePickerVc animated:YES completion:nil];

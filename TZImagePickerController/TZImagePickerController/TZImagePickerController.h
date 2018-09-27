@@ -24,6 +24,7 @@
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
 #import "TZPhotoPreviewController.h"
+#import "TZPhotoPreviewCell.h"
 
 @class TZAlbumCell, TZAssetCell;
 @protocol TZImagePickerControllerDelegate;
@@ -317,10 +318,13 @@
 @property(nonatomic, assign) BOOL allowPickingImage;
 @property (nonatomic, assign) BOOL allowPickingVideo;
 @property (strong, nonatomic) NSBundle *languageBundle;
-/// 默认是200，如果一个GIF过大，里面图片个数可能超过1000，会导致内存飙升而崩溃
-@property (assign, nonatomic) NSInteger gifPreviewMaxImagesCount;
 @property (assign, nonatomic) BOOL showSelectedIndex;
 @property (assign, nonatomic) BOOL showPhotoCannotSelectLayer;
 @property (assign, nonatomic) BOOL notScaleImage;
 @property (assign, nonatomic) BOOL needFixComposition;
+
+/// 默认是50，如果一个GIF过大，里面图片个数可能超过1000，会导致内存飙升而崩溃
+@property (assign, nonatomic) NSInteger gifPreviewMaxImagesCount;
+/// 【自定义GIF播放方案】为了避免内存过大，内部默认限制只播放50帧（平均取），可通过gifPreviewMaxImagesCount属性调整，若对GIF预览有更好的效果要求，可实现这个block采用FLAnimatedImage等三方库来播放，但注意FLAnimatedImage有播放速度较慢问题，自行取舍下。
+@property (nonatomic, copy) void (^gifImagePlayBlock)(TZPhotoPreviewView *view, UIImageView *imageView, NSData *gifData, NSDictionary *info);
 @end

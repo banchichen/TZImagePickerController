@@ -178,7 +178,11 @@
                 if (!isDegraded) {
                     self.isRequestingGIF = NO;
                     self.progressView.hidden = YES;
-                    self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
+                    if ([TZImagePickerConfig sharedInstance].gifImagePlayBlock) {
+                        [TZImagePickerConfig sharedInstance].gifImagePlayBlock(self, self.imageView, data, info);
+                    } else {
+                        self.imageView.image = [UIImage sd_tz_animatedGIFWithData:data];
+                    }
                     [self resizeSubviews];
                 }
             }];
