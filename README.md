@@ -128,6 +128,7 @@ A：视频导出分两步，第一步是通过PHAsset获取AVURLAsset，如是iC
 
 ## 六. Release Notes 最近更新     
 
+3.0.8 新增gifImagePlayBlock允许使用FLAnimatedImage等替换内部的GIF播放方案        
 **3.0.7 适配iPhoneXR、XS、XS Max，建议大家尽快更新**           
 3.0.6 优化保存照片、视频的方法        
 3.0.1 新增对[TZImagePreviewController](https://github.com/banchichen/TZImagePreviewController)库的支持，允许预览UIImage、NSURL、PHAsset对象       
