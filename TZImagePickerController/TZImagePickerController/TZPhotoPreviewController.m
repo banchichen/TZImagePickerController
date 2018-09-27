@@ -517,7 +517,7 @@
     _selectButton.selected = model.isSelected;
     [self refreshSelectButtonImageViewContentMode];
     if (_selectButton.isSelected && _tzImagePickerVc.showSelectedIndex && _tzImagePickerVc.showSelectBtn) {
-        NSString *index = [NSString stringWithFormat:@"%zd", [_tzImagePickerVc.selectedAssetIds indexOfObject:model.asset.localIdentifier] + 1];
+        NSString *index = [NSString stringWithFormat:@"%d", (int)([_tzImagePickerVc.selectedAssetIds indexOfObject:model.asset.localIdentifier] + 1)];
         _indexLabel.text = index;
         _indexLabel.hidden = NO;
     } else {

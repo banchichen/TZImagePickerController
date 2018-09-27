@@ -145,6 +145,14 @@ static CGFloat itemMargin = 5;
     return NO;
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    TZImagePickerController *tzImagePicker = (TZImagePickerController *)self.navigationController;
+    if (tzImagePicker && [tzImagePicker isKindOfClass:[TZImagePickerController class]]) {
+        return tzImagePicker.statusBarStyle;
+    }
+    return [super preferredStatusBarStyle];
+}
+
 - (void)configCollectionView {
     _layout = [[UICollectionViewFlowLayout alloc] init];
     _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];

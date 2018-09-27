@@ -96,6 +96,14 @@
     }
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    TZImagePickerController *tzImagePicker = (TZImagePickerController *)self.navigationController;
+    if (tzImagePicker && [tzImagePicker isKindOfClass:[TZImagePickerController class]]) {
+        return tzImagePicker.statusBarStyle;
+    }
+    return [super preferredStatusBarStyle];
+}
+
 #pragma mark - Layout
 
 - (void)viewDidLayoutSubviews {
