@@ -472,6 +472,7 @@
                     TZImagePickerController *imagePicker = [[TZImagePickerController alloc] initCropTypeWithAsset:assetModel.asset photo:image completion:^(UIImage *cropImage, id asset) {
                         [self refreshCollectionViewWithAddedAsset:asset image:cropImage];
                     }];
+                    imagePicker.allowPickingImage = YES;
                     imagePicker.needCircleCrop = self.needCircleCropSwitch.isOn;
                     imagePicker.circleCropRadius = 100;
                     [self presentViewController:imagePicker animated:YES completion:nil];
