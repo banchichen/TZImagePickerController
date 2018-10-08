@@ -395,7 +395,18 @@
 - (void)rightButtonClick {
     NSLog(@"完成\n\n");
     if (self.coverImageBlock) {
-        self.coverImageBlock(self.centerImageView.image, self.videoPath);
+        if (self.centerImageView.image == nil) {
+            NSLog(@"当前选中封面不可用，请重新选择");
+            UIAlertController *alertVC = [UIAlertController alertControllerWithTitle:@"温馨提示" message:@"当前选中封面不可用，请重新选择。" preferredStyle:UIAlertControllerStyleAlert];
+            UIAlertAction *sureAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            }];
+            [alertVC addAction:sureAction];
+            [self presentViewController:alertVC animated:YES completion:nil];
+        } else {
+            self.coverImageBlock(self.centerImageView.image, self.videoPath);
+        }
+    } else {
+        NSLog(@"\n\n注意：没有实现选择封面完成block\n\n");
     }
 }
 
