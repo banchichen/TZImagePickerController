@@ -309,6 +309,7 @@
 + (CGFloat)tz_statusBarHeight;
 // 获得Info.plist数据字典
 + (NSDictionary *)tz_getInfoDictionary;
++ (BOOL)isRightToLeftLayout;
 @end
 
 

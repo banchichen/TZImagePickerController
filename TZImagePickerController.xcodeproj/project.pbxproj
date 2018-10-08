@@ -162,6 +162,9 @@
 		9038D5901C3974F0007DE549 /* TZTestCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZTestCell.m; sourceTree = "<group>"; };
 		903996921F447604005E77C2 /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		903996941F447609005E77C2 /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		909DBC95216B981B00926570 /* ar-001 */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ar-001"; path = "ar-001.lproj/Main.strings"; sourceTree = "<group>"; };
+		909DBC96216B981B00926570 /* ar-001 */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ar-001"; path = "ar-001.lproj/LaunchScreen.strings"; sourceTree = "<group>"; };
+		909DBC97216B981B00926570 /* ar-001 */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ar-001"; path = "../ar-001.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		90A74B84203287C200D84C2A /* tz-ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "tz-ru"; path = Localizable.strings; sourceTree = "<group>"; };
 		90CE84AC1C3A89EF003D0779 /* TZImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZImageManager.h; sourceTree = "<group>"; };
 		90CE84AD1C3A89EF003D0779 /* TZImageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZImageManager.m; sourceTree = "<group>"; };
@@ -498,6 +501,7 @@
 				Base,
 				"zh-Hans",
 				"tz-ru",
+				"ar-001",
 			);
 			mainGroup = 900E65731C2BB8D5003D9A9E;
 			productRefGroup = 900E657D1C2BB8D5003D9A9E /* Products */;
@@ -643,6 +647,7 @@
 			children = (
 				900E65891C2BB8D5003D9A9E /* Base */,
 				6D12FC191D66B71E00182C44 /* zh-Hans */,
+				909DBC95216B981B00926570 /* ar-001 */,
 			);
 			name = Main.storyboard;
 			sourceTree = "<group>";
@@ -652,6 +657,7 @@
 			children = (
 				900E658E1C2BB8D5003D9A9E /* Base */,
 				6D12FC1A1D66B71E00182C44 /* zh-Hans */,
+				909DBC96216B981B00926570 /* ar-001 */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -660,6 +666,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				90A74B84203287C200D84C2A /* tz-ru */,
+				909DBC97216B981B00926570 /* ar-001 */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";

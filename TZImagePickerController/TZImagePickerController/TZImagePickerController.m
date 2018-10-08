@@ -862,6 +862,21 @@
     }
     return infoDict ? infoDict : @{};
 }
+
++ (BOOL)isRightToLeftLayout {
+    if (@available(iOS 9.0, *)) {
+        if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:UISemanticContentAttributeUnspecified] == UIUserInterfaceLayoutDirectionRightToLeft) {
+            return YES;
+        }
+    } else {
+        NSString *preferredLanguage = [NSLocale preferredLanguages].firstObject;
+        if ([preferredLanguage hasPrefix:@"ar-"]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end
 
 
