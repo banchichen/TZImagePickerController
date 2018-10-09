@@ -124,11 +124,17 @@ A：是否有集成GKNavigationBarViewController？需要升级到2.0.4及以上
 A：升级到2.2.6及以上版本试试，发现是修正视频转向导致的，2.2.6开始默认不再主动修正。如需打开，可设置needFixComposition为YES，但有几率导致安卓拍的视频导出失败。       
 
 **Q：视频导出慢？**            
-A：视频导出分两步，第一步是通过PHAsset获取AVURLAsset，如是iCloud视频则涉及到网络请求，耗时容易不可控，第二步是通过AVURLAsset把视频保存到沙盒，耗时不算多。但第一步耗时不可控，你可以拷贝我源码出来拿到第一步的进度给用户一个进度提示...          
+A：视频导出分两步，第一步是通过PHAsset获取AVURLAsset，如是iCloud视频则涉及到网络请求，耗时容易不可控，第二步是通过AVURLAsset把视频保存到沙盒，耗时不算多。但第一步耗时不可控，你可以拷贝我源码出来拿到第一步的进度给用户一个进度提示...     
+
+**Q：有的图片info里没有PHImageFileURLKey？**            
+A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能访问相册照片，光拿一个路径没用。        
+如果需要通过路径上传照片，请先把UIImage保存到沙盒，**用沙盒路径**。           
+如果你上传照片需要一个名字参数，请参考Demo**直接用照片名字**。          
 
 ## 六. Release Notes 最近更新     
 
-3.0.8 新增gifImagePlayBlock允许使用FLAnimatedImage等替换内部的GIF播放方案        
+3.0.9 适配阿拉伯等语言下从右往左布局的特性         
+3.0.8 新增gifImagePlayBlock允许使用FLAnimatedImage等替换内部的GIF播放方案         
 **3.0.7 适配iPhoneXR、XS、XS Max，建议大家尽快更新**           
 3.0.6 优化保存照片、视频的方法        
 3.0.1 新增对[TZImagePreviewController](https://github.com/banchichen/TZImagePreviewController)库的支持，允许预览UIImage、NSURL、PHAsset对象       
