@@ -595,8 +595,24 @@ static CGFloat itemMargin = 7;
         }
     } else {
         TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
-        photoPreviewVc.currentIndex = index;
-        photoPreviewVc.models = _models;
+        TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+        if (imagePickerVc.filterPreviewVideo) {
+            NSMutableArray *array = [[NSMutableArray alloc] init];
+            int a = 0;
+            for (TZAssetModel *assetModel  in _models) {
+                if ([assetModel isEqual:model]) {
+                    photoPreviewVc.currentIndex = a;
+                }
+                if (assetModel.type == TZAssetModelMediaTypePhoto) {
+                    [array addObject:assetModel];
+                    a ++;
+                }
+            }
+            photoPreviewVc.models = array;
+        }else{
+            photoPreviewVc.models = _models;
+            photoPreviewVc.currentIndex = index;
+        }
         [self pushPhotoPrevireViewController:photoPreviewVc];
     }
 }

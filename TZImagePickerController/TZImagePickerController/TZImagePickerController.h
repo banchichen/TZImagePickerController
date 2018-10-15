@@ -50,6 +50,9 @@
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
 
+/* 如果图片点击cell 进入预览的时候 过滤掉视频  默认为YES */
+@property (nonatomic, assign) BOOL filterPreviewVideo;
+
 /// The minimum count photos user must pick, Default is 0
 /// 最小照片必选张数,默认是0
 @property (nonatomic, assign) NSInteger minImagesCount;
