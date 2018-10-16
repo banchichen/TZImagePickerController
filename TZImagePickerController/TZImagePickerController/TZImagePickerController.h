@@ -127,8 +127,8 @@
 /// Default is white color with 0.8 alpha;
 @property (strong, nonatomic) UIColor *cannotSelectLayerColor;
 
-/// Default is No, if set YES, the result photo will not be scaled to photoWidth pixel width. The photoWidth default is 828px
-/// 默认是NO，如果设置为YES，内部不会缩放图片到photoWidth像素宽
+/// Default is YES, if set NO, the result photo will be scaled to photoWidth pixel width. The photoWidth default is 828px
+/// 默认是YES，如果设置为NO，内部会缩放图片到photoWidth像素宽
 @property (assign, nonatomic) BOOL notScaleImage;
 
 /// 默认是NO，如果设置为YES，导出视频时会修正转向（慎重设为YES，可能导致部分安卓下拍的视频导出失败）
