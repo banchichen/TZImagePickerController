@@ -20,6 +20,8 @@
 @property (assign, nonatomic) BOOL isSquare;
 ///顶部title标题
 @property (nonatomic, copy) NSString *topTitle;
+/// 整个项目主题色
+@property (nonatomic, copy) UIColor *mainColor;
 @end
 
 

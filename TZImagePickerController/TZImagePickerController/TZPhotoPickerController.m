@@ -727,6 +727,9 @@ static CGFloat itemMargin = 5;
                 //设置自定义裁剪区域大小
                 //是否需要圆形
                 imageBrowser.isRound = NO;
+                if (_mainColor) {
+                    imageBrowser.mainColor = _mainColor;
+                }
                 [self presentViewController:imageBrowser animated:YES completion:nil];
             }];
         } else {
@@ -976,6 +979,9 @@ static CGFloat itemMargin = 5;
                         //设置自定义裁剪区域大小
                         //是否需要圆形
                         imageBrowser.isRound = NO;
+                        if (_mainColor) {
+                            imageBrowser.mainColor = _mainColor;
+                        }
                         [self presentViewController:imageBrowser animated:YES completion:nil];
                     }];
                 } else {

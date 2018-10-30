@@ -92,7 +92,7 @@
 
 -(void)viewDidLayoutSubviews{
     [super viewDidLayoutSubviews];
-    
+
     if (!_image) {
         return;
     }
@@ -120,18 +120,22 @@
         [self.sureButton setFrame:CGRectMake(_selfWidth - 15- width, _selfHeight-15-height, width, height)];
         self.sureButton.center = CGPointMake(self.sureButton.center.x, self.cancleButton.center.y);
     }
-    
+
+    if (_mainColor && _sureButton) {
+        [_sureButton setTitleColor:_mainColor forState:0];
+    }
+
     [self.overLayView setFrame:self.view.frame];
     [self.scrollView setFrame:CGRectMake(0, 0, _selfWidth, _selfHeight)];
     [self.scrollView setContentSize:CGSizeMake(_selfWidth, _selfHeight)];
-    
+
     //初始位置
     if (_cropSize.width/_cropSize.height > _image.size.width/_image.size.height) {
         [_imageView setFrame:CGRectMake((_cropSize.width - _cropSize.height*_image.size.width/_image.size.height)/2 + (self.view.frame.size.width-_cropSize.width)/2,(_selfHeight-_cropSize.height)/2, _image.size.width/_image.size.height*_cropSize.height, _cropSize.height)];
     }else{
         [_imageView setFrame:CGRectMake((_selfWidth - _cropSize.width)/2, (_cropSize.height-_cropSize.width*_image.size.height/_image.size.width)/2+(_selfHeight-_cropSize.height)/2, _cropSize.width, _cropSize.width*_image.size.height/_image.size.width)];
     }
-    
+
     //绘制裁剪框
     if (self.isRound) {
         [self transparentCutRoundArea];
@@ -449,6 +453,13 @@
     }
     BOOL isIPhoneX = [platform isEqualToString:@"iPhone10,3"] || [platform isEqualToString:@"iPhone10,6"];
     return isIPhoneX;
+}
+
+- (void)setMainColor:(UIColor *)mainColor {
+    _mainColor = mainColor;
+    if (_mainColor && _sureButton) {
+        [_sureButton setTitleColor:_mainColor forState:0];
+    }
 }
 
 @end
