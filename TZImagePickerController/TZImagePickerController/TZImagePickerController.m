@@ -59,7 +59,11 @@
     // 默认的外观，你可以在这个方法后重置
     self.oKButtonTitleColorNormal   = [UIColor whiteColor];
     self.oKButtonTitleColorDisabled = [UIColor whiteColor];
-    self.oKButtonBackGroundColorEnabled = [UIColor colorWithRed:89 / 255.0 green:182 / 255.0 blue:215 / 255.0 alpha:1];
+    if (_mainColor) {
+        self.oKButtonBackGroundColorEnabled = _mainColor;
+    } else {
+        self.oKButtonBackGroundColorEnabled = [UIColor colorWithRed:89 / 255.0 green:182 / 255.0 blue:215 / 255.0 alpha:1];
+    }
     self.oKButtonBackGroundColorDisabled = [UIColor colorWithRed:222 / 255.0 green:222 / 255.0 blue:222 / 255.0 alpha:1];
     if (iOS7Later) {
         self.navigationBar.barTintColor = [UIColor whiteColor];
@@ -886,7 +890,11 @@
     rightButton.frame = CGRectMake(0, 0, 44, 44);
     rightButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [rightButton setTitle:imagePickerVc.cancelBtnTitleStr forState:UIControlStateNormal];
-    [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
+    if (imagePickerVc.mainColor) {
+        [rightButton setTitleColor:imagePickerVc.mainColor forState:UIControlStateNormal];
+    } else {
+        [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
+    }
     [rightButton addTarget:imagePickerVc action:@selector(cancelButtonClick) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
 }
