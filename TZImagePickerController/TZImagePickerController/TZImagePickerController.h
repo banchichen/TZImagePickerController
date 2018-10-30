@@ -193,6 +193,8 @@
 @property (nonatomic, copy) NSString *topTitle;
 /// 整个项目主题色
 @property (nonatomic, copy) UIColor *mainColor;
+/// 相册图片选中按钮图片
+@property (nonatomic, copy) UIImage *selectImage;
 
 #pragma mark -
 - (void)cancelButtonClick;

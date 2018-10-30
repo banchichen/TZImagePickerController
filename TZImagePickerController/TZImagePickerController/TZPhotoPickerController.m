@@ -503,6 +503,7 @@ static CGFloat itemMargin = 5;
     cell.allowPickingMultipleVideo = tzImagePickerVc.allowPickingMultipleVideo;
     cell.photoDefImageName = tzImagePickerVc.photoDefImageName;
     cell.photoSelImageName = tzImagePickerVc.photoSelImageName;
+    cell.selectImage = tzImagePickerVc.selectImage;
     TZAssetModel *model;
     if (tzImagePickerVc.sortAscendingByModificationDate || !_showTakePhotoBtn) {
         model = _models[indexPath.row];

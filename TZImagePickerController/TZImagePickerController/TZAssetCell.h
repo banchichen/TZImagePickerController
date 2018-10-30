@@ -34,6 +34,8 @@ typedef enum : NSUInteger {
 
 @property (nonatomic, assign) BOOL showSelectBtn;
 @property (assign, nonatomic) BOOL allowPreview;
+/// 相册图片选中按钮图片
+@property (nonatomic, copy) UIImage *selectImage;
 
 @end
 
