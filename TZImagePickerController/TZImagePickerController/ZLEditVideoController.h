@@ -12,6 +12,8 @@
 @interface ZLEditVideoController : UIViewController
 
 @property (nonatomic, strong) PHAsset *asset;
+/// 整个项目主题色
+@property (nonatomic, copy) UIColor *mainColor;
 ///封面回调
 @property (nonatomic, copy) void (^coverImageBlock)(UIImage *coverImage, NSURL *videoPath);
 
