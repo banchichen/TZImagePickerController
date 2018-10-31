@@ -357,9 +357,11 @@
     }
     
     // 如果没有选中过照片 点击确定时选中当前预览的照片
+    // 为了避免歧义，修改为：未选中则点击按钮无效
     if (_tzImagePickerVc.selectedModels.count == 0 && _tzImagePickerVc.minImagesCount <= 0) {
-        TZAssetModel *model = _models[_currentIndex];
-        [_tzImagePickerVc.selectedModels addObject:model];
+        return;
+//        TZAssetModel *model = _models[_currentIndex];
+//        [_tzImagePickerVc.selectedModels addObject:model];
     }
     if (_tzImagePickerVc.allowCrop) { // 裁剪状态
         NSIndexPath *indexPath = [NSIndexPath indexPathForItem:_currentIndex inSection:0];
