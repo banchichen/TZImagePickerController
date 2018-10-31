@@ -295,7 +295,11 @@
     rightButton.frame = CGRectMake(0, 0, 44, 44);
     rightButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [rightButton setTitle: @"完成" forState:UIControlStateNormal];
-    [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
+    if (_mainColor) {
+        [rightButton setTitleColor:_mainColor forState:UIControlStateNormal];
+    } else {
+        [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
+    }
     [rightButton addTarget:self action:@selector(rightButtonClick:) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
     

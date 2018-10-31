@@ -59,7 +59,11 @@
     // 默认的外观，你可以在这个方法后重置
     self.oKButtonTitleColorNormal   = [UIColor whiteColor];
     self.oKButtonTitleColorDisabled = [UIColor whiteColor];
-    self.oKButtonBackGroundColorEnabled = [UIColor colorWithRed:89 / 255.0 green:182 / 255.0 blue:215 / 255.0 alpha:1];
+    if (_mainColor) {
+        self.oKButtonBackGroundColorEnabled = _mainColor;
+    } else {
+        self.oKButtonBackGroundColorEnabled = [UIColor colorWithRed:89 / 255.0 green:182 / 255.0 blue:215 / 255.0 alpha:1];
+    }
     self.oKButtonBackGroundColorDisabled = [UIColor colorWithRed:222 / 255.0 green:222 / 255.0 blue:222 / 255.0 alpha:1];
     if (iOS7Later) {
         self.navigationBar.barTintColor = [UIColor whiteColor];
@@ -335,6 +339,182 @@
     return self;
 }
 
+- (instancetype)initWithMaxImagesCountTSType:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square shouldPick:(BOOL)shouldPick topTitle:(NSString *)topTitle mainColor:(UIColor *)mainColor {
+    _isSquare = square;
+    _shouldPick = shouldPick;
+    _topTitle = topTitle;
+    _pushPhotoPickerVc = pushPhotoPickerVc;
+    _mainColor = mainColor;
+    TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
+    albumPickerVc.isFirstAppear = YES;
+    albumPickerVc.columnNumber = columnNumber;
+    self = [super initWithRootViewController:albumPickerVc];
+    if (self) {
+        self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
+        self.pickerDelegate = delegate;
+        self.selectedModels = [NSMutableArray array];
+        
+        // Allow user picking original photo and video, you also can set No after this method
+        // 默认准许用户选择原图和视频, 你也可以在这个方法后置为NO
+        self.allowPickingOriginalPhoto = YES;
+        self.allowPickingVideo = YES;
+        self.allowPickingImage = YES;
+        self.allowTakePicture = YES;
+        self.sortAscendingByModificationDate = YES;
+        self.autoDismiss = YES;
+        self.columnNumber = columnNumber;
+        [self configDefaultSetting];
+        
+        if (![[TZImageManager manager] authorizationStatusAuthorized]) {
+            _tipLabel = [[UILabel alloc] init];
+            _tipLabel.frame = CGRectMake(8, 120, self.view.tz_width - 16, 60);
+            _tipLabel.textAlignment = NSTextAlignmentCenter;
+            _tipLabel.numberOfLines = 0;
+            _tipLabel.font = [UIFont systemFontOfSize:16];
+            _tipLabel.textColor = [UIColor blackColor];
+            
+            NSDictionary *infoDict = [TZCommonTools tz_getInfoDictionary];
+            NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
+            if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
+            NSString *tipText = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Allow %@ to access your album in \"Settings -> Privacy -> Photos\""],appName];
+            _tipLabel.text = tipText;
+            [self.view addSubview:_tipLabel];
+            
+            if (iOS8Later) {
+                _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+                [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
+                _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
+                _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+                [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+                [self.view addSubview:_settingBtn];
+            }
+            
+            if ([TZImageManager authorizationStatus] == 0) {
+                _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
+            }
+        } else {
+            [self pushPhotoPickerVc];
+        }
+    }
+    return self;
+}
+
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate mainColor:(UIColor *)mainColor {
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:4 delegate:delegate pushPhotoPickerVc:YES mainColor:mainColor];
+}
+
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate mainColor:(UIColor *)mainColor {
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:columnNumber delegate:delegate pushPhotoPickerVc:YES mainColor:mainColor];
+}
+
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc mainColor:(UIColor *)mainColor {
+    _pushPhotoPickerVc = pushPhotoPickerVc;
+    _mainColor = mainColor;
+    TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
+    albumPickerVc.isFirstAppear = YES;
+    albumPickerVc.columnNumber = columnNumber;
+    self = [super initWithRootViewController:albumPickerVc];
+    if (self) {
+        self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
+        self.pickerDelegate = delegate;
+        self.selectedModels = [NSMutableArray array];
+        
+        // Allow user picking original photo and video, you also can set No after this method
+        // 默认准许用户选择原图和视频, 你也可以在这个方法后置为NO
+        self.allowPickingOriginalPhoto = YES;
+        self.allowPickingVideo = YES;
+        self.allowPickingImage = YES;
+        self.allowTakePicture = YES;
+        self.sortAscendingByModificationDate = YES;
+        self.autoDismiss = YES;
+        self.columnNumber = columnNumber;
+        [self configDefaultSetting];
+        
+        if (![[TZImageManager manager] authorizationStatusAuthorized]) {
+            _tipLabel = [[UILabel alloc] init];
+            _tipLabel.frame = CGRectMake(8, 120, self.view.tz_width - 16, 60);
+            _tipLabel.textAlignment = NSTextAlignmentCenter;
+            _tipLabel.numberOfLines = 0;
+            _tipLabel.font = [UIFont systemFontOfSize:16];
+            _tipLabel.textColor = [UIColor blackColor];
+            
+            NSDictionary *infoDict = [TZCommonTools tz_getInfoDictionary];
+            NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
+            if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
+            NSString *tipText = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Allow %@ to access your album in \"Settings -> Privacy -> Photos\""],appName];
+            _tipLabel.text = tipText;
+            [self.view addSubview:_tipLabel];
+            
+            if (iOS8Later) {
+                _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+                [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
+                _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
+                _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+                [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+                [self.view addSubview:_settingBtn];
+            }
+            
+            if ([TZImageManager authorizationStatus] == 0) {
+                _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
+            }
+        } else {
+            [self pushPhotoPickerVc];
+        }
+    }
+    return self;
+}
+
+- (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index mainColor:(UIColor *)mainColor {
+    _mainColor = mainColor;
+    TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
+    self = [super initWithRootViewController:previewVc];
+    if (self) {
+        self.selectedAssets = [NSMutableArray arrayWithArray:selectedAssets];
+        self.allowPickingOriginalPhoto = self.allowPickingOriginalPhoto;
+        [self configDefaultSetting];
+        
+        previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
+        previewVc.currentIndex = index;
+        __weak typeof(self) weakSelf = self;
+        [previewVc setDoneButtonClickBlockWithPreviewType:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            [strongSelf dismissViewControllerAnimated:YES completion:^{
+                if (!strongSelf) return;
+                if (strongSelf.didFinishPickingPhotosHandle) {
+                    strongSelf.didFinishPickingPhotosHandle(photos,assets,isSelectOriginalPhoto);
+                }
+            }];
+        }];
+    }
+    return self;
+}
+
+- (instancetype)initCropTypeWithAsset:(id)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,id asset))completion mainColor:(UIColor *)mainColor {
+    _mainColor = mainColor;
+    TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
+    self = [super initWithRootViewController:previewVc];
+    if (self) {
+        self.maxImagesCount = 1;
+        self.allowCrop = YES;
+        self.selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
+        [self configDefaultSetting];
+        
+        previewVc.photos = [NSMutableArray arrayWithArray:@[photo]];
+        previewVc.isCropImage = YES;
+        previewVc.currentIndex = 0;
+        __weak typeof(self) weakSelf = self;
+        [previewVc setDoneButtonClickBlockCropMode:^(UIImage *cropImage, id asset) {
+            __strong typeof(weakSelf) strongSelf = weakSelf;
+            [strongSelf dismissViewControllerAnimated:YES completion:^{
+                if (completion) {
+                    completion(cropImage,asset);
+                }
+            }];
+        }];
+    }
+    return self;
+}
+
 - (void)configDefaultSetting {
     self.timeout = 15;
     self.photoWidth = 828.0;
@@ -409,6 +589,9 @@
         photoPickerVc.isSquare = _isSquare;
         photoPickerVc.shouldPick = _shouldPick;
         photoPickerVc.topTitle = _topTitle;
+        if (_mainColor) {
+            photoPickerVc.mainColor = _mainColor;
+        }
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
@@ -707,7 +890,11 @@
     rightButton.frame = CGRectMake(0, 0, 44, 44);
     rightButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [rightButton setTitle:imagePickerVc.cancelBtnTitleStr forState:UIControlStateNormal];
-    [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
+    if (imagePickerVc.mainColor) {
+        [rightButton setTitleColor:imagePickerVc.mainColor forState:UIControlStateNormal];
+    } else {
+        [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
+    }
     [rightButton addTarget:imagePickerVc action:@selector(cancelButtonClick) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
 }

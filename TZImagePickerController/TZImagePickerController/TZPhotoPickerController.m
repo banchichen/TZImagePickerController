@@ -91,7 +91,11 @@ static CGFloat itemMargin = 5;
     rightButton.frame = CGRectMake(0, 0, 44, 44);
     rightButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [rightButton setTitle:tzImagePickerVc.cancelBtnTitleStr forState:UIControlStateNormal];
-    [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
+    if (_mainColor) {
+        [rightButton setTitleColor:_mainColor forState:UIControlStateNormal];
+    } else {
+        [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
+    }
     [rightButton addTarget:tzImagePickerVc action:@selector(cancelButtonClick) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
 
@@ -499,6 +503,7 @@ static CGFloat itemMargin = 5;
     cell.allowPickingMultipleVideo = tzImagePickerVc.allowPickingMultipleVideo;
     cell.photoDefImageName = tzImagePickerVc.photoDefImageName;
     cell.photoSelImageName = tzImagePickerVc.photoSelImageName;
+    cell.selectImage = tzImagePickerVc.selectImage;
     TZAssetModel *model;
     if (tzImagePickerVc.sortAscendingByModificationDate || !_showTakePhotoBtn) {
         model = _models[indexPath.row];
@@ -727,6 +732,9 @@ static CGFloat itemMargin = 5;
                 //设置自定义裁剪区域大小
                 //是否需要圆形
                 imageBrowser.isRound = NO;
+                if (_mainColor) {
+                    imageBrowser.mainColor = _mainColor;
+                }
                 [self presentViewController:imageBrowser animated:YES completion:nil];
             }];
         } else {
@@ -976,6 +984,9 @@ static CGFloat itemMargin = 5;
                         //设置自定义裁剪区域大小
                         //是否需要圆形
                         imageBrowser.isRound = NO;
+                        if (_mainColor) {
+                            imageBrowser.mainColor = _mainColor;
+                        }
                         [self presentViewController:imageBrowser animated:YES completion:nil];
                     }];
                 } else {

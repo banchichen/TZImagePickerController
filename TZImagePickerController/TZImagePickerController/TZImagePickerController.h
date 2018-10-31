@@ -39,6 +39,16 @@
 /// This init method for crop photo / 用这个初始化方法以裁剪图片
 - (instancetype)initCropTypeWithAsset:(id)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,id asset))completion;
 
+/// 以下是需要外部改变主题色的初始化方法
+- (instancetype)initWithMaxImagesCountTSType:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square shouldPick:(BOOL)shouldPick topTitle:(NSString *)topTitle mainColor:(UIColor *)mainColor;
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate mainColor:(UIColor *)mainColor;
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate mainColor:(UIColor *)mainColor;
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc mainColor:(UIColor *)mainColor;
+/// This init method just for previewing photos / 用这个初始化方法以预览图片
+- (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index mainColor:(UIColor *)mainColor;
+/// This init method for crop photo / 用这个初始化方法以裁剪图片
+- (instancetype)initCropTypeWithAsset:(id)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,id asset))completion mainColor:(UIColor *)mainColor;
+
 #pragma mark -
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
@@ -181,6 +191,10 @@
 @property (assign, nonatomic) BOOL shouldPick;
 ///顶部title标题
 @property (nonatomic, copy) NSString *topTitle;
+/// 整个项目主题色
+@property (nonatomic, copy) UIColor *mainColor;
+/// 相册图片选中按钮图片
+@property (nonatomic, copy) UIImage *selectImage;
 
 #pragma mark -
 - (void)cancelButtonClick;

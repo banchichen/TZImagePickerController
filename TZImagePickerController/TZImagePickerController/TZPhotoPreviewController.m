@@ -131,7 +131,11 @@
     _selectButton = [[UIButton alloc] initWithFrame:CGRectMake(10, (_toolBar.tz_height - 42) / 2.0, 42, 42)];
 
     [_selectButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoDefImageName] forState:UIControlStateNormal];
-    [_selectButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoSelImageName] forState:UIControlStateSelected];
+    if (_tzImagePickerVc.selectImage) {
+        [_selectButton setImage:_tzImagePickerVc.selectImage forState:UIControlStateSelected];
+    } else {
+        [_selectButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoSelImageName] forState:UIControlStateSelected];
+    }
     [_selectButton addTarget:self action:@selector(select:) forControlEvents:UIControlEventTouchUpInside];
     _selectButton.hidden = !_tzImagePickerVc.showSelectBtn;
     

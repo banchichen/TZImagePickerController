@@ -33,6 +33,11 @@
  */
 @property(nonatomic,strong)UILabel *titleLabel;
 
+/**
+ 主题色
+ */
+@property (nonatomic, copy) UIColor *mainColor;
+
 //是否裁剪成圆形
 @property(nonatomic,assign)BOOL isRound;
 
