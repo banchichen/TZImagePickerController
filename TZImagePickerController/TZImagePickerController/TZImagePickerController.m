@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.0.9 - 2018.10.09
+//  version 3.1.0 - 2018.11.03
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -235,6 +235,7 @@
     self = [super initWithRootViewController:previewVc];
     if (self) {
         self.maxImagesCount = 1;
+        self.allowPickingImage = YES;
         self.allowCrop = YES;
         self.selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
         [self configDefaultSetting];
