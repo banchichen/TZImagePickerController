@@ -49,12 +49,10 @@
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [UIApplication sharedApplication].statusBarHidden = NO;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [UIApplication sharedApplication].statusBarHidden = NO;
 }
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -96,7 +94,7 @@
     if (!_image) {
         return;
     }
-
+    BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
     CGFloat height = [UIFont systemFontOfSize:15].pointSize;
     CGFloat width = 40;
     if ([self lz_isIPhoneX]) {
@@ -110,14 +108,14 @@
         [self.sureButton setFrame:CGRectMake(_selfWidth - 15- width, _selfHeight-15-height - 34.0, width, height + 34.0)];
         self.sureButton.center = CGPointMake(self.sureButton.center.x, self.cancleButton.center.y);
     } else {
-        [self.navView setFrame:CGRectMake(0, 0, _selfWidth, 64)];
-        self.titleLabel.frame = CGRectMake(0, 20, 200, 20);
-        self.titleLabel.center = CGPointMake(self.navView.frame.size.width / 2.0, (self.navView.frame.size.height - self.titleLabel.frame.size.height) / 2.0 + 20);
-        self.topLine.frame = CGRectMake(0, 64, self.navView.frame.size.width, 0.5);
-        [self.cancleButton setFrame:CGRectMake(15, (64 - height) / 2.0,width, 20)];
+        [self.navView setFrame:CGRectMake(0, 0, _selfWidth, isStatusBarHidden ? 44 : 64)];
+        self.titleLabel.frame = CGRectMake(0, 0, 200, 20);
+        self.titleLabel.center = CGPointMake(self.navView.frame.size.width / 2.0, (self.navView.frame.size.height - (isStatusBarHidden ? 0 : self.titleLabel.frame.size.height)) / 2.0 + (isStatusBarHidden ? 0 : 20));
+        self.topLine.frame = CGRectMake(0, self.navView.frame.size.height, self.navView.frame.size.width, 0.5);
+        [self.cancleButton setFrame:CGRectMake(15, (self.navView.frame.size.height - height) / 2.0,width, 20)];
         self.cancleButton.center = CGPointMake(self.cancleButton.center.x, self.titleLabel.center.y);
-        [self.bottomLabel setFrame:CGRectMake(0, _selfHeight-44,_selfWidth, 44)];
-        [self.sureButton setFrame:CGRectMake(_selfWidth - 15- width, _selfHeight-15-height, width, height)];
+        [self.bottomLabel setFrame:CGRectMake(0, _selfHeight - 44,_selfWidth, 44)];
+        [self.sureButton setFrame:CGRectMake(_selfWidth - 15- width, _selfHeight - 15 - height, width, height)];
         self.sureButton.center = CGPointMake(self.sureButton.center.x, self.cancleButton.center.y);
     }
 
