@@ -83,13 +83,13 @@
 ///////-----编辑框
 @interface ZLEditFrameView : UIView
 {
-    UIImageView *_leftView;
-    UIImageView *_rightView;
 }
 
 @property (nonatomic, assign) CGRect validRect;
 @property (nonatomic, assign) CGFloat minValidRectWidth;
 @property (nonatomic, weak) id<ZLEditFrameViewDelegate> delegate;
+@property (nonatomic, strong) UIImageView *leftView;
+@property (nonatomic, strong) UIImageView *rightView;
 
 @end
 
@@ -305,7 +305,11 @@
     
     UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
     leftButton.frame = CGRectMake(0, 0, 44, 44);
-    [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+    if (_backImage) {
+        [leftButton setImage:_backImage forState:UIControlStateNormal];
+    } else {
+        [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+    }
     [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
 
@@ -337,6 +341,7 @@
         [imagePickerVc hideProgressHUD];
         if (error == nil) {
             TSLocalVideoCoverSelectedVC *vc = [[TSLocalVideoCoverSelectedVC alloc]init];
+            vc.picCoverImage = imagePickerVc.picCoverImage;
             vc.videoPath = [NSURL fileURLWithPath:exportFilePath];
             vc.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
                 if (weakSelf.coverImageBlock) {
@@ -456,6 +461,13 @@
     [self.bottomView addSubview:self.collectionView];
 
     self.editView = [[ZLEditFrameView alloc] init];
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (imagePickerVc.editFaceLeft) {
+        self.editView.leftView.image = imagePickerVc.editFaceLeft;
+    }
+    if (imagePickerVc.editFaceRight) {
+        self.editView.rightView.image = imagePickerVc.editFaceRight;
+    }
     self.editView.delegate = self;
     [self.bottomView addSubview:self.editView];
     // 更新最小可编辑区域

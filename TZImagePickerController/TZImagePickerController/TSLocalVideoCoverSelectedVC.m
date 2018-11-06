@@ -74,11 +74,12 @@
 ///////-----编辑框
 @interface TSLocalEditFrameView : UIView
 {
-    UIImageView *_selectedView;
+
 }
 
 @property (nonatomic, assign) CGRect validRect;
 @property (nonatomic, weak) id<TSLocalEditFrameViewDelegate> delegate;
+@property (nonatomic, strong) UIImageView *selectedView;
 
 @end
 
@@ -225,7 +226,11 @@
     
     UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
     leftButton.frame = CGRectMake(0, 0, 44, 44);
-    [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+    if (_backImage) {
+        [leftButton setImage:_backImage forState:UIControlStateNormal];
+    } else {
+        [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+    }
     [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
 }
@@ -233,7 +238,7 @@
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-    
+
     UIEdgeInsets inset = UIEdgeInsetsZero;
     if (@available(iOS 11, *)) {
         inset = self.view.safeAreaInsets;
@@ -283,6 +288,9 @@
     [self.bottomView addSubview:self.collectionView];
 
     self.editView = [[TSLocalEditFrameView alloc] init];
+    if (_picCoverImage) {
+        self.editView.selectedView.image = _picCoverImage;
+    }
     self.editView.delegate = self;
     [self.bottomView addSubview:self.editView];
 }

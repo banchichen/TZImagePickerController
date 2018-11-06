@@ -108,7 +108,12 @@ static CGFloat itemMargin = 5;
     } else {
         UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
         leftButton.frame = CGRectMake(0, 0, 44, 44);
-        [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+        if (tzImagePickerVc.backImage) {
+            [leftButton setImage:tzImagePickerVc.backImage forState:UIControlStateNormal];
+        } else {
+            [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+        }
+        
         [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
     }
@@ -494,7 +499,11 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
-        cell.imageView.image = [UIImage imageNamedFromMyBundle:tzImagePickerVc.takePictureImageName];
+        if (tzImagePickerVc.takeVideo) {
+            cell.imageView.image = tzImagePickerVc.takeVideo;
+        } else {
+            cell.imageView.image = [UIImage imageNamedFromMyBundle:tzImagePickerVc.takePictureImageName];
+        }
         cell.imageView.backgroundColor = tzImagePickerVc.oKButtonBackGroundColorDisabled;
         return cell;
     }

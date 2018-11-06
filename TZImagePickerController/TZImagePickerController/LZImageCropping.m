@@ -122,7 +122,9 @@
     if (_mainColor && _sureButton) {
         [_sureButton setTitleColor:_mainColor forState:0];
     }
-
+    if (_backImage && _cancleButton) {
+        [_cancleButton setImage:_backImage forState:UIControlStateNormal];
+    }
     [self.overLayView setFrame:self.view.frame];
     [self.scrollView setFrame:CGRectMake(0, 0, _selfWidth, _selfHeight)];
     [self.scrollView setContentSize:CGSizeMake(_selfWidth, _selfHeight)];
