@@ -341,7 +341,15 @@
         [imagePickerVc hideProgressHUD];
         if (error == nil) {
             TSLocalVideoCoverSelectedVC *vc = [[TSLocalVideoCoverSelectedVC alloc]init];
-            vc.picCoverImage = imagePickerVc.picCoverImage;
+            if (imagePickerVc.backImage) {
+                vc.backImage = imagePickerVc.backImage;
+            }
+            if (imagePickerVc.picCoverImage) {
+                vc.picCoverImage = imagePickerVc.picCoverImage;
+            }
+            if (imagePickerVc.mainColor) {
+                vc.mainColor = imagePickerVc.mainColor;
+            }
             vc.videoPath = [NSURL fileURLWithPath:exportFilePath];
             vc.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
                 if (weakSelf.coverImageBlock) {
