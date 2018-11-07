@@ -259,7 +259,7 @@
 - (UIImageView *)videoImgView {
     if (_videoImgView == nil) {
         UIImageView *videoImgView = [[UIImageView alloc] init];
-        [videoImgView setImage:[UIImage imageNamedFromMyBundle:@"VideoSendIcon"]];
+        [videoImgView setImage:[UIImage tz_imageNamedFromMyBundle:@"VideoSendIcon"]];
         [self.bottomView addSubview:videoImgView];
         _videoImgView = videoImgView;
     }

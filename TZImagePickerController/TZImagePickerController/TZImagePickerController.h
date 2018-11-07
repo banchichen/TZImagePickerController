@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.1.0 - 2018.11.03
+//  version 3.1.1 - 2018.11.07
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -300,7 +300,7 @@
 
 
 @interface UIImage (MyBundle)
-+ (UIImage *)imageNamedFromMyBundle:(NSString *)name;
++ (UIImage *)tz_imageNamedFromMyBundle:(NSString *)name;
 @end
 
 
@@ -309,7 +309,7 @@
 + (CGFloat)tz_statusBarHeight;
 // 获得Info.plist数据字典
 + (NSDictionary *)tz_getInfoDictionary;
-+ (BOOL)isRightToLeftLayout;
++ (BOOL)tz_isRightToLeftLayout;
 @end
 
 
