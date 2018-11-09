@@ -611,6 +611,9 @@ static dispatch_once_t onceToken;
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
         option.resizeMode = PHImageRequestOptionsResizeModeFast;
         int32_t imageRequestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:imageSize contentMode:PHImageContentModeAspectFill options:option resultHandler:^(UIImage *result, NSDictionary *info) {
+            if ([info[PHImageResultIsDegradedKey] boolValue]) {
+                return;
+            }
             if (result) {
                 image = result;
             }

@@ -388,6 +388,7 @@ static CGFloat itemMargin = 7;
             TZAssetModel *model = tzImagePickerVc.selectedModels[i];
             
             [[TZImageManager manager] getPhotoForSZYPublishWithAsset:model.asset imageWidth:tzImagePickerVc.photoWidth completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+                if (isDegraded) return;
                 if (photo) {
                     photo = [[TZImageManager manager] scaleImage:photo toSize:CGSizeMake(tzImagePickerVc.photoWidth, (int)(tzImagePickerVc.photoWidth * photo.size.height / photo.size.width))];
                     [photos replaceObjectAtIndex:i withObject:photo];
