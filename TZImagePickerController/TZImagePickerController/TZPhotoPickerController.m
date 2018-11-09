@@ -386,17 +386,15 @@ static CGFloat itemMargin = 7;
         __block id alertView;
         for (NSInteger i = 0; i < tzImagePickerVc.selectedModels.count; i++) {
             TZAssetModel *model = tzImagePickerVc.selectedModels[i];
-            [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-                if (isDegraded) return;
+            
+            [[TZImageManager manager] getPhotoForSZYPublishWithAsset:model.asset imageWidth:tzImagePickerVc.photoWidth completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
                 if (photo) {
                     photo = [[TZImageManager manager] scaleImage:photo toSize:CGSizeMake(tzImagePickerVc.photoWidth, (int)(tzImagePickerVc.photoWidth * photo.size.height / photo.size.width))];
                     [photos replaceObjectAtIndex:i withObject:photo];
                 }
                 if (info)  [infoArr replaceObjectAtIndex:i withObject:info];
                 [assets replaceObjectAtIndex:i withObject:model.asset];
-                
                 for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
-                
                 if (havenotShowAlert) {
                     [tzImagePickerVc hideAlertView:alertView];
                     [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
