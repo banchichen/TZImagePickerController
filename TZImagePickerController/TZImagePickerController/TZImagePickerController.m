@@ -906,7 +906,12 @@
     self.navigationItem.title = @"选择相册";
 
     if (self.isFirstAppear && !imagePickerVc.navLeftBarButtonSettingBlock) {
-        self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] style:UIBarButtonItemStylePlain target:nil action:nil];
+        if (imagePickerVc.backImage) {
+            self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithImage:imagePickerVc.backImage style:UIBarButtonItemStylePlain target:nil action:nil];
+        } else {
+            self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] style:UIBarButtonItemStylePlain target:nil action:nil];
+        }
+        
     }
     
     [self configTableView];

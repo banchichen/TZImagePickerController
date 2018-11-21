@@ -38,6 +38,11 @@
  */
 @property (nonatomic, copy) UIColor *mainColor;
 
+/**
+ 返回箭头
+ */
+@property(nonatomic,strong)UIImage *backImage;
+
 //是否裁剪成圆形
 @property(nonatomic,assign)BOOL isRound;
 

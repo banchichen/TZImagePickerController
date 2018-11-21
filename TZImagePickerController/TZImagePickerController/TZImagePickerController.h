@@ -195,6 +195,16 @@
 @property (nonatomic, copy) UIColor *mainColor;
 /// 相册图片选中按钮图片
 @property (nonatomic, copy) UIImage *selectImage;
+/// 整个项目的返回按钮图片
+@property(nonatomic,strong)UIImage *backImage;
+/// 相册图片拍摄视频图片
+@property (nonatomic, copy) UIImage *takeVideo;
+/// 视频编辑页面左图片
+@property (nonatomic, copy) UIImage *editFaceLeft;
+/// 视频编辑页面右图片
+@property (nonatomic, copy) UIImage *editFaceRight;
+/// 整个项目的视频封面选择框
+@property(nonatomic,strong)UIImage *picCoverImage;
 
 #pragma mark -
 - (void)cancelButtonClick;
