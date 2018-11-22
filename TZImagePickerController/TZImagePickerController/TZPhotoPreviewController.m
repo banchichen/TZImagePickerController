@@ -39,6 +39,9 @@
 
 @property (nonatomic, assign) double progress;
 @property (strong, nonatomic) id alertView;
+@property (nonatomic, strong) UIView *toolBarSpLine;
+@property (nonatomic, strong) UIView *navBarSpLine;
+
 @end
 
 @implementation TZPhotoPreviewController
@@ -67,7 +70,6 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    if (iOS7Later) [UIApplication sharedApplication].statusBarHidden = YES;
     if (_currentIndex) [_collectionView setContentOffset:CGPointMake((self.view.tz_width + 20) * _currentIndex, 0) animated:NO];
     [self refreshNaviBarAndBottomBarState];
 }
@@ -90,21 +92,27 @@
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     
     _naviBar = [[UIView alloc] initWithFrame:CGRectZero];
-    _naviBar.backgroundColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:0.7];
+    _naviBar.backgroundColor = [UIColor whiteColor];
     
     _backButton = [[UIButton alloc] initWithFrame:CGRectZero];
-    [_backButton setImage:[UIImage imageNamedFromMyBundle:@"navi_back"] forState:UIControlStateNormal];
+    if (tzImagePickerVc.backImage) {
+        [_backButton setImage:tzImagePickerVc.backImage forState:UIControlStateNormal];
+    } else {
+        [_backButton setImage:[UIImage imageNamedFromMyBundle:@"navi_back"] forState:UIControlStateNormal];
+    }
     [_backButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [_backButton addTarget:self action:@selector(backButtonClick) forControlEvents:UIControlEventTouchUpInside];
     
     [_naviBar addSubview:_backButton];
+    self.navBarSpLine = [[UIView alloc]initWithFrame:CGRectMake(0, _naviBar.frame.size.height - 0.5, _naviBar.frame.size.width, 0.5)];
+    self.navBarSpLine.backgroundColor = [UIColor grayColor];
+    [_naviBar addSubview: self.navBarSpLine];
     [self.view addSubview:_naviBar];
 }
 
 - (void)configBottomToolBar {
     _toolBar = [[UIView alloc] initWithFrame:CGRectZero];
-    static CGFloat rgb = 34 / 255.0;
-    _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.7];
+    _toolBar.backgroundColor = [UIColor whiteColor];
     
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
 //    if (_tzImagePickerVc.allowPickingOriginalPhoto) {
@@ -128,17 +136,22 @@
 //        if (_isSelectOriginalPhoto) [self showPhotoBytes];
 //    }
     
-    _selectButton = [[UIButton alloc] initWithFrame:CGRectMake(10, (_toolBar.tz_height - 42) / 2.0, 42, 42)];
-
-    [_selectButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoDefImageName] forState:UIControlStateNormal];
-    if (_tzImagePickerVc.selectImage) {
-        [_selectButton setImage:_tzImagePickerVc.selectImage forState:UIControlStateSelected];
+    _selectButton = [[UIButton alloc] initWithFrame:CGRectMake(10, (_toolBar.tz_height - 42) / 2.0, 55, 42)];
+    if (_tzImagePickerVc.previewSelectBtnDefImage) {
+        [_selectButton setImage:_tzImagePickerVc.previewSelectBtnDefImage forState:UIControlStateNormal];
     } else {
-        [_selectButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoSelImageName] forState:UIControlStateSelected];
+        [_selectButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoPreviewDefImageName] forState:UIControlStateNormal];
+    }
+    if (_tzImagePickerVc.previewSelectBtnSelImage) {
+        [_selectButton setImage:_tzImagePickerVc.previewSelectBtnSelImage forState:UIControlStateSelected];
+    } else {
+        [_selectButton setImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoPreviewSelImageName] forState:UIControlStateSelected];
     }
     [_selectButton addTarget:self action:@selector(select:) forControlEvents:UIControlEventTouchUpInside];
     _selectButton.hidden = !_tzImagePickerVc.showSelectBtn;
-    
+    [_selectButton setTitle:@" 选择" forState:UIControlStateNormal];
+    _selectButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    [_selectButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
     [_toolBar addSubview:_selectButton];
 
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -156,7 +169,7 @@
     } else {
         [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
     }
-
+    _doneButton.titleLabel.font =[UIFont systemFontOfSize:14];
 //    _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoNumberIconImageName]];
 //    _numberImageView.backgroundColor = [UIColor clearColor];
 //    _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 0;
@@ -174,6 +187,9 @@
     [_toolBar addSubview:_originalPhotoButton];
     [_toolBar addSubview:_numberImageView];
     [_toolBar addSubview:_numberLabel];
+    self.toolBarSpLine = [[UIView alloc]initWithFrame:CGRectZero];
+    self.toolBarSpLine.backgroundColor = [UIColor lightGrayColor];
+    [_toolBar addSubview: self.toolBarSpLine];
     [self.view addSubview:_toolBar];
 }
 
@@ -181,7 +197,7 @@
     _layout = [[UICollectionViewFlowLayout alloc] init];
     _layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
-    _collectionView.backgroundColor = [UIColor blackColor];
+    _collectionView.backgroundColor = [UIColor whiteColor];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
     _collectionView.pagingEnabled = YES;
@@ -235,10 +251,11 @@
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
 
     CGFloat statusBarHeight = [TZCommonTools tz_statusBarHeight];
-    CGFloat statusBarHeightInterval = statusBarHeight - 20;
+    CGFloat statusBarHeightInterval = statusBarHeight;
     CGFloat naviBarHeight = statusBarHeight + _tzImagePickerVc.navigationBar.tz_height;
     _naviBar.frame = CGRectMake(0, 0, self.view.tz_width, naviBarHeight);
-    _backButton.frame = CGRectMake(10, 10 + statusBarHeightInterval, 44, 44);
+    self.navBarSpLine.frame = CGRectMake(0, _naviBar.frame.size.height - 0.5, _naviBar.frame.size.width, 0.5);
+    _backButton.frame = CGRectMake(0, statusBarHeightInterval, 44, 44);
     
     _layout.itemSize = CGSizeMake(self.view.tz_width + 20, self.view.tz_height);
     _layout.minimumInteritemSpacing = 0;
@@ -253,7 +270,7 @@
         [_collectionView reloadData];
     }
     
-    CGFloat toolBarHeight = [TZCommonTools tz_isIPhoneX] ? 44 + (83 - 49) : 44;
+    CGFloat toolBarHeight = [TZCommonTools tz_isIPhoneX] ? 47 + (83 - 49) : 47;
     CGFloat toolBarTop = self.view.tz_height - toolBarHeight;
     _toolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
 //    if (_tzImagePickerVc.allowPickingOriginalPhoto) {
@@ -261,12 +278,14 @@
 //        _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
 //        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
 //    }
-    _doneButton.frame = CGRectMake(self.view.tz_width - 80 - 12, 5, 80, 30);
+    _doneButton.frame = CGRectMake(self.view.tz_width - 70 - 9, 5, 70, 30);
     _selectButton.tz_centerY = _doneButton.tz_centerY;
     _doneButton.layer.cornerRadius = 4;
+    _doneButton.tz_centerY = _toolBar.tz_height / 2.0;
     _numberImageView.frame = CGRectMake(_doneButton.tz_left - 30 - 2, 7, 30, 30);
     _numberLabel.frame = _numberImageView.frame;
-    
+    self.toolBarSpLine.frame = CGRectMake(0, 0, _naviBar.frame.size.width, 0.5);
+
     [self configCropView];
 }
 
@@ -331,10 +350,10 @@
     }
     model.isSelected = !selectButton.isSelected;
     [self refreshNaviBarAndBottomBarState];
-    if (model.isSelected) {
-        [UIView showOscillatoryAnimationWithLayer:selectButton.imageView.layer type:TZOscillatoryAnimationToBigger];
-    }
-    [UIView showOscillatoryAnimationWithLayer:_numberImageView.layer type:TZOscillatoryAnimationToSmaller];
+//    if (model.isSelected) {
+//        [UIView showOscillatoryAnimationWithLayer:selectButton.imageView.layer type:TZOscillatoryAnimationToBigger];
+//    }
+//    [UIView showOscillatoryAnimationWithLayer:_numberImageView.layer type:TZOscillatoryAnimationToSmaller];
 }
 
 - (void)backButtonClick {

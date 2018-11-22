@@ -537,6 +537,8 @@
     self.takePictureImageName = @"takePicture";
     self.photoSelImageName = @"photo_sel_photoPickerVc";
     self.photoDefImageName = @"photo_def_photoPickerVc";
+    self.photoPreviewSelImageName = @"preview_select_sel";
+    self.photoPreviewDefImageName = @"preview_select_def";
     self.photoNumberIconImageName = @"photo_number_icon";
     self.photoPreviewOriginDefImageName = @"preview_original_def";
     self.photoOriginDefImageName = @"photo_original_def";
