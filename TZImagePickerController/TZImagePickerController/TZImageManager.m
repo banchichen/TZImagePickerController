@@ -384,7 +384,8 @@ static dispatch_once_t onceToken;
             };
             options.networkAccessAllowed = YES;
             options.resizeMode = PHImageRequestOptionsResizeModeFast;
-            [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+            void (^resultHandler)(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info);
+            resultHandler = ^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
                 UIImage *resultImage = [UIImage imageWithData:imageData];
                 if (![TZImagePickerConfig sharedInstance].notScaleImage) {
                     resultImage = [self scaleImage:resultImage toSize:imageSize];
@@ -393,8 +394,19 @@ static dispatch_once_t onceToken;
                     resultImage = image;
                 }
                 resultImage = [self fixOrientation:resultImage];
-                if (completion) completion(resultImage,info,NO);
-            }];
+                if (!imageData && info[PHImageErrorKey]) {
+                    NSError *error = info[PHImageErrorKey];
+                    if ([error isKindOfClass:[NSError class]] && error.code == 81) { // timeout, retrying
+                        [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:resultHandler];
+                    } else {
+                        if (completion) completion(resultImage,info,NO);
+                    }
+                    NSLog(@"PHImageError：%@", info[PHImageErrorKey]);
+                } else {
+                    if (completion) completion(resultImage,info,NO);
+                }
+            };
+            [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:resultHandler];
         }
     }];
     return imageRequestID;
