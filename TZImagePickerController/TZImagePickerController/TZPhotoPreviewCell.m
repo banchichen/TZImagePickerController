@@ -224,6 +224,8 @@
             self.imageRequestID = 0;
         }
     } networkAccessAllowed:YES];
+    
+    [self configMaximumZoomScale];
 }
 
 - (void)recoverSubviews {
@@ -257,9 +259,8 @@
     [self refreshScrollViewContentSize];
 }
 
-- (void)setAllowCrop:(BOOL)allowCrop {
-    _allowCrop = allowCrop;
-    _scrollView.maximumZoomScale = allowCrop ? 4.0 : 2.5;
+- (void)configMaximumZoomScale {
+    _scrollView.maximumZoomScale = _allowCrop ? 4.0 : 2.5;
     
     if ([self.asset isKindOfClass:[PHAsset class]]) {
         PHAsset *phAsset = (PHAsset *)self.asset;
