@@ -563,13 +563,14 @@
     }
     for (NSInteger i = 0; i < assets.count; i++) {
         PHAsset *asset = assets[i];
-        [[TZImageManager manager] getOriginalPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info) {
+        PHImageRequestID requestId = [[TZImageManager manager] getOriginalPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info) {
             finishCount += 1;
             [originalPhotos replaceObjectAtIndex:i withObject:photo];
             if (finishCount >= assets.count) {
                 NSLog(@"All finished.");
             }
         }];
+        NSLog(@"requestId: %d", requestId);
     }
      */
 }
