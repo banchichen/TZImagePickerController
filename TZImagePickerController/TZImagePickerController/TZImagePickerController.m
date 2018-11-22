@@ -535,7 +535,7 @@
 
 - (void)configDefaultImageName {
     self.takePictureImageName = @"takePicture";
-    self.photoSelImageName = @"photo_sel_photoPickerVc";
+    self.photoSelImageName = @"photo_sel_previewVc";
     self.photoDefImageName = @"photo_def_photoPickerVc";
     self.photoNumberIconImageName = @"photo_number_icon";
     self.photoPreviewOriginDefImageName = @"preview_original_def";

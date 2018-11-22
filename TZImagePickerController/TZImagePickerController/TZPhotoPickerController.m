@@ -99,25 +99,32 @@ static CGFloat itemMargin = 5;
     [rightButton addTarget:tzImagePickerVc action:@selector(cancelButtonClick) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
 
-    if (tzImagePickerVc.navLeftBarButtonSettingBlock) {
-        UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        leftButton.frame = CGRectMake(0, 0, 44, 44);
-        [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
-        tzImagePickerVc.navLeftBarButtonSettingBlock(leftButton);
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
-    } else {
-        UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        leftButton.frame = CGRectMake(0, 0, 44, 44);
-        if (tzImagePickerVc.backImage) {
-            [leftButton setImage:tzImagePickerVc.backImage forState:UIControlStateNormal];
-        } else {
-            [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
-        }
-        
-        [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
+//    if (tzImagePickerVc.navLeftBarButtonSettingBlock) {
+//        UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//        leftButton.frame = CGRectMake(0, 0, 44, 44);
+//        [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
+//        tzImagePickerVc.navLeftBarButtonSettingBlock(leftButton);
+//        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
+//    } else {
+//        UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
+//        leftButton.frame = CGRectMake(0, 0, 44, 44);
+//        if (tzImagePickerVc.backImage) {
+//            [leftButton setImage:tzImagePickerVc.backImage forState:UIControlStateNormal];
+//        } else {
+//            [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+//        }
+//
+//        [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
+//        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
+//    }
+    if (tzImagePickerVc.backImage) {
+        [[UINavigationBar appearance] setBackIndicatorImage:tzImagePickerVc.backImage];
+        [[UINavigationBar appearance] setBackIndicatorTransitionMaskImage:tzImagePickerVc.backImage];
     }
-
+ 
+    UIBarButtonItem *backBtnItem = [[UIBarButtonItem alloc] init];
+    backBtnItem.title = @"";
+    self.navigationItem.backBarButtonItem = backBtnItem;
     _showTakePhotoBtn = (_model.isCameraRoll && tzImagePickerVc.allowTakePicture);
     // [self resetCachedAssets];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
@@ -734,6 +741,9 @@ static CGFloat itemMargin = 5;
         } else {
             TZGifPhotoPreviewController *gifPreviewVc = [[TZGifPhotoPreviewController alloc] init];
             gifPreviewVc.model = model;
+            UIBarButtonItem *backBtnItem = [[UIBarButtonItem alloc] init];
+            backBtnItem.title = @" ";
+            self.navigationItem.backBarButtonItem = backBtnItem;
             [self.navigationController pushViewController:gifPreviewVc animated:YES];
         }
     } else {
