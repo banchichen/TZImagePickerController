@@ -61,7 +61,6 @@
     CGFloat scale;
     if (_cropSize.width/_cropSize.height > _image.size.width/_image.size.height) {
         scale = _cropSize.width/_imageView.frame.size.width;
-        [self.scrollView setZoomScale:scale];
         [self.scrollView setZoomScale:scale animated:YES];
     }else{
         scale = _cropSize.height/_imageView.frame.size.height;
