@@ -158,8 +158,13 @@
 
 #pragma mark -
 @property (nonatomic, copy) NSString *takePictureImageName;
+/// 列表 勾选图标
 @property (nonatomic, copy) NSString *photoSelImageName;
 @property (nonatomic, copy) NSString *photoDefImageName;
+/// 预览页 勾选图标
+@property (nonatomic, copy) NSString *photoPreviewSelImageName;
+@property (nonatomic, copy) NSString *photoPreviewDefImageName;
+
 @property (nonatomic, copy) NSString *photoOriginSelImageName;
 @property (nonatomic, copy) NSString *photoOriginDefImageName;
 @property (nonatomic, copy) NSString *photoPreviewOriginDefImageName;
@@ -195,6 +200,10 @@
 @property (nonatomic, copy) UIColor *mainColor;
 /// 相册图片选中按钮图片
 @property (nonatomic, copy) UIImage *selectImage;
+/// 相册图片预览页面选中按钮 选中图片
+@property (nonatomic, copy) UIImage *previewSelectBtnSelImage;
+/// 相册图片预览页面选中按钮 未选中图片
+@property (nonatomic, copy) UIImage *previewSelectBtnDefImage;
 /// 整个项目的返回按钮图片
 @property(nonatomic,strong)UIImage *backImage;
 /// 相册图片拍摄视频图片
