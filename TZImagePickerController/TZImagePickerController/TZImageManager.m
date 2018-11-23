@@ -588,6 +588,10 @@ static dispatch_once_t onceToken;
         PHImageRequestOptions *option = [[PHImageRequestOptions alloc]init];
         option.networkAccessAllowed = YES;
         option.resizeMode = PHImageRequestOptionsResizeModeFast;
+        /// STfix: 点击列表中图片立即获取该图的原图,就可能遇到某些图片只能获取到模糊的压缩图片。
+        /// 且该图片每一次获取都会获取到模糊的压缩图片
+        /// 该修改目前没有测试到其他问题，原框架没有设置该属性即 option.synchronous = NO
+        option.synchronous = YES;
         [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage *result, NSDictionary *info) {
             BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
             if (downloadFinined && result) {

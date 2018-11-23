@@ -747,26 +747,30 @@ static CGFloat itemMargin = 5;
             [self.navigationController pushViewController:gifPreviewVc animated:YES];
         }
     } else {
-        if (_shouldPick) {
+        TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+        if (imagePickerVc.shouldPick) {
             TZAssetModel *asset = _models[index];
+            TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
             [[TZImageManager manager] getOriginalPhotoWithAsset:asset.asset completion:^(UIImage *photo, NSDictionary *info) {
                 LZImageCropping *imageBrowser = [[LZImageCropping alloc]init];
+                TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
                 //设置代理
                 imageBrowser.delegate = self;
-                if (self.isSquare) {
+                if (tzImagePickerVc.isSquare) {
                     imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width - 80, UIScreen.mainScreen.bounds.size.width - 80);
                 } else {
                     imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
                 }
                 [imageBrowser setImage:photo];
-                imageBrowser.titleLabel.text = _topTitle;
+                imageBrowser.titleLabel.text = tzImagePickerVc.topTitle;
+                imageBrowser.backImage = imagePickerVc.backImage;
                 //设置自定义裁剪区域大小
                 //是否需要圆形
                 imageBrowser.isRound = NO;
                 if (_mainColor) {
                     imageBrowser.mainColor = _mainColor;
                 }
-                [self presentViewController:imageBrowser animated:YES completion:nil];
+                [self.navigationController pushViewController:imageBrowser animated:YES];
             }];
         } else {
             TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
@@ -994,7 +998,7 @@ static CGFloat itemMargin = 5;
             }
             
             if (tzImagePickerVc.maxImagesCount <= 1) {
-                if (_shouldPick) {
+                if (tzImagePickerVc.shouldPick) {
                     TZAssetModel *asset;
                     if (tzImagePickerVc.sortAscendingByModificationDate) {
                         asset = _models[_models.count - 1];
@@ -1003,14 +1007,15 @@ static CGFloat itemMargin = 5;
                     }
                     [[TZImageManager manager] getOriginalPhotoWithAsset:asset.asset completion:^(UIImage *photo, NSDictionary *info) {
                         LZImageCropping *imageBrowser = [[LZImageCropping alloc]init];
+                        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
                         //设置代理
                         imageBrowser.delegate = self;
-                        if (self.isSquare) {
+                        if (tzImagePickerVc.isSquare) {
                             imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width - 80, UIScreen.mainScreen.bounds.size.width - 80);
                         } else {
                             imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
                         }
-                        imageBrowser.titleLabel.text = _topTitle;
+                        imageBrowser.titleLabel.text = tzImagePickerVc.topTitle;
                         [imageBrowser setImage:photo];
                         //设置自定义裁剪区域大小
                         //是否需要圆形
