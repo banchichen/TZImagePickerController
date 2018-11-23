@@ -29,7 +29,6 @@
 @interface TZImagePickerController : UINavigationController
 
 #pragma mark -
-- (instancetype)initWithMaxImagesCountTSType:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square shouldPick:(BOOL)shouldPick topTitle:(NSString *)topTitle;
 /// Use this init method / 用这个初始化方法
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate;
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate;
@@ -39,11 +38,21 @@
 /// This init method for crop photo / 用这个初始化方法以裁剪图片
 - (instancetype)initCropTypeWithAsset:(id)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,id asset))completion;
 
-/// 以下是需要外部改变主题色的初始化方法
+// MARK: - TS 定制初始化方法
+/// TS_需要裁TS裁剪的初始化方法
+/// 可以初始化之后进行修改，比如标题，裁剪区域样式
+- (instancetype)initWithMaxImagesCountTSType:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square shouldPick:(BOOL)shouldPick topTitle:(NSString *)topTitle;
+/// TS_外部可以改变主题色的TS裁剪初始化方法
+/// 除主题色都可以初始化之后进行修改，比如标题，裁剪区域样式
 - (instancetype)initWithMaxImagesCountTSType:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc square:(BOOL)square shouldPick:(BOOL)shouldPick topTitle:(NSString *)topTitle mainColor:(UIColor *)mainColor;
+/// TS_外部可以改变主题色，快捷初始化方法（默认进入照片列表）
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate mainColor:(UIColor *)mainColor;
+/// TS_外部可以改变主题色，设置列数初始化方法（默认进入照片列表）
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate mainColor:(UIColor *)mainColor;
+/// TS_外部可以改变主题色，设置列数，是否直接进入照片列表初始化方法
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc mainColor:(UIColor *)mainColor;
+// MARK: - end
+
 /// This init method just for previewing photos / 用这个初始化方法以预览图片
 - (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index mainColor:(UIColor *)mainColor;
 /// This init method for crop photo / 用这个初始化方法以裁剪图片
