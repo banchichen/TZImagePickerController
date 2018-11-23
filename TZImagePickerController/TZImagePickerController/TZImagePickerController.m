@@ -588,9 +588,6 @@
         TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
         photoPickerVc.isFirstAppear = YES;
         photoPickerVc.columnNumber = self.columnNumber;
-        photoPickerVc.isSquare = _isSquare;
-        photoPickerVc.shouldPick = _shouldPick;
-        photoPickerVc.topTitle = _topTitle;
         if (_mainColor) {
             photoPickerVc.mainColor = _mainColor;
         }
@@ -1002,9 +999,6 @@
     TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     photoPickerVc.columnNumber = self.columnNumber;
-    photoPickerVc.isSquare = imagePickerVc.isSquare;
-    photoPickerVc.shouldPick = imagePickerVc.shouldPick;
-    photoPickerVc.topTitle = imagePickerVc.topTitle;
     TZAlbumModel *model = _albumArr[indexPath.row];
     photoPickerVc.model = model;
     [self.navigationController pushViewController:photoPickerVc animated:YES];

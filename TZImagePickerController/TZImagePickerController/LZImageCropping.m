@@ -49,10 +49,12 @@
 }
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    self.navigationController.navigationBarHidden = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    self.navigationController.navigationBarHidden = NO;
 }
 
 -(void)viewDidAppear:(BOOL)animated{
@@ -94,14 +96,14 @@
         return;
     }
     BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
-    CGFloat height = [UIFont systemFontOfSize:15].pointSize;
+    CGFloat height = 40;
     CGFloat width = 40;
     if ([self lz_isIPhoneX]) {
         [self.navView setFrame:CGRectMake(0, 0, _selfWidth, 64 + 24)];
         self.titleLabel.frame = CGRectMake(0, 0, 200, 20);
         self.titleLabel.center = CGPointMake(self.navView.frame.size.width / 2.0, self.navView.center.y + 20);
         self.topLine.frame = CGRectMake(0, 64 + 24, self.navView.frame.size.width, 0.5);
-        [self.cancleButton setFrame:CGRectMake(15, (64 + 24 - height) / 2.0,width, 20)];
+        [self.cancleButton setFrame:CGRectMake(0, (64 + 24 - height) / 2.0,width, height)];
         self.cancleButton.center = CGPointMake(self.cancleButton.center.x, self.titleLabel.center.y);
         [self.bottomLabel setFrame:CGRectMake(0, _selfHeight - 44 - 34.0,_selfWidth, 44 + 34.0)];
         [self.sureButton setFrame:CGRectMake(_selfWidth - 15- width, _selfHeight-15-height - 34.0, width, height + 34.0)];
@@ -111,7 +113,7 @@
         self.titleLabel.frame = CGRectMake(0, 0, 200, 20);
         self.titleLabel.center = CGPointMake(self.navView.frame.size.width / 2.0, (self.navView.frame.size.height - (isStatusBarHidden ? 0 : self.titleLabel.frame.size.height)) / 2.0 + (isStatusBarHidden ? 0 : 20));
         self.topLine.frame = CGRectMake(0, self.navView.frame.size.height, self.navView.frame.size.width, 0.5);
-        [self.cancleButton setFrame:CGRectMake(15, (self.navView.frame.size.height - height) / 2.0,width, 20)];
+        [self.cancleButton setFrame:CGRectMake(0, (self.navView.frame.size.height - height) / 2.0,width, height)];
         self.cancleButton.center = CGPointMake(self.cancleButton.center.x, self.titleLabel.center.y);
         [self.bottomLabel setFrame:CGRectMake(0, _selfHeight - 44,_selfWidth, 44)];
         [self.sureButton setFrame:CGRectMake(_selfWidth - 15- width, _selfHeight - 15 - height, width, height)];
@@ -308,10 +310,14 @@
 
 #pragma mark - Click Event
 -(void)cancleButtonClick{
-    if ([self.delegate respondsToSelector:@selector(lzImageCroppingDidCancle:)]) {
-        [self.delegate lzImageCroppingDidCancle:self];
+    if (self.navigationController.viewControllers.count > 1) {
+        [self.navigationController popViewControllerAnimated:YES];
+    } else {
+        [self dismissViewControllerAnimated:YES completion:nil];
+        if ([self.delegate respondsToSelector:@selector(lzImageCroppingDidCancle:)]) {
+            [self.delegate lzImageCroppingDidCancle:self];
+        }
     }
-    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 -(void)sureButtonClick{

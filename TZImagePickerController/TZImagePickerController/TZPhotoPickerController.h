@@ -14,14 +14,10 @@
 @property (nonatomic, assign) BOOL isFirstAppear;
 @property (nonatomic, assign) NSInteger columnNumber;
 @property (nonatomic, strong) TZAlbumModel *model;
-///是否需要裁剪
-@property (assign, nonatomic) BOOL shouldPick;
-///是正方形还是长方形
-@property (assign, nonatomic) BOOL isSquare;
-///顶部title标题
-@property (nonatomic, copy) NSString *topTitle;
+
 /// 整个项目主题色
-@property (nonatomic, copy) UIColor *mainColor;
+@property (nonatomic, strong) UIColor *mainColor;
+
 @end
 
 
