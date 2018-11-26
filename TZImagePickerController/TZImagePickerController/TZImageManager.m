@@ -142,9 +142,9 @@ static dispatch_once_t onceToken;
             // 有可能是PHCollectionList类的的对象，过滤掉
             if (![collection isKindOfClass:[PHAssetCollection class]]) continue;
             // 过滤空相册
-            if (collection.estimatedAssetCount <= 0) continue;
+            if (collection.estimatedAssetCount <= 0 && ![self isCameraRollAlbum:collection]) continue;
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            if (fetchResult.count < 1) continue;
+            if (fetchResult.count < 1 && ![self isCameraRollAlbum:collection]) continue;
             
             if ([self.pickerDelegate respondsToSelector:@selector(isAlbumCanSelect:result:)]) {
                 if (![self.pickerDelegate isAlbumCanSelect:collection.localizedTitle result:fetchResult]) {
@@ -161,7 +161,9 @@ static dispatch_once_t onceToken;
             }
         }
     }
-    if (completion && albumArr.count > 0) completion(albumArr);
+    if (completion) {
+        completion(albumArr);
+    }
 }
 
 #pragma mark - Get Assets

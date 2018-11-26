@@ -133,6 +133,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
+3.1.4 相册内无照片时给出提示        
 3.1.3 适配阿拉伯等语言下从右往左布局的特性         
 3.0.8 新增gifImagePlayBlock允许使用FLAnimatedImage等替换内部的GIF播放方案         
 **3.0.7 适配iPhoneXR、XS、XS Max，建议大家尽快更新**           
