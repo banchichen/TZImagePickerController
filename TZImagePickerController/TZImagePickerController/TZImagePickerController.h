@@ -198,7 +198,7 @@
 @property (nonatomic, copy) NSString *fullImageBtnTitleStr;
 @property (nonatomic, copy) NSString *settingBtnTitleStr;
 @property (nonatomic, copy) NSString *processHintStr;
-
+// MARK: - TS 定制属性
 ///是正方形还是长方形
 @property (assign, nonatomic) BOOL isSquare;
 ///是否需要裁剪
@@ -223,6 +223,11 @@
 @property (nonatomic, copy) UIImage *editFaceRight;
 /// 整个项目的视频封面选择框
 @property(nonatomic,strong)UIImage *picCoverImage;
+/// (视频)是否需要选择封面,默认为YES
+/// 不选择则默认第一帧
+@property(nonatomic, assign) BOOL shouldSetCoverImage;
+
+// MARK: end
 
 #pragma mark -
 - (void)cancelButtonClick;
