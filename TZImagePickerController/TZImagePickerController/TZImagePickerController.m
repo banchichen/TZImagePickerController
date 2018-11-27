@@ -183,7 +183,8 @@
         self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
         self.pickerDelegate = delegate;
         self.selectedModels = [NSMutableArray array];
-        
+        self.shouldSetCoverImage = YES;
+
         // Allow user picking original photo and video, you also can set No after this method
         // 默认准许用户选择原图和视频, 你也可以在这个方法后置为NO
         self.allowPickingOriginalPhoto = YES;
@@ -242,7 +243,8 @@
         self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
         self.pickerDelegate = delegate;
         self.selectedModels = [NSMutableArray array];
-        
+        self.shouldSetCoverImage = YES;
+
         // Allow user picking original photo and video, you also can set No after this method
         // 默认准许用户选择原图和视频, 你也可以在这个方法后置为NO
         self.allowPickingOriginalPhoto = YES;
@@ -296,7 +298,8 @@
         self.selectedAssets = [NSMutableArray arrayWithArray:selectedAssets];
         self.allowPickingOriginalPhoto = self.allowPickingOriginalPhoto;
         [self configDefaultSetting];
-        
+        self.shouldSetCoverImage = YES;
+
         previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
         previewVc.currentIndex = index;
         __weak typeof(self) weakSelf = self;
@@ -322,7 +325,8 @@
         self.allowCrop = YES;
         self.selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
         [self configDefaultSetting];
-        
+        self.shouldSetCoverImage = YES;
+
         previewVc.photos = [NSMutableArray arrayWithArray:@[photo]];
         previewVc.isCropImage = YES;
         previewVc.currentIndex = 0;
@@ -353,7 +357,8 @@
         self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
         self.pickerDelegate = delegate;
         self.selectedModels = [NSMutableArray array];
-        
+        self.shouldSetCoverImage = YES;
+
         // Allow user picking original photo and video, you also can set No after this method
         // 默认准许用户选择原图和视频, 你也可以在这个方法后置为NO
         self.allowPickingOriginalPhoto = YES;
@@ -418,7 +423,8 @@
         self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
         self.pickerDelegate = delegate;
         self.selectedModels = [NSMutableArray array];
-        
+        self.shouldSetCoverImage = YES;
+
         // Allow user picking original photo and video, you also can set No after this method
         // 默认准许用户选择原图和视频, 你也可以在这个方法后置为NO
         self.allowPickingOriginalPhoto = YES;
@@ -472,7 +478,8 @@
         self.selectedAssets = [NSMutableArray arrayWithArray:selectedAssets];
         self.allowPickingOriginalPhoto = self.allowPickingOriginalPhoto;
         [self configDefaultSetting];
-        
+        self.shouldSetCoverImage = YES;
+
         previewVc.photos = [NSMutableArray arrayWithArray:selectedPhotos];
         previewVc.currentIndex = index;
         __weak typeof(self) weakSelf = self;
@@ -498,7 +505,8 @@
         self.allowCrop = YES;
         self.selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
         [self configDefaultSetting];
-        
+        self.shouldSetCoverImage = YES;
+
         previewVc.photos = [NSMutableArray arrayWithArray:@[photo]];
         previewVc.isCropImage = YES;
         previewVc.currentIndex = 0;

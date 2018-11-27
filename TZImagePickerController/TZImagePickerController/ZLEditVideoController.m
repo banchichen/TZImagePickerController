@@ -340,30 +340,62 @@
         btn.userInteractionEnabled = YES;
         [imagePickerVc hideProgressHUD];
         if (error == nil) {
-            TSLocalVideoCoverSelectedVC *vc = [[TSLocalVideoCoverSelectedVC alloc]init];
-            if (imagePickerVc.backImage) {
-                vc.backImage = imagePickerVc.backImage;
-            }
-            if (imagePickerVc.picCoverImage) {
-                vc.picCoverImage = imagePickerVc.picCoverImage;
-            }
-            if (imagePickerVc.mainColor) {
-                vc.mainColor = imagePickerVc.mainColor;
-            }
-            vc.videoPath = [NSURL fileURLWithPath:exportFilePath];
-            vc.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
-                if (weakSelf.coverImageBlock) {
-                    weakSelf.coverImageBlock(coverImage, videoPath);
+            /// 需要选择封面
+            if (imagePickerVc.shouldSetCoverImage) {
+                TSLocalVideoCoverSelectedVC *vc = [[TSLocalVideoCoverSelectedVC alloc]init];
+                if (imagePickerVc.backImage) {
+                    vc.backImage = imagePickerVc.backImage;
                 }
-                [weakSelf stopTimer];
-                [weakSelf.getImageCacheQueue cancelAllOperations];
-                [weakSelf.playerLayer.player pause];
-                weakSelf.playerLayer.delegate = nil;
-                weakSelf.playerLayer.player = nil;
-                [weakSelf.playerLayer removeFromSuperlayer];
-                weakSelf.playerLayer = nil;
-            };
-            [weakSelf.navigationController pushViewController:vc animated:YES];
+                if (imagePickerVc.picCoverImage) {
+                    vc.picCoverImage = imagePickerVc.picCoverImage;
+                }
+                if (imagePickerVc.mainColor) {
+                    vc.mainColor = imagePickerVc.mainColor;
+                }
+                vc.videoPath = [NSURL fileURLWithPath:exportFilePath];
+                vc.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
+                    [weakSelf stopTimer];
+                    [weakSelf.getImageCacheQueue cancelAllOperations];
+                    [weakSelf.playerLayer.player pause];
+                    weakSelf.playerLayer.delegate = nil;
+                    weakSelf.playerLayer.player = nil;
+                    [weakSelf.playerLayer removeFromSuperlayer];
+                    weakSelf.playerLayer = nil;
+                    if (weakSelf.coverImageBlock) {
+                        weakSelf.coverImageBlock(coverImage, videoPath);
+                    }
+                };
+                [weakSelf.navigationController pushViewController:vc animated:YES];
+            } else {
+                /// 不需要选择封面
+                if (weakSelf.coverImageBlock) {
+                    CGFloat second = 0;
+                    UIImage *coverImage;
+                    AVURLAsset *asset = [AVURLAsset assetWithURL: [NSURL fileURLWithPath:exportFilePath]];
+                    AVAssetImageGenerator *generator = [[AVAssetImageGenerator alloc] initWithAsset: asset];
+                    generator.appliesPreferredTrackTransform = YES;
+                    generator.requestedTimeToleranceBefore = kCMTimeZero;
+                    generator.requestedTimeToleranceAfter = kCMTimeZero;
+                    generator.apertureMode = AVAssetImageGeneratorApertureModeProductionAperture;
+                    for (int i = 0; i < 5; i ++) {
+                        CGImageRef img = [generator copyCGImageAtTime:CMTimeMake(second * asset.duration.timescale, asset.duration.timescale) actualTime:NULL error:&error];
+                        second = second + 0.1;
+                        if (img != nil) {
+                            coverImage = [UIImage imageWithCGImage:img];
+                            break;
+                        }
+                        NSLog(@"error\n\n -%@", error);
+                    }
+                    [weakSelf stopTimer];
+                    [weakSelf.getImageCacheQueue cancelAllOperations];
+                    [weakSelf.playerLayer.player pause];
+                    weakSelf.playerLayer.delegate = nil;
+                    weakSelf.playerLayer.player = nil;
+                    [weakSelf.playerLayer removeFromSuperlayer];
+                    weakSelf.playerLayer = nil;
+                    weakSelf.coverImageBlock(coverImage, [NSURL fileURLWithPath:exportFilePath]);
+                }
+            }
         } else {
             
         }
