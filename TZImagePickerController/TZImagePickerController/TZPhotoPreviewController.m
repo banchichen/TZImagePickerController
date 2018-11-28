@@ -98,7 +98,7 @@
     if (tzImagePickerVc.backImage) {
         [_backButton setImage:tzImagePickerVc.backImage forState:UIControlStateNormal];
     } else {
-        [_backButton setImage:[UIImage imageNamedFromMyBundle:@"navi_back"] forState:UIControlStateNormal];
+        [_backButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
     }
     [_backButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [_backButton addTarget:self action:@selector(backButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -168,6 +168,8 @@
         }
     } else {
         [_doneButton setTitle:@"完成" forState:UIControlStateNormal];
+        _doneButton.backgroundColor = _tzImagePickerVc.oKButtonBackGroundColorEnabled;
+
     }
     _doneButton.titleLabel.font =[UIFont systemFontOfSize:14];
 //    _numberImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle:_tzImagePickerVc.photoNumberIconImageName]];
