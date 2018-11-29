@@ -90,17 +90,8 @@ A：3.0.1版本已支持，需新接一个库：[TZImagePreviewController](https
 **Q：设置可选视频的最大/最小时长？照片的最小/最大尺寸？不符合要求的不显示**       
 A：可以的，参照Demo的isAssetCanSelect方法实现。我会返回asset出来，显示与否你来决定，注意这个是一个同步方法，对于需要根据asset去异步获取的信息如视频的大小、视频是否存在iCloud里来过滤的，无法做到。如果真要这样做，相册打开速度会变慢，你需要改我源码。
 
-**Q：可否支持横屏？**        
-A：1.8.4版本已支持    
-
-**Q：可否加入视频拍摄功能？**      
-A：2.1.0.3版本已支持，设置allowTakeVideo为YES    
-
-**Q：可否加入视频多选功能？**         
-A：1.8.4版本已支持，设置allowPickingMultipleVideo为YES     
-
-**Q：可否让视频和图片允许一起选？**         
-A：1.8.4版本已支持，设置allowPickingMultipleVideo为YES      
+**Q：预览页面出现了导航栏？**        
+A：https://github.com/banchichen/TZImagePickerController/issues/652         
    
 **Q：可否增加微信编辑图片的功能？**           
 A：考虑下，优先级低  
