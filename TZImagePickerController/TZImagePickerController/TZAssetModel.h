@@ -23,9 +23,7 @@ typedef enum : NSUInteger {
 @property (nonatomic, strong) PHAsset *asset;
 @property (nonatomic, assign) BOOL isSelected;      ///< The select status of a photo, default is No
 @property (nonatomic, assign) TZAssetModelMediaType type;
-@property (assign, nonatomic) BOOL needOscillatoryAnimation;
 @property (nonatomic, copy) NSString *timeLength;
-@property (strong, nonatomic) UIImage *cachedImage;
 
 /// Init a photo dataModel With a PHAsset
 /// 用一个PHAsset实例，初始化一个照片模型

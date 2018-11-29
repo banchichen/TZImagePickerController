@@ -28,33 +28,33 @@
 
 @implementation TZAssetCell
 
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reload:) name:@"TZ_PHOTO_PICKER_RELOAD_NOTIFICATION" object:nil];
+    return self;
+}
+
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
     self.representedAssetIdentifier = model.asset.localIdentifier;
-    if (self.useCachedImage && model.cachedImage) {
-        self.imageView.image = model.cachedImage;
-    } else {
-        self.model.cachedImage = nil;
-        int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-            // Set the cell's thumbnail image if it's still showing the same asset.
-            if ([self.representedAssetIdentifier isEqualToString:model.asset.localIdentifier]) {
-                self.imageView.image = photo;
-                self.model.cachedImage = photo;
-            } else {
-                // NSLog(@"this cell is showing other asset");
-                [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
-            }
-            if (!isDegraded) {
-                [self hideProgressView];
-                self.imageRequestID = 0;
-            }
-        } progressHandler:nil networkAccessAllowed:NO];
-        if (imageRequestID && self.imageRequestID && imageRequestID != self.imageRequestID) {
+    int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        // Set the cell's thumbnail image if it's still showing the same asset.
+        if ([self.representedAssetIdentifier isEqualToString:model.asset.localIdentifier]) {
+            self.imageView.image = photo;
+        } else {
+            // NSLog(@"this cell is showing other asset");
             [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
-            // NSLog(@"cancelImageRequest %d",self.imageRequestID);
         }
-        self.imageRequestID = imageRequestID;
+        if (!isDegraded) {
+            [self hideProgressView];
+            self.imageRequestID = 0;
+        }
+    } progressHandler:nil networkAccessAllowed:NO];
+    if (imageRequestID && self.imageRequestID && imageRequestID != self.imageRequestID) {
+        [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+        // NSLog(@"cancelImageRequest %d",self.imageRequestID);
     }
+    self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
     self.selectImageView.image = self.selectPhotoButton.isSelected ? self.photoSelImage : self.photoDefImage;
     self.indexLabel.hidden = !self.selectPhotoButton.isSelected;
@@ -73,10 +73,6 @@
     } else {
         [self cancelBigImageRequest];
     }
-    if (model.needOscillatoryAnimation) {
-        [UIView showOscillatoryAnimationWithLayer:self.selectImageView.layer type:TZOscillatoryAnimationToBigger];
-    }
-    model.needOscillatoryAnimation = NO;
     [self setNeedsLayout];
     
     if (self.assetCellDidSetModelBlock) {
@@ -144,9 +140,7 @@
     }
     self.selectImageView.image = sender.isSelected ? self.photoSelImage : self.photoDefImage;
     if (sender.isSelected) {
-        if (![TZImagePickerConfig sharedInstance].showSelectedIndex && ![TZImagePickerConfig sharedInstance].showPhotoCannotSelectLayer) {
-            [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
-        }
+        [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
         // 用户选中了该图片，提前获取一下大图
         [self requestBigImage];
     } else { // 取消选中，取消大图的获取
@@ -185,7 +179,8 @@
                 [self hideProgressView];
             }
         } else {
-            *stop = YES;
+            // 快速连续点几次，会EXC_BAD_ACCESS...
+            // *stop = YES;
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
             [self cancelBigImageRequest];
         }
@@ -197,6 +192,22 @@
         [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
     }
     [self hideProgressView];
+}
+
+#pragma mark - Notification
+
+- (void)reload:(NSNotification *)noti {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)noti.object;
+    if (self.model.isSelected && tzImagePickerVc.showSelectedIndex) {
+        self.index = [tzImagePickerVc.selectedAssetIds indexOfObject:self.model.asset.localIdentifier] + 1;
+    }
+    self.indexLabel.hidden = !self.selectPhotoButton.isSelected;
+    if (tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount && tzImagePickerVc.showPhotoCannotSelectLayer && !self.model.isSelected) {
+        self.cannotSelectLayerButton.backgroundColor = tzImagePickerVc.cannotSelectLayerColor;
+        self.cannotSelectLayerButton.hidden = NO;
+    } else {
+        self.cannotSelectLayerButton.hidden = YES;
+    }
 }
 
 #pragma mark - Lazy load
@@ -336,6 +347,10 @@
     if (self.assetCellDidLayoutSubviewsBlock) {
         self.assetCellDidLayoutSubviewsBlock(self, _imageView, _selectImageView, _indexLabel, _bottomView, _timeLength, _videoImgView);
     }
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end

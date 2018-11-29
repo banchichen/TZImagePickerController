@@ -42,7 +42,6 @@
 @property (strong, nonatomic) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
 @property (strong, nonatomic) CLLocation *location;
-@property (assign, nonatomic) BOOL useCachedImage;
 @end
 
 static CGSize AssetGridThumbnailSize;
@@ -506,7 +505,6 @@ static CGFloat itemMargin = 5;
     cell.allowPickingMultipleVideo = tzImagePickerVc.allowPickingMultipleVideo;
     cell.photoDefImage = tzImagePickerVc.photoDefImage;
     cell.photoSelImage = tzImagePickerVc.photoSelImage;
-    cell.useCachedImage = self.useCachedImage;
     cell.assetCellDidSetModelBlock = tzImagePickerVc.assetCellDidSetModelBlock;
     cell.assetCellDidLayoutSubviewsBlock = tzImagePickerVc.assetCellDidLayoutSubviewsBlock;
     TZAssetModel *model;
@@ -551,7 +549,7 @@ static CGFloat itemMargin = 5;
             }
             [strongSelf refreshBottomToolBarStatus];
             if (tzImagePickerVc.showSelectedIndex || tzImagePickerVc.showPhotoCannotSelectLayer) {
-                [strongSelf setUseCachedImageAndReloadData];
+                [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_PHOTO_PICKER_RELOAD_NOTIFICATION" object:strongSelf.navigationController];
             }
             [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
         } else {
@@ -565,11 +563,10 @@ static CGFloat itemMargin = 5;
                 }
                 strongCell.selectPhotoButton.selected = YES;
                 model.isSelected = YES;
-                if (tzImagePickerVc.showSelectedIndex || tzImagePickerVc.showPhotoCannotSelectLayer) {
-                    model.needOscillatoryAnimation = YES;
-                    [strongSelf setUseCachedImageAndReloadData];
-                }
                 [tzImagePickerVc addSelectedModel:model];
+                if (tzImagePickerVc.showSelectedIndex || tzImagePickerVc.showPhotoCannotSelectLayer) {
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_PHOTO_PICKER_RELOAD_NOTIFICATION" object:strongSelf.navigationController];
+                }
                 [strongSelf refreshBottomToolBarStatus];
                 [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
             } else {
@@ -626,14 +623,6 @@ static CGFloat itemMargin = 5;
 }
 
 #pragma mark - Private Method
-
-- (void)setUseCachedImageAndReloadData {
-    self.useCachedImage = YES;
-    [self.collectionView reloadData];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        self.useCachedImage = NO;
-    });
-}
 
 /// 拍照按钮点击事件
 - (void)takePhoto {
