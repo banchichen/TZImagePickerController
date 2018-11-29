@@ -875,17 +875,10 @@
 @implementation TZCommonTools
 
 + (BOOL)tz_isIPhoneX {
-    struct utsname systemInfo;
-    uname(&systemInfo);
-    NSString *platform = [NSString stringWithCString:systemInfo.machine encoding:NSASCIIStringEncoding];
-    if ([platform isEqualToString:@"i386"] || [platform isEqualToString:@"x86_64"]) {
-        // 模拟器下采用屏幕的高度来判断
-        return (CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(375, 812)) ||
-                CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(812, 375)));
-    }
-    // iPhone10,6是美版iPhoneX 感谢hegelsu指出：https://github.com/banchichen/TZImagePickerController/issues/635
-    BOOL isIPhoneX = [platform isEqualToString:@"iPhone10,3"] || [platform isEqualToString:@"iPhone10,6"];
-    return isIPhoneX;
+    return (CGSizeEqualToSize([[UIScreen mainScreen] preferredMode].size, CGSizeMake(1125, 2436))||
+            CGSizeEqualToSize([[UIScreen mainScreen] preferredMode].size, CGSizeMake(828, 1792))||
+            CGSizeEqualToSize([[UIScreen mainScreen] preferredMode].size, CGSizeMake(1125, 2436))||
+            CGSizeEqualToSize([[UIScreen mainScreen] preferredMode].size, CGSizeMake(1242, 2688)));
 }
 
 + (CGFloat)tz_statusBarHeight {
