@@ -13,9 +13,6 @@
 #import "TZImagePickerController.h"
 #import "TSLocalVideoCoverSelectedVC.h"
 
-#define maxEditVideoTime 15
-#define minEditVideoTime 3
-
 @interface ZLEditVideoUX : NSObject
 
 @property (nonatomic, assign) CGRect validRect;
@@ -167,7 +164,7 @@
         {
             //right
             minX = rct.origin.x + 10;
-            maxX = W - 10 / 2.0;
+            maxX = W;
             
             point.x = MAX(minX, MIN(point.x, maxX));
             point.y = 0;
@@ -252,6 +249,10 @@
 @property (nonatomic, strong) UIView *bgView;
 @property (nonatomic, strong) UIView *indicatorLine;
 @property (nonatomic, strong) UIView *bottomView;
+@property (nonatomic, strong) UIView *customNav;
+/// 底部提示语
+@property (nonatomic, strong) UILabel *noticeLabel;
+
 // Other
 @property (nonatomic, strong) AVAssetImageGenerator *generator;
 @property (nonatomic, assign) BOOL collectionViewCouldScroll;
@@ -260,6 +261,9 @@
 @property (nonatomic, assign) NSInteger itemCount;
 @property (nonatomic, strong) NSOperationQueue *getImageCacheQueue;
 @property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, assign) BOOL appStatusBarHidden;
+/// 编辑区域底部左右侧空间
+@property (nonatomic) CGFloat editViewLeftRightSpace;
 
 @end
 
@@ -275,14 +279,27 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.bgView = [[UIView alloc]initWithFrame:CGRectMake(0, ([self zl_isIPhoneX] ? 24 : 0) + 20, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    /// 判断最大、最小视频裁剪时长合法性
+    if (self.minEditVideoTime == 0) {
+        self.minEditVideoTime = 3;
+    }
+    if (self.maxEditVideoTime == 0) {
+        self.maxEditVideoTime = 10;
+    }
+    if (self.minEditVideoTime > self.maxEditVideoTime) {
+        self.maxEditVideoTime = self.minEditVideoTime;
+    }
+    self.editViewLeftRightSpace = 15;
+    self.bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
     [self.view addSubview:self.bgView];
     self.bgView.backgroundColor = [UIColor blackColor];
     self.navigationController.navigationBar.backgroundColor = [UIColor whiteColor];
-    
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.appStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
 
     [self analysisAssetImages:^{
         [self setupUI];
+        [self creatCostomUI];
     }];
 
     self.getImageCacheQueue = [[NSOperationQueue alloc] init];
@@ -290,35 +307,43 @@
     
     self.imageCache = [NSMutableDictionary dictionary];
     self.operationCache = [NSMutableDictionary dictionary];
-    UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    
-    rightButton.frame = CGRectMake(0, 0, 44, 44);
-    rightButton.titleLabel.font = [UIFont systemFontOfSize:16];
-    [rightButton setTitle: @"完成" forState:UIControlStateNormal];
-    if (_mainColor) {
-        [rightButton setTitleColor:_mainColor forState:UIControlStateNormal];
-    } else {
-        [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
-    }
-    [rightButton addTarget:self action:@selector(rightButtonClick:) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
-    
-    UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    leftButton.frame = CGRectMake(0, 0, 44, 44);
-    if (_backImage) {
-        [leftButton setImage:_backImage forState:UIControlStateNormal];
-    } else {
-        [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
-    }
-    [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
-
-    self.navigationItem.title = @"裁剪视频";
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationChanged:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appResignActive) name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
+/// 自定义导航
+- (void)creatCostomUI {
+    self.customNav = [[UIView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 64)];
+    if ([self zl_isIPhoneX]) {
+        self.customNav.frame = CGRectMake(0, 30, [UIScreen mainScreen].bounds.size.width, 64);
+    }
+    UIButton *backBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 20, 30, 22)];
+    [backBtn addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
+    [self.customNav addSubview:backBtn];
+    if (_backImage) {
+        [backBtn setImage:_backImage forState:UIControlStateNormal];
+    } else {
+        [backBtn setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+    }
+    UILabel *titleLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 200, 40)];
+    titleLab.textAlignment = NSTextAlignmentCenter;
+    titleLab.text = @"编辑视频";
+    titleLab.font = [UIFont fontWithName:@"PingFangSC-Medium" size:18];
+    titleLab.textColor = [UIColor whiteColor];
+    [self.customNav addSubview:titleLab];
+    titleLab.center = CGPointMake(self.customNav.frame.size.width / 2.0, backBtn.center.y);
+    /// 确定按钮
+    UIButton *sureBtn = [[UIButton alloc]initWithFrame:CGRectMake(self.customNav.frame.size.width - 50, 20, 50, 22)];
+    [sureBtn setTitle:@"完成" forState:UIControlStateNormal];
+    sureBtn.titleLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:16];
+    [sureBtn addTarget:self action:@selector(rightButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+
+    [self.customNav addSubview:sureBtn];
+
+    [self.view addSubview:self.customNav];
+}
+
 - (void)navLeftBarButtonClick{
     [self.playerLayer.player pause];
     self.playerLayer.player = nil;
@@ -420,35 +445,35 @@
     if (self.editView.validRect.size.width > 0) {
         [self startTimer];
     }
+    self.navigationController.navigationBarHidden = YES;
+    [UIApplication sharedApplication].statusBarHidden = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
     [self stopTimer];
+    self.navigationController.navigationBarHidden = NO;
+    [UIApplication sharedApplication].statusBarHidden = self.appStatusBarHidden;
 }
 
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-    
-    UIEdgeInsets inset = UIEdgeInsetsZero;
-    if (@available(iOS 11, *)) {
-        inset = self.view.safeAreaInsets;
+    CGFloat bottomViewHeight = [ZLEditVideoUX share].collectionItemHeight + 18 + 13;
+    CGFloat bottomViewBottom = 16;
+    self.bottomView.frame = CGRectMake(self.editViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight - bottomViewBottom, [[UIScreen mainScreen] bounds].size.width - self.editViewLeftRightSpace * 2, bottomViewHeight);
+    ///iphoneX 底部预留安全区域34pt
+    if ([self zl_isIPhoneX]) {
+        self.bottomView.frame = CGRectMake(self.editViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight - 34, [[UIScreen mainScreen] bounds].size.width - self.editViewLeftRightSpace * 2, bottomViewHeight);
     }
-    self.collectionView.frame = CGRectMake(inset.left, 0, [[UIScreen mainScreen] bounds].size.width - inset.left - inset.right, [ZLEditVideoUX share].collectionItemHeight);
+    self.collectionView.frame = CGRectMake(0, 0, self.bottomView.frame.size.width, [ZLEditVideoUX share].collectionItemHeight);
+    self.noticeLabel.frame = CGRectMake(0, self.collectionView.frame.origin.y + self.collectionView.frame.size.height + 18, 200, 13);
+    self.noticeLabel.center = CGPointMake(self.bottomView.frame.size.width / 2.0, self.noticeLabel.center.y);
     self.editView.frame = self.collectionView.bounds;
     self.editView.validRect = self.editView.bounds;
-    
-    CGFloat left = ([[UIScreen mainScreen] bounds].size.width - [ZLEditVideoUX share].collectionItemWidth * 10)/2;
-    left = left > 0 ? left : 10;
-    CGFloat leftOffset = left - inset.left;
-    CGFloat rightOffset = left - inset.right;
-    
-    [self.collectionView setContentInset:UIEdgeInsetsMake(0, leftOffset, 0, rightOffset)];
-    [self.collectionView setContentOffset:CGPointMake(_offsetX-leftOffset, 0)];
-    self.bottomView.frame = CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - [ZLEditVideoUX share].collectionItemHeight - 15 -inset.bottom, [[UIScreen mainScreen] bounds].size.width, [ZLEditVideoUX share].collectionItemHeight);
-    self.playerLayer.frame = CGRectMake(0, self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height,[[UIScreen mainScreen] bounds].size.width, self.bottomView.frame.origin.y - ( self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height));
+    /// 全屏显示播放内容
+    self.playerLayer.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     [self startTimer];
 }
 
@@ -483,7 +508,14 @@
     self.playerLayer = [[AVPlayerLayer alloc] init];
     [self.view.layer addSublayer:self.playerLayer];
     self.playerLayer.backgroundColor = [UIColor clearColor].CGColor;
-    
+    /// 顶部和底部设置蒙层
+    UIImageView *topMarkImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 188)];
+    topMarkImageView.image = [UIImage imageNamedFromMyBundle: @"pic_mask_top"];
+    [self.view addSubview:topMarkImageView];
+    UIImageView *bottomMarkImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, [UIScreen mainScreen].bounds.size.height - 188, [UIScreen mainScreen].bounds.size.width, 188)];
+    bottomMarkImageView.image = [UIImage imageNamedFromMyBundle: @"pic_mask_bottom"];
+    [self.view addSubview:bottomMarkImageView];
+
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.itemSize = CGSizeMake([ZLEditVideoUX share].collectionItemWidth, [ZLEditVideoUX share].collectionItemHeight);
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
@@ -499,6 +531,13 @@
     self.collectionView.scrollEnabled = self.collectionViewCouldScroll;
     [self creatBottomView];
     [self.bottomView addSubview:self.collectionView];
+    /// 总时间提示
+    self.noticeLabel = [[UILabel alloc]initWithFrame:CGRectZero];
+    self.noticeLabel.textColor = [UIColor whiteColor];
+    self.noticeLabel.text = [NSString stringWithFormat:@"最长支持%luS视频裁剪", self.maxEditVideoTime];
+    self.noticeLabel.font = [UIFont systemFontOfSize:13];
+    self.noticeLabel.textAlignment = NSTextAlignmentCenter;
+    [self.bottomView addSubview: self.noticeLabel];
 
     self.editView = [[ZLEditFrameView alloc] init];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -511,7 +550,7 @@
     self.editView.delegate = self;
     [self.bottomView addSubview:self.editView];
     // 更新最小可编辑区域
-    self.editView.minValidRectWidth = minEditVideoTime / self.perItemSeconds * [ZLEditVideoUX share].collectionItemWidth;
+    self.editView.minValidRectWidth = self.minEditVideoTime / self.perItemSeconds * [ZLEditVideoUX share].collectionItemWidth;
     NSLog(@"minValidRectWidth -%f", self.editView.minValidRectWidth);
     self.indicatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, [ZLEditVideoUX share].collectionItemHeight)];
     self.indicatorLine.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:.7];
@@ -521,7 +560,7 @@
 {
     //下方视图
     self.bottomView = [[UIView alloc] init];
-    self.bottomView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:1];
+    self.bottomView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:self.bottomView];
 }
 
@@ -529,15 +568,15 @@
 - (void)analysisAssetImages:(void (^)(void))completion {
     float duration = roundf(self.asset.duration);
     // 最大裁剪时长是否大于10秒
-    if (maxEditVideoTime >= 10) {
+    if (self.maxEditVideoTime >= 10) {
         // 满足1秒一个item的最低要求
-        if (duration <= maxEditVideoTime) {
+        if (duration <= self.maxEditVideoTime) {
             self.itemCount = 10;
             self.perItemSeconds = duration / self.itemCount;
             self.collectionViewCouldScroll = NO;
         } else {
             // 整个裁剪栏整个宽度（默认显示10个item）为允许的最大裁剪时长
-            self.perItemSeconds = (maxEditVideoTime * 1.0) / 10;
+            self.perItemSeconds = (self.maxEditVideoTime * 1.0) / 10;
             self.itemCount = duration / self.perItemSeconds;
             self.collectionViewCouldScroll = YES;
         }
@@ -547,7 +586,7 @@
         self.perItemSeconds = duration / self.itemCount;
         self.collectionViewCouldScroll = NO;
     }
-    [ZLEditVideoUX share].collectionItemWidth = [UIScreen mainScreen].bounds.size.width / 10.0;
+    [ZLEditVideoUX share].collectionItemWidth = ([UIScreen mainScreen].bounds.size.width - self.editViewLeftRightSpace * 2) / 10.0;
 
     PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
     options.version = PHVideoRequestOptionsVersionOriginal;

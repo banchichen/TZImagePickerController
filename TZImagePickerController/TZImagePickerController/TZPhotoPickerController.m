@@ -689,11 +689,17 @@ static CGFloat itemMargin = 5;
                     NSLog(@"editAction");
                     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
                     ZLEditVideoController *editVC = [[ZLEditVideoController alloc]init];
-                    if (imagePickerVc.backImage) {
-                        editVC.backImage = imagePickerVc.backImage;
+                    if (imagePickerVc.videoEditVCbackImage) {
+                        editVC.backImage = imagePickerVc.videoEditVCbackImage;
                     }
                     if (imagePickerVc.mainColor) {
                         editVC.mainColor = imagePickerVc.mainColor;
+                    }
+                    if (imagePickerVc.maxEditVideoTime > 0) {
+                        editVC.maxEditVideoTime = imagePickerVc.maxEditVideoTime;
+                    }
+                    if (imagePickerVc.minEditVideoTime > 0) {
+                        editVC.minEditVideoTime = imagePickerVc.minEditVideoTime;
                     }
                     editVC.asset = model.asset;
                     editVC.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
@@ -717,11 +723,17 @@ static CGFloat itemMargin = 5;
             } else {
                 TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
                 ZLEditVideoController *editVC = [[ZLEditVideoController alloc]init];
-                if (imagePickerVc.backImage) {
-                    editVC.backImage = imagePickerVc.backImage;
+                if (imagePickerVc.videoEditVCbackImage) {
+                    editVC.backImage = imagePickerVc.videoEditVCbackImage;
                 }
                 if (imagePickerVc.mainColor) {
                     editVC.mainColor = imagePickerVc.mainColor;
+                }
+                if (imagePickerVc.maxEditVideoTime > 0) {
+                    editVC.maxEditVideoTime = imagePickerVc.maxEditVideoTime;
+                }
+                if (imagePickerVc.minEditVideoTime > 0) {
+                    editVC.minEditVideoTime = imagePickerVc.minEditVideoTime;
                 }
                 editVC.asset = model.asset;
                 editVC.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {

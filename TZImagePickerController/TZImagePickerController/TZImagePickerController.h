@@ -215,6 +215,8 @@
 @property (nonatomic, copy) UIImage *previewSelectBtnDefImage;
 /// 整个项目的返回按钮图片
 @property(nonatomic,strong)UIImage *backImage;
+/// 裁剪页面返回按钮图片
+@property(nonatomic,strong)UIImage *videoEditVCbackImage;
 /// 相册图片拍摄视频图片
 @property (nonatomic, copy) UIImage *takeVideo;
 /// 视频编辑页面左图片
@@ -226,6 +228,10 @@
 /// (视频)是否需要选择封面,默认为YES
 /// 不选择则默认第一帧
 @property(nonatomic, assign) BOOL shouldSetCoverImage;
+/// 最大裁剪视频时长(秒) 默认10秒
+@property (nonatomic) NSUInteger maxEditVideoTime;
+/// 最小可选视频时长(秒) 默认3秒
+@property (nonatomic) NSUInteger minEditVideoTime;
 
 // MARK: end
 
