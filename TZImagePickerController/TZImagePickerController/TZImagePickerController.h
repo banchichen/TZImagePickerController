@@ -215,6 +215,8 @@
 @property (nonatomic, copy) UIImage *previewSelectBtnDefImage;
 /// 整个项目的返回按钮图片
 @property(nonatomic,strong)UIImage *backImage;
+/// 裁剪页面返回按钮图片
+@property(nonatomic,strong)UIImage *videoEditVCbackImage;
 /// 相册图片拍摄视频图片
 @property (nonatomic, copy) UIImage *takeVideo;
 /// 视频编辑页面左图片

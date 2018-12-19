@@ -689,8 +689,8 @@ static CGFloat itemMargin = 5;
                     NSLog(@"editAction");
                     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
                     ZLEditVideoController *editVC = [[ZLEditVideoController alloc]init];
-                    if (imagePickerVc.backImage) {
-                        editVC.backImage = imagePickerVc.backImage;
+                    if (imagePickerVc.videoEditVCbackImage) {
+                        editVC.backImage = imagePickerVc.videoEditVCbackImage;
                     }
                     if (imagePickerVc.mainColor) {
                         editVC.mainColor = imagePickerVc.mainColor;
@@ -717,8 +717,8 @@ static CGFloat itemMargin = 5;
             } else {
                 TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
                 ZLEditVideoController *editVC = [[ZLEditVideoController alloc]init];
-                if (imagePickerVc.backImage) {
-                    editVC.backImage = imagePickerVc.backImage;
+                if (imagePickerVc.videoEditVCbackImage) {
+                    editVC.backImage = imagePickerVc.videoEditVCbackImage;
                 }
                 if (imagePickerVc.mainColor) {
                     editVC.mainColor = imagePickerVc.mainColor;
