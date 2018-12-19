@@ -15,6 +15,8 @@
 
 #define maxEditVideoTime 15
 #define minEditVideoTime 3
+#define EditViewLeftRightSpace 15
+
 
 @interface ZLEditVideoUX : NSObject
 
@@ -167,7 +169,7 @@
         {
             //right
             minX = rct.origin.x + 10;
-            maxX = W - 10 / 2.0;
+            maxX = W;
             
             point.x = MAX(minX, MIN(point.x, maxX));
             point.y = 0;
@@ -253,6 +255,8 @@
 @property (nonatomic, strong) UIView *indicatorLine;
 @property (nonatomic, strong) UIView *bottomView;
 @property (nonatomic, strong) UIView *customNav;
+/// 底部提示语
+@property (nonatomic, strong) UILabel *noticeLabel;
 
 // Other
 @property (nonatomic, strong) AVAssetImageGenerator *generator;
@@ -445,23 +449,22 @@
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
-    
-    UIEdgeInsets inset = UIEdgeInsetsZero;
-    if (@available(iOS 11, *)) {
-        inset = self.view.safeAreaInsets;
+    CGFloat bottomViewHeight = [ZLEditVideoUX share].collectionItemHeight + 18 + 13;
+    self.bottomView.frame = CGRectMake(EditViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight, [[UIScreen mainScreen] bounds].size.width - EditViewLeftRightSpace * 2, bottomViewHeight);
+    ///iphoneX 底部预留安全区域34pt
+    if ([self zl_isIPhoneX]) {
+        self.bottomView.frame = CGRectMake(EditViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight - 34, [[UIScreen mainScreen] bounds].size.width - EditViewLeftRightSpace * 2, bottomViewHeight);
     }
-    self.collectionView.frame = CGRectMake(inset.left, 0, [[UIScreen mainScreen] bounds].size.width - inset.left - inset.right, [ZLEditVideoUX share].collectionItemHeight);
+    self.collectionView.frame = CGRectMake(0, 0, self.bottomView.frame.size.width, [ZLEditVideoUX share].collectionItemHeight);
+    self.noticeLabel.frame = CGRectMake(0, self.collectionView.frame.origin.y + self.collectionView.frame.size.height + 18, 125, 13);
+    self.noticeLabel.center = CGPointMake(self.bottomView.frame.size.width / 2.0, self.noticeLabel.center.y);
+    self.collectionView.backgroundColor = [UIColor redColor];
     self.editView.frame = self.collectionView.bounds;
     self.editView.validRect = self.editView.bounds;
-    
-    CGFloat left = ([[UIScreen mainScreen] bounds].size.width - [ZLEditVideoUX share].collectionItemWidth * 10)/2;
-    left = left > 0 ? left : 10;
-    CGFloat leftOffset = left - inset.left;
-    CGFloat rightOffset = left - inset.right;
-    
-    [self.collectionView setContentInset:UIEdgeInsetsMake(0, leftOffset, 0, rightOffset)];
-    [self.collectionView setContentOffset:CGPointMake(_offsetX-leftOffset, 0)];
-    self.bottomView.frame = CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - [ZLEditVideoUX share].collectionItemHeight - 15 -inset.bottom, [[UIScreen mainScreen] bounds].size.width, [ZLEditVideoUX share].collectionItemHeight);
+
+//    [self.collectionView setContentInset:UIEdgeInsetsMake(0, EditViewLeftRightSpace, 0, EditViewLeftRightSpace)];
+//    [self.collectionView setContentOffset:CGPointMake(_offsetX, 0)];
+    /// 全屏
     self.playerLayer.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     [self startTimer];
 }
@@ -513,6 +516,13 @@
     self.collectionView.scrollEnabled = self.collectionViewCouldScroll;
     [self creatBottomView];
     [self.bottomView addSubview:self.collectionView];
+    /// 总时间提示
+    self.noticeLabel = [[UILabel alloc]initWithFrame:CGRectZero];
+    self.noticeLabel.textColor = [UIColor whiteColor];
+    self.noticeLabel.text = [NSString stringWithFormat:@"最长支持%d视频裁剪", maxEditVideoTime];
+    self.noticeLabel.font = [UIFont systemFontOfSize:13];
+    self.noticeLabel.textAlignment = NSTextAlignmentCenter;
+    [self.bottomView addSubview: self.noticeLabel];
 
     self.editView = [[ZLEditFrameView alloc] init];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -561,7 +571,7 @@
         self.perItemSeconds = duration / self.itemCount;
         self.collectionViewCouldScroll = NO;
     }
-    [ZLEditVideoUX share].collectionItemWidth = [UIScreen mainScreen].bounds.size.width / 10.0;
+    [ZLEditVideoUX share].collectionItemWidth = ([UIScreen mainScreen].bounds.size.width - EditViewLeftRightSpace * 2) / 10.0;
 
     PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
     options.version = PHVideoRequestOptionsVersionOriginal;
