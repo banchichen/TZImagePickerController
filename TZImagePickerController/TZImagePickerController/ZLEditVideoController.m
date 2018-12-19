@@ -266,6 +266,7 @@
 @property (nonatomic, assign) NSInteger itemCount;
 @property (nonatomic, strong) NSOperationQueue *getImageCacheQueue;
 @property (nonatomic, strong) NSTimer *timer;
+@property (nonatomic, assign) BOOL appStatusBarHidden;
 
 @end
 
@@ -286,7 +287,7 @@
     self.bgView.backgroundColor = [UIColor blackColor];
     self.navigationController.navigationBar.backgroundColor = [UIColor whiteColor];
     self.automaticallyAdjustsScrollViewInsets = NO;
-
+    self.appStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
 
     [self analysisAssetImages:^{
         [self setupUI];
@@ -309,7 +310,7 @@
     if ([self zl_isIPhoneX]) {
         self.customNav.frame = CGRectMake(0, 30, [UIScreen mainScreen].bounds.size.width, 64);
     }
-    UIButton *backBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 20, 30, 22)];
+    UIButton *backBtn = [[UIButton alloc]initWithFrame:CGRectMake(10, 20, 30, 22)];
     [backBtn addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [self.customNav addSubview:backBtn];
     if (_backImage) {
@@ -437,6 +438,7 @@
         [self startTimer];
     }
     self.navigationController.navigationBarHidden = YES;
+    [UIApplication sharedApplication].statusBarHidden = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -444,13 +446,15 @@
     [super viewWillDisappear:animated];
     [self stopTimer];
     self.navigationController.navigationBarHidden = NO;
+    [UIApplication sharedApplication].statusBarHidden = self.appStatusBarHidden;
 }
 
 - (void)viewDidLayoutSubviews
 {
     [super viewDidLayoutSubviews];
     CGFloat bottomViewHeight = [ZLEditVideoUX share].collectionItemHeight + 18 + 13;
-    self.bottomView.frame = CGRectMake(EditViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight, [[UIScreen mainScreen] bounds].size.width - EditViewLeftRightSpace * 2, bottomViewHeight);
+    CGFloat bottomViewBottom = 16;
+    self.bottomView.frame = CGRectMake(EditViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight - bottomViewBottom, [[UIScreen mainScreen] bounds].size.width - EditViewLeftRightSpace * 2, bottomViewHeight);
     ///iphoneX 底部预留安全区域34pt
     if ([self zl_isIPhoneX]) {
         self.bottomView.frame = CGRectMake(EditViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight - 34, [[UIScreen mainScreen] bounds].size.width - EditViewLeftRightSpace * 2, bottomViewHeight);
@@ -458,13 +462,9 @@
     self.collectionView.frame = CGRectMake(0, 0, self.bottomView.frame.size.width, [ZLEditVideoUX share].collectionItemHeight);
     self.noticeLabel.frame = CGRectMake(0, self.collectionView.frame.origin.y + self.collectionView.frame.size.height + 18, 125, 13);
     self.noticeLabel.center = CGPointMake(self.bottomView.frame.size.width / 2.0, self.noticeLabel.center.y);
-    self.collectionView.backgroundColor = [UIColor redColor];
     self.editView.frame = self.collectionView.bounds;
     self.editView.validRect = self.editView.bounds;
-
-//    [self.collectionView setContentInset:UIEdgeInsetsMake(0, EditViewLeftRightSpace, 0, EditViewLeftRightSpace)];
-//    [self.collectionView setContentOffset:CGPointMake(_offsetX, 0)];
-    /// 全屏
+    /// 全屏显示播放内容
     self.playerLayer.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     [self startTimer];
 }
@@ -500,7 +500,14 @@
     self.playerLayer = [[AVPlayerLayer alloc] init];
     [self.view.layer addSublayer:self.playerLayer];
     self.playerLayer.backgroundColor = [UIColor clearColor].CGColor;
-    
+    /// 顶部和底部设置蒙层
+    UIImageView *topMarkImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 188)];
+    topMarkImageView.image = [UIImage imageNamedFromMyBundle: @"pic_mask_top"];
+    [self.view addSubview:topMarkImageView];
+    UIImageView *bottomMarkImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, [UIScreen mainScreen].bounds.size.height - 188, [UIScreen mainScreen].bounds.size.width, 188)];
+    bottomMarkImageView.image = [UIImage imageNamedFromMyBundle: @"pic_mask_bottom"];
+    [self.view addSubview:bottomMarkImageView];
+
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.itemSize = CGSizeMake([ZLEditVideoUX share].collectionItemWidth, [ZLEditVideoUX share].collectionItemHeight);
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
@@ -545,7 +552,7 @@
 {
     //下方视图
     self.bottomView = [[UIView alloc] init];
-    self.bottomView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:1];
+    self.bottomView.backgroundColor = [UIColor clearColor];
     [self.view addSubview:self.bottomView];
 }
 
