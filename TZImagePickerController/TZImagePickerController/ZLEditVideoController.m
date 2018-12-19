@@ -13,11 +13,6 @@
 #import "TZImagePickerController.h"
 #import "TSLocalVideoCoverSelectedVC.h"
 
-#define maxEditVideoTime 15
-#define minEditVideoTime 3
-#define EditViewLeftRightSpace 15
-
-
 @interface ZLEditVideoUX : NSObject
 
 @property (nonatomic, assign) CGRect validRect;
@@ -267,6 +262,8 @@
 @property (nonatomic, strong) NSOperationQueue *getImageCacheQueue;
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, assign) BOOL appStatusBarHidden;
+/// 编辑区域底部左右侧空间
+@property (nonatomic) CGFloat editViewLeftRightSpace;
 
 @end
 
@@ -282,6 +279,17 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    /// 判断最大、最小视频裁剪时长合法性
+    if (self.minEditVideoTime == 0) {
+        self.minEditVideoTime = 3;
+    }
+    if (self.maxEditVideoTime == 0) {
+        self.maxEditVideoTime = 10;
+    }
+    if (self.minEditVideoTime > self.maxEditVideoTime) {
+        self.maxEditVideoTime = self.minEditVideoTime;
+    }
+    self.editViewLeftRightSpace = 15;
     self.bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
     [self.view addSubview:self.bgView];
     self.bgView.backgroundColor = [UIColor blackColor];
@@ -454,13 +462,13 @@
     [super viewDidLayoutSubviews];
     CGFloat bottomViewHeight = [ZLEditVideoUX share].collectionItemHeight + 18 + 13;
     CGFloat bottomViewBottom = 16;
-    self.bottomView.frame = CGRectMake(EditViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight - bottomViewBottom, [[UIScreen mainScreen] bounds].size.width - EditViewLeftRightSpace * 2, bottomViewHeight);
+    self.bottomView.frame = CGRectMake(self.editViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight - bottomViewBottom, [[UIScreen mainScreen] bounds].size.width - self.editViewLeftRightSpace * 2, bottomViewHeight);
     ///iphoneX 底部预留安全区域34pt
     if ([self zl_isIPhoneX]) {
-        self.bottomView.frame = CGRectMake(EditViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight - 34, [[UIScreen mainScreen] bounds].size.width - EditViewLeftRightSpace * 2, bottomViewHeight);
+        self.bottomView.frame = CGRectMake(self.editViewLeftRightSpace, [[UIScreen mainScreen] bounds].size.height - bottomViewHeight - 34, [[UIScreen mainScreen] bounds].size.width - self.editViewLeftRightSpace * 2, bottomViewHeight);
     }
     self.collectionView.frame = CGRectMake(0, 0, self.bottomView.frame.size.width, [ZLEditVideoUX share].collectionItemHeight);
-    self.noticeLabel.frame = CGRectMake(0, self.collectionView.frame.origin.y + self.collectionView.frame.size.height + 18, 125, 13);
+    self.noticeLabel.frame = CGRectMake(0, self.collectionView.frame.origin.y + self.collectionView.frame.size.height + 18, 200, 13);
     self.noticeLabel.center = CGPointMake(self.bottomView.frame.size.width / 2.0, self.noticeLabel.center.y);
     self.editView.frame = self.collectionView.bounds;
     self.editView.validRect = self.editView.bounds;
@@ -526,7 +534,7 @@
     /// 总时间提示
     self.noticeLabel = [[UILabel alloc]initWithFrame:CGRectZero];
     self.noticeLabel.textColor = [UIColor whiteColor];
-    self.noticeLabel.text = [NSString stringWithFormat:@"最长支持%d视频裁剪", maxEditVideoTime];
+    self.noticeLabel.text = [NSString stringWithFormat:@"最长支持%luS视频裁剪", self.maxEditVideoTime];
     self.noticeLabel.font = [UIFont systemFontOfSize:13];
     self.noticeLabel.textAlignment = NSTextAlignmentCenter;
     [self.bottomView addSubview: self.noticeLabel];
@@ -542,7 +550,7 @@
     self.editView.delegate = self;
     [self.bottomView addSubview:self.editView];
     // 更新最小可编辑区域
-    self.editView.minValidRectWidth = minEditVideoTime / self.perItemSeconds * [ZLEditVideoUX share].collectionItemWidth;
+    self.editView.minValidRectWidth = self.minEditVideoTime / self.perItemSeconds * [ZLEditVideoUX share].collectionItemWidth;
     NSLog(@"minValidRectWidth -%f", self.editView.minValidRectWidth);
     self.indicatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, [ZLEditVideoUX share].collectionItemHeight)];
     self.indicatorLine.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:.7];
@@ -560,15 +568,15 @@
 - (void)analysisAssetImages:(void (^)(void))completion {
     float duration = roundf(self.asset.duration);
     // 最大裁剪时长是否大于10秒
-    if (maxEditVideoTime >= 10) {
+    if (self.maxEditVideoTime >= 10) {
         // 满足1秒一个item的最低要求
-        if (duration <= maxEditVideoTime) {
+        if (duration <= self.maxEditVideoTime) {
             self.itemCount = 10;
             self.perItemSeconds = duration / self.itemCount;
             self.collectionViewCouldScroll = NO;
         } else {
             // 整个裁剪栏整个宽度（默认显示10个item）为允许的最大裁剪时长
-            self.perItemSeconds = (maxEditVideoTime * 1.0) / 10;
+            self.perItemSeconds = (self.maxEditVideoTime * 1.0) / 10;
             self.itemCount = duration / self.perItemSeconds;
             self.collectionViewCouldScroll = YES;
         }
@@ -578,7 +586,7 @@
         self.perItemSeconds = duration / self.itemCount;
         self.collectionViewCouldScroll = NO;
     }
-    [ZLEditVideoUX share].collectionItemWidth = ([UIScreen mainScreen].bounds.size.width - EditViewLeftRightSpace * 2) / 10.0;
+    [ZLEditVideoUX share].collectionItemWidth = ([UIScreen mainScreen].bounds.size.width - self.editViewLeftRightSpace * 2) / 10.0;
 
     PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
     options.version = PHVideoRequestOptionsVersionOriginal;

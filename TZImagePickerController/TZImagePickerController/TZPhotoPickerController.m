@@ -695,6 +695,12 @@ static CGFloat itemMargin = 5;
                     if (imagePickerVc.mainColor) {
                         editVC.mainColor = imagePickerVc.mainColor;
                     }
+                    if (imagePickerVc.maxEditVideoTime > 0) {
+                        editVC.maxEditVideoTime = imagePickerVc.maxEditVideoTime;
+                    }
+                    if (imagePickerVc.minEditVideoTime > 0) {
+                        editVC.minEditVideoTime = imagePickerVc.minEditVideoTime;
+                    }
                     editVC.asset = model.asset;
                     editVC.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
                         [imagePickerVc dismissViewControllerAnimated:YES completion:^{
@@ -722,6 +728,12 @@ static CGFloat itemMargin = 5;
                 }
                 if (imagePickerVc.mainColor) {
                     editVC.mainColor = imagePickerVc.mainColor;
+                }
+                if (imagePickerVc.maxEditVideoTime > 0) {
+                    editVC.maxEditVideoTime = imagePickerVc.maxEditVideoTime;
+                }
+                if (imagePickerVc.minEditVideoTime > 0) {
+                    editVC.minEditVideoTime = imagePickerVc.minEditVideoTime;
                 }
                 editVC.asset = model.asset;
                 editVC.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
