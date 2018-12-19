@@ -190,7 +190,8 @@
     [_toolBar addSubview:_numberImageView];
     [_toolBar addSubview:_numberLabel];
     self.toolBarSpLine = [[UIView alloc]initWithFrame:CGRectZero];
-    self.toolBarSpLine.backgroundColor = [UIColor lightGrayColor];
+    CGFloat rgb2 = 235 / 255.0;
+    self.toolBarSpLine.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
     [_toolBar addSubview: self.toolBarSpLine];
     [self.view addSubview:_toolBar];
 }

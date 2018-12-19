@@ -297,7 +297,7 @@ static CGFloat itemMargin = 5;
     _numberLabel.backgroundColor = [UIColor clearColor];
     */
     _divideLine = [[UIView alloc] init];
-    CGFloat rgb2 = 222 / 255.0;
+    CGFloat rgb2 = 235 / 255.0;
     _divideLine.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
     
     [_bottomToolBar addSubview:_divideLine];
