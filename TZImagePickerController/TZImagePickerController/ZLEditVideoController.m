@@ -252,6 +252,8 @@
 @property (nonatomic, strong) UIView *bgView;
 @property (nonatomic, strong) UIView *indicatorLine;
 @property (nonatomic, strong) UIView *bottomView;
+@property (nonatomic, strong) UIView *customNav;
+
 // Other
 @property (nonatomic, strong) AVAssetImageGenerator *generator;
 @property (nonatomic, assign) BOOL collectionViewCouldScroll;
@@ -275,14 +277,16 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.bgView = [[UIView alloc]initWithFrame:CGRectMake(0, ([self zl_isIPhoneX] ? 24 : 0) + 20, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    self.bgView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
     [self.view addSubview:self.bgView];
     self.bgView.backgroundColor = [UIColor blackColor];
     self.navigationController.navigationBar.backgroundColor = [UIColor whiteColor];
-    
+    self.automaticallyAdjustsScrollViewInsets = NO;
+
 
     [self analysisAssetImages:^{
         [self setupUI];
+        [self creatCostomUI];
     }];
 
     self.getImageCacheQueue = [[NSOperationQueue alloc] init];
@@ -290,35 +294,43 @@
     
     self.imageCache = [NSMutableDictionary dictionary];
     self.operationCache = [NSMutableDictionary dictionary];
-    UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    
-    rightButton.frame = CGRectMake(0, 0, 44, 44);
-    rightButton.titleLabel.font = [UIFont systemFontOfSize:16];
-    [rightButton setTitle: @"完成" forState:UIControlStateNormal];
-    if (_mainColor) {
-        [rightButton setTitleColor:_mainColor forState:UIControlStateNormal];
-    } else {
-        [rightButton setTitleColor:[UIColor colorWithRed:89/255.0 green:182/255.0 blue:215/255.0 alpha:1] forState:UIControlStateNormal];
-    }
-    [rightButton addTarget:self action:@selector(rightButtonClick:) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
-    
-    UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    leftButton.frame = CGRectMake(0, 0, 44, 44);
-    if (_backImage) {
-        [leftButton setImage:_backImage forState:UIControlStateNormal];
-    } else {
-        [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
-    }
-    [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
-
-    self.navigationItem.title = @"裁剪视频";
 
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationChanged:) name:UIApplicationWillChangeStatusBarOrientationNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appResignActive) name:UIApplicationWillResignActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
 }
+/// 自定义导航
+- (void)creatCostomUI {
+    self.customNav = [[UIView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 64)];
+    if ([self zl_isIPhoneX]) {
+        self.customNav.frame = CGRectMake(0, 30, [UIScreen mainScreen].bounds.size.width, 64);
+    }
+    UIButton *backBtn = [[UIButton alloc]initWithFrame:CGRectMake(0, 20, 30, 22)];
+    [backBtn addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
+    [self.customNav addSubview:backBtn];
+    if (_backImage) {
+        [backBtn setImage:_backImage forState:UIControlStateNormal];
+    } else {
+        [backBtn setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+    }
+    UILabel *titleLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 200, 40)];
+    titleLab.textAlignment = NSTextAlignmentCenter;
+    titleLab.text = @"编辑视频";
+    titleLab.font = [UIFont fontWithName:@"PingFangSC-Medium" size:18];
+    titleLab.textColor = [UIColor whiteColor];
+    [self.customNav addSubview:titleLab];
+    titleLab.center = CGPointMake(self.customNav.frame.size.width / 2.0, backBtn.center.y);
+    /// 确定按钮
+    UIButton *sureBtn = [[UIButton alloc]initWithFrame:CGRectMake(self.customNav.frame.size.width - 50, 20, 50, 22)];
+    [sureBtn setTitle:@"完成" forState:UIControlStateNormal];
+    sureBtn.titleLabel.font = [UIFont fontWithName:@"PingFangSC-Medium" size:16];
+    [sureBtn addTarget:self action:@selector(rightButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+
+    [self.customNav addSubview:sureBtn];
+
+    [self.view addSubview:self.customNav];
+}
+
 - (void)navLeftBarButtonClick{
     [self.playerLayer.player pause];
     self.playerLayer.player = nil;
@@ -420,12 +432,14 @@
     if (self.editView.validRect.size.width > 0) {
         [self startTimer];
     }
+    self.navigationController.navigationBarHidden = YES;
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
     [self stopTimer];
+    self.navigationController.navigationBarHidden = NO;
 }
 
 - (void)viewDidLayoutSubviews
@@ -448,7 +462,7 @@
     [self.collectionView setContentInset:UIEdgeInsetsMake(0, leftOffset, 0, rightOffset)];
     [self.collectionView setContentOffset:CGPointMake(_offsetX-leftOffset, 0)];
     self.bottomView.frame = CGRectMake(0, [[UIScreen mainScreen] bounds].size.height - [ZLEditVideoUX share].collectionItemHeight - 15 -inset.bottom, [[UIScreen mainScreen] bounds].size.width, [ZLEditVideoUX share].collectionItemHeight);
-    self.playerLayer.frame = CGRectMake(0, self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height,[[UIScreen mainScreen] bounds].size.width, self.bottomView.frame.origin.y - ( self.navigationController.navigationBar.frame.origin.y + self.navigationController.navigationBar.frame.size.height));
+    self.playerLayer.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     [self startTimer];
 }
 
