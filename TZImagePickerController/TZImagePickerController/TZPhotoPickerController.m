@@ -594,12 +594,12 @@ static CGFloat itemMargin = 5;
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
             [imagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Can not choose both video and photo"]];
         } else {
-            // 先判断试是否是低于5min的视频
+            // 先判断试是否是低于5min的视频, 同时没有开启直接编辑属性
             // 小于等于5min弹窗提示支持快速上传，以及编辑后上传
             // 大于5min，直接进入编辑页面
 
             NSArray *timeArr = [model.timeLength componentsSeparatedByString:@":"];
-            if (timeArr.count == 2 && (([timeArr[1] integerValue] == 0 && [timeArr[0] integerValue] <= 5) || ([timeArr[1] integerValue] > 0 && [timeArr[0] integerValue] <= 4))) {
+            if (timeArr.count == 2 && (([timeArr[1] integerValue] == 0 && [timeArr[0] integerValue] <= 5) || ([timeArr[1] integerValue] > 0 && [timeArr[0] integerValue] <= 4)) && tzImagePickerVc.directEditVideo == false) {
                 UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"" message:@"温馨提示" preferredStyle:UIAlertControllerStyleActionSheet];
                 UIAlertAction *uploadAction = [UIAlertAction actionWithTitle:@"快速上传(支持5分钟以内)" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                     NSLog(@"uploadAction");

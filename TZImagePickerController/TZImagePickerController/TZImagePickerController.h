@@ -232,6 +232,9 @@
 @property (nonatomic) NSUInteger maxEditVideoTime;
 /// 最小可选视频时长(秒) 默认3秒
 @property (nonatomic) NSUInteger minEditVideoTime;
+/// 直接进入视频编辑 默认NO 弹窗提示是否快速上传或者编辑后上传
+@property (nonatomic) BOOL directEditVideo;
+
 
 // MARK: end
 
