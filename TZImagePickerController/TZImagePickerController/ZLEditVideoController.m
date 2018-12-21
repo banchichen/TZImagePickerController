@@ -87,6 +87,7 @@
 @property (nonatomic, weak) id<ZLEditFrameViewDelegate> delegate;
 @property (nonatomic, strong) UIImageView *leftView;
 @property (nonatomic, strong) UIImageView *rightView;
+@property (nonatomic) BOOL scrollEnabled;
 
 @end
 
@@ -140,6 +141,9 @@
 
 - (void)panAction:(UIGestureRecognizer *)pan
 {
+    if (self.scrollEnabled == false) {
+        return;
+    }
     self.layer.borderColor = [[UIColor blackColor] colorWithAlphaComponent:.4].CGColor;
     CGPoint point = [pan locationInView:self];
     CGRect rct = self.validRect;
@@ -256,6 +260,8 @@
 // Other
 @property (nonatomic, strong) AVAssetImageGenerator *generator;
 @property (nonatomic, assign) BOOL collectionViewCouldScroll;
+/// 是否可以拖动裁剪
+@property (nonatomic, assign) BOOL couldDragEdit;
 @property (nonatomic, strong) AVAsset *avAsset;
 @property (nonatomic, assign) NSTimeInterval perItemSeconds;
 @property (nonatomic, assign) NSInteger itemCount;
@@ -547,6 +553,7 @@
     [self.bottomView addSubview: self.noticeLabel];
 
     self.editView = [[ZLEditFrameView alloc] init];
+    self.editView.scrollEnabled = self.couldDragEdit;
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     if (imagePickerVc.editFaceLeft) {
         self.editView.leftView.image = imagePickerVc.editFaceLeft;
@@ -578,11 +585,17 @@
             self.itemCount = 10;
             self.perItemSeconds = duration / self.itemCount;
             self.collectionViewCouldScroll = NO;
+            if (duration < self.minEditVideoTime) {
+                self.couldDragEdit = NO;
+            } else {
+                self.couldDragEdit = YES;
+            }
         } else {
             // 整个裁剪栏整个宽度（默认显示10个item）为允许的最大裁剪时长
             self.perItemSeconds = (self.maxEditVideoTime * 1.0) / 10;
             self.itemCount = duration / self.perItemSeconds;
             self.collectionViewCouldScroll = YES;
+            self.couldDragEdit = YES;
         }
     } else {
         // 拆解1秒
