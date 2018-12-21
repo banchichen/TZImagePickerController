@@ -472,6 +472,13 @@
     self.noticeLabel.center = CGPointMake(self.bottomView.frame.size.width / 2.0, self.noticeLabel.center.y);
     self.editView.frame = self.collectionView.bounds;
     self.editView.validRect = self.editView.bounds;
+    // 更新最小可编辑区域
+    float duration = roundf(self.asset.duration);
+    if (duration < self.minEditVideoTime) {
+        self.editView.minValidRectWidth = self.editView.frame.size.width;
+    } else {
+        self.editView.minValidRectWidth = self.minEditVideoTime / self.perItemSeconds * [ZLEditVideoUX share].collectionItemWidth;
+    }
     /// 全屏显示播放内容
     self.playerLayer.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     [self startTimer];
@@ -549,9 +556,6 @@
     }
     self.editView.delegate = self;
     [self.bottomView addSubview:self.editView];
-    // 更新最小可编辑区域
-    self.editView.minValidRectWidth = self.minEditVideoTime / self.perItemSeconds * [ZLEditVideoUX share].collectionItemWidth;
-    NSLog(@"minValidRectWidth -%f", self.editView.minValidRectWidth);
     self.indicatorLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 2, [ZLEditVideoUX share].collectionItemHeight)];
     self.indicatorLine.backgroundColor = [[UIColor whiteColor] colorWithAlphaComponent:.7];
 }
