@@ -432,17 +432,25 @@
         }
     }];
 }
-
+/// iPhoneX系列判断
 - (BOOL)zl_isIPhoneX {
     struct utsname systemInfo;
     uname(&systemInfo);
     NSString *platform = [NSString stringWithCString:systemInfo.machine encoding:NSASCIIStringEncoding];
     if ([platform isEqualToString:@"i386"] || [platform isEqualToString:@"x86_64"]) {
         // 模拟器下采用屏幕的高度来判断
+        // iPhoneX, iPhoneXs CGSizeMake(375, 812)
+        // iPhoneXs Max, iPhoneXR CGSize(width: 414, height: 896)
+
         return (CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(375, 812)) ||
-                CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(812, 375)));
+                CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(812, 375))||CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(414, 896)) ||
+                CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(896, 414)));
     }
-    BOOL isIPhoneX = [platform isEqualToString:@"iPhone10,3"] || [platform isEqualToString:@"iPhone10,6"];
+    /// iPhoneX "iPhone10,3" "iPhone10,6"
+    /// iPhoneXs "iPhone11,2"
+    /// iPhoneXs Max "iPhone11,6"
+    /// iPhoneXR "iPhone11,8"
+    BOOL isIPhoneX = [platform isEqualToString:@"iPhone10,3"] || [platform isEqualToString:@"iPhone10,6"] || [platform isEqualToString:@"iPhone11,2"] || [platform isEqualToString:@"iPhone11,6"] || [platform isEqualToString:@"iPhone11,6"] || [platform isEqualToString:@"iPhone11,8"];
     return isIPhoneX;
 }
 - (void)viewWillAppear:(BOOL)animated
