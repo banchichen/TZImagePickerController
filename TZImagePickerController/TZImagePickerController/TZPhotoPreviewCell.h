@@ -58,6 +58,7 @@
 @property (strong, nonatomic) AVPlayerLayer *playerLayer;
 @property (strong, nonatomic) UIButton *playButton;
 @property (strong, nonatomic) UIImage *cover;
+@property (nonatomic, strong) NSURL *videoURL;
 - (void)pausePlayerAndShowNaviBar;
 @end
 

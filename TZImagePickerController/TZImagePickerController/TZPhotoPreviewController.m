@@ -502,7 +502,10 @@
     if ([cell isKindOfClass:[TZPhotoPreviewCell class]]) {
         [(TZPhotoPreviewCell *)cell recoverSubviews];
     } else if ([cell isKindOfClass:[TZVideoPreviewCell class]]) {
-        [(TZVideoPreviewCell *)cell pausePlayerAndShowNaviBar];
+        TZVideoPreviewCell *videoCell = (TZVideoPreviewCell *)cell;
+        if (videoCell.player && videoCell.player.rate != 0.0) {
+            [videoCell pausePlayerAndShowNaviBar];
+        }
     }
 }
 
