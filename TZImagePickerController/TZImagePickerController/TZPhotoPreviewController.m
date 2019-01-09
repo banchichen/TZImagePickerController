@@ -105,7 +105,8 @@
     
     [_naviBar addSubview:_backButton];
     self.navBarSpLine = [[UIView alloc]initWithFrame:CGRectMake(0, _naviBar.frame.size.height - 0.5, _naviBar.frame.size.width, 0.5)];
-    self.navBarSpLine.backgroundColor = [UIColor grayColor];
+    CGFloat rgb2 = 235 / 255.0;
+    self.navBarSpLine.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
     [_naviBar addSubview: self.navBarSpLine];
     [self.view addSubview:_naviBar];
 }
