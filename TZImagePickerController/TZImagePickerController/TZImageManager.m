@@ -347,7 +347,7 @@ static dispatch_once_t onceToken;
     } else {
         PHAsset *phAsset = (PHAsset *)asset;
         CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
-        CGFloat pixelWidth = photoWidth * TZScreenScale * 1.5;
+        CGFloat pixelWidth = photoWidth * TZScreenScale;
         // 超宽图片
         if (aspectRatio > 1.8) {
             pixelWidth = pixelWidth * aspectRatio;

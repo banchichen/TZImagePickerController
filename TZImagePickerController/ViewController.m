@@ -270,7 +270,7 @@
         imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
     }];
     
-    // imagePickerVc.photoWidth = 1000;
+    // imagePickerVc.photoWidth = 800;
     
     // 2. Set the appearance
     // 2. 在这里设置imagePickerVc的外观
