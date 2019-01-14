@@ -20,6 +20,7 @@
 #import "TZAssetCell.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "FLAnimatedImage.h"
+#import "TZImageUploadOperation.h"
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UIAlertViewDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
@@ -33,6 +34,8 @@
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (strong, nonatomic) LxGridViewFlowLayout *layout;
 @property (strong, nonatomic) CLLocation *location;
+
+@property (nonatomic, strong) NSOperationQueue *operationQueue;
 
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 // 设置开关
@@ -556,25 +559,20 @@
         NSLog(@"location:%@",phAsset.location);
     }
     
-    /*
-    // 3. 获取原图的示例，这样一次性获取很可能会导致内存飙升，建议获取1-2张，消费和释放掉，再获取剩下的
-    __block NSMutableArray *originalPhotos = [NSMutableArray array];
-    __block NSInteger finishCount = 0;
-    for (NSInteger i = 0; i < assets.count; i++) {
-        [originalPhotos addObject:@1];
-    }
+    // 3. 获取原图的示例，用队列限制最大并发为1，避免内存暴增
+    self.operationQueue = [[NSOperationQueue alloc] init];
+    self.operationQueue.maxConcurrentOperationCount = 1;
     for (NSInteger i = 0; i < assets.count; i++) {
         PHAsset *asset = assets[i];
-        PHImageRequestID requestId = [[TZImageManager manager] getOriginalPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info) {
-            finishCount += 1;
-            [originalPhotos replaceObjectAtIndex:i withObject:photo];
-            if (finishCount >= assets.count) {
-                NSLog(@"All finished.");
-            }
+        // 图片上传operation，上传代码请写到operation内的start方法里，内有注释
+        TZImageUploadOperation *operation = [[TZImageUploadOperation alloc] initWithAsset:asset completion:^(UIImage * photo, NSDictionary *info, BOOL isDegraded) {
+            if (isDegraded) return;
+            NSLog(@"图片获取&上传完成");
+        } progressHandler:^(double progress, NSError * _Nonnull error, BOOL * _Nonnull stop, NSDictionary * _Nonnull info) {
+            NSLog(@"获取原图进度 %f", progress);
         }];
-        NSLog(@"requestId: %d", requestId);
+        [self.operationQueue addOperation:operation];
     }
-     */
 }
 
 // If user picking a video and allowPickingMultipleVideo is NO, this callback will be called.
