@@ -138,7 +138,7 @@
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
-    [self.navigationBar setShadowImage:[self imageWithColor:[UIColor colorWithRed:222/255.0 green:222/255.0 blue:222/255.0 alpha:1] size:CGSizeMake(UIScreen.mainScreen.bounds.size.width, 1)]];
+    [self.navigationBar setShadowImage:[self imageWithColor:[UIColor clearColor] size:CGSizeMake(UIScreen.mainScreen.bounds.size.width, 1)]];
 }
 
 - (UIImage *)imageWithColor:(UIColor *)color size:(CGSize)size {
