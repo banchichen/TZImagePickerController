@@ -65,6 +65,9 @@ static dispatch_once_t onceToken;
 
 /// Return YES if Authorized 返回YES如果得到了授权
 - (BOOL)authorizationStatusAuthorized {
+    if (self.isPreviewNetworkImage) {
+        return YES;
+    }
     NSInteger status = [PHPhotoLibrary authorizationStatus];
     if (status == 0) {
         /**

@@ -25,6 +25,8 @@
 
 @property (nonatomic, assign) BOOL shouldFixOrientation;
 
+@property (nonatomic, assign) BOOL isPreviewNetworkImage;
+
 /// Default is 600px / 默认600像素宽
 @property (nonatomic, assign) CGFloat photoPreviewMaxWidth;
 /// The pixel width of output image, Default is 828px / 导出图片的宽度，默认828像素宽
