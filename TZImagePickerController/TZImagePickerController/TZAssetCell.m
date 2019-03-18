@@ -57,9 +57,9 @@
     self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
     if (_selectImage) {
-        self.selectImageView.image = self.selectPhotoButton.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
+        self.selectImageView.image = model.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
     } else {
-        self.selectImageView.image = self.selectPhotoButton.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
+        self.selectImageView.image = model.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
     }
     self.type = (NSInteger)model.type;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
