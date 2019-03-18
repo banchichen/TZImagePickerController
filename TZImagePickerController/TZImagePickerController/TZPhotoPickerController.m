@@ -891,7 +891,11 @@ static CGFloat itemMargin = 5;
 //    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
 //    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
     if ((long)tzImagePickerVc.maxImagesCount > 1) {
-        [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",tzImagePickerVc.selectedModels.count,(long)tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+        if (tzImagePickerVc.selectedModels.count == 0) {
+            [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",tzImagePickerVc.selectedModels.count,(long)tzImagePickerVc.maxImagesCount] forState: UIControlStateDisabled];
+        } else {
+            [_doneButton setTitle:[NSString stringWithFormat:@"完成(%ld/%ld)",tzImagePickerVc.selectedModels.count,(long)tzImagePickerVc.maxImagesCount] forState:UIControlStateNormal];
+        }
         if(tzImagePickerVc.selectedModels.count > 0) {
             _doneButton.backgroundColor = tzImagePickerVc.oKButtonBackGroundColorEnabled;
         } else {
