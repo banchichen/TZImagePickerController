@@ -686,11 +686,16 @@ static CGFloat itemMargin = 5;
                         editVC.minEditVideoTime = imagePickerVc.minEditVideoTime;
                     }
                     editVC.asset = model.asset;
+                    __weak typeof(self) weakSelf = self;
                     editVC.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
                         [imagePickerVc dismissViewControllerAnimated:YES completion:^{
                             if (coverImage != nil && videoPath != nil) {
                                 if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishEditVideoCoverImage:videoURL:)]) {
                                     [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishEditVideoCoverImage:coverImage videoURL:videoPath];
+                                }
+                                /// 导航内视图全部pop以释放内存
+                                for (int i = 0; i < weakSelf.navigationController.viewControllers.count; i ++) {
+                                    [weakSelf.navigationController popViewControllerAnimated:YES];
                                 }
                             }
                         }];
@@ -720,11 +725,16 @@ static CGFloat itemMargin = 5;
                     editVC.minEditVideoTime = imagePickerVc.minEditVideoTime;
                 }
                 editVC.asset = model.asset;
+                __weak typeof(self) weakSelf = self;
                 editVC.coverImageBlock = ^(UIImage *coverImage, NSURL *videoPath) {
                     [imagePickerVc dismissViewControllerAnimated:YES completion:^{
                         if (coverImage != nil && videoPath != nil) {
                             if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishEditVideoCoverImage:videoURL:)]) {
                                 [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishEditVideoCoverImage:coverImage videoURL:videoPath];
+                            }
+                            /// 导航内视图全部pop以释放内存
+                            for (int i = 0; i < weakSelf.navigationController.viewControllers.count; i ++) {
+                                [weakSelf.navigationController popViewControllerAnimated:YES];
                             }
                         }
                     }];

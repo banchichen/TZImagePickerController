@@ -92,7 +92,10 @@
 @end
 
 @implementation ZLEditFrameView
-
+- (void)dealloc
+{
+    NSLog(@"ZLEditFrameView dealloc");
+}
 - (instancetype)init
 {
     self = [super init];
@@ -351,13 +354,11 @@
 }
 
 - (void)navLeftBarButtonClick{
-    [self.playerLayer.player pause];
-    self.playerLayer.player = nil;
-    [self.playerLayer removeFromSuperlayer];
     [self.getImageCacheQueue cancelAllOperations];
-    self.playerLayer.delegate = nil;
-    self.playerLayer = nil;
     [self stopTimer];
+    [self.playerLayer.player pause];
+    [self.playerLayer.player.currentItem cancelPendingSeeks];
+    [self.playerLayer.player.currentItem.asset cancelLoading];
     [self.navigationController popViewControllerAnimated:YES];
 }
 - (void)rightButtonClick:(UIButton *)btn {
@@ -754,7 +755,9 @@
     [_timer invalidate];
     _timer = nil;
     [self.indicatorLine removeFromSuperview];
-    [self.playerLayer.player pause];
+    if (self.playerLayer.player != nil) {
+        [self.playerLayer.player pause];
+    }
 }
 
 - (CMTime)getStartTime
