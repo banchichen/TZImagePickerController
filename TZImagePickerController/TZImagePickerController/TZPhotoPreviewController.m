@@ -558,6 +558,10 @@
         _originalPhotoLabel.hidden = YES;
         _doneButton.hidden = YES;
     }
+    
+    if (_tzImagePickerVc.photoPreviewPageDidRefreshStateBlock) {
+        _tzImagePickerVc.photoPreviewPageDidRefreshStateBlock(_collectionView, _naviBar, _backButton, _selectButton, _indexLabel, _toolBar, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel);
+    }
 }
 
 - (void)refreshSelectButtonImageViewContentMode {
