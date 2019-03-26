@@ -21,11 +21,13 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" keyboardDismissMode="onDrag" translatesAutoresizingMaskIntoConstraints="NO" id="AMD-xf-cz2">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="640"/>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" keyboardDismissMode="onDrag" translatesAutoresizingMaskIntoConstraints="NO" id="AMD-xf-cz2">
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="555"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="obE-hs-XLa" userLabel="View1">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="obE-hs-XLa" userLabel="View1">
                                         <rect key="frame" x="0.0" y="20" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jpa-B9-8n6">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -43,12 +45,10 @@
                                             </label>
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="35" id="RuS-Zw-ecY"/>
-                                        </constraints>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wWK-ob-W4A" userLabel="View2">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="wWK-ob-W4A" userLabel="View2">
                                         <rect key="frame" x="0.0" y="55" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Rbt-bh-r0x">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -64,8 +64,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kJv-DR-NlY" userLabel="View3">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kJv-DR-NlY" userLabel="View3">
                                         <rect key="frame" x="0.0" y="90" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="a58-aK-ZB0">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -84,8 +85,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z20-6k-hhA" userLabel="View4">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Z20-6k-hhA" userLabel="View4">
                                         <rect key="frame" x="0.0" y="125" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="iRQ-aE-1KG">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -104,8 +106,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jKt-h1-BC7" userLabel="View5">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jKt-h1-BC7" userLabel="View5">
                                         <rect key="frame" x="0.0" y="160" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="4L3-Da-pcd">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -124,8 +127,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gde-hr-2Sy" userLabel="View6">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="gde-hr-2Sy" userLabel="View6">
                                         <rect key="frame" x="0.0" y="195" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="zLj-vc-Xwz">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -145,8 +149,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Qrr-87-KzM" userLabel="View7">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Qrr-87-KzM" userLabel="View7">
                                         <rect key="frame" x="0.0" y="230" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="uHt-bT-lBZ">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -165,8 +170,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PA2-zk-4Ey" userLabel="View8">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="PA2-zk-4Ey" userLabel="View8">
                                         <rect key="frame" x="0.0" y="265" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="照片最大可选张数" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rK3-1U-kcW">
                                                 <rect key="frame" x="0.0" y="0.0" width="200" height="35"/>
@@ -184,8 +190,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VUP-wm-Ah2" userLabel="View9">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="VUP-wm-Ah2" userLabel="View9">
                                         <rect key="frame" x="0.0" y="300" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="每行展示照片张数" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fbH-6q-oeE">
                                                 <rect key="frame" x="0.0" y="0.0" width="200" height="35"/>
@@ -203,8 +210,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="92q-n9-Zwf" userLabel="View10">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="92q-n9-Zwf" userLabel="View10">
                                         <rect key="frame" x="0.0" y="335" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="0ju-HJ-A06">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -223,8 +231,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uex-bO-uvg" userLabel="View11">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uex-bO-uvg" userLabel="View11">
                                         <rect key="frame" x="0.0" y="370" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="hsH-wt-l1R">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -243,8 +252,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kBC-oD-k6h" userLabel="View12">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kBC-oD-k6h" userLabel="View12">
                                         <rect key="frame" x="0.0" y="405" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="edM-ah-5KZ">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -263,8 +273,9 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v2g-6C-m1J" userLabel="View13">
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="v2g-6C-m1J" userLabel="View13">
                                         <rect key="frame" x="0.0" y="440" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mMy-bi-cIJ">
                                                 <rect key="frame" x="225" y="2" width="51" height="31"/>
@@ -284,7 +295,7 @@
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
                                     <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="fWM-jc-1VU" userLabel="View14">
-                                        <rect key="frame" x="0.0" y="475" width="375" height="35"/>
+                                        <rect key="frame" x="0.0" y="473" width="375" height="35"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <subviews>
                                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="XsY-NI-Txd">
@@ -301,71 +312,28 @@
                                         </subviews>
                                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                     </view>
+                                    <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Cq7-BB-oEg" userLabel="View15">
+                                        <rect key="frame" x="0.0" y="510" width="375" height="35"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <subviews>
+                                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="QGp-id-dZA">
+                                                <rect key="frame" x="225" y="2" width="51" height="31"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                            </switch>
+                                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="显示剩余可选择图片数量" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8bd-ri-2WE">
+                                                <rect key="frame" x="0.0" y="0.0" width="200" height="35"/>
+                                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
+                                        <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    </view>
                                 </subviews>
-                                <constraints>
-                                    <constraint firstItem="VUP-wm-Ah2" firstAttribute="leading" secondItem="PA2-zk-4Ey" secondAttribute="leading" id="1iv-97-UAf"/>
-                                    <constraint firstItem="v2g-6C-m1J" firstAttribute="leading" secondItem="kBC-oD-k6h" secondAttribute="leading" id="1xv-oX-xWZ"/>
-                                    <constraint firstItem="92q-n9-Zwf" firstAttribute="trailing" secondItem="VUP-wm-Ah2" secondAttribute="trailing" id="2dI-dy-w3s"/>
-                                    <constraint firstItem="PA2-zk-4Ey" firstAttribute="trailing" secondItem="Qrr-87-KzM" secondAttribute="trailing" id="3up-87-K1l"/>
-                                    <constraint firstItem="VUP-wm-Ah2" firstAttribute="top" secondItem="PA2-zk-4Ey" secondAttribute="bottom" id="3wW-Pg-fzS"/>
-                                    <constraint firstItem="Z20-6k-hhA" firstAttribute="leading" secondItem="kJv-DR-NlY" secondAttribute="leading" id="9l0-Jl-AUA"/>
-                                    <constraint firstItem="Qrr-87-KzM" firstAttribute="height" secondItem="gde-hr-2Sy" secondAttribute="height" id="ClL-Ck-Dcn"/>
-                                    <constraint firstItem="v2g-6C-m1J" firstAttribute="top" secondItem="kBC-oD-k6h" secondAttribute="bottom" id="ErC-BJ-ezP"/>
-                                    <constraint firstItem="92q-n9-Zwf" firstAttribute="leading" secondItem="VUP-wm-Ah2" secondAttribute="leading" id="FGD-bj-L3J"/>
-                                    <constraint firstItem="wWK-ob-W4A" firstAttribute="height" secondItem="obE-hs-XLa" secondAttribute="height" id="HFb-Z1-0pm"/>
-                                    <constraint firstItem="VUP-wm-Ah2" firstAttribute="trailing" secondItem="PA2-zk-4Ey" secondAttribute="trailing" id="JFl-1c-hQh"/>
-                                    <constraint firstItem="gde-hr-2Sy" firstAttribute="height" secondItem="jKt-h1-BC7" secondAttribute="height" id="KrA-dv-SzU"/>
-                                    <constraint firstItem="PA2-zk-4Ey" firstAttribute="leading" secondItem="Qrr-87-KzM" secondAttribute="leading" id="NLP-pQ-Qgy"/>
-                                    <constraint firstItem="92q-n9-Zwf" firstAttribute="top" secondItem="VUP-wm-Ah2" secondAttribute="bottom" id="NoR-J2-mVI"/>
-                                    <constraint firstItem="wWK-ob-W4A" firstAttribute="top" secondItem="obE-hs-XLa" secondAttribute="bottom" id="PZa-2b-GlH"/>
-                                    <constraint firstItem="PA2-zk-4Ey" firstAttribute="top" secondItem="Qrr-87-KzM" secondAttribute="bottom" id="QoI-na-E3C"/>
-                                    <constraint firstItem="wWK-ob-W4A" firstAttribute="leading" secondItem="obE-hs-XLa" secondAttribute="leading" id="R0F-K3-Hve"/>
-                                    <constraint firstItem="Z20-6k-hhA" firstAttribute="top" secondItem="kJv-DR-NlY" secondAttribute="bottom" id="T4D-dN-Lgh"/>
-                                    <constraint firstItem="PA2-zk-4Ey" firstAttribute="height" secondItem="Qrr-87-KzM" secondAttribute="height" id="TES-KZ-ed7"/>
-                                    <constraint firstItem="jKt-h1-BC7" firstAttribute="leading" secondItem="Z20-6k-hhA" secondAttribute="leading" id="VGe-vf-MfL"/>
-                                    <constraint firstItem="uex-bO-uvg" firstAttribute="top" secondItem="92q-n9-Zwf" secondAttribute="bottom" id="Vae-Me-t4r"/>
-                                    <constraint firstItem="kJv-DR-NlY" firstAttribute="leading" secondItem="wWK-ob-W4A" secondAttribute="leading" id="Wmr-AU-Xuo"/>
-                                    <constraint firstItem="jKt-h1-BC7" firstAttribute="trailing" secondItem="Z20-6k-hhA" secondAttribute="trailing" id="WwT-Gk-NVH"/>
-                                    <constraint firstItem="gde-hr-2Sy" firstAttribute="trailing" secondItem="jKt-h1-BC7" secondAttribute="trailing" id="Xih-PA-4s3"/>
-                                    <constraint firstItem="Qrr-87-KzM" firstAttribute="leading" secondItem="gde-hr-2Sy" secondAttribute="leading" id="Zb4-47-UJy"/>
-                                    <constraint firstItem="kBC-oD-k6h" firstAttribute="top" secondItem="uex-bO-uvg" secondAttribute="bottom" id="b6r-9M-h1g"/>
-                                    <constraint firstItem="Z20-6k-hhA" firstAttribute="height" secondItem="kJv-DR-NlY" secondAttribute="height" id="cSa-cz-LpU"/>
-                                    <constraint firstItem="Qrr-87-KzM" firstAttribute="top" secondItem="jKt-h1-BC7" secondAttribute="bottom" constant="35" id="eMB-pt-F7l"/>
-                                    <constraint firstItem="gde-hr-2Sy" firstAttribute="top" secondItem="jKt-h1-BC7" secondAttribute="bottom" id="eqU-F1-2IQ"/>
-                                    <constraint firstItem="v2g-6C-m1J" firstAttribute="trailing" secondItem="kBC-oD-k6h" secondAttribute="trailing" id="ez1-O3-KTh"/>
-                                    <constraint firstItem="jKt-h1-BC7" firstAttribute="top" secondItem="Z20-6k-hhA" secondAttribute="bottom" id="gEr-Zu-lDh"/>
-                                    <constraint firstItem="VUP-wm-Ah2" firstAttribute="height" secondItem="PA2-zk-4Ey" secondAttribute="height" id="hDo-rF-XEe"/>
-                                    <constraint firstItem="obE-hs-XLa" firstAttribute="leading" secondItem="AMD-xf-cz2" secondAttribute="leading" id="hDy-MM-w5g"/>
-                                    <constraint firstItem="uex-bO-uvg" firstAttribute="height" secondItem="92q-n9-Zwf" secondAttribute="height" id="hMH-pK-i1M"/>
-                                    <constraint firstItem="kJv-DR-NlY" firstAttribute="top" secondItem="wWK-ob-W4A" secondAttribute="bottom" id="i27-SM-wgc"/>
-                                    <constraint firstItem="kBC-oD-k6h" firstAttribute="height" secondItem="uex-bO-uvg" secondAttribute="height" id="iWw-4K-Ssi"/>
-                                    <constraint firstItem="gde-hr-2Sy" firstAttribute="leading" secondItem="jKt-h1-BC7" secondAttribute="leading" id="ikB-6o-XrM"/>
-                                    <constraint firstItem="kBC-oD-k6h" firstAttribute="trailing" secondItem="uex-bO-uvg" secondAttribute="trailing" id="jDo-vK-PhT"/>
-                                    <constraint firstAttribute="trailing" secondItem="obE-hs-XLa" secondAttribute="trailing" id="kZv-6I-6fD"/>
-                                    <constraint firstItem="kJv-DR-NlY" firstAttribute="height" secondItem="wWK-ob-W4A" secondAttribute="height" id="kvY-3q-eeM"/>
-                                    <constraint firstItem="wWK-ob-W4A" firstAttribute="trailing" secondItem="obE-hs-XLa" secondAttribute="trailing" id="mfr-E7-8po"/>
-                                    <constraint firstAttribute="height" constant="440" id="miA-vX-6Hr"/>
-                                    <constraint firstItem="92q-n9-Zwf" firstAttribute="height" secondItem="VUP-wm-Ah2" secondAttribute="height" id="oBc-gA-ADs"/>
-                                    <constraint firstItem="uex-bO-uvg" firstAttribute="trailing" secondItem="92q-n9-Zwf" secondAttribute="trailing" id="r2c-JO-oNO"/>
-                                    <constraint firstItem="kBC-oD-k6h" firstAttribute="leading" secondItem="uex-bO-uvg" secondAttribute="leading" id="r9g-v8-5U7"/>
-                                    <constraint firstItem="obE-hs-XLa" firstAttribute="top" secondItem="AMD-xf-cz2" secondAttribute="top" constant="20" id="s2U-ND-yc4"/>
-                                    <constraint firstItem="jKt-h1-BC7" firstAttribute="height" secondItem="Z20-6k-hhA" secondAttribute="height" id="sWH-6u-m28"/>
-                                    <constraint firstItem="kJv-DR-NlY" firstAttribute="trailing" secondItem="wWK-ob-W4A" secondAttribute="trailing" id="t41-Zi-afs"/>
-                                    <constraint firstItem="Qrr-87-KzM" firstAttribute="trailing" secondItem="gde-hr-2Sy" secondAttribute="trailing" id="vZF-Ly-XEP"/>
-                                    <constraint firstItem="Z20-6k-hhA" firstAttribute="trailing" secondItem="kJv-DR-NlY" secondAttribute="trailing" id="w7j-cD-oSq"/>
-                                    <constraint firstItem="v2g-6C-m1J" firstAttribute="height" secondItem="kBC-oD-k6h" secondAttribute="height" id="xp8-5X-dXy"/>
-                                    <constraint firstItem="uex-bO-uvg" firstAttribute="leading" secondItem="92q-n9-Zwf" secondAttribute="leading" id="yDZ-7l-FMk"/>
-                                </constraints>
                             </scrollView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <constraints>
-                            <constraint firstItem="AMD-xf-cz2" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="4Ve-nD-CyY"/>
-                            <constraint firstItem="obE-hs-XLa" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="BAt-Qs-VNJ"/>
-                            <constraint firstItem="AMD-xf-cz2" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="O7i-qy-sG8"/>
-                            <constraint firstItem="AMD-xf-cz2" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="Oqp-06-c4N"/>
-                            <constraint firstAttribute="trailing" secondItem="AMD-xf-cz2" secondAttribute="trailing" id="eJF-uE-CjV"/>
-                        </constraints>
                     </view>
                     <connections>
                         <outlet property="allowCropSwitch" destination="0ju-HJ-A06" id="PHl-Yf-uf2"/>
@@ -377,6 +345,7 @@
                         <outlet property="columnNumberTF" destination="YR1-nJ-q0v" id="TE2-iH-EWE"/>
                         <outlet property="maxCountTF" destination="37K-cO-hgf" id="776-gE-tea"/>
                         <outlet property="needCircleCropSwitch" destination="hsH-wt-l1R" id="SVP-EE-wgf"/>
+                        <outlet property="remainingOptionalSwitch" destination="QGp-id-dZA" id="dSw-bM-0lA"/>
                         <outlet property="scrollView" destination="AMD-xf-cz2" id="0Bb-Te-K4h"/>
                         <outlet property="showSelectedIndexSwitch" destination="XsY-NI-Txd" id="ou9-YO-ebP"/>
                         <outlet property="showSheetSwitch" destination="uHt-bT-lBZ" id="NxK-wM-ivE"/>
