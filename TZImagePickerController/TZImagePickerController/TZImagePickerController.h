@@ -44,6 +44,15 @@
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
 
+/// Number of remaining photos available,default is No,
+/// if Yes: maxImagesCount is equal to (maxImagesCount - selectedPhotos.count)
+/// if NO: maxImagesCount is equal to maxImagesCount
+/// 允许剩余可选照片，默认是NO
+/// 如果设置为Yes，剩余可选的图片等于 maxImagesCount - selectedPhotos.count
+/// 如果设置为No，剩余可选的图片等于 maxImagesCount
+@property (nonatomic, assign) BOOL allowRemainingOptional;
+
+
 /// The minimum count photos user must pick, Default is 0
 /// 最小照片必选张数,默认是0
 @property (nonatomic, assign) NSInteger minImagesCount;
