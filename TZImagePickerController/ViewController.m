@@ -16,7 +16,6 @@
 #import "TZVideoPlayerController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZGifPhotoPreviewController.h"
-#import "TZLocationManager.h"
 #import "TZAssetCell.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "FLAnimatedImage.h"
@@ -33,7 +32,6 @@
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (strong, nonatomic) LxGridViewFlowLayout *layout;
-@property (strong, nonatomic) CLLocation *location;
 
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 
@@ -425,16 +423,6 @@
 
 // 调用相机
 - (void)pushImagePickerController {
-    // 提前定位
-    __weak typeof(self) weakSelf = self;
-    [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.location = [locations firstObject];
-    } failureBlock:^(NSError *error) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.location = nil;
-    }];
-    
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         self.imagePickerVc.sourceType = sourceType;
@@ -465,7 +453,7 @@
         UIImage *image = [info objectForKey:UIImagePickerControllerOriginalImage];
         
         // save photo and get asset / 保存图片，获取到asset
-        [[TZImageManager manager] savePhotoWithImage:image location:self.location completion:^(PHAsset *asset, NSError *error){
+        [[TZImageManager manager] savePhotoWithImage:image completion:^(PHAsset *asset, NSError *error){
             [tzImagePickerVc hideProgressHUD];
             if (error) {
                 NSLog(@"图片保存失败 %@",error);
@@ -487,7 +475,7 @@
     } else if ([type isEqualToString:@"public.movie"]) {
         NSURL *videoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
         if (videoUrl) {
-            [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(PHAsset *asset, NSError *error) {
+            [[TZImageManager manager] saveVideoWithUrl:videoUrl completion:^(PHAsset *asset, NSError *error) {
                 [tzImagePickerVc hideProgressHUD];
                 if (!error) {
                     TZAssetModel *assetModel = [[TZImageManager manager] createModelWithAsset:asset];
@@ -509,7 +497,6 @@
     
     if ([asset isKindOfClass:[PHAsset class]]) {
         PHAsset *phAsset = asset;
-        NSLog(@"location:%@",phAsset.location);
     }
 }
 
@@ -556,7 +543,7 @@
     [self printAssetsName:assets];
     // 2.图片位置信息
     for (PHAsset *phAsset in assets) {
-        NSLog(@"location:%@",phAsset.location);
+        
     }
     
     // 3. 获取原图的示例，用队列限制最大并发为1，避免内存暴增
