@@ -54,6 +54,7 @@
    TZImagePickerController uses Camera、Location、Microphone、Photo Library，you need add these properties to info.plist like Demo：       
    TZImagePickerController使用了相机、定位、麦克风、相册，请参考Demo添加下列属性到info.plist文件：        
    	`Privacy - Camera Usage Description`     
+        `Privacy - Location Usage Description`
 	`Privacy - Location When In Use Usage Description`    
  	`Privacy - Microphone Usage Description`   
  	`Privacy - Photo Library Usage Description`   

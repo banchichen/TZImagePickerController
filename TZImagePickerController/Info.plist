@@ -24,6 +24,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>访问相机以拍照</string>
+	<key>NSLocationUsageDescription</key>
+	<string>允许定位以把位置保存到照片中</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>允许定位以把位置保存到照片中</string>
 	<key>NSMicrophoneUsageDescription</key>
