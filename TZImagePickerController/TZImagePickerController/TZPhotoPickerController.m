@@ -504,6 +504,7 @@ static CGFloat itemMargin = 5;
     cell.photoDefImageName = tzImagePickerVc.photoDefImageName;
     cell.photoSelImageName = tzImagePickerVc.photoSelImageName;
     cell.selectImage = tzImagePickerVc.selectImage;
+    cell.mainColor = tzImagePickerVc.mainColor;
     TZAssetModel *model;
     if (tzImagePickerVc.sortAscendingByModificationDate || !_showTakePhotoBtn) {
         model = _models[indexPath.row];
@@ -514,7 +515,14 @@ static CGFloat itemMargin = 5;
     cell.model = model;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     cell.allowPreview = tzImagePickerVc.allowPreview;
-    
+    cell.showSelectedNumber = self.showSelectedNumber;
+    if (model.isSelected && self.showSelectedNumber) {
+        cell.selectedNumberLabel.text = [NSString stringWithFormat:@"%ld", model.selectedNumber];
+        cell.selectedNumberLabel.hidden = NO;
+    } else {
+        cell.selectedNumberLabel.text = @"";
+        cell.selectedNumberLabel.hidden = YES;
+    }
     __weak typeof(cell) weakCell = cell;
     __weak typeof(self) weakSelf = self;
 //    __weak typeof(_numberImageView.layer) weakLayer = _numberImageView.layer;
@@ -527,19 +535,25 @@ static CGFloat itemMargin = 5;
         if (isSelected) {
             strongCell.selectPhotoButton.selected = NO;
             model.isSelected = NO;
+            /// 后边的number递减
             NSArray *selectedModels = [NSArray arrayWithArray:tzImagePickerVc.selectedModels];
             for (TZAssetModel *model_item in selectedModels) {
+                if (model_item.selectedNumber > model.selectedNumber) {
+                    model_item.selectedNumber = model_item.selectedNumber - 1;
+                }
                 if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
                     [tzImagePickerVc.selectedModels removeObject:model_item];
-                    break;
                 }
             }
             [strongSelf refreshBottomToolBarStatus];
+            /// 开启选中计数就需要刷新全部，更新比当前取消的s编号更小的item
+            [collectionView reloadData];
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
                 strongCell.selectPhotoButton.selected = YES;
                 model.isSelected = YES;
+                model.selectedNumber = tzImagePickerVc.selectedModels.count + 1;
                 [tzImagePickerVc.selectedModels addObject:model];
                 [strongSelf refreshBottomToolBarStatus];
             } else {
@@ -600,9 +614,9 @@ static CGFloat itemMargin = 5;
                             // 默认导出720p中等画质的视频
                             NSString * exportPresetQulity;
                             if (size.longLongValue / (1024.0 * 1024.4) > 25) {
-                                exportPresetQulity = AVAssetExportPresetMediumQuality;
+                                exportPresetQulity = AVAssetExportPreset960x540;
                             } else {
-                                exportPresetQulity = AVAssetExportPresetHighestQuality;
+                                exportPresetQulity = AVAssetExportPresetMediumQuality;
                             }
                             [[TZImageManager alloc] getVideoOutputPathWithAsset:model.asset presetName:exportPresetQulity version:PHVideoRequestOptionsVersionOriginal success:^(NSString *outputPath) {
                                 NSString *exportFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.%@",@"exportVideo",@"mp4"]];
@@ -782,9 +796,18 @@ static CGFloat itemMargin = 5;
                 //设置代理
                 imageBrowser.delegate = self;
                 if (tzImagePickerVc.isSquare) {
-                    imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width - 80, UIScreen.mainScreen.bounds.size.width - 80);
+                    if (tzImagePickerVc.clipSize.height > 0 && tzImagePickerVc.clipSize.width > 0) {
+                        CGFloat clipR = MIN(tzImagePickerVc.clipSize.height, tzImagePickerVc.clipSize.width);
+                        imageBrowser.cropSize  = CGSizeMake(clipR, clipR);
+                    } else {
+                        imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width - 80, UIScreen.mainScreen.bounds.size.width - 80);
+                    }
                 } else {
-                    imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
+                    if (tzImagePickerVc.clipSize.height > 0 && tzImagePickerVc.clipSize.width > 0) {
+                        imageBrowser.cropSize  = tzImagePickerVc.clipSize;
+                    } else {
+                        imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
+                    }
                 }
                 [imageBrowser setImage:photo];
                 imageBrowser.titleLabel.text = tzImagePickerVc.topTitle;
@@ -970,12 +993,24 @@ static CGFloat itemMargin = 5;
     NSMutableArray *selectedAssets = [NSMutableArray array];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     for (TZAssetModel *model in tzImagePickerVc.selectedModels) {
+        PHAsset *modelAsset = (PHAsset*)model.asset;
         [selectedAssets addObject:model.asset];
     }
     for (TZAssetModel *model in _models) {
         model.isSelected = NO;
         if ([[TZImageManager manager] isAssetsArray:selectedAssets containAsset:model.asset]) {
             model.isSelected = YES;
+            /// 更新选中的编号
+            for (TZAssetModel *selectedModel in tzImagePickerVc.selectedModels) {
+                if ([selectedModel.asset isKindOfClass:[PHAsset class]]) {
+                    PHAsset *selectedAsset = (PHAsset*)selectedModel.asset;
+                    PHAsset *modelAsset = (PHAsset*)model.asset;
+                    if ([selectedAsset.localIdentifier isEqualToString:modelAsset.localIdentifier]) {
+                        model.selectedNumber = selectedModel.selectedNumber;
+                        continue;
+                    }
+                }
+            }
         }
     }
 }
@@ -1040,9 +1075,18 @@ static CGFloat itemMargin = 5;
                         //设置代理
                         imageBrowser.delegate = self;
                         if (tzImagePickerVc.isSquare) {
-                            imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width - 80, UIScreen.mainScreen.bounds.size.width - 80);
+                            if (tzImagePickerVc.clipSize.height > 0 && tzImagePickerVc.clipSize.width > 0) {
+                                CGFloat clipR = MIN(tzImagePickerVc.clipSize.height, tzImagePickerVc.clipSize.width);
+                                imageBrowser.cropSize  = CGSizeMake(clipR, clipR);
+                            } else {
+                                imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
+                            }
                         } else {
-                            imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
+                            if (tzImagePickerVc.clipSize.height > 0 && tzImagePickerVc.clipSize.width > 0) {
+                                imageBrowser.cropSize  = tzImagePickerVc.clipSize;
+                            } else {
+                                imageBrowser.cropSize = CGSizeMake(UIScreen.mainScreen.bounds.size.width, UIScreen.mainScreen.bounds.size.width / 2.0);
+                            }
                         }
                         imageBrowser.titleLabel.text = tzImagePickerVc.topTitle;
                         [imageBrowser setImage:photo];

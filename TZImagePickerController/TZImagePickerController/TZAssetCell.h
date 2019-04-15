@@ -28,6 +28,10 @@ typedef enum : NSUInteger {
 @property (nonatomic, assign) BOOL allowPickingMultipleVideo;
 @property (nonatomic, copy) NSString *representedAssetIdentifier;
 @property (nonatomic, assign) int32_t imageRequestID;
+/// 选择顺序编号
+@property (weak, nonatomic) UILabel *selectedNumberLabel;
+/// 是否显示选中编号
+@property (assign, nonatomic) BOOL showSelectedNumber;
 
 @property (nonatomic, copy) NSString *photoSelImageName;
 @property (nonatomic, copy) NSString *photoDefImageName;
@@ -36,6 +40,7 @@ typedef enum : NSUInteger {
 @property (assign, nonatomic) BOOL allowPreview;
 /// 相册图片选中按钮图片
 @property (nonatomic, copy) UIImage *selectImage;
+@property (nonatomic, strong) UIColor *mainColor;
 
 @end
 

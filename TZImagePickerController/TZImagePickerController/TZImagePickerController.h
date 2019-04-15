@@ -201,6 +201,10 @@
 // MARK: - TS 定制属性
 ///是正方形还是长方形
 @property (assign, nonatomic) BOOL isSquare;
+/// 裁剪size,圆形裁剪则短边裁剪半径
+@property (assign, nonatomic) CGSize clipSize;
+/// 是否显示选中编号（默认不显示，页面弹出前设置有效）
+@property (assign, nonatomic) BOOL showSelectedNumber;
 ///是否需要裁剪
 @property (assign, nonatomic) BOOL shouldPick;
 ///顶部title标题
@@ -314,6 +318,12 @@
 @interface TZAlbumPickerController : UIViewController
 @property (nonatomic, assign) NSInteger columnNumber;
 @property (assign, nonatomic) BOOL isFirstAppear;
+
+/// 整个项目主题色
+@property (nonatomic, strong) UIColor *mainColor;
+/// 是否显示选中编号
+@property (assign, nonatomic) BOOL showSelectedNumber;
+
 - (void)configTableView;
 @end
 

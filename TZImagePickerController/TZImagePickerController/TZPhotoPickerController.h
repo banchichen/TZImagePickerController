@@ -17,6 +17,8 @@
 
 /// 整个项目主题色
 @property (nonatomic, strong) UIColor *mainColor;
+/// 是否显示选中编号
+@property (assign, nonatomic) BOOL showSelectedNumber;
 
 @end
 

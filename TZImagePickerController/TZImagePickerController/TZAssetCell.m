@@ -16,6 +16,8 @@
 @interface TZAssetCell ()
 @property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
 @property (weak, nonatomic) UIImageView *selectImageView;
+
+
 @property (weak, nonatomic) UIView *bottomView;
 @property (weak, nonatomic) UILabel *timeLength;
 @property (weak, nonatomic) UIImageView *gifImageView;
@@ -57,9 +59,16 @@
     self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
     if (_selectImage) {
-        self.selectImageView.image = model.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
+        if (self.showSelectedNumber == NO) {
+            self.selectImageView.image = model.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
+        }
     } else {
         self.selectImageView.image = model.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
+    }
+    if (model.isSelected && self.showSelectedNumber) {
+        self.selectedNumberLabel.text = [NSString stringWithFormat:@"%d", model.selectedNumber];
+    } else {
+        self.selectedNumberLabel.text = @"";
     }
     self.type = (NSInteger)model.type;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
@@ -117,7 +126,9 @@
         self.didSelectPhotoBlock(sender.isSelected);
     }
     if (_selectImage) {
-        self.selectImageView.image = sender.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
+        if (self.showSelectedNumber == NO) {
+            self.selectImageView.image = sender.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
+        }
     } else {
         self.selectImageView.image = sender.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
     }
@@ -131,6 +142,14 @@
             [self hideProgressView];
         }
     }
+    if (sender.isSelected && self.showSelectedNumber) {
+        self.selectedNumberLabel.text = [NSString stringWithFormat:@"%d", _model.selectedNumber];
+        self.selectedNumberLabel.hidden = NO;
+    } else {
+        self.selectedNumberLabel.text = @"";
+        self.selectedNumberLabel.hidden = YES;
+    }
+    [self.contentView bringSubviewToFront:self.selectedNumberLabel];
 }
 
 - (void)hideProgressView {
@@ -192,6 +211,18 @@
         _selectImageView = selectImageView;
     }
     return _selectImageView;
+}
+- (UILabel *)selectedNumberLabel {
+    if (_selectedNumberLabel == nil) {
+        UILabel *label = [[UILabel alloc] init];
+        label.font = [UIFont systemFontOfSize:15];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.textColor = [UIColor whiteColor];
+        [self.selectImageView addSubview:label];
+        label.backgroundColor = _mainColor;
+        _selectedNumberLabel = label;
+    }
+    return _selectedNumberLabel;
 }
 
 - (UIView *)bottomView {
@@ -255,6 +286,9 @@
         _selectPhotoButton.frame = self.bounds;
     }
     _selectImageView.frame = CGRectMake(self.tz_width - 20 - 5, 5, 20, 20);
+    _selectedNumberLabel.frame = _selectImageView.bounds;
+    _selectedNumberLabel.layer.cornerRadius = _selectImageView.bounds.size.width / 2.0;
+    _selectedNumberLabel.clipsToBounds = true;
     _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
 
     static CGFloat progressWH = 20;
