@@ -120,6 +120,17 @@
         self.statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
     }
 }
+- (void)setShowSelectedNumber:(BOOL)showSelectedNumber {
+    _showSelectedNumber = showSelectedNumber;
+    /// 更新TZPhotoPickerController的是否显示选中编号的开关
+    if (self.viewControllers.count > 0) {
+        for (TZPhotoPickerController * pickerVC in self.viewControllers) {
+            if ([pickerVC isKindOfClass:[TZPhotoPickerController class]]) {
+                pickerVC.showSelectedNumber = showSelectedNumber;
+            }
+        }
+    }
+}
 
 - (void)configBarButtonItemAppearance {
     UIBarButtonItem *barItem;
@@ -139,6 +150,20 @@
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
     [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
     [self.navigationBar setShadowImage:[self imageWithColor:[UIColor clearColor] size:CGSizeMake(UIScreen.mainScreen.bounds.size.width, 1)]];
+    /// 更新TZPhotoPickerController的是否显示选中编号的开关
+    if (self.viewControllers.count > 0) {
+        for (UIViewController * vc in self.viewControllers) {
+            if ([vc isKindOfClass:[TZPhotoPickerController class]]) {
+                TZPhotoPickerController *pickerVC = (TZPhotoPickerController*)vc;
+                pickerVC.showSelectedNumber = self.showSelectedNumber;
+            } else if([vc isKindOfClass:[TZAlbumPickerController class]]) {
+                TZAlbumPickerController *albumPickVC = (TZAlbumPickerController*)vc;
+                albumPickVC.mainColor = self.mainColor;
+                albumPickVC.showSelectedNumber = self.showSelectedNumber;
+            }
+        }
+    }
+    
 }
 
 - (UIImage *)imageWithColor:(UIColor *)color size:(CGSize)size {
@@ -599,6 +624,7 @@
         if (_mainColor) {
             photoPickerVc.mainColor = _mainColor;
         }
+        photoPickerVc.showSelectedNumber = self.showSelectedNumber;
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
@@ -999,6 +1025,8 @@
     photoPickerVc.columnNumber = self.columnNumber;
     TZAlbumModel *model = _albumArr[indexPath.row];
     photoPickerVc.model = model;
+    photoPickerVc.mainColor = self.mainColor;
+    photoPickerVc.showSelectedNumber = self.showSelectedNumber;
     [self.navigationController pushViewController:photoPickerVc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
