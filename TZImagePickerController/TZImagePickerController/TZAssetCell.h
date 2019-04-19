@@ -35,7 +35,6 @@ typedef enum : NSUInteger {
 
 @property (nonatomic, assign) BOOL showSelectBtn;
 @property (assign, nonatomic) BOOL allowPreview;
-@property (assign, nonatomic) BOOL useCachedImage;
 
 @property (nonatomic, copy) void (^assetCellDidSetModelBlock)(TZAssetCell *cell, UIImageView *imageView, UIImageView *selectImageView, UILabel *indexLabel, UIView *bottomView, UILabel *timeLength, UIImageView *videoImgView);
 @property (nonatomic, copy) void (^assetCellDidLayoutSubviewsBlock)(TZAssetCell *cell, UIImageView *imageView, UIImageView *selectImageView, UILabel *indexLabel, UIView *bottomView, UILabel *timeLength, UIImageView *videoImgView);

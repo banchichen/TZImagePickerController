@@ -28,9 +28,7 @@
         manager = [[self alloc] init];
         manager.locationManager = [[CLLocationManager alloc] init];
         manager.locationManager.delegate = manager;
-        if (iOS8Later) {
-            [manager.locationManager requestWhenInUseAuthorization];
-        }
+        [manager.locationManager requestWhenInUseAuthorization];
     });
     return manager;
 }

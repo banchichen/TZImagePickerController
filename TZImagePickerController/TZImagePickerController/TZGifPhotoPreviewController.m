@@ -43,7 +43,7 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    [UIApplication sharedApplication].statusBarStyle = iOS7Later ? UIStatusBarStyleLightContent : UIStatusBarStyleBlackOpaque;
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -96,6 +96,14 @@
     }
 }
 
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    TZImagePickerController *tzImagePicker = (TZImagePickerController *)self.navigationController;
+    if (tzImagePicker && [tzImagePicker isKindOfClass:[TZImagePickerController class]]) {
+        return tzImagePicker.statusBarStyle;
+    }
+    return [super preferredStatusBarStyle];
+}
+
 #pragma mark - Layout
 
 - (void)viewDidLayoutSubviews {
@@ -119,12 +127,10 @@
     _toolBar.hidden = !_toolBar.isHidden;
     [self.navigationController setNavigationBarHidden:_toolBar.isHidden];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (iOS7Later) {
-        if (_toolBar.isHidden) {
-            [UIApplication sharedApplication].statusBarHidden = YES;
-        } else if (tzImagePickerVc.needShowStatusBar) {
-            [UIApplication sharedApplication].statusBarHidden = NO;
-        }
+    if (_toolBar.isHidden) {
+        [UIApplication sharedApplication].statusBarHidden = YES;
+    } else if (tzImagePickerVc.needShowStatusBar) {
+        [UIApplication sharedApplication].statusBarHidden = NO;
     }
 }
 
