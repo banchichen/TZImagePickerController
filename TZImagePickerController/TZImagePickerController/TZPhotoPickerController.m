@@ -524,17 +524,18 @@ static CGFloat itemMargin = 5;
         model = _models[indexPath.row - 1];
     }
     cell.allowPickingGif = tzImagePickerVc.allowPickingGif;
-    cell.model = model;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     cell.allowPreview = tzImagePickerVc.allowPreview;
     cell.showSelectedNumber = self.showSelectedNumber;
-    if (model.isSelected && self.showSelectedNumber) {
-        cell.selectedNumberLabel.text = [NSString stringWithFormat:@"%ld", model.selectedNumber];
-        cell.selectedNumberLabel.hidden = NO;
-    } else {
-        cell.selectedNumberLabel.text = @"";
-        cell.selectedNumberLabel.hidden = YES;
-    }
+//    if (model.isSelected && self.showSelectedNumber) {
+//        cell.selectedNumberLabel.text = [NSString stringWithFormat:@"%ld", model.selectedNumber];
+//        cell.selectedNumberLabel.hidden = NO;
+//    } else {
+//        cell.selectedNumberLabel.text = @"";
+//        cell.selectedNumberLabel.hidden = YES;
+//    }
+    cell.model = model;
+
     __weak typeof(cell) weakCell = cell;
     __weak typeof(self) weakSelf = self;
 //    __weak typeof(_numberImageView.layer) weakLayer = _numberImageView.layer;
@@ -554,7 +555,6 @@ static CGFloat itemMargin = 5;
                     model_item.selectedNumber = model_item.selectedNumber - 1;
                 }
                 if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]] == NO) {
-                    NSLog(@"%d", model_item.selectedNumber);
                     [selectedModels addObject:model_item];
                 }
             }
@@ -570,6 +570,10 @@ static CGFloat itemMargin = 5;
                 model.isSelected = YES;
                 model.selectedNumber = tzImagePickerVc.selectedModels.count + 1;
                 [tzImagePickerVc.selectedModels addObject:model];
+                [self checkSelectedModels];
+                [strongSelf refreshBottomToolBarStatus];
+                /// 开启选中计数就需要刷新全部，更新比当前取消的编号更小的item
+                [collectionView reloadData];
                 [strongSelf refreshBottomToolBarStatus];
             } else {
                 NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], tzImagePickerVc.maxImagesCount];
@@ -1008,7 +1012,6 @@ static CGFloat itemMargin = 5;
     NSMutableArray *selectedAssets = [NSMutableArray array];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     for (TZAssetModel *model in tzImagePickerVc.selectedModels) {
-        PHAsset *modelAsset = (PHAsset*)model.asset;
         [selectedAssets addObject:model.asset];
     }
     for (TZAssetModel *model in _models) {
@@ -1022,7 +1025,7 @@ static CGFloat itemMargin = 5;
                     PHAsset *modelAsset = (PHAsset*)model.asset;
                     if ([selectedAsset.localIdentifier isEqualToString:modelAsset.localIdentifier]) {
                         model.selectedNumber = selectedModel.selectedNumber;
-                        continue;
+                        break;
                     }
                 }
             }

@@ -19,6 +19,7 @@
 		6DC358661CC8BAFD00898D29 /* TZImagePickerController.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 6DC358651CC8BAFD00898D29 /* TZImagePickerController.bundle */; };
 		6DC84D0A1DF5358500A107A9 /* TZImageCropManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DC84D091DF5358500A107A9 /* TZImageCropManager.m */; };
 		6DD0502B1DF659ED0057C78D /* TZProgressView.m in Sources */ = {isa = PBXBuildFile; fileRef = 6DD0502A1DF659ED0057C78D /* TZProgressView.m */; };
+		8880D1812286AB1C006A0700 /* PHAsset+TSExtInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 8880D1802286AB1C006A0700 /* PHAsset+TSExtInfo.m */; };
 		88CA578B20F748370089B1C8 /* LZImageBrowser.h in Headers */ = {isa = PBXBuildFile; fileRef = 88CA578720F748370089B1C8 /* LZImageBrowser.h */; };
 		88CA578C20F748370089B1C8 /* LZImageBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA578820F748370089B1C8 /* LZImageBrowser.m */; };
 		88CA578D20F748370089B1C8 /* LZImageBrowser.m in Sources */ = {isa = PBXBuildFile; fileRef = 88CA578820F748370089B1C8 /* LZImageBrowser.m */; };
@@ -136,6 +137,8 @@
 		6DC84D091DF5358500A107A9 /* TZImageCropManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZImageCropManager.m; sourceTree = "<group>"; };
 		6DD050291DF659ED0057C78D /* TZProgressView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TZProgressView.h; sourceTree = "<group>"; };
 		6DD0502A1DF659ED0057C78D /* TZProgressView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TZProgressView.m; sourceTree = "<group>"; };
+		8880D17F2286AB1C006A0700 /* PHAsset+TSExtInfo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PHAsset+TSExtInfo.h"; sourceTree = "<group>"; };
+		8880D1802286AB1C006A0700 /* PHAsset+TSExtInfo.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "PHAsset+TSExtInfo.m"; sourceTree = "<group>"; };
 		88CA578720F748370089B1C8 /* LZImageBrowser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LZImageBrowser.h; sourceTree = "<group>"; };
 		88CA578820F748370089B1C8 /* LZImageBrowser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LZImageBrowser.m; sourceTree = "<group>"; };
 		88CA578920F748370089B1C8 /* LZImageCropping.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LZImageCropping.h; sourceTree = "<group>"; };
@@ -302,6 +305,8 @@
 		900EEFF51C2BBF7600EA709B /* TZImagePickerController */ = {
 			isa = PBXGroup;
 			children = (
+				8880D17F2286AB1C006A0700 /* PHAsset+TSExtInfo.h */,
+				8880D1802286AB1C006A0700 /* PHAsset+TSExtInfo.m */,
 				38B06234211897360035DCE3 /* TSLocalVideoCoverSelectedVC.h */,
 				38B06235211897360035DCE3 /* TSLocalVideoCoverSelectedVC.m */,
 				38B06230211896340035DCE3 /* ZLEditVideoController.h */,
@@ -496,6 +501,7 @@
 					};
 					9F763A411FA071CF00D9E526 = {
 						CreatedOnToolsVersion = 9.0.1;
+						DevelopmentTeam = 5QQ23A4NX6;
 						ProvisioningStyle = Manual;
 					};
 				};
@@ -570,6 +576,7 @@
 				900EEFFE1C2BD58B00EA709B /* TZPhotoPickerController.m in Sources */,
 				90EBF5D61C2E298000CB9BCC /* UIView+Layout.m in Sources */,
 				88CA578C20F748370089B1C8 /* LZImageBrowser.m in Sources */,
+				8880D1812286AB1C006A0700 /* PHAsset+TSExtInfo.m in Sources */,
 				90CE84B71C3BABB6003D0779 /* TZVideoPlayerController.m in Sources */,
 				900EF0021C2BD7E400EA709B /* TZAssetCell.m in Sources */,
 				6DD0502B1DF659ED0057C78D /* TZProgressView.m in Sources */,
@@ -877,7 +884,7 @@
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 5QQ23A4NX6;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
