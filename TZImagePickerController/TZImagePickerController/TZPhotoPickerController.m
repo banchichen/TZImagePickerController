@@ -18,6 +18,7 @@
 #import "TZLocationManager.h"
 #import "LZImageCropping.h"
 #import "ZLEditVideoController.h"
+#import "PHAsset+TSExtInfo.h"
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate,UIAlertViewDelegate,LZImageCroppingDelegate> {
     NSMutableArray *_models;
@@ -457,6 +458,17 @@ static CGFloat itemMargin = 5;
 
 - (void)callDelegateMethodWithPhotos:(NSArray *)photos assets:(NSArray *)assets infoArr:(NSArray *)infoArr {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    /// 处理选中编号
+    for (TZAssetModel *model in tzImagePickerVc.selectedModels) {
+        for (PHAsset *asset in assets) {
+            if ([model.asset isKindOfClass:[PHAsset class]]) {
+                PHAsset *selectedAsset = (PHAsset*)model.asset;
+                if ([selectedAsset.localIdentifier isEqualToString:asset.localIdentifier]) {
+                    asset.selectedNumber = model.selectedNumber;
+                }
+            }
+        }
+    }
     if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:)]) {
         [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingPhotos:photos sourceAssets:assets isSelectOriginalPhoto:_isSelectOriginalPhoto];
     }
@@ -536,17 +548,20 @@ static CGFloat itemMargin = 5;
             strongCell.selectPhotoButton.selected = NO;
             model.isSelected = NO;
             /// 后边的number递减
-            NSArray *selectedModels = [NSArray arrayWithArray:tzImagePickerVc.selectedModels];
-            for (TZAssetModel *model_item in selectedModels) {
+            NSMutableArray *selectedModels = [[NSMutableArray alloc]init];
+            for (TZAssetModel *model_item in tzImagePickerVc.selectedModels) {
                 if (model_item.selectedNumber > model.selectedNumber) {
                     model_item.selectedNumber = model_item.selectedNumber - 1;
                 }
-                if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]]) {
-                    [tzImagePickerVc.selectedModels removeObject:model_item];
+                if ([[[TZImageManager manager] getAssetIdentifier:model.asset] isEqualToString:[[TZImageManager manager] getAssetIdentifier:model_item.asset]] == NO) {
+                    NSLog(@"%d", model_item.selectedNumber);
+                    [selectedModels addObject:model_item];
                 }
             }
+            tzImagePickerVc.selectedModels = selectedModels;
+            [self checkSelectedModels];
             [strongSelf refreshBottomToolBarStatus];
-            /// 开启选中计数就需要刷新全部，更新比当前取消的s编号更小的item
+            /// 开启选中计数就需要刷新全部，更新比当前取消的编号更小的item
             [collectionView reloadData];
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制

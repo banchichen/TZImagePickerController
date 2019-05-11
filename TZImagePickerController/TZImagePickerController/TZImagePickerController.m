@@ -15,6 +15,7 @@
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import <sys/utsname.h>
+#import "PHAsset+TSExtInfo.h"
 
 @interface TZImagePickerController () {
     NSTimer *_timer;
@@ -797,6 +798,10 @@
     for (id asset in selectedAssets) {
         TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:[[TZImageManager manager] getAssetType:asset]];
         model.isSelected = YES;
+        if ([asset isKindOfClass:[PHAsset class]]) {
+            PHAsset *selectedAsset = (PHAsset*)asset;
+            model.selectedNumber = selectedAsset.selectedNumber;
+        }
         [_selectedModels addObject:model];
     }
 }
