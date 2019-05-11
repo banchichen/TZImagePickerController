@@ -59,16 +59,16 @@
     self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
     if (_selectImage) {
-        if (self.showSelectedNumber == NO) {
-            self.selectImageView.image = model.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
-        }
+        self.selectImageView.image = model.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
     } else {
         self.selectImageView.image = model.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
     }
     if (model.isSelected && self.showSelectedNumber) {
         self.selectedNumberLabel.text = [NSString stringWithFormat:@"%d", model.selectedNumber];
+        self.selectedNumberLabel.hidden = NO;
     } else {
         self.selectedNumberLabel.text = @"";
+        self.selectedNumberLabel.hidden = YES;
     }
     self.type = (NSInteger)model.type;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
@@ -82,6 +82,7 @@
     if (model.isSelected) {
         [self fetchBigImage];
     }
+    [self bringSubviewToFront:self.selectPhotoButton];
     [self setNeedsLayout];
 }
 
