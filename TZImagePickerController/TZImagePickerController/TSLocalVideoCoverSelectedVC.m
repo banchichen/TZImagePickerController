@@ -96,7 +96,7 @@
 - (void)creatUI
 {
     self.backgroundColor = [UIColor clearColor];
-    _selectedView = [[UIImageView alloc] initWithImage: [UIImage imageNamedFromMyBundle: @"pic_cover_frame"]];
+    _selectedView = [[UIImageView alloc] initWithImage: [UIImage tz_imageNamedFromMyBundle: @"pic_cover_frame"]];
     _selectedView.userInteractionEnabled = YES;
     _selectedView.tag = 0;
     UIPanGestureRecognizer *lg = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panAction:)];
@@ -229,7 +229,7 @@
     if (_backImage) {
         [leftButton setImage:_backImage forState:UIControlStateNormal];
     } else {
-        [leftButton setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+        [leftButton setImage:[UIImage tz_imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
     }
     [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];

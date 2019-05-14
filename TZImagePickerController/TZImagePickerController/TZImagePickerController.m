@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 2.0.1 - 2018.03.25
+//  version 3.2.0 - 2019.03.02
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -15,7 +15,6 @@
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 #import <sys/utsname.h>
-#import "PHAsset+TSExtInfo.h"
 
 @interface TZImagePickerController () {
     NSTimer *_timer;
@@ -66,19 +65,15 @@
         self.oKButtonBackGroundColorEnabled = [UIColor colorWithRed:89 / 255.0 green:182 / 255.0 blue:215 / 255.0 alpha:1];
     }
     self.oKButtonBackGroundColorDisabled = [UIColor colorWithRed:222 / 255.0 green:222 / 255.0 blue:222 / 255.0 alpha:1];
-    if (iOS7Later) {
-        self.navigationBar.barTintColor = [UIColor whiteColor];
-        self.navigationBar.tintColor = [UIColor blackColor];
-        self.automaticallyAdjustsScrollViewInsets = NO;
-        if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
-    }
+    self.navigationBar.barTintColor = [UIColor whiteColor];
+    self.navigationBar.tintColor = [UIColor blackColor];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
 }
 
 - (void)setNaviBgColor:(UIColor *)naviBgColor {
     _naviBgColor = naviBgColor;
-    if (iOS7Later) {
-        self.navigationBar.barTintColor = naviBgColor;
-    }
+    self.navigationBar.barTintColor = naviBgColor;
 }
 
 - (void)setNaviTitleColor:(UIColor *)naviTitleColor {
@@ -116,26 +111,15 @@
     _isStatusBarDefault = isStatusBarDefault;
     
     if (isStatusBarDefault) {
-        self.statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
+        self.statusBarStyle = UIStatusBarStyleDefault;
     } else {
-        self.statusBarStyle = iOS7Later ? UIStatusBarStyleDefault : UIStatusBarStyleBlackOpaque;
-    }
-}
-- (void)setShowSelectedNumber:(BOOL)showSelectedNumber {
-    _showSelectedNumber = showSelectedNumber;
-    /// 更新TZPhotoPickerController的是否显示选中编号的开关
-    if (self.viewControllers.count > 0) {
-        for (TZPhotoPickerController * pickerVC in self.viewControllers) {
-            if ([pickerVC isKindOfClass:[TZPhotoPickerController class]]) {
-                pickerVC.showSelectedNumber = showSelectedNumber;
-            }
-        }
+        self.statusBarStyle = UIStatusBarStyleLightContent;
     }
 }
 
 - (void)configBarButtonItemAppearance {
     UIBarButtonItem *barItem;
-    if (iOS9Later) {
+    if (@available(iOS 9, *)) {
         barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
     } else {
         barItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
@@ -156,11 +140,9 @@
         for (UIViewController * vc in self.viewControllers) {
             if ([vc isKindOfClass:[TZPhotoPickerController class]]) {
                 TZPhotoPickerController *pickerVC = (TZPhotoPickerController*)vc;
-                pickerVC.showSelectedNumber = self.showSelectedNumber;
             } else if([vc isKindOfClass:[TZAlbumPickerController class]]) {
                 TZAlbumPickerController *albumPickVC = (TZAlbumPickerController*)vc;
                 albumPickVC.mainColor = self.mainColor;
-                albumPickVC.showSelectedNumber = self.showSelectedNumber;
             }
         }
     }
@@ -221,6 +203,7 @@
         self.autoDismiss = YES;
         self.columnNumber = columnNumber;
         [self configDefaultSetting];
+        self.selectedAssets = [NSMutableArray array];
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLabel = [[UILabel alloc] init];
@@ -237,16 +220,14 @@
             _tipLabel.text = tipText;
             [self.view addSubview:_tipLabel];
             
-            if (iOS8Later) {
-                _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-                [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
-                _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
-                _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
-                [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
-                [self.view addSubview:_settingBtn];
-            }
+            _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+            [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
+            _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
+            _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+            [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+            [self.view addSubview:_settingBtn];
             
-            if ([TZImageManager authorizationStatus] == 0) {
+            if ([[TZImageManager manager] authorizationStatusAuthorized]) {
                 _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
             }
         } else {
@@ -277,6 +258,8 @@
         self.allowPickingVideo = YES;
         self.allowPickingImage = YES;
         self.allowTakePicture = YES;
+        self.allowTakeVideo = YES;
+        self.videoMaximumDuration = 10 * 60;
         self.sortAscendingByModificationDate = YES;
         self.autoDismiss = YES;
         self.columnNumber = columnNumber;
@@ -297,16 +280,14 @@
             _tipLabel.text = tipText;
             [self.view addSubview:_tipLabel];
             
-            if (iOS8Later) {
-                _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-                [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
-                _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
-                _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
-                [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
-                [self.view addSubview:_settingBtn];
-            }
+            _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+            [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
+            _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
+            _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+            [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+            [self.view addSubview:_settingBtn];
             
-            if ([TZImageManager authorizationStatus] == 0) {
+            if ([PHPhotoLibrary authorizationStatus] == 0) {
                 _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
             }
         } else {
@@ -343,11 +324,12 @@
 }
 
 /// This init method for crop photo / 用这个初始化方法以裁剪图片
-- (instancetype)initCropTypeWithAsset:(id)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,id asset))completion {
+- (instancetype)initCropTypeWithAsset:(PHAsset *)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,PHAsset *asset))completion {
     TZPhotoPreviewController *previewVc = [[TZPhotoPreviewController alloc] init];
     self = [super initWithRootViewController:previewVc];
     if (self) {
         self.maxImagesCount = 1;
+        self.allowPickingImage = YES;
         self.allowCrop = YES;
         self.selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
         [self configDefaultSetting];
@@ -411,16 +393,14 @@
             _tipLabel.text = tipText;
             [self.view addSubview:_tipLabel];
             
-            if (iOS8Later) {
-                _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-                [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
-                _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
-                _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
-                [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
-                [self.view addSubview:_settingBtn];
-            }
+            _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+            [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
+            _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
+            _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+            [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+            [self.view addSubview:_settingBtn];
             
-            if ([TZImageManager authorizationStatus] == 0) {
+            if ([[TZImageManager manager] authorizationStatusAuthorized]) {
                 _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
             }
         } else {
@@ -477,16 +457,14 @@
             _tipLabel.text = tipText;
             [self.view addSubview:_tipLabel];
             
-            if (iOS8Later) {
-                _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
-                [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
-                _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
-                _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
-                [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
-                [self.view addSubview:_settingBtn];
-            }
+            _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
+            [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
+            _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
+            _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
+            [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+            [self.view addSubview:_settingBtn];
             
-            if ([TZImageManager authorizationStatus] == 0) {
+            if ([[TZImageManager manager] authorizationStatusAuthorized]) {
                 _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
             }
         } else {
@@ -558,22 +536,28 @@
     self.barItemTextFont = [UIFont systemFontOfSize:15];
     self.barItemTextColor = [UIColor whiteColor];
     self.allowPreview = YES;
-    self.statusBarStyle = UIStatusBarStyleDefault;
+    // 2.2.26版本，不主动缩放图片，降低内存占用
+    self.notScaleImage = YES;
+    self.needFixComposition = NO;
+    self.statusBarStyle = UIStatusBarStyleLightContent;
+    self.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
+    self.allowCameraLocation = YES;
     
-    [self configDefaultImageName];
+    self.iconThemeColor = [UIColor colorWithRed:31 / 255.0 green:185 / 255.0 blue:34 / 255.0 alpha:1.0];
     [self configDefaultBtnTitle];
-    
+    [self configDefaultImageName];
     CGFloat cropViewWH = MIN(self.view.tz_width, self.view.tz_height) / 3 * 2;
     self.cropRect = CGRectMake((self.view.tz_width - cropViewWH) / 2, (self.view.tz_height - cropViewWH) / 2, cropViewWH, cropViewWH);
 }
 
 - (void)configDefaultImageName {
-    self.takePictureImageName = @"takePicture";
+    self.takePictureImageName = @"takePicture80";
     self.photoSelImageName = @"photo_sel_photoPickerVc";
     self.photoDefImageName = @"photo_def_photoPickerVc";
     self.photoPreviewSelImageName = @"preview_select_sel";
     self.photoPreviewDefImageName = @"preview_select_def";
     self.photoNumberIconImageName = @"photo_number_icon";
+    self.photoNumberIconImage = [self createImageWithColor:nil size:CGSizeMake(24, 24) radius:12];
     self.photoPreviewOriginDefImageName = @"preview_original_def";
     self.photoOriginDefImageName = @"photo_original_def";
     self.photoOriginSelImageName = @"photo_original_sel";
@@ -586,6 +570,46 @@
         return @"takePicture";
     }
 }
+- (void)setSelectImage:(UIImage *)selectImage {
+    /// 建议直接使用photoSelImage进行设置，为兼容旧版本暂不移除该属性
+    _selectImage = selectImage;
+    self.photoSelImage = selectImage;
+}
+
+- (void)setPhotoSelImageName:(NSString *)photoSelImageName {
+    _photoSelImageName = photoSelImageName;
+    _photoSelImage = [UIImage tz_imageNamedFromMyBundle:photoSelImageName];
+}
+
+- (void)setPhotoDefImageName:(NSString *)photoDefImageName {
+    _photoDefImageName = photoDefImageName;
+    _photoDefImage = [UIImage tz_imageNamedFromMyBundle:photoDefImageName];
+}
+
+- (void)setPhotoNumberIconImageName:(NSString *)photoNumberIconImageName {
+    _photoNumberIconImageName = photoNumberIconImageName;
+    _photoNumberIconImage = [UIImage tz_imageNamedFromMyBundle:photoNumberIconImageName];
+}
+
+- (void)setPhotoPreviewOriginDefImageName:(NSString *)photoPreviewOriginDefImageName {
+    _photoPreviewOriginDefImageName = photoPreviewOriginDefImageName;
+    _photoPreviewOriginDefImage = [UIImage tz_imageNamedFromMyBundle:photoPreviewOriginDefImageName];
+}
+
+- (void)setPhotoOriginDefImageName:(NSString *)photoOriginDefImageName {
+    _photoOriginDefImageName = photoOriginDefImageName;
+    _photoOriginDefImage = [UIImage tz_imageNamedFromMyBundle:photoOriginDefImageName];
+}
+
+- (void)setPhotoOriginSelImageName:(NSString *)photoOriginSelImageName {
+    _photoOriginSelImageName = photoOriginSelImageName;
+    _photoOriginSelImage = [UIImage tz_imageNamedFromMyBundle:photoOriginSelImageName];
+}
+
+- (void)setIconThemeColor:(UIColor *)iconThemeColor {
+    _iconThemeColor = iconThemeColor;
+}
+
 - (void)configDefaultBtnTitle {
     self.doneBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Done"];
     self.cancelBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Cancel"];
@@ -595,10 +619,33 @@
     self.processHintStr = [NSBundle tz_localizedStringForKey:@"Processing..."];
 }
 
+- (void)setShowSelectedIndex:(BOOL)showSelectedIndex {
+    _showSelectedIndex = showSelectedIndex;
+    if (showSelectedIndex) {
+        self.photoSelImage = [self createImageWithColor:nil size:CGSizeMake(20, 20) radius:10];
+    }
+    [TZImagePickerConfig sharedInstance].showSelectedIndex = showSelectedIndex;
+}
+
+- (void)setShowPhotoCannotSelectLayer:(BOOL)showPhotoCannotSelectLayer {
+    _showPhotoCannotSelectLayer = showPhotoCannotSelectLayer;
+    [TZImagePickerConfig sharedInstance].showPhotoCannotSelectLayer = showPhotoCannotSelectLayer;
+}
+
+- (void)setNotScaleImage:(BOOL)notScaleImage {
+    _notScaleImage = notScaleImage;
+    [TZImagePickerConfig sharedInstance].notScaleImage = notScaleImage;
+}
+
+- (void)setNeedFixComposition:(BOOL)needFixComposition {
+    _needFixComposition = needFixComposition;
+    [TZImagePickerConfig sharedInstance].needFixComposition = needFixComposition;
+}
+
 - (void)observeAuthrizationStatusChange {
     [_timer invalidate];
     _timer = nil;
-    if ([TZImageManager authorizationStatus] == 0) {
+    if ([PHPhotoLibrary authorizationStatus] == 0) {
         _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
     }
     
@@ -625,36 +672,23 @@
         if (_mainColor) {
             photoPickerVc.mainColor = _mainColor;
         }
-        photoPickerVc.showSelectedNumber = self.showSelectedNumber;
         [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
             photoPickerVc.model = model;
             [self pushViewController:photoPickerVc animated:YES];
-            _didPushPhotoPickerVc = YES;
+            self->_didPushPhotoPickerVc = YES;
         }];
     }
 }
 
-- (id)showAlertWithTitle:(NSString *)title {
-    if (iOS8Later) {
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleAlert];
-        [alertController addAction:[UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"OK"] style:UIAlertActionStyleDefault handler:nil]];
-        [self presentViewController:alertController animated:YES completion:nil];
-        return alertController;
-    } else {
-        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:title message:nil delegate:nil cancelButtonTitle:[NSBundle tz_localizedStringForKey:@"OK"] otherButtonTitles:nil, nil];
-        [alertView show];
-        return alertView;
-    }
+- (UIAlertController *)showAlertWithTitle:(NSString *)title {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:[UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"OK"] style:UIAlertActionStyleDefault handler:nil]];
+    [self presentViewController:alertController animated:YES completion:nil];
+    return alertController;
 }
 
-- (void)hideAlertView:(id)alertView {
-    if ([alertView isKindOfClass:[UIAlertController class]]) {
-        UIAlertController *alertC = alertView;
-        [alertC dismissViewControllerAnimated:YES completion:nil];
-    } else if ([alertView isKindOfClass:[UIAlertView class]]) {
-        UIAlertView *alertV = alertView;
-        [alertV dismissWithClickedButtonIndex:0 animated:YES];
-    }
+- (void)hideAlertView:(UIAlertController *)alertView {
+    [alertView dismissViewControllerAnimated:YES completion:nil];
     alertView = nil;
 }
 
@@ -682,7 +716,14 @@
         [_progressHUD addSubview:_HUDContainer];
     }
     [_HUDIndicatorView startAnimating];
-    [[UIApplication sharedApplication].keyWindow addSubview:_progressHUD];
+    UIWindow *applicationWindow;
+    if ([[[UIApplication sharedApplication] delegate] respondsToSelector:@selector(window)]) {
+        applicationWindow = [[[UIApplication sharedApplication] delegate] window];
+    } else {
+        applicationWindow = [[UIApplication sharedApplication] keyWindow];
+    }
+    [applicationWindow addSubview:_progressHUD];
+    [self.view setNeedsLayout];
     
     // if over time, dismiss HUD automatic
     __weak typeof(self) weakSelf = self;
@@ -795,25 +836,28 @@
 - (void)setSelectedAssets:(NSMutableArray *)selectedAssets {
     _selectedAssets = selectedAssets;
     _selectedModels = [NSMutableArray array];
-    for (id asset in selectedAssets) {
+    _selectedAssetIds = [NSMutableArray array];
+    for (PHAsset *asset in selectedAssets) {
         TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:[[TZImageManager manager] getAssetType:asset]];
         model.isSelected = YES;
-        if ([asset isKindOfClass:[PHAsset class]]) {
-            PHAsset *selectedAsset = (PHAsset*)asset;
-            model.selectedNumber = selectedAsset.selectedNumber;
-        }
-        [_selectedModels addObject:model];
+        [self addSelectedModel:model];
     }
 }
 
 - (void)setAllowPickingImage:(BOOL)allowPickingImage {
     _allowPickingImage = allowPickingImage;
     [TZImagePickerConfig sharedInstance].allowPickingImage = allowPickingImage;
+    if (!allowPickingImage) {
+        _allowTakePicture = NO;
+    }
 }
 
 - (void)setAllowPickingVideo:(BOOL)allowPickingVideo {
     _allowPickingVideo = allowPickingVideo;
     [TZImagePickerConfig sharedInstance].allowPickingVideo = allowPickingVideo;
+    if (!allowPickingVideo) {
+        _allowTakeVideo = NO;
+    }
 }
 
 - (void)setPreferredLanguage:(NSString *)preferredLanguage {
@@ -838,9 +882,7 @@
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    if (iOS7Later) {
-        viewController.automaticallyAdjustsScrollViewInsets = NO;
-    }
+    viewController.automaticallyAdjustsScrollViewInsets = NO;
     [super pushViewController:viewController animated:animated];
 }
 
@@ -848,10 +890,40 @@
     // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
 }
 
+- (void)addSelectedModel:(TZAssetModel *)model {
+    [_selectedModels addObject:model];
+    [_selectedAssetIds addObject:model.asset.localIdentifier];
+}
+
+- (void)removeSelectedModel:(TZAssetModel *)model {
+    [_selectedModels removeObject:model];
+    [_selectedAssetIds removeObject:model.asset.localIdentifier];
+}
+
+- (UIImage *)createImageWithColor:(UIColor *)color size:(CGSize)size radius:(CGFloat)radius {
+    if (!color) {
+        color = self.iconThemeColor;
+    }
+    CGRect rect = CGRectMake(0.0f, 0.0f, size.width, size.height);
+    UIGraphicsBeginImageContextWithOptions(rect.size, NO, [UIScreen mainScreen].scale);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:rect cornerRadius:radius];
+    CGContextAddPath(context, path.CGPath);
+    CGContextFillPath(context);
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return image;
+}
+
 #pragma mark - UIContentContainer
 
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    [self willInterfaceOrientionChange];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (![UIApplication sharedApplication].statusBarHidden) {
+            if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
+        }
+    });
     if (size.width > size.height) {
         _cropRect = _cropRectLandscape;
     } else {
@@ -859,31 +931,16 @@
     }
 }
 
-- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration {
-    [self willInterfaceOrientionChange];
-    if (toInterfaceOrientation >= 3) {
-        _cropRect = _cropRectLandscape;
-    } else {
-        _cropRect = _cropRectPortrait;
-    }
-}
-
-- (void)willInterfaceOrientionChange {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (![UIApplication sharedApplication].statusBarHidden) {
-            if (iOS7Later && self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
-        }
-    });
-}
-
 #pragma mark - Layout
 
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     
-    _HUDContainer.frame = CGRectMake((self.view.tz_width - 120) / 2, (self.view.tz_height - 90) / 2, 120, 90);
+    CGFloat progressHUDY = CGRectGetMaxY(self.navigationBar.frame);
+    _progressHUD.frame = CGRectMake(0, progressHUDY, self.view.tz_width, self.view.tz_height - progressHUDY);
+    _HUDContainer.frame = CGRectMake((self.view.tz_width - 120) / 2, (_progressHUD.tz_height - 90 - progressHUDY) / 2, 120, 90);
     _HUDIndicatorView.frame = CGRectMake(45, 15, 30, 30);
-    _HUDLabel.frame = CGRectMake(0,40, 120, 50);    
+    _HUDLabel.frame = CGRectMake(0,40, 120, 50);
 }
 
 #pragma mark - Public
@@ -959,8 +1016,8 @@
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
         [[TZImageManager manager] getAllAlbums:imagePickerVc.allowPickingVideo allowPickingImage:imagePickerVc.allowPickingImage needFetchAssets:!self.isFirstAppear completion:^(NSArray<TZAlbumModel *> *models) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                _albumArr = [NSMutableArray arrayWithArray:models];
-                for (TZAlbumModel *albumModel in _albumArr) {
+                self->_albumArr = [NSMutableArray arrayWithArray:models];
+                for (TZAlbumModel *albumModel in self->_albumArr) {
                     albumModel.selectedModels = imagePickerVc.selectedModels;
                 }
                 [imagePickerVc hideProgressHUD];
@@ -970,16 +1027,16 @@
                     [self configTableView];
                 }
                 
-                if (!_tableView) {
-                    _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-                    _tableView.rowHeight = 70;
-                    _tableView.tableFooterView = [[UIView alloc] init];
-                    _tableView.dataSource = self;
-                    _tableView.delegate = self;
-                    [_tableView registerClass:[TZAlbumCell class] forCellReuseIdentifier:@"TZAlbumCell"];
-                    [self.view addSubview:_tableView];
+                if (!self->_tableView) {
+                    self->_tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+                    self->_tableView.rowHeight = 70;
+                    self->_tableView.tableFooterView = [[UIView alloc] init];
+                    self->_tableView.dataSource = self;
+                    self->_tableView.delegate = self;
+                    [self->_tableView registerClass:[TZAlbumCell class] forCellReuseIdentifier:@"TZAlbumCell"];
+                    [self.view addSubview:self->_tableView];
                 } else {
-                    [_tableView reloadData];
+                    [self->_tableView reloadData];
                 }
             });
         }];
@@ -988,6 +1045,14 @@
 
 - (void)dealloc {
     // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+}
+
+- (UIStatusBarStyle)preferredStatusBarStyle {
+    TZImagePickerController *tzImagePicker = (TZImagePickerController *)self.navigationController;
+    if (tzImagePicker && [tzImagePicker isKindOfClass:[TZImagePickerController class]]) {
+        return tzImagePicker.statusBarStyle;
+    }
+    return [super preferredStatusBarStyle];
 }
 
 #pragma mark - Layout
@@ -1001,7 +1066,7 @@
     BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
-        if (iOS7Later && !isStatusBarHidden) top += [TZCommonTools tz_statusBarHeight];
+        if (!isStatusBarHidden) top += [TZCommonTools tz_statusBarHeight];
         tableViewHeight = self.view.tz_height - top;
     } else {
         tableViewHeight = self.view.tz_height;
@@ -1018,7 +1083,9 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     TZAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TZAlbumCell"];
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    cell.selectedCountButton.backgroundColor = imagePickerVc.oKButtonTitleColorNormal;
+    cell.albumCellDidLayoutSubviewsBlock = imagePickerVc.albumCellDidLayoutSubviewsBlock;
+    cell.albumCellDidSetModelBlock = imagePickerVc.albumCellDidSetModelBlock;
+    cell.selectedCountButton.backgroundColor = imagePickerVc.iconThemeColor;
     cell.model = _albumArr[indexPath.row];
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;
@@ -1031,7 +1098,6 @@
     TZAlbumModel *model = _albumArr[indexPath.row];
     photoPickerVc.model = model;
     photoPickerVc.mainColor = self.mainColor;
-    photoPickerVc.showSelectedNumber = self.showSelectedNumber;
     [self.navigationController pushViewController:photoPickerVc animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
@@ -1043,7 +1109,7 @@
 
 @implementation UIImage (MyBundle)
 
-+ (UIImage *)imageNamedFromMyBundle:(NSString *)name {
++ (UIImage *)tz_imageNamedFromMyBundle:(NSString *)name {
     NSBundle *imageBundle = [NSBundle tz_imagePickerBundle];
     name = [name stringByAppendingString:@"@2x"];
     NSString *imagePath = [imageBundle pathForResource:name ofType:@"png"];
@@ -1055,33 +1121,6 @@
     }
     return image;
 }
-
-@end
-
-
-@implementation NSString (TzExtension)
-
-- (BOOL)tz_containsString:(NSString *)string {
-    if (iOS8Later) {
-        return [self containsString:string];
-    } else {
-        NSRange range = [self rangeOfString:string];
-        return range.location != NSNotFound;
-    }
-}
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-- (CGSize)tz_calculateSizeWithAttributes:(NSDictionary *)attributes maxSize:(CGSize)maxSize {
-    CGSize size;
-    if (iOS7Later) {
-        size = [self boundingRectWithSize:maxSize options:NSStringDrawingUsesFontLeading attributes:attributes context:nil].size;
-    } else {
-        size = [self sizeWithFont:attributes[NSFontAttributeName] constrainedToSize:maxSize];
-    }
-    return size;
-}
-#pragma clang diagnostic pop
 
 @end
 
@@ -1107,6 +1146,10 @@
     /// iPhoneXR "iPhone11,8"
     BOOL isIPhoneX = [platform isEqualToString:@"iPhone10,3"] || [platform isEqualToString:@"iPhone10,6"] || [platform isEqualToString:@"iPhone11,2"] || [platform isEqualToString:@"iPhone11,6"] || [platform isEqualToString:@"iPhone11,6"] || [platform isEqualToString:@"iPhone11,8"];
     return isIPhoneX;
+    return (CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(375, 812)) ||
+            CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(812, 375)) ||
+            CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(414, 896)) ||
+            CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(896, 414)));
 }
 
 + (CGFloat)tz_statusBarHeight {
@@ -1125,6 +1168,21 @@
     }
     return infoDict ? infoDict : @{};
 }
+
++ (BOOL)tz_isRightToLeftLayout {
+    if (@available(iOS 9.0, *)) {
+        if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:UISemanticContentAttributeUnspecified] == UIUserInterfaceLayoutDirectionRightToLeft) {
+            return YES;
+        }
+    } else {
+        NSString *preferredLanguage = [NSLocale preferredLanguages].firstObject;
+        if ([preferredLanguage hasPrefix:@"ar-"]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end
 
 
@@ -1137,7 +1195,7 @@
         if (config == nil) {
             config = [[TZImagePickerConfig alloc] init];
             config.preferredLanguage = nil;
-            config.gifPreviewMaxImagesCount = 200;
+            config.gifPreviewMaxImagesCount = 50;
         }
     });
     return config;

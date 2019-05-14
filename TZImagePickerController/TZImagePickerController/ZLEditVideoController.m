@@ -123,14 +123,14 @@
 - (void)setupUI
 {
     self.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:.5];
-    _leftView = [[UIImageView alloc] initWithImage: [UIImage imageNamedFromMyBundle: @"pic_left"]];
+    _leftView = [[UIImageView alloc] initWithImage: [UIImage tz_imageNamedFromMyBundle: @"pic_left"]];
     _leftView.userInteractionEnabled = YES;
     _leftView.tag = 0;
     UIPanGestureRecognizer *lg = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panAction:)];
     [_leftView addGestureRecognizer:lg];
     [self addSubview:_leftView];
     
-    _rightView = [[UIImageView alloc] initWithImage:[UIImage imageNamedFromMyBundle: @"pic_right"]];
+    _rightView = [[UIImageView alloc] initWithImage:[UIImage tz_imageNamedFromMyBundle: @"pic_right"]];
     _rightView.userInteractionEnabled = YES;
     _rightView.backgroundColor = [UIColor redColor];
     _rightView.tag = 1;
@@ -330,7 +330,7 @@
     if (_backImage) {
         [backBtn setImage:_backImage forState:UIControlStateNormal];
     } else {
-        [backBtn setImage:[UIImage imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
+        [backBtn setImage:[UIImage tz_imageNamedFromMyBundle:@"topbar_back"] forState:UIControlStateNormal];
     }
     UILabel *titleLab = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 200, 40)];
     titleLab.textAlignment = NSTextAlignmentCenter;
@@ -531,10 +531,10 @@
     self.playerLayer.backgroundColor = [UIColor clearColor].CGColor;
     /// 顶部和底部设置蒙层
     UIImageView *topMarkImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 188)];
-    topMarkImageView.image = [UIImage imageNamedFromMyBundle: @"pic_mask_top"];
+    topMarkImageView.image = [UIImage tz_imageNamedFromMyBundle: @"pic_mask_top"];
     [self.view addSubview:topMarkImageView];
     UIImageView *bottomMarkImageView = [[UIImageView alloc]initWithFrame:CGRectMake(0, [UIScreen mainScreen].bounds.size.height - 188, [UIScreen mainScreen].bounds.size.width, 188)];
-    bottomMarkImageView.image = [UIImage imageNamedFromMyBundle: @"pic_mask_bottom"];
+    bottomMarkImageView.image = [UIImage tz_imageNamedFromMyBundle: @"pic_mask_bottom"];
     [self.view addSubview:bottomMarkImageView];
 
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];

@@ -232,7 +232,7 @@ CG_INLINE CGPoint CGPointOffset(CGPoint point, CGFloat dx, CGFloat dy)
                                      [highlightedSnapshotView removeFromSuperview];
                                      
                                      if ([strongSelf.delegate respondsToSelector:@selector(collectionView:layout:didBeginDraggingItemAtIndexPath:)]) {
-                                         [strongSelf.delegate collectionView:strongSelf.collectionView layout:strongSelf didBeginDraggingItemAtIndexPath:_movingItemIndexPath];
+                                         [strongSelf.delegate collectionView:strongSelf.collectionView layout:strongSelf didBeginDraggingItemAtIndexPath:self->_movingItemIndexPath];
                                      }
                                  }
                              }];
@@ -269,17 +269,17 @@ CG_INLINE CGPoint CGPointOffset(CGPoint point, CGFloat dx, CGFloat dy)
                                  animations:^{
                                      typeof(self) __strong strongSelf = weakSelf;
                                      if (strongSelf) {
-                                         _beingMovedPromptView.center = movingItemCollectionViewLayoutAttributes.center;
+                                         self->_beingMovedPromptView.center = movingItemCollectionViewLayoutAttributes.center;
                                      }
                                  }
                                  completion:^(BOOL finished) {
 
-                                     _longPressGestureRecognizer.enabled = YES;
+                                     self->_longPressGestureRecognizer.enabled = YES;
                                      
                                      typeof(self) __strong strongSelf = weakSelf;
                                      if (strongSelf) {
-                                         [_beingMovedPromptView removeFromSuperview];
-                                         _beingMovedPromptView = nil;
+                                         [self->_beingMovedPromptView removeFromSuperview];
+                                         self->_beingMovedPromptView = nil;
                                          [strongSelf invalidateLayout];
                                          
                                          if ([strongSelf.delegate respondsToSelector:@selector(collectionView:layout:didEndDraggingItemAtIndexPath:)]) {
