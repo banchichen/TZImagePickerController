@@ -16,11 +16,12 @@
 @interface TZAssetCell ()
 @property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
 @property (weak, nonatomic) UIImageView *selectImageView;
-
-
-@property (weak, nonatomic) UIView *bottomView;
 @property (weak, nonatomic) UILabel *timeLength;
 @property (weak, nonatomic) UIImageView *gifImageView;
+@property (weak, nonatomic) UILabel *indexLabel;
+@property (weak, nonatomic) UIView *bottomView;
+@property (strong, nonatomic) UITapGestureRecognizer *tapGesture;
+
 @property (nonatomic, weak) UIImageView *videoImgView;
 @property (nonatomic, strong) TZProgressView *progressView;
 @property (nonatomic, assign) int32_t bigImageRequestID;
@@ -28,27 +29,25 @@
 
 @implementation TZAssetCell
 
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reload:) name:@"TZ_PHOTO_PICKER_RELOAD_NOTIFICATION" object:nil];
+    return self;
+}
+
 - (void)setModel:(TZAssetModel *)model {
     _model = model;
-    if (iOS8Later) {
-        self.representedAssetIdentifier = [[TZImageManager manager] getAssetIdentifier:model.asset];
-    }
+    self.representedAssetIdentifier = model.asset.localIdentifier;
     int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        if (_progressView) {
-            self.progressView.hidden = YES;
-            self.imageView.alpha = 1.0;
-        }
         // Set the cell's thumbnail image if it's still showing the same asset.
-        if (!iOS8Later) {
-            self.imageView.image = photo; return;
-        }
-        if ([self.representedAssetIdentifier isEqualToString:[[TZImageManager manager] getAssetIdentifier:model.asset]]) {
+        if ([self.representedAssetIdentifier isEqualToString:model.asset.localIdentifier]) {
             self.imageView.image = photo;
         } else {
             // NSLog(@"this cell is showing other asset");
             [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
         }
         if (!isDegraded) {
+            [self hideProgressView];
             self.imageRequestID = 0;
         }
     } progressHandler:nil networkAccessAllowed:NO];
@@ -58,18 +57,9 @@
     }
     self.imageRequestID = imageRequestID;
     self.selectPhotoButton.selected = model.isSelected;
-    if (_selectImage) {
-        self.selectImageView.image = model.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
-    } else {
-        self.selectImageView.image = model.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
-    }
-    if (model.isSelected && self.showSelectedNumber) {
-        self.selectedNumberLabel.text = [NSString stringWithFormat:@"%d", model.selectedNumber];
-        self.selectedNumberLabel.hidden = NO;
-    } else {
-        self.selectedNumberLabel.text = @"";
-        self.selectedNumberLabel.hidden = YES;
-    }
+    self.selectImageView.image = model.isSelected ? self.photoSelImage : self.photoDefImage;
+    self.indexLabel.hidden = !self.selectPhotoButton.isSelected;
+
     self.type = (NSInteger)model.type;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
     if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {
@@ -80,19 +70,32 @@
     }
     // 如果用户选中了该图片，提前获取一下大图
     if (model.isSelected) {
-        [self fetchBigImage];
+        [self requestBigImage];
+    } else {
+        [self cancelBigImageRequest];
     }
     [self bringSubviewToFront:self.selectPhotoButton];
     [self setNeedsLayout];
+    
+    if (self.assetCellDidSetModelBlock) {
+        self.assetCellDidSetModelBlock(self, _imageView, _selectImageView, _indexLabel, _bottomView, _timeLength, _videoImgView);
+    }
+}
+
+- (void)setIndex:(NSInteger)index {
+    _index = index;
+    self.indexLabel.text = [NSString stringWithFormat:@"%zd", index];
+    [self.contentView bringSubviewToFront:self.indexLabel];
 }
 
 - (void)setShowSelectBtn:(BOOL)showSelectBtn {
     _showSelectBtn = showSelectBtn;
+    BOOL selectable = [[TZImageManager manager] isPhotoSelectableWithAsset:self.model.asset];
     if (!self.selectPhotoButton.hidden) {
-        self.selectPhotoButton.hidden = !showSelectBtn;
+        self.selectPhotoButton.hidden = !showSelectBtn || !selectable;
     }
     if (!self.selectImageView.hidden) {
-        self.selectImageView.hidden = !showSelectBtn;
+        self.selectImageView.hidden = !showSelectBtn || !selectable;
     }
 }
 
@@ -122,49 +125,54 @@
     }
 }
 
+- (void)setAllowPreview:(BOOL)allowPreview {
+    _allowPreview = allowPreview;
+    if (allowPreview) {
+        _imageView.userInteractionEnabled = NO;
+        _tapGesture.enabled = NO;
+    } else {
+        _imageView.userInteractionEnabled = YES;
+        _tapGesture.enabled = YES;
+    }
+}
+
 - (void)selectPhotoButtonClick:(UIButton *)sender {
     if (self.didSelectPhotoBlock) {
         self.didSelectPhotoBlock(sender.isSelected);
     }
-    if (_selectImage) {
-        if (self.showSelectedNumber == NO) {
-            self.selectImageView.image = sender.isSelected ? _selectImage : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
-        }
-    } else {
-        self.selectImageView.image = sender.isSelected ? [UIImage imageNamedFromMyBundle:self.photoSelImageName] : [UIImage imageNamedFromMyBundle:self.photoDefImageName];
-    }
+    self.selectImageView.image = sender.isSelected ? self.photoSelImage : self.photoDefImage;
     if (sender.isSelected) {
         [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
         // 用户选中了该图片，提前获取一下大图
-        [self fetchBigImage];
+        [self requestBigImage];
     } else { // 取消选中，取消大图的获取
-        if (_bigImageRequestID && _progressView) {
-            [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
-            [self hideProgressView];
-        }
+        [self cancelBigImageRequest];
     }
-    if (sender.isSelected && self.showSelectedNumber) {
-        self.selectedNumberLabel.text = [NSString stringWithFormat:@"%d", _model.selectedNumber];
-        self.selectedNumberLabel.hidden = NO;
-    } else {
-        self.selectedNumberLabel.text = @"";
-        self.selectedNumberLabel.hidden = YES;
+}
+
+/// 只在单选状态且allowPreview为NO时会有该事件
+- (void)didTapImageView {
+    if (self.didSelectPhotoBlock) {
+        self.didSelectPhotoBlock(NO);
     }
-    [self.contentView bringSubviewToFront:self.selectedNumberLabel];
 }
 
 - (void)hideProgressView {
-    self.progressView.hidden = YES;
-    self.imageView.alpha = 1.0;
+    if (_progressView) {
+        self.progressView.hidden = YES;
+        self.imageView.alpha = 1.0;
+    }
 }
 
-- (void)fetchBigImage {
-    _bigImageRequestID = [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        if (_progressView) {
-            [self hideProgressView];
-        }
+- (void)requestBigImage {
+    if (_bigImageRequestID) {
+        [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
+    }
+    
+    _bigImageRequestID = [[TZImageManager manager] requestImageDataForAsset:_model.asset completion:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+        [self hideProgressView];
     } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-        if (_model.isSelected) {
+        if (self.model.isSelected) {
             progress = progress > 0.02 ? progress : 0.02;;
             self.progressView.progress = progress;
             self.progressView.hidden = NO;
@@ -173,16 +181,41 @@
                 [self hideProgressView];
             }
         } else {
-            *stop = YES;
+            // 快速连续点几次，会EXC_BAD_ACCESS...
+            // *stop = YES;
             [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+            [self cancelBigImageRequest];
         }
-    } networkAccessAllowed:YES];
+    }];
+}
+
+- (void)cancelBigImageRequest {
+    if (_bigImageRequestID) {
+        [[PHImageManager defaultManager] cancelImageRequest:_bigImageRequestID];
+    }
+    [self hideProgressView];
+}
+
+#pragma mark - Notification
+
+- (void)reload:(NSNotification *)noti {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)noti.object;
+    if (self.model.isSelected && tzImagePickerVc.showSelectedIndex) {
+        self.index = [tzImagePickerVc.selectedAssetIds indexOfObject:self.model.asset.localIdentifier] + 1;
+    }
+    self.indexLabel.hidden = !self.selectPhotoButton.isSelected;
+    if (tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount && tzImagePickerVc.showPhotoCannotSelectLayer && !self.model.isSelected) {
+        self.cannotSelectLayerButton.backgroundColor = tzImagePickerVc.cannotSelectLayerColor;
+        self.cannotSelectLayerButton.hidden = NO;
+    } else {
+        self.cannotSelectLayerButton.hidden = YES;
+    }
 }
 
 #pragma mark - Lazy load
 
 - (UIButton *)selectPhotoButton {
-    if (_selectImageView == nil) {
+    if (_selectPhotoButton == nil) {
         UIButton *selectPhotoButton = [[UIButton alloc] init];
         [selectPhotoButton addTarget:self action:@selector(selectPhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:selectPhotoButton];
@@ -199,8 +232,8 @@
         [self.contentView addSubview:imageView];
         _imageView = imageView;
         
-        [self.contentView bringSubviewToFront:_selectImageView];
-        [self.contentView bringSubviewToFront:_bottomView];
+        _tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapImageView)];
+        [_imageView addGestureRecognizer:_tapGesture];
     }
     return _imageView;
 }
@@ -208,23 +241,14 @@
 - (UIImageView *)selectImageView {
     if (_selectImageView == nil) {
         UIImageView *selectImageView = [[UIImageView alloc] init];
+        selectImageView.contentMode = UIViewContentModeScaleAspectFill;
+        selectImageView.clipsToBounds = YES;
         [self.contentView addSubview:selectImageView];
         _selectImageView = selectImageView;
     }
     return _selectImageView;
 }
-- (UILabel *)selectedNumberLabel {
-    if (_selectedNumberLabel == nil) {
-        UILabel *label = [[UILabel alloc] init];
-        label.font = [UIFont systemFontOfSize:15];
-        label.textAlignment = NSTextAlignmentCenter;
-        label.textColor = [UIColor whiteColor];
-        [self.selectImageView addSubview:label];
-        label.backgroundColor = _mainColor;
-        _selectedNumberLabel = label;
-    }
-    return _selectedNumberLabel;
-}
+
 
 - (UIView *)bottomView {
     if (_bottomView == nil) {
@@ -236,10 +260,19 @@
     return _bottomView;
 }
 
+- (UIButton *)cannotSelectLayerButton {
+    if (_cannotSelectLayerButton == nil) {
+        UIButton *cannotSelectLayerButton = [[UIButton alloc] init];
+        [self.contentView addSubview:cannotSelectLayerButton];
+        _cannotSelectLayerButton = cannotSelectLayerButton;
+    }
+    return _cannotSelectLayerButton;
+}
+
 - (UIImageView *)videoImgView {
     if (_videoImgView == nil) {
         UIImageView *videoImgView = [[UIImageView alloc] init];
-        [videoImgView setImage:[UIImage imageNamedFromMyBundle:@"VideoSendIcon"]];
+        [videoImgView setImage:[UIImage tz_imageNamedFromMyBundle:@"VideoSendIcon"]];
         [self.bottomView addSubview:videoImgView];
         _videoImgView = videoImgView;
     }
@@ -249,7 +282,7 @@
 - (UIImageView *)gifImageView {
     if (_gifImageView == nil) {
         UIImageView *videoImgView = [[UIImageView alloc] init];
-        [videoImgView setImage:[UIImage imageNamedFromMyBundle:@"pic_gif"]];
+        [videoImgView setImage:[UIImage tz_imageNamedFromMyBundle:@"pic_gif"]];
         [self.bottomView addSubview:videoImgView];
         _gifImageView = videoImgView;
     }
@@ -270,6 +303,18 @@
     return _timeLength;
 }
 
+- (UILabel *)indexLabel {
+    if (_indexLabel == nil) {
+        UILabel *indexLabel = [[UILabel alloc] init];
+        indexLabel.font = [UIFont systemFontOfSize:14];
+        indexLabel.textColor = [UIColor whiteColor];
+        indexLabel.textAlignment = NSTextAlignmentCenter;
+        [self.contentView addSubview:indexLabel];
+        _indexLabel = indexLabel;
+    }
+    return _indexLabel;
+}
+
 - (TZProgressView *)progressView {
     if (_progressView == nil) {
         _progressView = [[TZProgressView alloc] init];
@@ -281,15 +326,14 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
+    _cannotSelectLayerButton.frame = self.bounds;
     if (self.allowPreview) {
         _selectPhotoButton.frame = CGRectMake(self.tz_width - 44, 0, 44, 44);
     } else {
         _selectPhotoButton.frame = self.bounds;
     }
     _selectImageView.frame = CGRectMake(self.tz_width - 20 - 5, 5, 20, 20);
-    _selectedNumberLabel.frame = _selectImageView.bounds;
-    _selectedNumberLabel.layer.cornerRadius = _selectImageView.bounds.size.width / 2.0;
-    _selectedNumberLabel.clipsToBounds = true;
+    _indexLabel.frame = _selectImageView.frame;
     _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
 
     static CGFloat progressWH = 20;
@@ -302,6 +346,20 @@
     _gifImageView.frame = CGRectMake(self.tz_width - 25, 0, 25, 15);
     self.type = (NSInteger)self.model.type;
     self.showSelectBtn = self.showSelectBtn;
+    
+    [self.contentView bringSubviewToFront:_bottomView];
+    [self.contentView bringSubviewToFront:_cannotSelectLayerButton];
+    [self.contentView bringSubviewToFront:_selectPhotoButton];
+    [self.contentView bringSubviewToFront:_selectImageView];
+    [self.contentView bringSubviewToFront:_indexLabel];
+    
+    if (self.assetCellDidLayoutSubviewsBlock) {
+        self.assetCellDidLayoutSubviewsBlock(self, _imageView, _selectImageView, _indexLabel, _bottomView, _timeLength, _videoImgView);
+    }
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 @end
@@ -335,19 +393,26 @@
     } else {
         self.selectedCountButton.hidden = YES;
     }
+    
+    if (self.albumCellDidSetModelBlock) {
+        self.albumCellDidSetModelBlock(self, _posterImageView, _titleLabel);
+    }
 }
 
-/// For fitting iOS6
 - (void)layoutSubviews {
-    if (iOS7Later) [super layoutSubviews];
-    _selectedCountButton.frame = CGRectMake(self.tz_width - 24 - 30, 23, 24, 24);
+    [super layoutSubviews];
+    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 24, 23, 24, 24);
     NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
     self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
     self.posterImageView.frame = CGRectMake(0, 0, 70, 70);
+    
+    if (self.albumCellDidLayoutSubviewsBlock) {
+        self.albumCellDidLayoutSubviewsBlock(self, _posterImageView, _titleLabel);
+    }
 }
 
 - (void)layoutSublayersOfLayer:(CALayer *)layer {
-    if (iOS7Later) [super layoutSublayersOfLayer:layer];
+    [super layoutSublayersOfLayer:layer];
 }
 
 #pragma mark - Lazy load
@@ -402,7 +467,7 @@
         _imageView = [[UIImageView alloc] init];
         _imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
         _imageView.contentMode = UIViewContentModeScaleAspectFill;
-        [self addSubview:_imageView];
+        [self.contentView addSubview:_imageView];
         self.clipsToBounds = YES;
     }
     return self;

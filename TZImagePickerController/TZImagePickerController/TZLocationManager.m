@@ -28,9 +28,7 @@
         manager = [[self alloc] init];
         manager.locationManager = [[CLLocationManager alloc] init];
         manager.locationManager.delegate = manager;
-        if (iOS8Later) {
-            [manager.locationManager requestWhenInUseAuthorization];
-        }
+        [manager.locationManager requestWhenInUseAuthorization];
     });
     return manager;
 }
@@ -67,7 +65,7 @@
     if (_geocodeBlock && locations.count) {
         CLGeocoder *geocoder = [[CLGeocoder alloc] init];
         [geocoder reverseGeocodeLocation:[locations firstObject] completionHandler:^(NSArray *array, NSError *error) {
-            _geocodeBlock(array);
+            self->_geocodeBlock(array);
         }];
     }
 }

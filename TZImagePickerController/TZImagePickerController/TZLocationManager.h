@@ -12,7 +12,7 @@
 
 @interface TZLocationManager : NSObject
 
-+ (instancetype)manager;
++ (instancetype)manager NS_SWIFT_NAME(default());
 
 /// 开始定位
 - (void)startLocation;

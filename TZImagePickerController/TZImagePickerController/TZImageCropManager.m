@@ -133,7 +133,7 @@
     }
     else {
         // images数组过大时内存会飙升，在这里限制下最大count
-        NSInteger maxCount = [TZImagePickerConfig sharedInstance].gifPreviewMaxImagesCount ?: 200;
+        NSInteger maxCount = [TZImagePickerConfig sharedInstance].gifPreviewMaxImagesCount ?: 50;
         NSInteger interval = MAX((count + maxCount / 2) / maxCount, 1);
         
         NSMutableArray *images = [NSMutableArray array];

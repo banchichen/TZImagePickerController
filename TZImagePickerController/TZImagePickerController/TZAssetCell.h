@@ -19,44 +19,38 @@ typedef enum : NSUInteger {
 
 @class TZAssetModel;
 @interface TZAssetCell : UICollectionViewCell
-
 @property (weak, nonatomic) UIButton *selectPhotoButton;
+@property (weak, nonatomic) UIButton *cannotSelectLayerButton;
 @property (nonatomic, strong) TZAssetModel *model;
+@property (assign, nonatomic) NSInteger index;
 @property (nonatomic, copy) void (^didSelectPhotoBlock)(BOOL);
 @property (nonatomic, assign) TZAssetCellType type;
 @property (nonatomic, assign) BOOL allowPickingGif;
 @property (nonatomic, assign) BOOL allowPickingMultipleVideo;
 @property (nonatomic, copy) NSString *representedAssetIdentifier;
 @property (nonatomic, assign) int32_t imageRequestID;
-/// 选择顺序编号
-@property (weak, nonatomic) UILabel *selectedNumberLabel;
-/// 是否显示选中编号
-@property (assign, nonatomic) BOOL showSelectedNumber;
-
-@property (nonatomic, copy) NSString *photoSelImageName;
-@property (nonatomic, copy) NSString *photoDefImageName;
+@property (nonatomic, strong) UIImage *photoSelImage;
+@property (nonatomic, strong) UIImage *photoDefImage;
 
 @property (nonatomic, assign) BOOL showSelectBtn;
 @property (assign, nonatomic) BOOL allowPreview;
-/// 相册图片选中按钮图片
-@property (nonatomic, copy) UIImage *selectImage;
 @property (nonatomic, strong) UIColor *mainColor;
 
+@property (nonatomic, copy) void (^assetCellDidSetModelBlock)(TZAssetCell *cell, UIImageView *imageView, UIImageView *selectImageView, UILabel *indexLabel, UIView *bottomView, UILabel *timeLength, UIImageView *videoImgView);
+@property (nonatomic, copy) void (^assetCellDidLayoutSubviewsBlock)(TZAssetCell *cell, UIImageView *imageView, UIImageView *selectImageView, UILabel *indexLabel, UIView *bottomView, UILabel *timeLength, UIImageView *videoImgView);
 @end
 
 
 @class TZAlbumModel;
-
 @interface TZAlbumCell : UITableViewCell
-
 @property (nonatomic, strong) TZAlbumModel *model;
 @property (weak, nonatomic) UIButton *selectedCountButton;
 
+@property (nonatomic, copy) void (^albumCellDidSetModelBlock)(TZAlbumCell *cell, UIImageView *posterImageView, UILabel *titleLabel);
+@property (nonatomic, copy) void (^albumCellDidLayoutSubviewsBlock)(TZAlbumCell *cell, UIImageView *posterImageView, UILabel *titleLabel);
 @end
 
 
 @interface TZAssetCameraCell : UICollectionViewCell
-
 @property (nonatomic, strong) UIImageView *imageView;
-
 @end
