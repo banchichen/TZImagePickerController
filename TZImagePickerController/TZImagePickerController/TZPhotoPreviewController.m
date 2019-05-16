@@ -276,10 +276,6 @@
     _naviBar.frame = CGRectMake(0, 0, self.view.tz_width, naviBarHeight);
     self.navBarSpLine.frame = CGRectMake(0, _naviBar.frame.size.height - 0.5, _naviBar.frame.size.width, 0.5);
     _backButton.frame = CGRectMake(0, statusBarHeightInterval, 44, 44);
-    _selectButton.frame = CGRectMake(self.view.tz_width - 56, 10 + statusBarHeightInterval, 44, 44);
-    _indexLabel.frame = _selectButton.frame;
-
-    
     _layout.itemSize = CGSizeMake(self.view.tz_width + 20, self.view.tz_height);
     _layout.minimumInteritemSpacing = 0;
     _layout.minimumLineSpacing = 0;
