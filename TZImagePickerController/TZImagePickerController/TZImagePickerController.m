@@ -68,7 +68,10 @@
     self.navigationBar.barTintColor = [UIColor whiteColor];
     self.navigationBar.tintColor = [UIColor blackColor];
     self.automaticallyAdjustsScrollViewInsets = NO;
-    if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
+    if (self.needShowStatusBar) {
+        [UIApplication sharedApplication].statusBarHidden = NO;
+    }
+    self.selectedAssetIds = [NSMutableArray array];
 }
 
 - (void)setNaviBgColor:(UIColor *)naviBgColor {
