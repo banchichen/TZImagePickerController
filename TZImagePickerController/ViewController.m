@@ -321,6 +321,7 @@
     NSInteger widthHeight = self.view.tz_width - 2 * left;
     NSInteger top = (self.view.tz_height - widthHeight) / 2;
     imagePickerVc.cropRect = CGRectMake(left, top, widthHeight, widthHeight);
+    imagePickerVc.scaleAspectFillCrop = YES;
     // 设置横屏下的裁剪尺寸
     // imagePickerVc.cropRectLandscape = CGRectMake((self.view.tz_height - widthHeight) / 2, left, widthHeight, widthHeight);
     /*
