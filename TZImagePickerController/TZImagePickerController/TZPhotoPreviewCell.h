@@ -26,6 +26,7 @@
 
 @property (nonatomic, assign) BOOL allowCrop;
 @property (nonatomic, assign) CGRect cropRect;
+@property (nonatomic, assign) BOOL scaleAspectFillCrop;
 
 - (void)recoverSubviews;
 
@@ -40,7 +41,7 @@
 
 @property (nonatomic, assign) BOOL allowCrop;
 @property (nonatomic, assign) CGRect cropRect;
-
+@property (nonatomic, assign) BOOL scaleAspectFillCrop;
 @property (nonatomic, strong) TZAssetModel *model;
 @property (nonatomic, strong) id asset;
 @property (nonatomic, copy) void (^singleTapGestureBlock)(void);

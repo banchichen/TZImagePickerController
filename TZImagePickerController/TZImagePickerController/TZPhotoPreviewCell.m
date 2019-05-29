@@ -78,6 +78,11 @@
     _previewView.allowCrop = allowCrop;
 }
 
+- (void)setScaleAspectFillCrop:(BOOL)scaleAspectFillCrop {
+    _scaleAspectFillCrop = scaleAspectFillCrop;
+    _previewView.scaleAspectFillCrop = scaleAspectFillCrop;
+}
+
 - (void)setCropRect:(CGRect)cropRect {
     _cropRect = cropRect;
     _previewView.cropRect = cropRect;
@@ -201,7 +206,14 @@
     self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (![asset isEqual:self->_asset]) return;
         self.imageView.image = photo;
+        CGFloat scale = MAX(self.cropRect.size.width / self.imageView.tz_width, self.cropRect.size.height / self.imageView.tz_height);
         [self resizeSubviews];
+        if (self.scaleAspectFillCrop && scale > 1) { // 如果设置图片缩放裁剪并且图片需要缩放
+            self.scrollView.minimumZoomScale = scale;
+            self.scrollView.maximumZoomScale = scale * 2;
+            [self.scrollView setZoomScale:scale animated:YES];
+        }
+
         self->_progressView.hidden = YES;
         if (self.imageProgressUpdateBlock) {
             self.imageProgressUpdateBlock(1);
@@ -229,7 +241,7 @@
 }
 
 - (void)recoverSubviews {
-    [_scrollView setZoomScale:1.0 animated:NO];
+    [_scrollView setZoomScale:_scrollView.minimumZoomScale animated:NO];
     [self resizeSubviews];
 }
 
@@ -305,9 +317,9 @@
 #pragma mark - UITapGestureRecognizer Event
 
 - (void)doubleTap:(UITapGestureRecognizer *)tap {
-    if (_scrollView.zoomScale > 1.0) {
+    if (_scrollView.zoomScale > _scrollView.minimumZoomScale) {
         _scrollView.contentInset = UIEdgeInsetsZero;
-        [_scrollView setZoomScale:1.0 animated:YES];
+        [_scrollView setZoomScale:_scrollView.minimumZoomScale animated:YES];
     } else {
         CGPoint touchPoint = [tap locationInView:self.imageView];
         CGFloat newZoomScale = _scrollView.maximumZoomScale;
