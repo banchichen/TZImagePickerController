@@ -627,8 +627,17 @@ static CGFloat itemMargin = 5;
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     // take a photo / 去拍照
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.item >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.item == 0)) && _showTakePhotoBtn)  {
-        [self takePhoto]; return;
+    if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.row >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.row == 0)) && _showTakePhotoBtn)  {
+        // 选择短视频的模式，通过代理调起拍照
+        // 否则使用系统的拍照
+        if (tzImagePickerVc.allowPickingImage == NO && tzImagePickerVc.allowPickingGif == NO && tzImagePickerVc.allowPickingVideo == YES && [tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerControllerDidClickTakePhotoBtn:)]) {
+            [self.navigationController dismissViewControllerAnimated:NO completion:^{
+                [tzImagePickerVc.pickerDelegate imagePickerControllerDidClickTakePhotoBtn:tzImagePickerVc];
+            }];
+        } else {
+            [self takePhoto];
+        }
+        return;
     }
     // preview phote or video / 预览照片或视频
     NSInteger index = indexPath.item;

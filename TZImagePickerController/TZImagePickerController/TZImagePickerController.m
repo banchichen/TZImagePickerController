@@ -850,9 +850,9 @@
 - (void)setAllowPickingImage:(BOOL)allowPickingImage {
     _allowPickingImage = allowPickingImage;
     [TZImagePickerConfig sharedInstance].allowPickingImage = allowPickingImage;
-    if (!allowPickingImage) {
-        _allowTakePicture = NO;
-    }
+//    if (!allowPickingImage) {
+//        _allowTakePicture = NO;
+//    }
 }
 
 - (void)setAllowPickingVideo:(BOOL)allowPickingVideo {
