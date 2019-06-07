@@ -82,7 +82,20 @@ static CGFloat itemMargin = 5;
     _shouldScrollToBottom = YES;
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = _model.name;
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
+    if (tzImagePickerVc.navRightBarButtonSettingBlock)
+    {
+        UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [rightButton setTitle:tzImagePickerVc.cancelBtnTitleStr forState:UIControlStateNormal];
+        rightButton.frame = CGRectMake(0, 0, 44, 44);
+        [rightButton addTarget:tzImagePickerVc action:@selector(cancelButtonClick) forControlEvents:UIControlEventTouchUpInside];
+        [rightButton setTitleColor:tzImagePickerVc.barItemTextColor forState:UIControlStateNormal];
+        tzImagePickerVc.navRightBarButtonSettingBlock(rightButton);
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:rightButton];
+    }
+    else
+    {
+        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
+    }
     if (tzImagePickerVc.navLeftBarButtonSettingBlock) {
         UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
         leftButton.frame = CGRectMake(0, 0, 44, 44);
