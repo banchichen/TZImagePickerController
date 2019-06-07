@@ -397,15 +397,30 @@
 }
 
 - (UIAlertController *)showAlertWithTitle:(NSString *)title {
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleAlert];
-    [alertController addAction:[UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"OK"] style:UIAlertActionStyleDefault handler:nil]];
-    [self presentViewController:alertController animated:YES completion:nil];
-    return alertController;
+    if (self.showAlertWithTitleBlock)
+    {
+        return self.showAlertWithTitleBlock(title);
+    }
+    else
+    {
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:nil preferredStyle:UIAlertControllerStyleAlert];
+        [alertController addAction:[UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"OK"] style:UIAlertActionStyleDefault handler:nil]];
+        [self presentViewController:alertController animated:YES completion:nil];
+        return alertController;
+    }
+    
 }
 
 - (void)hideAlertView:(UIAlertController *)alertView {
-    [alertView dismissViewControllerAnimated:YES completion:nil];
-    alertView = nil;
+    if (self.hideAlertViewBlock)
+    {
+        self.hideAlertViewBlock(alertView);
+    }
+    else
+    {
+        [alertView dismissViewControllerAnimated:YES completion:nil];
+        alertView = nil;
+    }
 }
 
 - (void)showProgressHUD {

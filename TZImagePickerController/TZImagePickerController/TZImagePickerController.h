@@ -193,6 +193,10 @@
 - (void)hideAlertView:(UIAlertController *)alertView;
 - (void)showProgressHUD;
 - (void)hideProgressHUD;
+/// 外面可以自定义AlertView，show和hide要配对设置。
+@property (nonatomic, copy) id (^showAlertWithTitleBlock)(NSString *title);
+@property (nonatomic, copy) void (^hideAlertViewBlock)(id alertView);
+
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
 @property (assign, nonatomic) BOOL needShowStatusBar;
 
