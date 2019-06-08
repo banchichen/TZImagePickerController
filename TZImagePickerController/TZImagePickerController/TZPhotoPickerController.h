@@ -12,8 +12,11 @@
 @interface TZPhotoPickerController : UIViewController
 
 @property (nonatomic, assign) BOOL isFirstAppear;
+@property (nonatomic, assign) BOOL isAlbumOnPhotoPicker;
 @property (nonatomic, assign) NSInteger columnNumber;
 @property (nonatomic, strong) TZAlbumModel *model;
+
+- (void)reloadAndConfigAllViews;
 @end
 
 

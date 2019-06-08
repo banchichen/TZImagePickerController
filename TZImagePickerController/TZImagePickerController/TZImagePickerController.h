@@ -35,6 +35,7 @@
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate;
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate;
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc;
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc isAlbumOnPhotoPicker:(BOOL)isAlbumOnPhotoPicker;
 /// This init method just for previewing photos / 用这个初始化方法以预览图片
 - (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index;
 /// This init method for crop photo / 用这个初始化方法以裁剪图片
@@ -134,6 +135,9 @@
 /// 默认是NO，如果设置为YES，导出视频时会修正转向（慎重设为YES，可能导致部分安卓下拍的视频导出失败）
 @property (assign, nonatomic) BOOL needFixComposition;
 
+/// 默认是NO，如果设置为YES，则允许旋转屏幕
+@property (nonatomic, assign) BOOL enableAutorotate;
+
 /// The photos user have selected
 /// 用户选中过的图片数组
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
@@ -201,6 +205,12 @@
 @property (assign, nonatomic) BOOL needShowStatusBar;
 
 #pragma mark -
+/// 默认72，外面可以设置photoPicker内嵌相册 tableviewcell 的高度
+@property (nonatomic, assign) CGFloat albumCustomCellHeight;
+/// 给外面 0.25 秒做显示隐藏相册的动画
+@property (nonatomic, copy) void (^albumTableViewHiddenAnimateBlock)(BOOL hidden, UITableView *albumTableView, UIControl *albumBackgroundView);
+
+#pragma mark -
 @property (nonatomic, copy) NSString *takePictureImageName __attribute__((deprecated("Use -takePictureImage.")));
 @property (nonatomic, copy) NSString *photoSelImageName __attribute__((deprecated("Use -photoSelImage.")));
 @property (nonatomic, copy) NSString *photoDefImageName __attribute__((deprecated("Use -photoDefImage.")));
@@ -215,6 +225,7 @@
 @property (nonatomic, strong) UIImage *photoOriginDefImage;
 @property (nonatomic, strong) UIImage *photoPreviewOriginDefImage;
 @property (nonatomic, strong) UIImage *photoNumberIconImage;
+@property (nonatomic, strong) UIImage *photoPickerTitleRightImage;
 
 #pragma mark -
 /// Appearance / 外观颜色 + 按钮文字

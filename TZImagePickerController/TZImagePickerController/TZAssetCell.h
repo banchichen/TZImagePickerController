@@ -50,6 +50,14 @@ typedef enum : NSUInteger {
 @property (nonatomic, copy) void (^albumCellDidLayoutSubviewsBlock)(TZAlbumCell *cell, UIImageView *posterImageView, UILabel *titleLabel);
 @end
 
+@interface TZAlbumCustomCell : UITableViewCell
+
+@property (nonatomic, strong) TZAlbumModel *model;
+@property (weak, nonatomic) UIButton *selectedCountButton;
+
+@end
+
+
 
 @interface TZAssetCameraCell : UICollectionViewCell
 @property (nonatomic, strong) UIImageView *imageView;

@@ -21,6 +21,7 @@
     UIButton *_settingBtn;
     BOOL _pushPhotoPickerVc;
     BOOL _didPushPhotoPickerVc;
+    BOOL _isAlbumOnPhotoPicker;
     
     UIButton *_progressHUD;
     UIView *_HUDContainer;
@@ -149,11 +150,31 @@
 }
 
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc {
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:columnNumber delegate:delegate pushPhotoPickerVc:YES isAlbumOnPhotoPicker:NO];
+}
+
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc isAlbumOnPhotoPicker:(BOOL)isAlbumOnPhotoPicker
+{
     _pushPhotoPickerVc = pushPhotoPickerVc;
-    TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
-    albumPickerVc.isFirstAppear = YES;
-    albumPickerVc.columnNumber = columnNumber;
-    self = [super initWithRootViewController:albumPickerVc];
+    // isAlbumOnPhotoPicker = YES，表示内嵌下滑相册
+    _isAlbumOnPhotoPicker = isAlbumOnPhotoPicker;
+    TZPhotoPickerController *photoPickerVc = nil;
+    if (isAlbumOnPhotoPicker)
+    {
+        photoPickerVc = [[TZPhotoPickerController alloc] init];
+        photoPickerVc.isFirstAppear = YES;
+        photoPickerVc.columnNumber = columnNumber;
+        photoPickerVc.isAlbumOnPhotoPicker = isAlbumOnPhotoPicker;
+        self = [super initWithRootViewController:photoPickerVc];
+    }
+    else
+    {
+        TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
+        albumPickerVc.isFirstAppear = YES;
+        albumPickerVc.columnNumber = columnNumber;
+        self = [super initWithRootViewController:albumPickerVc];
+    }
+    
     if (self) {
         self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
         self.pickerDelegate = delegate;
@@ -198,7 +219,18 @@
                 _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
             }
         } else {
-            [self pushPhotoPickerVc];
+            if (isAlbumOnPhotoPicker)
+            {
+                [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
+                    photoPickerVc.model = model;
+                    self->_didPushPhotoPickerVc = YES;
+                }];
+            }
+            else
+            {
+                [self pushPhotoPickerVc];
+            }
+            
         }
     }
     return self;
@@ -372,12 +404,27 @@
         [_tipLabel removeFromSuperview];
         [_settingBtn removeFromSuperview];
 
-        [self pushPhotoPickerVc];
-        
-        TZAlbumPickerController *albumPickerVc = (TZAlbumPickerController *)self.visibleViewController;
-        if ([albumPickerVc isKindOfClass:[TZAlbumPickerController class]]) {
-            [albumPickerVc configTableView];
+        if (_isAlbumOnPhotoPicker)
+        {
+            [[TZImageManager manager] getCameraRollAlbum:self.allowPickingVideo allowPickingImage:self.allowPickingImage needFetchAssets:NO completion:^(TZAlbumModel *model) {
+                TZPhotoPickerController *photoPickerVc = (TZPhotoPickerController *)self.topViewController;
+                if ([photoPickerVc isKindOfClass:[TZPhotoPickerController class]])
+                {
+                    photoPickerVc.model = model;
+                    [photoPickerVc reloadAndConfigAllViews];
+                    self->_didPushPhotoPickerVc = YES;
+                }
+            }];
         }
+        else
+        {
+            [self pushPhotoPickerVc];
+            TZAlbumPickerController *albumPickerVc = (TZAlbumPickerController *)self.visibleViewController;
+            if ([albumPickerVc isKindOfClass:[TZAlbumPickerController class]]) {
+                [albumPickerVc configTableView];
+            }
+        }
+        
     }
 }
 
@@ -693,6 +740,18 @@
     if (self.imagePickerControllerDidCancelHandle) {
         self.imagePickerControllerDidCancelHandle();
     }
+}
+
+- (BOOL)shouldAutorotate {
+    return self.enableAutorotate;
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskPortrait;
+}
+
+- (UIInterfaceOrientation)preferredInterfaceOrientationForPresentation {
+    return UIInterfaceOrientationPortrait;
 }
 
 @end

@@ -447,6 +447,109 @@
 
 @end
 
+#pragma mark - TZAlbumCustomCell
+
+@interface TZAlbumCustomCell ()
+@property (weak, nonatomic) UIImageView *posterImageView;
+@property (weak, nonatomic) UILabel *titleLabel;
+@property (weak, nonatomic) UILabel *summaryLabel;
+@end
+
+@implementation TZAlbumCustomCell
+
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
+    self.accessoryType = UITableViewCellAccessoryNone;
+    return self;
+}
+
+- (void)setModel:(TZAlbumModel *)model
+{
+    _model = model;
+    
+    self.titleLabel.text = model.name;
+    self.summaryLabel.text = [NSString stringWithFormat:@"%zd",model.count];
+    [[TZImageManager manager] getPostImageWithAlbumModel:model completion:^(UIImage *postImage) {
+        self.posterImageView.image = postImage;
+    }];
+    if (model.selectedCount) {
+        self.selectedCountButton.hidden = NO;
+        [self.selectedCountButton setTitle:[NSString stringWithFormat:@"%zd",model.selectedCount] forState:UIControlStateNormal];
+    } else {
+        self.selectedCountButton.hidden = YES;
+    }
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 24, 23, 24, 24);
+    self.posterImageView.frame = CGRectMake(12, 6, self.tz_height - 12, self.tz_height - 12);
+    
+    NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
+    self.titleLabel.frame = CGRectMake(self.posterImageView.tz_right + 12, self.posterImageView.tz_centerY - titleHeight - 2, self.tz_width - self.posterImageView.tz_right - 12, titleHeight);
+    
+    NSInteger summaryHeight = ceil(self.summaryLabel.font.lineHeight);
+    self.summaryLabel.frame = CGRectMake(self.titleLabel.tz_left, self.posterImageView.tz_centerY + 2, self.titleLabel.tz_width, summaryHeight);
+}
+
+- (void)layoutSublayersOfLayer:(CALayer *)layer {
+    [super layoutSublayersOfLayer:layer];
+}
+
+#pragma mark - Lazy load
+
+- (UIImageView *)posterImageView {
+    if (_posterImageView == nil) {
+        UIImageView *posterImageView = [[UIImageView alloc] init];
+        posterImageView.contentMode = UIViewContentModeScaleAspectFill;
+        posterImageView.clipsToBounds = YES;
+        [self.contentView addSubview:posterImageView];
+        _posterImageView = posterImageView;
+    }
+    return _posterImageView;
+}
+
+- (UILabel *)titleLabel {
+    if (_titleLabel == nil) {
+        UILabel *titleLabel = [[UILabel alloc] init];
+        titleLabel.font = [UIFont systemFontOfSize:17];
+        titleLabel.textColor = [UIColor colorWithRed:38/255.0 green:38/255.0 blue:38/255.0 alpha:1/1.0];
+        titleLabel.textAlignment = NSTextAlignmentLeft;
+        [self.contentView addSubview:titleLabel];
+        _titleLabel = titleLabel;
+    }
+    return _titleLabel;
+}
+
+- (UILabel *)summaryLabel {
+    if (_summaryLabel == nil) {
+        UILabel *summaryLabel = [[UILabel alloc] init];
+        summaryLabel.font = [UIFont systemFontOfSize:14];
+        summaryLabel.textColor = [UIColor colorWithRed:38/255.0 green:38/255.0 blue:38/255.0 alpha:1/1.0];
+        summaryLabel.textAlignment = NSTextAlignmentLeft;
+        [self.contentView addSubview:summaryLabel];
+        _summaryLabel = summaryLabel;
+    }
+    return _summaryLabel;
+}
+
+- (UIButton *)selectedCountButton {
+    if (_selectedCountButton == nil) {
+        UIButton *selectedCountButton = [[UIButton alloc] init];
+        selectedCountButton.layer.cornerRadius = 12;
+        selectedCountButton.clipsToBounds = YES;
+        selectedCountButton.backgroundColor = [UIColor redColor];
+        [selectedCountButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        selectedCountButton.titleLabel.font = [UIFont systemFontOfSize:15];
+        [self.contentView addSubview:selectedCountButton];
+        _selectedCountButton = selectedCountButton;
+    }
+    return _selectedCountButton;
+}
+
+@end
+
+
 
 
 @implementation TZAssetCameraCell
