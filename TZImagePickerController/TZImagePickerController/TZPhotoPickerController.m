@@ -1097,7 +1097,6 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     cell.selectedCountButton.backgroundColor = imagePickerVc.iconThemeColor;
     cell.model = _albumArr[indexPath.row];
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;
 }
 
