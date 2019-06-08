@@ -225,6 +225,9 @@ static CGFloat itemMargin = 5;
     if (_collectionView)
     {
         [_collectionView reloadData];
+        if (_models.count > 0) {
+            [_noDataLabel removeFromSuperview];
+        }
         return;
     }
     
