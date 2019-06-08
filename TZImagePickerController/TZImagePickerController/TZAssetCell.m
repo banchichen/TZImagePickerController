@@ -481,14 +481,17 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 24, 23, 24, 24);
+    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 12 - 24, 23, 24, 24);
+
     self.posterImageView.frame = CGRectMake(12, 6, self.tz_height - 12, self.tz_height - 12);
     
     NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
-    self.titleLabel.frame = CGRectMake(self.posterImageView.tz_right + 12, self.posterImageView.tz_centerY - titleHeight - 2, self.tz_width - self.posterImageView.tz_right - 12, titleHeight);
+    self.titleLabel.frame = CGRectMake(self.posterImageView.tz_right + 12, self.posterImageView.tz_centerY - titleHeight - 2, self.tz_width - self.posterImageView.tz_right - (self.contentView.tz_width - _selectedCountButton.tz_left) - 6, titleHeight);
     
     NSInteger summaryHeight = ceil(self.summaryLabel.font.lineHeight);
     self.summaryLabel.frame = CGRectMake(self.titleLabel.tz_left, self.posterImageView.tz_centerY + 2, self.titleLabel.tz_width, summaryHeight);
+    
+
 }
 
 - (void)layoutSublayersOfLayer:(CALayer *)layer {
