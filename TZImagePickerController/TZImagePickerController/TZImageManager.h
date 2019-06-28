@@ -81,6 +81,9 @@
 - (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(PHAsset *asset, NSError *error))completion;
 - (void)savePhotoWithImage:(UIImage *)image location:(CLLocation *)location completion:(void (^)(PHAsset *asset, NSError *error))completion;
 
+/// 保存Gif图片
+- (void)saveGifPhotoWithData:(NSData *)data location:(CLLocation *)location completion:(void (^)(PHAsset *asset, NSError *error))completion;
+
 /// Save video 保存视频
 - (void)saveVideoWithUrl:(NSURL *)url completion:(void (^)(PHAsset *asset, NSError *error))completion;
 - (void)saveVideoWithUrl:(NSURL *)url location:(CLLocation *)location completion:(void (^)(PHAsset *asset, NSError *error))completion;

@@ -497,6 +497,68 @@ static dispatch_once_t onceToken;
     }];
 }
 
+- (void)saveGifPhotoWithData:(NSData *)data location:(CLLocation *)location completion:(void (^)(PHAsset *asset, NSError *error))completion
+{
+    if (@available(iOS 9.0, *))
+    {
+        __block NSString *localIdentifier = nil;
+        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+            PHAssetCreationRequest *request = [PHAssetCreationRequest creationRequestForAsset];
+            [(PHAssetCreationRequest *)request addResourceWithType:PHAssetResourceTypePhoto
+                                                              data:data
+                                                           options:nil];
+            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
+            if (location) {
+                request.location = location;
+            }
+            request.creationDate = [NSDate date];
+        } completionHandler:^(BOOL success, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (success && completion) {
+                    PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
+                    completion(asset, nil);
+                } else if (error) {
+                    NSLog(@"保存照片出错:%@",error.localizedDescription);
+                    if (completion) {
+                        completion(nil, error);
+                    }
+                }
+            });
+        }];
+    }
+    else
+    {
+        __block NSString *localIdentifier = nil;
+        [[PHPhotoLibrary sharedPhotoLibrary] performChanges:^{
+            NSString *temporaryFileName = [NSProcessInfo processInfo].globallyUniqueString;
+            NSString *temporaryFilePath = [NSTemporaryDirectory() stringByAppendingPathComponent:temporaryFileName];
+            NSURL *temporaryFileURL = [NSURL fileURLWithPath:temporaryFilePath];
+            NSError *error = nil;
+            [data writeToURL:temporaryFileURL options:NSDataWritingAtomic error:&error];
+            PHAssetChangeRequest *request = [PHAssetChangeRequest creationRequestForAssetFromImageAtFileURL:temporaryFileURL];
+            [[NSFileManager defaultManager] removeItemAtURL:temporaryFileURL error:nil];
+            localIdentifier = request.placeholderForCreatedAsset.localIdentifier;
+            if (location) {
+                request.location = location;
+            }
+            request.creationDate = [NSDate date];
+        } completionHandler:^(BOOL success, NSError *error) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if (success && completion) {
+                    PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
+                    completion(asset, nil);
+                } else if (error) {
+                    NSLog(@"保存照片出错:%@",error.localizedDescription);
+                    if (completion) {
+                        completion(nil, error);
+                    }
+                }
+            });
+        }];
+    }
+    
+}
+
 #pragma mark - Save video
 
 - (void)saveVideoWithUrl:(NSURL *)url completion:(void (^)(PHAsset *asset, NSError *error))completion {
