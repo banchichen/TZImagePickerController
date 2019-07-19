@@ -9,6 +9,7 @@
 #import "TZImageManager.h"
 #import "TZAssetModel.h"
 #import "TZImagePickerController.h"
+#import <CoreServices/UTCoreTypes.h>
 
 @interface TZImageManager ()
 #pragma clang diagnostic push
@@ -239,7 +240,8 @@ static dispatch_once_t onceToken;
             // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
         }
         // Gif
-        if ([[phAsset valueForKey:@"filename"] hasSuffix:@"GIF"]) {
+        if ([((NSString *)[phAsset valueForKey:@"uniformTypeIdentifier"]) isEqualToString:((NSString *)kUTTypeGIF)])
+        {
             type = TZAssetModelMediaTypePhotoGif;
         }
     }
