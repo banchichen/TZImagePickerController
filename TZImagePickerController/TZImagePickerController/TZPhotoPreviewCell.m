@@ -249,29 +249,61 @@
 }
 
 - (void)resizeSubviews {
-    _imageContainerView.tz_origin = CGPointZero;
-    _imageContainerView.tz_width = self.scrollView.tz_width;
+//    _imageContainerView.tz_origin = CGPointZero;
+//    _imageContainerView.tz_width = self.scrollView.tz_width;
+//
+//    UIImage *image = _imageView.image;
+//    if (image.size.height / image.size.width > self.tz_height / self.scrollView.tz_width) {
+//        _imageContainerView.tz_height = floor(image.size.height / (image.size.width / self.scrollView.tz_width));
+//    } else {
+//        CGFloat height = image.size.height / image.size.width * self.scrollView.tz_width;
+//        if (height < 1 || isnan(height)) height = self.tz_height;
+//        height = floor(height);
+//        _imageContainerView.tz_height = height;
+//        _imageContainerView.tz_centerY = self.tz_height / 2;
+//    }
+//    if (_imageContainerView.tz_height > self.tz_height && _imageContainerView.tz_height - self.tz_height <= 1) {
+//        _imageContainerView.tz_height = self.tz_height;
+//    }
+//    CGFloat contentSizeH = MAX(_imageContainerView.tz_height, self.tz_height);
+//    _scrollView.contentSize = CGSizeMake(self.scrollView.tz_width, contentSizeH);
+//    [_scrollView scrollRectToVisible:self.bounds animated:NO];
+//    _scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
+//    _imageView.frame = _imageContainerView.bounds;
+//
+//    [self refreshScrollViewContentSize];
     
+    
+    _imageContainerView.tz_origin = CGPointZero;
     UIImage *image = _imageView.image;
-    if (image.size.height / image.size.width > self.tz_height / self.scrollView.tz_width) {
-        _imageContainerView.tz_height = floor(image.size.height / (image.size.width / self.scrollView.tz_width));
+    if (image.size.height > image.size.width) {
+        CGFloat containerW = self.cropRect.size.width;
+        CGFloat containerH = floor(containerW * image.size.height / image.size.width);
+        _imageContainerView.tz_width = containerW;
+        _imageContainerView.tz_height = containerH;
+        
+        CGFloat contentW = self.tz_width;
+        CGFloat contentH = self.tz_height + containerH - self.cropRect.size.height;
+        _scrollView.contentSize = CGSizeMake(contentW, contentH);
     } else {
-        CGFloat height = image.size.height / image.size.width * self.scrollView.tz_width;
-        if (height < 1 || isnan(height)) height = self.tz_height;
-        height = floor(height);
-        _imageContainerView.tz_height = height;
-        _imageContainerView.tz_centerY = self.tz_height / 2;
+        CGFloat containerH = self.cropRect.size.height;
+        CGFloat containerW = floor(containerH * image.size.width / image.size.height);
+        _imageContainerView.tz_width = containerW;
+        _imageContainerView.tz_height = containerH;
+        
+        CGFloat contentH = self.tz_height;
+        CGFloat contentW = self.tz_width + containerW - self.cropRect.size.width;
+        _scrollView.contentSize = CGSizeMake(contentW, contentH);
     }
-    if (_imageContainerView.tz_height > self.tz_height && _imageContainerView.tz_height - self.tz_height <= 1) {
-        _imageContainerView.tz_height = self.tz_height;
-    }
-    CGFloat contentSizeH = MAX(_imageContainerView.tz_height, self.tz_height);
-    _scrollView.contentSize = CGSizeMake(self.scrollView.tz_width, contentSizeH);
+    
     [_scrollView scrollRectToVisible:self.bounds animated:NO];
-    _scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
+    //_scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
+    _scrollView.alwaysBounceVertical = NO;
+    _scrollView.alwaysBounceHorizontal = NO;
     _imageView.frame = _imageContainerView.bounds;
     
     [self refreshScrollViewContentSize];
+
 }
 
 - (void)configMaximumZoomScale {
@@ -288,27 +320,45 @@
 }
 
 - (void)refreshScrollViewContentSize {
+//    if (_allowCrop) {
+//        // 1.7.2 如果允许裁剪,需要让图片的任意部分都能在裁剪框内，于是对_scrollView做了如下处理：
+//        // 1.让contentSize增大(裁剪框右下角的图片部分)
+//        CGFloat contentWidthAdd = self.scrollView.tz_width - CGRectGetMaxX(_cropRect);
+//        CGFloat contentHeightAdd = (MIN(_imageContainerView.tz_height, self.tz_height) - self.cropRect.size.height) / 2;
+//        CGFloat newSizeW = self.scrollView.contentSize.width + contentWidthAdd;
+//        CGFloat newSizeH = MAX(self.scrollView.contentSize.height, self.tz_height) + contentHeightAdd;
+//        _scrollView.contentSize = CGSizeMake(newSizeW, newSizeH);
+//        _scrollView.alwaysBounceVertical = YES;
+//        // 2.让scrollView新增滑动区域（裁剪框左上角的图片部分）
+//        if (contentHeightAdd > 0 || contentWidthAdd > 0) {
+//            _scrollView.contentInset = UIEdgeInsetsMake(contentHeightAdd, _cropRect.origin.x, 0, 0);
+//        } else {
+//            _scrollView.contentInset = UIEdgeInsetsZero;
+//        }
+//    }
+    
+    
     if (_allowCrop) {
-        // 1.7.2 如果允许裁剪,需要让图片的任意部分都能在裁剪框内，于是对_scrollView做了如下处理：
-        // 1.让contentSize增大(裁剪框右下角的图片部分)
-        CGFloat contentWidthAdd = self.scrollView.tz_width - CGRectGetMaxX(_cropRect);
-        CGFloat contentHeightAdd = (MIN(_imageContainerView.tz_height, self.tz_height) - self.cropRect.size.height) / 2;
-        CGFloat newSizeW = self.scrollView.contentSize.width + contentWidthAdd;
-        CGFloat newSizeH = MAX(self.scrollView.contentSize.height, self.tz_height) + contentHeightAdd;
+        UIImage *image = _imageView.image;
+        _imageContainerView.tz_origin = CGPointZero;
+        
+        CGFloat croptRightMargin = self.scrollView.tz_width - CGRectGetMaxX(_cropRect) - 10;
+        CGFloat croptBottomMargin = self.scrollView.tz_height - CGRectGetMaxY(_cropRect);
+        CGFloat newSizeW = self.imageContainerView.frame.size.width + croptRightMargin;
+        CGFloat newSizeH = self.imageContainerView.frame.size.height + croptBottomMargin;
         _scrollView.contentSize = CGSizeMake(newSizeW, newSizeH);
-        _scrollView.alwaysBounceVertical = YES;
-        // 2.让scrollView新增滑动区域（裁剪框左上角的图片部分）
-        if (contentHeightAdd > 0 || contentWidthAdd > 0) {
-            _scrollView.contentInset = UIEdgeInsetsMake(contentHeightAdd, _cropRect.origin.x, 0, 0);
-        } else {
-            _scrollView.contentInset = UIEdgeInsetsZero;
-        }
+        
+        CGFloat insetX = self.cropRect.origin.x + 10;
+        CGFloat insetY = self.cropRect.origin.y;
+        self.scrollView.contentInset = UIEdgeInsetsMake(insetY, insetX, 0, 0);
     }
+
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _scrollView.frame = CGRectMake(10, 0, self.tz_width - 20, self.tz_height);
+    //_scrollView.frame = CGRectMake(10, 0, self.tz_width - 20, self.tz_height);
+    _scrollView.frame = CGRectMake(10, 0, self.tz_width, self.tz_height);
     static CGFloat progressWH = 40;
     CGFloat progressX = (self.tz_width - progressWH) / 2;
     CGFloat progressY = (self.tz_height - progressWH) / 2;
