@@ -342,13 +342,17 @@
         UIImage *image = _imageView.image;
         _imageContainerView.tz_origin = CGPointZero;
         
-        CGFloat croptRightMargin = self.scrollView.tz_width - CGRectGetMaxX(_cropRect) - 10;
+        // demo减10
+        //CGFloat croptRightMargin = self.scrollView.tz_width - CGRectGetMaxX(_cropRect) - 10;
+        CGFloat croptRightMargin = self.scrollView.tz_width - CGRectGetMaxX(_cropRect);
         CGFloat croptBottomMargin = self.scrollView.tz_height - CGRectGetMaxY(_cropRect);
         CGFloat newSizeW = self.imageContainerView.frame.size.width + croptRightMargin;
         CGFloat newSizeH = self.imageContainerView.frame.size.height + croptBottomMargin;
         _scrollView.contentSize = CGSizeMake(newSizeW, newSizeH);
         
-        CGFloat insetX = self.cropRect.origin.x + 10;
+        // demo减10
+        //CGFloat insetX = self.cropRect.origin.x + 10;
+        CGFloat insetX = self.cropRect.origin.x;
         CGFloat insetY = self.cropRect.origin.y;
         self.scrollView.contentInset = UIEdgeInsetsMake(insetY, insetX, 0, 0);
     }
