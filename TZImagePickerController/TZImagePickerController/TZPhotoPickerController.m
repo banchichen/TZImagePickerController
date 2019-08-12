@@ -109,7 +109,19 @@ static CGFloat itemMargin = 5;
         if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && self->_model.isCameraRoll) {
             [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:YES completion:^(TZAlbumModel *model) {
                 self->_model = model;
-                self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+
+                //self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+                // 对视频长度进行限制
+                NSMutableArray * models = [[NSMutableArray alloc] init];
+                TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+                NSTimeInterval maxInterval = tzImagePickerVc.videoMaximumDuration;
+                for (TZAssetModel * itemModel in self.model.models) {
+                    if (itemModel.timeLen <= maxInterval) {
+                        [models addObject:itemModel];
+                    }
+                }
+                self->_models = [NSMutableArray arrayWithArray:models];
+                
                 [self initSubviews];
             }];
         } else {

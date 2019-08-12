@@ -25,6 +25,19 @@
     return model;
 }
 
+-(NSTimeInterval)timeLen{
+    // self.timeLength -> timeLen "00:06" -> 06
+    __block NSTimeInterval len = 0;
+    // :分隔，并逆序
+    NSArray * strList = [[[self.timeLength componentsSeparatedByString:@":"] reverseObjectEnumerator] allObjects];
+    [strList enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        NSInteger time = (NSInteger)((NSString *)obj);
+        NSInteger timebase = (60)^(idx);
+        len += (NSTimeInterval)(time * timebase);
+    }];
+    return len;
+}
+
 @end
 
 
