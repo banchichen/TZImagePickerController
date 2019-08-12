@@ -273,36 +273,61 @@
 //
 //    [self refreshScrollViewContentSize];
     
-    
-    _imageContainerView.tz_origin = CGPointZero;
-    UIImage *image = _imageView.image;
-    if (image.size.height > image.size.width) {
-        CGFloat containerW = self.cropRect.size.width;
-        CGFloat containerH = floor(containerW * image.size.height / image.size.width);
-        _imageContainerView.tz_width = containerW;
-        _imageContainerView.tz_height = containerH;
+    if (_allowCrop) {
+        _imageContainerView.tz_origin = CGPointZero;
+        UIImage *image = _imageView.image;
+        if (image.size.height > image.size.width) {
+            CGFloat containerW = self.cropRect.size.width;
+            CGFloat containerH = floor(containerW * image.size.height / image.size.width);
+            _imageContainerView.tz_width = containerW;
+            _imageContainerView.tz_height = containerH;
+            
+            CGFloat contentW = self.tz_width;
+            CGFloat contentH = self.tz_height + containerH - self.cropRect.size.height;
+            _scrollView.contentSize = CGSizeMake(contentW, contentH);
+        } else {
+            CGFloat containerH = self.cropRect.size.height;
+            CGFloat containerW = floor(containerH * image.size.width / image.size.height);
+            _imageContainerView.tz_width = containerW;
+            _imageContainerView.tz_height = containerH;
+            
+            CGFloat contentH = self.tz_height;
+            CGFloat contentW = self.tz_width + containerW - self.cropRect.size.width;
+            _scrollView.contentSize = CGSizeMake(contentW, contentH);
+        }
         
-        CGFloat contentW = self.tz_width;
-        CGFloat contentH = self.tz_height + containerH - self.cropRect.size.height;
-        _scrollView.contentSize = CGSizeMake(contentW, contentH);
+        [_scrollView scrollRectToVisible:self.bounds animated:NO];
+        //_scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
+        _scrollView.alwaysBounceVertical = NO;
+        _scrollView.alwaysBounceHorizontal = NO;
+        _imageView.frame = _imageContainerView.bounds;
+        
+        [self refreshScrollViewContentSize];
     } else {
-        CGFloat containerH = self.cropRect.size.height;
-        CGFloat containerW = floor(containerH * image.size.width / image.size.height);
-        _imageContainerView.tz_width = containerW;
-        _imageContainerView.tz_height = containerH;
-        
-        CGFloat contentH = self.tz_height;
-        CGFloat contentW = self.tz_width + containerW - self.cropRect.size.width;
-        _scrollView.contentSize = CGSizeMake(contentW, contentH);
+        _imageContainerView.tz_origin = CGPointZero;
+        _imageContainerView.tz_width = self.scrollView.tz_width;
+    
+        UIImage *image = _imageView.image;
+        if (image.size.height / image.size.width > self.tz_height / self.scrollView.tz_width) {
+            _imageContainerView.tz_height = floor(image.size.height / (image.size.width / self.scrollView.tz_width));
+        } else {
+            CGFloat height = image.size.height / image.size.width * self.scrollView.tz_width;
+            if (height < 1 || isnan(height)) height = self.tz_height;
+            height = floor(height);
+            _imageContainerView.tz_height = height;
+            _imageContainerView.tz_centerY = self.tz_height / 2;
+        }
+        if (_imageContainerView.tz_height > self.tz_height && _imageContainerView.tz_height - self.tz_height <= 1) {
+            _imageContainerView.tz_height = self.tz_height;
+        }
+        CGFloat contentSizeH = MAX(_imageContainerView.tz_height, self.tz_height);
+        _scrollView.contentSize = CGSizeMake(self.scrollView.tz_width, contentSizeH);
+        [_scrollView scrollRectToVisible:self.bounds animated:NO];
+        _scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
+        _imageView.frame = _imageContainerView.bounds;
+    
+        [self refreshScrollViewContentSize];
     }
-    
-    [_scrollView scrollRectToVisible:self.bounds animated:NO];
-    //_scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
-    _scrollView.alwaysBounceVertical = NO;
-    _scrollView.alwaysBounceHorizontal = NO;
-    _imageView.frame = _imageContainerView.bounds;
-    
-    [self refreshScrollViewContentSize];
 
 }
 
