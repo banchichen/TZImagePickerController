@@ -364,7 +364,6 @@
     
     
     if (_allowCrop) {
-        UIImage *image = _imageView.image;
         _imageContainerView.tz_origin = CGPointZero;
         
         // demo减10
@@ -387,7 +386,11 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     //_scrollView.frame = CGRectMake(10, 0, self.tz_width - 20, self.tz_height);
-    _scrollView.frame = CGRectMake(10, 0, self.tz_width, self.tz_height);
+    if (_allowCrop) {
+        _scrollView.frame = CGRectMake(10, 0, self.tz_width, self.tz_height);
+    } else {
+        _scrollView.frame = CGRectMake(10, 0, self.tz_width - 20, self.tz_height);
+    }
     static CGFloat progressWH = 40;
     CGFloat progressX = (self.tz_width - progressWH) / 2;
     CGFloat progressY = (self.tz_height - progressWH) / 2;
