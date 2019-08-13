@@ -111,27 +111,60 @@ static CGFloat itemMargin = 5;
                 self->_model = model;
 
                 //self->_models = [NSMutableArray arrayWithArray:self->_model.models];
-                // 对视频长度进行限制
-                NSMutableArray * models = [[NSMutableArray alloc] init];
-                TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
                 NSTimeInterval maxInterval = tzImagePickerVc.videoMaximumDuration;
-                for (TZAssetModel * itemModel in self.model.models) {
-                    if (itemModel.timeLen <= maxInterval) {
-                        [models addObject:itemModel];
+                if (tzImagePickerVc.allowPickingVideo && maxInterval > 0) {
+                    // 对视频长度进行限制
+                    NSMutableArray * models = [[NSMutableArray alloc] init];
+                    for (TZAssetModel * itemModel in self.model.models) {
+                        if (itemModel.timeLen <= maxInterval) {
+                            [models addObject:itemModel];
+                        }
                     }
+                    self->_models = [NSMutableArray arrayWithArray:models];
+                } else {
+                    self->_models = [NSMutableArray arrayWithArray:self->_model.models];
                 }
-                self->_models = [NSMutableArray arrayWithArray:models];
                 
                 [self initSubviews];
             }];
         } else {
             if (self->_showTakePhotoBtn || self->_isFirstAppear) {
                 [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
-                    self->_models = [NSMutableArray arrayWithArray:models];
+                    
+                    //self->_models = [NSMutableArray arrayWithArray:models];
+                    NSTimeInterval maxInterval = tzImagePickerVc.videoMaximumDuration;
+                    if (tzImagePickerVc.allowPickingVideo && maxInterval > 0) {
+                        // 对视频长度进行限制
+                        NSMutableArray * newModels = [[NSMutableArray alloc] init];
+                        for (TZAssetModel * itemModel in models) {
+                            if (itemModel.timeLen <= maxInterval) {
+                                [newModels addObject:itemModel];
+                            }
+                        }
+                        self->_models = [NSMutableArray arrayWithArray:newModels];
+                    } else {
+                        self->_models = [NSMutableArray arrayWithArray:models];
+                    }
+                    
                     [self initSubviews];
                 }];
             } else {
-                self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+                
+                //self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+                NSTimeInterval maxInterval = tzImagePickerVc.videoMaximumDuration;
+                if (tzImagePickerVc.allowPickingVideo && maxInterval > 0) {
+                    // 对视频长度进行限制
+                    NSMutableArray * models = [[NSMutableArray alloc] init];
+                    for (TZAssetModel * itemModel in self.model.models) {
+                        if (itemModel.timeLen <= maxInterval) {
+                            [models addObject:itemModel];
+                        }
+                    }
+                    self->_models = [NSMutableArray arrayWithArray:models];
+                } else {
+                    self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+                }
+                
                 [self initSubviews];
             }
         }

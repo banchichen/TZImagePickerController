@@ -734,6 +734,22 @@
                 self->_albumArr = [NSMutableArray arrayWithArray:models];
                 for (TZAlbumModel *albumModel in self->_albumArr) {
                     albumModel.selectedModels = imagePickerVc.selectedModels;
+                    
+                    NSTimeInterval maxInterval = imagePickerVc.videoMaximumDuration;
+                    if (imagePickerVc.allowPickingVideo && maxInterval > 0) {
+                        // 对视频长度进行限制
+                        NSMutableArray * models = [[NSMutableArray alloc] init];
+                        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+                        NSTimeInterval maxInterval = tzImagePickerVc.videoMaximumDuration;
+                        for (TZAssetModel * itemModel in albumModel.models) {
+                            if (itemModel.timeLen <= maxInterval) {
+                                [models addObject:itemModel];
+                            }
+                        }
+                        albumModel.models = models;
+                        albumModel.count = models.count;
+                    }
+                    
                 }
                 [imagePickerVc hideProgressHUD];
                 
@@ -792,7 +808,23 @@
 #pragma mark - UITableViewDataSource && Delegate
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return _albumArr.count;
+    
+    //return _albumArr.count;
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    NSTimeInterval maxInterval = tzImagePickerVc.videoMaximumDuration;
+    if (tzImagePickerVc.allowPickingVideo && maxInterval > 0) {
+        NSMutableArray * notEmptyList = [[NSMutableArray alloc] init];
+        [self.albumArr enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if (0 != ((TZAlbumModel *)obj).count) {
+                [notEmptyList addObject:obj];
+            }
+        }];
+        self.albumArr = notEmptyList;
+        return _albumArr.count;
+    } else {
+        return _albumArr.count;
+    }
+    
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
