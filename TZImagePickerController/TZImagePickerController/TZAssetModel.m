@@ -31,8 +31,8 @@
     // :分隔，并逆序
     NSArray * strList = [[[self.timeLength componentsSeparatedByString:@":"] reverseObjectEnumerator] allObjects];
     [strList enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSInteger time = (NSInteger)((NSString *)obj);
-        NSInteger timebase = (60)^(idx);
+        NSInteger time = [((NSString *)obj) integerValue];
+        NSInteger timebase = (NSInteger)pow(60.0, (double)idx);
         len += (NSTimeInterval)(time * timebase);
     }];
     return len;
