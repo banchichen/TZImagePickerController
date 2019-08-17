@@ -56,7 +56,9 @@
 
 /// Get Assets 获得Asset数组
 - (void)getAssetsFromFetchResult:(PHFetchResult *)result completion:(void (^)(NSArray<TZAssetModel *> *models))completion;
+- (void)getAssetsFromFetchResult:(PHFetchResult *)result optimizeNum:(NSUInteger)optimizeNum completion:(void (^)(NSArray<TZAssetModel *> *))completion;
 - (void)getAssetsFromFetchResult:(PHFetchResult *)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAssetModel *> *models))completion;
+- (void)getAssetsFromFetchResult:(PHFetchResult *)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage optimizeNum:(NSUInteger)optimizeNum completion:(void (^)(NSArray<TZAssetModel *> *))completion;
 - (void)getAssetFromFetchResult:(PHFetchResult *)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAssetModel *model))completion;
 
 /// Get photo 获得照片

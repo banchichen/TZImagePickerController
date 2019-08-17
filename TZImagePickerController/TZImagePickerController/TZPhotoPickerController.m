@@ -123,6 +123,10 @@ static CGFloat itemMargin = 5;
     [self configNavigationTitleView];
     self.isFirstLoadAlbum = YES;
     [self configAlbumData];
+    
+    if (!_models) {
+        [self fetchAssetModels];
+    }
 }
 
 - (void)configNavigationTitleView
@@ -163,12 +167,21 @@ static CGFloat itemMargin = 5;
     }
 }
 
+- (TZAssetModel *)modelAtIndex:(NSInteger)index
+{
+    if (index >= 0 && index < _models.count)
+    {
+        return _models[index];
+    }
+    return nil;
+}
+
 - (void)fetchAssetModels {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (_isFirstAppear && !_model.models.count) {
-        [tzImagePickerVc showProgressHUD];
-    }
-    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+//    if (_isFirstAppear && !_model.models.count) {
+////        [tzImagePickerVc showProgressHUD];
+//    }
+//    dispatch_async(dispatch_get_global_queue(0, 0), ^{
         if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && self->_model.isCameraRoll) {
             [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:YES completion:^(TZAlbumModel *model) {
                 self->_model = model;
@@ -177,7 +190,7 @@ static CGFloat itemMargin = 5;
             }];
         } else {
             if (self->_showTakePhotoBtn || self->_isFirstAppear) {
-                [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
+                [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result optimizeNum:36 completion:^(NSArray<TZAssetModel *> *models) {
                     self->_models = [NSMutableArray arrayWithArray:models];
                     [self initSubviews];
                 }];
@@ -186,21 +199,34 @@ static CGFloat itemMargin = 5;
                 [self initSubviews];
             }
         }
-    });
+//    });
 }
 
-- (void)initSubviews {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-        [tzImagePickerVc hideProgressHUD];
-        
-        [self checkSelectedModels];
-        [self configCollectionView];
-        self->_collectionView.hidden = YES;
-        [self configBottomToolBar];
-        
-        [self scrollCollectionViewToBottom];
-    });
+- (void)initSubviews
+{
+    if ([NSThread isMainThread])
+    {
+        [self doInitSubviewAction];
+    }
+    else
+    {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self doInitSubviewAction];
+        });
+    }
+}
+
+- (void)doInitSubviewAction
+{
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    [tzImagePickerVc hideProgressHUD];
+    
+    [self checkSelectedModels];
+    [self configCollectionView];
+    self->_collectionView.hidden = YES;
+    [self configBottomToolBar];
+    
+    [self scrollCollectionViewToBottom];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -267,10 +293,6 @@ static CGFloat itemMargin = 5;
     }
     CGSize cellSize = ((UICollectionViewFlowLayout *)_collectionView.collectionViewLayout).itemSize;
     AssetGridThumbnailSize = CGSizeMake(cellSize.width * scale, cellSize.height * scale);
-    
-    if (!_models) {
-        [self fetchAssetModels];
-    }
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -608,9 +630,9 @@ static CGFloat itemMargin = 5;
     cell.assetCellDidLayoutSubviewsBlock = tzImagePickerVc.assetCellDidLayoutSubviewsBlock;
     TZAssetModel *model;
     if (tzImagePickerVc.sortAscendingByModificationDate || !_showTakePhotoBtn) {
-        model = _models[indexPath.item];
+        model = [self modelAtIndex:indexPath.item];// _models[indexPath.item];
     } else {
-        model = _models[indexPath.item - 1];
+        model = [self modelAtIndex:indexPath.item - 1];//_models[indexPath.item - 1];
     }
     cell.allowPickingGif = tzImagePickerVc.allowPickingGif;
     cell.model = model;
@@ -688,7 +710,7 @@ static CGFloat itemMargin = 5;
     if (!tzImagePickerVc.sortAscendingByModificationDate && _showTakePhotoBtn) {
         index = indexPath.item - 1;
     }
-    TZAssetModel *model = _models[index];
+    TZAssetModel *model = [self modelAtIndex:index];//_models[index];
     if (model.type == TZAssetModelMediaTypeVideo && !tzImagePickerVc.allowPickingMultipleVideo) {
         if (tzImagePickerVc.selectedModels.count > 0) {
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
@@ -849,16 +871,21 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_shouldScrollToBottom && _models.count > 0) {
         NSInteger item = 0;
+        NSInteger countDelta = 0;
         if (tzImagePickerVc.sortAscendingByModificationDate) {
             item = _models.count - 1;
             if (_showTakePhotoBtn) {
                 item += 1;
+                countDelta = 1;
             }
         }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self->_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
-            self->_shouldScrollToBottom = NO;
-            self->_collectionView.hidden = NO;
+            if (item <= self->_models.count - 1 + countDelta)
+            {   // 因为存在第二次reload，所以这里做一层保护
+                [self->_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
+                self->_shouldScrollToBottom = NO;
+                self->_collectionView.hidden = NO;
+            }
         });
     } else {
         _collectionView.hidden = NO;
@@ -1201,7 +1228,7 @@ static CGFloat itemMargin = 5;
     NSMutableArray *assets = [NSMutableArray arrayWithCapacity:indexPaths.count];
     for (NSIndexPath *indexPath in indexPaths) {
         if (indexPath.item < _models.count) {
-            TZAssetModel *model = _models[indexPath.item];
+            TZAssetModel *model = [self modelAtIndex:indexPath.item];//_models[indexPath.item];
             [assets addObject:model.asset];
         }
     }

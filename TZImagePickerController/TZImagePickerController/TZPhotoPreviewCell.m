@@ -211,9 +211,9 @@
             CGFloat scale = MAX(self.cropRect.size.width / self.imageView.tz_width, self.cropRect.size.height / self.imageView.tz_height);
             if (self.scaleAspectFillCrop && scale > 1) { // 如果设置图片缩放裁剪并且图片需要缩放
                 CGFloat multiple = self.scrollView.maximumZoomScale / self.scrollView.minimumZoomScale;
-                self.scrollView.minimumZoomScale = scale;
+//                self.scrollView.minimumZoomScale = scale;
                 self.scrollView.maximumZoomScale = scale * MAX(multiple, 2);
-                [self.scrollView setZoomScale:scale animated:YES];
+                [self.scrollView setZoomScale:scale animated:NO];
             }
         }
 

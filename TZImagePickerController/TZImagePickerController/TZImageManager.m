@@ -178,15 +178,58 @@ static dispatch_once_t onceToken;
     return [self getAssetsFromFetchResult:result allowPickingVideo:config.allowPickingVideo allowPickingImage:config.allowPickingImage completion:completion];
 }
 
+/// Get Assets 获得照片数组
+- (void)getAssetsFromFetchResult:(PHFetchResult *)result optimizeNum:(NSUInteger)optimizeNum completion:(void (^)(NSArray<TZAssetModel *> *))completion {
+    TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
+    return [self getAssetsFromFetchResult:result allowPickingVideo:config.allowPickingVideo allowPickingImage:config.allowPickingImage optimizeNum:optimizeNum completion:completion];
+}
+
 - (void)getAssetsFromFetchResult:(PHFetchResult *)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAssetModel *> *))completion {
+    return [self getAssetsFromFetchResult:result allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage optimizeNum:0 completion:completion];
+}
+
+- (void)getAssetsFromFetchResult:(PHFetchResult *)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage optimizeNum:(NSUInteger)optimizeNum completion:(void (^)(NSArray<TZAssetModel *> *))completion {
+    
+    if (optimizeNum == 0) optimizeNum = result.count;
+    
+    optimizeNum = MIN(result.count, optimizeNum);
+    NSUInteger fakeNum = result.count - optimizeNum;
+    
+    NSTimeInterval start = CFAbsoluteTimeGetCurrent();
     NSMutableArray *photoArr = [NSMutableArray array];
-    [result enumerateObjectsUsingBlock:^(PHAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
-        TZAssetModel *model = [self assetModelWithAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+    
+    for (NSInteger index = 0; index < result.count; index ++)
+    {
+        TZAssetModel *model = nil;
+        if (index < fakeNum)
+        {
+            model = [TZAssetModel new];
+        }
+        else
+        {
+            PHAsset *asset = [result objectAtIndex:index];
+            model = [self assetModelWithAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+        }
+        
         if (model) {
             [photoArr addObject:model];
         }
-    }];
+    }
     if (completion) completion(photoArr);
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        NSMutableArray *photoArrAll = [NSMutableArray array];
+        [result enumerateObjectsUsingBlock:^(PHAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
+            TZAssetModel *model = [self assetModelWithAsset:asset allowPickingVideo:allowPickingVideo allowPickingImage:allowPickingImage];
+            if (model) {
+                [photoArrAll addObject:model];
+            }
+        }];
+        if (completion) completion(photoArrAll);
+    });
+    
+    NSTimeInterval end = CFAbsoluteTimeGetCurrent();
+    NSLog(@"dsfsdfsdfsdfsdfsdfsdf cost:%f", end - start);
 }
 
 ///  Get asset at index 获得下标为index的单个照片
