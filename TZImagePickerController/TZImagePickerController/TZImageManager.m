@@ -412,6 +412,9 @@ static dispatch_once_t onceToken;
     if (!self.sortAscendingByModificationDate) {
         asset = [model.result firstObject];
     }
+    if (!asset) {
+        return -1;
+    }
     return [[TZImageManager manager] getPhotoWithAsset:asset photoWidth:80 completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (completion) completion(photo);
     }];
