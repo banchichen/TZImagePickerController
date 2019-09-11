@@ -15,6 +15,8 @@
 #import "UIView+Layout.h"
 #import "TZImageManager.h"
 
+static int tz_static_statusbarHeight = 0;
+
 @interface TZImagePickerController () {
     NSTimer *_timer;
     UILabel *_tipLabel;
@@ -176,6 +178,7 @@
     }
     
     if (self) {
+        self.modalPresentationStyle = UIModalPresentationFullScreen;
         self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
         self.pickerDelegate = delegate;
         self.selectedAssets = [NSMutableArray array];
@@ -928,15 +931,21 @@
 
 @implementation TZCommonTools
 
-+ (BOOL)tz_isIPhoneX {
-    return (CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(375, 812)) ||
-            CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(812, 375)) ||
-            CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(414, 896)) ||
-            CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(896, 414)));
++ (CGFloat)tz_homeIndicatorHeight
+{
+    CGFloat height = 0;
+    if (@available(iOS 11.0, *)) {
+        height += [UIApplication sharedApplication].keyWindow.safeAreaInsets.bottom;
+    }
+    return height;
 }
 
 + (CGFloat)tz_statusBarHeight {
-    return [self tz_isIPhoneX] ? 44 : 20;
+    if (tz_static_statusbarHeight == 0) {
+        CGRect statusBarFrame = [UIApplication sharedApplication].statusBarFrame;
+        tz_static_statusbarHeight = MIN(statusBarFrame.size.width, statusBarFrame.size.height);
+    }
+    return tz_static_statusbarHeight;
 }
 
 // 获得Info.plist数据字典

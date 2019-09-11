@@ -314,8 +314,8 @@
 
 
 @interface TZCommonTools : NSObject
-+ (BOOL)tz_isIPhoneX;
 + (CGFloat)tz_statusBarHeight;
++ (CGFloat)tz_homeIndicatorHeight;
 // 获得Info.plist数据字典
 + (NSDictionary *)tz_getInfoDictionary;
 + (BOOL)tz_isRightToLeftLayout;
