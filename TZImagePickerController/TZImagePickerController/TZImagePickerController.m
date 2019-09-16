@@ -21,6 +21,7 @@
     UIButton *_settingBtn;
     BOOL _pushPhotoPickerVc;
     BOOL _didPushPhotoPickerVc;
+    CGRect _cropRect;
     
     UIButton *_progressHUD;
     UIView *_HUDContainer;
@@ -493,6 +494,18 @@
     _cropRectLandscape = CGRectMake((self.view.tz_height - widthHeight) / 2, cropRect.origin.x, widthHeight, widthHeight);
 }
 
+- (CGRect)cropRect {
+    CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+    BOOL isFullScreen = self.view.tz_height == screenHeight;
+    if (isFullScreen) {
+        return _cropRect;
+    } else {
+        CGRect newCropRect = _cropRect;
+        newCropRect.origin.y -= ((screenHeight - self.view.tz_height) / 2);
+        return newCropRect;
+    }
+}
+
 - (void)setTimeout:(NSInteger)timeout {
     _timeout = timeout;
     if (timeout < 5) {
@@ -782,9 +795,10 @@
     CGFloat tableViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
     BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
+    BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
-        if (!isStatusBarHidden) top += [TZCommonTools tz_statusBarHeight];
+        if (!isStatusBarHidden && isFullScreen) top += [TZCommonTools tz_statusBarHeight];
         tableViewHeight = self.view.tz_height - top;
     } else {
         tableViewHeight = self.view.tz_height;
