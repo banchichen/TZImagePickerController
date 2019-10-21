@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.2.5 - 2019.10.14
+//  version 3.2.6 - 2019.10.21
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -761,6 +761,7 @@
                 if (!self->_tableView) {
                     self->_tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
                     self->_tableView.rowHeight = 70;
+                    self->_tableView.backgroundColor = [UIColor whiteColor];
                     self->_tableView.tableFooterView = [[UIView alloc] init];
                     self->_tableView.dataSource = self;
                     self->_tableView.delegate = self;
