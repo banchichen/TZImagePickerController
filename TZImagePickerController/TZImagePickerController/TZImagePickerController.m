@@ -928,16 +928,28 @@
     if (!preferredLanguage || !preferredLanguage.length) {
         preferredLanguage = [NSLocale preferredLanguages].firstObject;
     }
-    if ([preferredLanguage rangeOfString:@"zh-Hans"].location != NSNotFound) {
-        preferredLanguage = @"zh-Hans";
-    } else if ([preferredLanguage rangeOfString:@"zh-Hant"].location != NSNotFound) {
-        preferredLanguage = @"zh-Hant";
-    } else if ([preferredLanguage rangeOfString:@"vi"].location != NSNotFound) {
-        preferredLanguage = @"vi";
-    } else {
-        preferredLanguage = @"en";
+    
+    NSString *usedLanguage = nil;
+    for (NSString *language in TZImagePickerConfig.supportedLanguageSet) {
+        if ([preferredLanguage rangeOfString:language].location != NSNotFound) {
+            usedLanguage = language;
+            break;
+        }
     }
-    _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:preferredLanguage ofType:@"lproj"]];
+    if (!usedLanguage) {
+        usedLanguage = @"en";
+    }
+    
+    _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:usedLanguage ofType:@"lproj"]];
+}
+
++ (NSSet *)supportedLanguageSet {
+    static dispatch_once_t onceToken;
+    static NSSet *set = nil;
+    dispatch_once(&onceToken, ^{
+        set = [NSSet setWithObjects:@"ar", @"de", @"en", @"es", @"fr", @"ja", @"ko-KP", @"pt", @"ru", @"vi", @"zh-Hans", @"zh-Hant", nil];
+    });
+    return set;
 }
 
 @end
