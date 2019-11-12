@@ -54,6 +54,9 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    if (self.needShowStatusBar) {
+        [UIApplication sharedApplication].statusBarHidden = NO;
+    }
     [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
 }
 

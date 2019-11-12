@@ -25,12 +25,14 @@
     
     UIStatusBarStyle _originStatusBarStyle;
 }
+@property (assign, nonatomic) BOOL needShowStatusBar;
 @end
 
 @implementation TZGifPhotoPreviewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
     self.view.backgroundColor = [UIColor blackColor];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
@@ -48,6 +50,9 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
+    if (self.needShowStatusBar) {
+        [UIApplication sharedApplication].statusBarHidden = NO;
+    }
     [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
 }
 
