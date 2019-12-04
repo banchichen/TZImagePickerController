@@ -9,7 +9,7 @@
 #import "TZImageManager.h"
 #import "TZAssetModel.h"
 #import "TZImagePickerController.h"
-#import <CoreServices/CoreServices.h>
+#import <MobileCoreServices/MobileCoreServices.h>
 
 @interface TZImageManager ()
 #pragma clang diagnostic push
