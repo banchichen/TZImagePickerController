@@ -260,7 +260,9 @@
         return;
     }
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
-    // imagePickerVc.barItemTextColor = [UIColor redColor];
+    // imagePickerVc.barItemTextColor = [UIColor blackColor];
+    // [imagePickerVc.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor blackColor]}];
+    // imagePickerVc.navigationBar.tintColor = [UIColor blackColor];
     // imagePickerVc.naviBgColor = [UIColor whiteColor];
     // imagePickerVc.navigationBar.translucent = NO;
     
