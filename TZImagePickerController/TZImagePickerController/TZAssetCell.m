@@ -198,6 +198,21 @@
 
 - (void)reload:(NSNotification *)noti {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)noti.object;
+    
+    UIViewController *parentViewController = nil;
+    UIResponder *responder = self.nextResponder;
+    do {
+        if ([responder isKindOfClass:[UIViewController class]]) {
+            parentViewController = (UIViewController *)responder;
+            break;
+        }
+        responder = responder.nextResponder;
+    } while (responder);
+    
+    if (parentViewController.navigationController != tzImagePickerVc) {
+        return;
+    }
+    
     if (self.model.isSelected && tzImagePickerVc.showSelectedIndex) {
         self.index = [tzImagePickerVc.selectedAssetIds indexOfObject:self.model.asset.localIdentifier] + 1;
     }
