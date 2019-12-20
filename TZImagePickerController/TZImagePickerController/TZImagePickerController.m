@@ -180,7 +180,8 @@
             _tipLabel.numberOfLines = 0;
             _tipLabel.font = [UIFont systemFontOfSize:16];
             _tipLabel.textColor = [UIColor blackColor];
-            
+            _tipLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+
             NSDictionary *infoDict = [TZCommonTools tz_getInfoDictionary];
             NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
             if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
@@ -194,6 +195,8 @@
             _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
             _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
             [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
+            _settingBtn.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+
             [self.view addSubview:_settingBtn];
             
             if ([PHPhotoLibrary authorizationStatus] == 0) {
