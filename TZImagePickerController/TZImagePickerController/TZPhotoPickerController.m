@@ -393,6 +393,7 @@ static CGFloat itemMargin = 5;
     }
     
     [tzImagePickerVc showProgressHUD];
+    _doneButton.enabled = NO;
     NSMutableArray *assets = [NSMutableArray array];
     NSMutableArray *photos;
     NSMutableArray *infoArr;
@@ -431,7 +432,6 @@ static CGFloat itemMargin = 5;
             } progressHandler:^(double progress, NSError * _Nonnull error, BOOL * _Nonnull stop, NSDictionary * _Nonnull info) {
                 // 如果图片正在从iCloud同步中,提醒用户
                 if (progress < 1 && havenotShowAlert && !alertView) {
-                    [tzImagePickerVc hideProgressHUD];
                     alertView = [tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]];
                     havenotShowAlert = NO;
                     return;
@@ -451,7 +451,8 @@ static CGFloat itemMargin = 5;
 - (void)didGetAllPhotos:(NSArray *)photos assets:(NSArray *)assets infoArr:(NSArray *)infoArr {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     [tzImagePickerVc hideProgressHUD];
-    
+    _doneButton.enabled = YES;
+
     if (tzImagePickerVc.autoDismiss) {
         [self.navigationController dismissViewControllerAnimated:YES completion:^{
             [self callDelegateMethodWithPhotos:photos assets:assets infoArr:infoArr];
