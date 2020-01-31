@@ -364,17 +364,13 @@ static dispatch_once_t onceToken;
         imageSize = CGSizeMake(pixelWidth, pixelHeight);
     }
     
-    __block UIImage *image;
     // 修复获取图片时出现的瞬间内存过高问题
     // 下面两行代码，来自hsjcom，他的github是：https://github.com/hsjcom 表示感谢
     PHImageRequestOptions *option = [[PHImageRequestOptions alloc] init];
     option.resizeMode = PHImageRequestOptionsResizeModeFast;
     int32_t imageRequestID = [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:imageSize contentMode:PHImageContentModeAspectFill options:option resultHandler:^(UIImage *result, NSDictionary *info) {
-        if (result) {
-            image = result;
-        }
-        BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
-        if (downloadFinined && result) {
+        BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
+        if (!cancelled && result) {
             result = [self fixOrientation:result];
             if (completion) completion(result,info,[[info objectForKey:PHImageResultIsDegradedKey] boolValue]);
         }
@@ -395,8 +391,8 @@ static dispatch_once_t onceToken;
                 if (![TZImagePickerConfig sharedInstance].notScaleImage) {
                     resultImage = [self scaleImage:resultImage toSize:imageSize];
                 }
-                if (!resultImage) {
-                    resultImage = image;
+                if (!resultImage && result) {
+                    resultImage = result;
                 }
                 resultImage = [self fixOrientation:resultImage];
                 if (completion) completion(resultImage,info,NO);
@@ -441,8 +437,8 @@ static dispatch_once_t onceToken;
     }
     option.resizeMode = PHImageRequestOptionsResizeModeFast;
     return [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage *result, NSDictionary *info) {
-        BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
-        if (downloadFinined && result) {
+        BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
+        if (!cancelled && result) {
             result = [self fixOrientation:result];
             BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
             if (completion) completion(result,info,isDegraded);
@@ -464,8 +460,8 @@ static dispatch_once_t onceToken;
     [option setProgressHandler:progressHandler];
     option.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
     return [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-        BOOL downloadFinined = (![[info objectForKey:PHImageCancelledKey] boolValue] && ![info objectForKey:PHImageErrorKey]);
-        if (downloadFinined && imageData) {
+        BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
+        if (!cancelled && imageData) {
             if (completion) completion(imageData,info,NO);
         }
     }];
