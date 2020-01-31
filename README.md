@@ -113,7 +113,7 @@ A：是否有集成WRNavigationBar？如有，参考其readme调一下它的wr_s
 A：是否有集成GKNavigationBarViewController？需要升级到2.0.4及以上版本，详见issue：[https://github.com/QuintGao/GKNavigationBarViewController/issues/7](https://github.com/QuintGao/GKNavigationBarViewController/issues/7)。       
 
 **Q：有的视频导出失败？**            
-A：升级到2.2.6及以上版本试试，发现是修正视频转向导致的，2.2.6开始默认不再主动修正。如需打开，可设置needFixComposition为YES，但有几率导致安卓拍的视频导出失败。       
+A：升级到2.2.6及以上版本试试，发现是修正视频转向导致的，2.2.6开始默认不再主动修正。如需打开，可设置needFixComposition为YES，但有几率导致安卓拍的视频导出失败。此外也可参考这个issue：https://github.com/banchichen/TZImagePickerController/issues/1073       
 
 **Q：视频导出慢？**            
 A：视频导出分两步，第一步是通过PHAsset获取AVURLAsset，如是iCloud视频则涉及到网络请求，耗时容易不可控，第二步是通过AVURLAsset把视频保存到沙盒，耗时不算多。但第一步耗时不可控，你可以拷贝我源码出来拿到第一步的进度给用户一个进度提示...     
