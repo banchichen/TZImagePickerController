@@ -8,9 +8,9 @@
  
  ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
    
- ## 阿里巴巴数据中台招聘iOS、前端，P6/P7，20-40K，同事牛氛围好业务强，欢迎来撩~
- 前端：https://www.lagou.com/center/jobMobile_6802717.html
- iOS：<img src="https://gw.alicdn.com/tfs/TB1apSHvKL2gK0jSZFmXXc7iXXa-720-1280.jpg" width="40%" height="40%">
+ ## 阿里巴巴数据中台招聘iOS、前端，同事牛氛围好业务强，欢迎来撩~             
+ 前端：https://www.lagou.com/center/jobMobile_6802717.html            
+ iOS：<img src="https://gw.alicdn.com/tfs/TB1apSHvKL2gK0jSZFmXXc7iXXa-720-1280.jpg" width="40%" height="40%">        
  
  ## 重要提示3：3.0.7版本适配了iPhoneXR、XS、XS Max，建议大家尽快更新            
  
