@@ -355,7 +355,7 @@
     // 设置是否显示图片序号
     imagePickerVc.showSelectedIndex = self.showSelectedIndexSwitch.isOn;
     
-    // 设置拍照时是否需要定位，仅对选择器内部拍照有效，外部拍照的，请拷贝手动把pushImagePickerController里定位方法的调用删掉
+    // 设置拍照时是否需要定位，仅对选择器内部拍照有效，外部拍照的，请拷贝demo时手动把pushImagePickerController里定位方法的调用删掉
     // imagePickerVc.allowCameraLocation = NO;
     
     // 自定义gif播放方案
