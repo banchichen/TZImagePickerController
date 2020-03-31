@@ -11,5 +11,5 @@ Pod::Spec.new do |s|
   s.requires_arc = true
   s.resources    = "TZImagePickerController/TZImagePickerController/*.{png,bundle}"
   s.source_files = "TZImagePickerController/TZImagePickerController/*.{h,m}"
-  s.frameworks   = "Photos", "MobileCoreServices"
+  s.frameworks   = "Photos"
 end
