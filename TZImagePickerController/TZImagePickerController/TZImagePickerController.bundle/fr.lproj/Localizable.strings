@@ -21,3 +21,4 @@
 "Select a minimum of %zd photos" = "Veuillez sélectionner un minimum de %zd photos";
 "Allow %@ to access your album in \"Settings -> Privacy -> Photos\"" = "Autorisez %@ à accéder à votre album dans « Paramètres > Confidentialité > Photos »";
 "Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\"" = "Autorisez %@ à accéder à votre appareil photo dans « Paramètres > Confidentialité > Appareil photo »";
+"Video duration ≥%.fs" = "Video duration needs ≥%.fs";

@@ -21,3 +21,4 @@
 "Select a minimum of %zd photos" = "少なくとも %zd 枚の写真を選択してください。";
 "Allow %@ to access your album in \"Settings -> Privacy -> Photos\"" = "iPhoneの「設定-プライバシー-写真」のオプションで、r%@の携帯電話のアルバムへのアクセス権限を許可してください。";
 "Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\"" = "iPhoneの「設定-プライバシー-カメラ」で、%@のカメラへのアクセス権限を許可してください。";
+"Video duration ≥%.fs" = "Video duration needs ≥%.fs";

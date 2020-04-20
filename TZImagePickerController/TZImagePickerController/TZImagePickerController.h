@@ -41,6 +41,9 @@
 - (instancetype)initCropTypeWithAsset:(PHAsset *)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,PHAsset *asset))completion;
 
 #pragma mark -
+/// Default is 5.0/ 默认视频最小时长
+@property (nonatomic, assign) CGFloat minVideoLength;
+
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
 

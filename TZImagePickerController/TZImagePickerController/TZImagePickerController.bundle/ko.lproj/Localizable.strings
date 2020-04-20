@@ -15,3 +15,4 @@
 "Can not use camera"      = "카메라를 사용할 수 없습니다.";
 "Can not choose both video and photo" = "동영상과 사진을 모두 선택할 수 없습니다.";
 "Can not choose both photo and GIF" = "사진과 GIF를 모두 선택할 수 없습니다.";
+"Video duration ≥%.fs" = "Video duration needs ≥%.fs";
