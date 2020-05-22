@@ -610,9 +610,7 @@ static CGFloat itemMargin = 5;
         CGFloat videoLength = [timeAry.firstObject floatValue] * 60.0 + [timeAry.lastObject floatValue];
         if (tzImagePickerVc.minVideoLength && videoLength < tzImagePickerVc.minVideoLength) {
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-            
             [imagePickerVc showAlertWithTitle:[NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Video duration ≥%.fs"], imagePickerVc.minVideoLength]];
-            
             return;
         }
     }
