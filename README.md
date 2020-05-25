@@ -7,13 +7,8 @@
  一个支持多选、选原图和视频的图片选择器，同时有预览功能，支持iOS6+。
  
  ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
-   
- ## 阿里巴巴数据中台招聘iOS、前端，同事牛氛围好业务强，欢迎来撩~             
- 前端：https://www.lagou.com/center/jobMobile_6802717.html            
- iOS：          
- <img src="https://gw.alicdn.com/tfs/TB1apSHvKL2gK0jSZFmXXc7iXXa-720-1280.jpg" width="40%" height="40%">        
  
- ## 重要提示3：3.0.7版本适配了iPhoneXR、XS、XS Max，建议大家尽快更新            
+ ## 重要提示2：3.0.7版本适配了iPhoneXR、XS、XS Max，建议大家尽快更新            
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
