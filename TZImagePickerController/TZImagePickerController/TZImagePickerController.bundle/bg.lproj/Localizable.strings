@@ -1,0 +1,17 @@
+"KEY"                     = "保加利亚语";
+"OK"                      = "Добре";
+"Back"                    = "обратно";
+"Done"                    = "Свършен";
+"Sorry"                   = "съжалявам";
+"Cancel"                  = "Отказ";
+"Setting"                 = "обстановка";
+"Photos"                  = "Снимки";
+"Videos"                  = "Видео";
+"Preview"                 = "предварителен преглед";
+"Full image"              = "Пълно изображение";
+"Processing..."           = "Обработка ...";
+"No Photos or Videos"     = "Няма снимки или видеоклипове";
+"Synchronizing photos from iCloud" = "Синхронизиране на снимки от iCloud";
+"Can not use camera"      = "Не може да се използва камера";
+"Can not choose both video and photo" = "Не можете да изберете видео и снимка";
+"Can not choose both photo and GIF" = "Не може да се избере снимка и GIF";

@@ -52,7 +52,7 @@
 
 - (void)checkSelectedModels {
     self.selectedCount = 0;
-    NSMutableArray *selectedAssets = [NSMutableArray array];
+    NSMutableSet *selectedAssets = [NSMutableSet setWithCapacity:_selectedModels.count];
     for (TZAssetModel *model in _selectedModels) {
         [selectedAssets addObject:model.asset];
     }
