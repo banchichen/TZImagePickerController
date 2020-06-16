@@ -27,7 +27,7 @@
     UIStatusBarStyle _originStatusBarStyle;
 }
 @property (assign, nonatomic) BOOL needShowStatusBar;
-//iCloud无法同步提示UI
+// iCloud无法同步提示UI
 @property (nonatomic, strong) UIView *iCloudErrorView;
 @end
 
@@ -224,16 +224,16 @@
 #pragma mark - lazy
 - (UIView *)iCloudErrorView{
     if (!_iCloudErrorView) {
-        _iCloudErrorView = [[UIView alloc] initWithFrame:CGRectMake(0, [TZCommonTools tz_isIPhoneX] ? 88 : 64, 150, 28)];
+        _iCloudErrorView = [[UIView alloc] initWithFrame:CGRectMake(0, [TZCommonTools tz_isIPhoneX] ? 88 : 64, self.view.tz_width, 28)];
         UIImageView *icloud = [[UIImageView alloc] init];
         icloud.image = [UIImage tz_imageNamedFromMyBundle:@"iCloudError"];
         icloud.frame = CGRectMake(10, 0, 28, 28);
         [_iCloudErrorView addSubview:icloud];
         UILabel *label = [[UILabel alloc] init];
-        label.frame = CGRectMake(40, 0, 150 - 40, 28);
+        label.frame = CGRectMake(40, 0, self.view.tz_width - 50, 28);
         label.font = [UIFont systemFontOfSize:10];
         label.textColor = [UIColor whiteColor];
-        label.text = @"iCloud无法同步";
+        label.text = [NSBundle tz_localizedStringForKey:@"iCloud sync failed"];
         [_iCloudErrorView addSubview:label];
         [self.view addSubview:_iCloudErrorView];
         _iCloudErrorView.hidden = YES;
