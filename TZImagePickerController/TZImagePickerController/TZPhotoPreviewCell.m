@@ -134,6 +134,22 @@
         _imageView.clipsToBounds = YES;
         [_imageContainerView addSubview:_imageView];
         
+        
+        _iCloudErrorView = [[UIView alloc] initWithFrame:CGRectMake(0, [TZCommonTools tz_isIPhoneX] ? 88 : 64, 150, 28)];
+        UIImageView *icloud = [[UIImageView alloc] init];
+        icloud.image = [UIImage tz_imageNamedFromMyBundle:@"iCloudError"];
+        icloud.frame = CGRectMake(10, 0, 28, 28);
+        [_iCloudErrorView addSubview:icloud];
+        UILabel *label = [[UILabel alloc] init];
+        label.frame = CGRectMake(40, 0, 150 - 40, 28);
+        label.font = [UIFont systemFontOfSize:10];
+        label.textColor = [UIColor whiteColor];
+        label.text = @"iCloud无法同步";
+        [_iCloudErrorView addSubview:label];
+        [self addSubview:_iCloudErrorView];
+        _iCloudErrorView.hidden = YES;
+        
+        
         UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTap:)];
         [self addGestureRecognizer:tap1];
         UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
@@ -159,6 +175,11 @@
     if (model.type == TZAssetModelMediaTypePhotoGif) {
         // 先显示缩略图
         [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+            if (!photo && [info[PHImageResultIsInCloudKey] boolValue]) {
+                self.iCloudErrorView.hidden = NO;
+            }else{
+                self.iCloudErrorView.hidden = YES;
+            }
             self.imageView.image = photo;
             [self resizeSubviews];
             if (self.isRequestingGIF) {
@@ -205,6 +226,11 @@
     _asset = asset;
     self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (![asset isEqual:self->_asset]) return;
+        if (!photo && [info[PHImageResultIsInCloudKey] boolValue]) {
+            self.iCloudErrorView.hidden = NO;
+        }else{
+            self.iCloudErrorView.hidden = YES;
+        }
         self.imageView.image = photo;
         [self resizeSubviews];
         if (self.imageView.tz_height && self.allowCrop) {
