@@ -12,6 +12,7 @@
 "Processing..."           = "Обработка ...";
 "No Photos or Videos"     = "Нет фото или видео";
 "Synchronizing photos from iCloud" = "Синхронизация фотографий из iCloud";
+"iCloud sync failed"    = "iCloud сбой синхронизации";
 "Can not use camera"      = "Не могу использовать камеру";
 "Can not choose both video and photo" = "Не могу выбрать как видео,так и фото";
 "Can not choose both photo and GIF" = "Не могу выбрать фото и GIF";

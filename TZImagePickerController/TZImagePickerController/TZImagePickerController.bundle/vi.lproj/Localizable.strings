@@ -13,6 +13,7 @@
 "No Photos or Videos"     = "Không có ảnh hoặc video";
 "Can not use camera" = "Máy chụp hình không khả dụng";
 "Synchronizing photos from iCloud" = "Đang đồng bộ hình ảnh từ ICloud";
+"iCloud sync failed"    = "iCloud đồng bộ hóa không thành công";
 "Can not choose both video and photo" = "Trong lúc chọn hình ảnh không cùng lúc chọn video";
 "Can not choose both photo and GIF" = "Trong lúc chọn hình ảnh không cùng lúc chọn hình GIF";
 "Select the video when in multi state, we will handle the video as a photo" = "Chọn hình ảnh cùng video, video sẽ bị mặc nhận thành hình ảnh và gửi đi.";

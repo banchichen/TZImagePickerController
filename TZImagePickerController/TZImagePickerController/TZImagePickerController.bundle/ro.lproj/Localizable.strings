@@ -12,6 +12,7 @@
 "Processing..."           = "Prelucrare...";
 "No Photos or Videos"     = "Nu există fotografii sau videoclipuri";
 "Synchronizing photos from iCloud" = "Sincronizarea fotografiilor cu iCloud";
+"iCloud sync failed"    = "iCloud sincronizarea a eșuat";
 "Can not use camera"      = "Nu pot folosi camera";
 "Can not choose both video and photo" = "Nu puteți alege atât videoclipul,cât și fotografia";
 "Can not choose both photo and GIF" = "Nu puteți alege atât fotografia,cât și GIF";

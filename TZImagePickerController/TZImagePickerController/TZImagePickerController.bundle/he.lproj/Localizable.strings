@@ -12,6 +12,7 @@
 "Processing..."           = "מעבד...";
 "No Photos or Videos"     = "אין תמונות או סרטונים";
 "Synchronizing photos from iCloud" = "סנכרון תמונות מ - iCloud";
+"iCloud sync failed"    = "iCloud הסנכרון נכשל";
 "Can not use camera"      = "לא ניתן להשתמש במצלמה";
 "Can not choose both video and photo" = "לא ניתן לבחור הן בסרטון והן בתמונה";
 "Can not choose both photo and GIF" = "לא ניתן לבחור גם תמונה וגם קובץ GIF";

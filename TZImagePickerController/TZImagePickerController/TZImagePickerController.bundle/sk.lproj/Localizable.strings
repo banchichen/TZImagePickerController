@@ -12,6 +12,7 @@
 "Processing..."           = "Spracovanie ...";
 "No Photos or Videos"     = "Žiadne fotografie alebo videá";
 "Synchronizing photos from iCloud" = "Synchronizácia fotografií z iCloud";
+"iCloud sync failed"    = "iCloud synchronizácia zlyhala";
 "Can not use camera"      = "Fotoaparát nie je možné používať";
 "Can not choose both video and photo" = "Nie je možné vybrať video aj fotografiu";
 "Can not choose both photo and GIF" = "Nie je možné vybrať fotografie a obrázky GIF";
