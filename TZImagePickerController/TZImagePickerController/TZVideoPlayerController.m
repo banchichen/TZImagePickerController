@@ -224,13 +224,13 @@
 #pragma mark - lazy
 - (UIView *)iCloudErrorView{
     if (!_iCloudErrorView) {
-        _iCloudErrorView = [[UIView alloc] initWithFrame:CGRectMake(0, [TZCommonTools tz_isIPhoneX] ? 88 : 64, self.view.tz_width, 28)];
+        _iCloudErrorView = [[UIView alloc] initWithFrame:CGRectMake(0, [TZCommonTools tz_isIPhoneX] ? 88 + 10 : 64 + 10, self.view.tz_width, 28)];
         UIImageView *icloud = [[UIImageView alloc] init];
         icloud.image = [UIImage tz_imageNamedFromMyBundle:@"iCloudError"];
-        icloud.frame = CGRectMake(10, 0, 28, 28);
+        icloud.frame = CGRectMake(20, 0, 28, 28);
         [_iCloudErrorView addSubview:icloud];
         UILabel *label = [[UILabel alloc] init];
-        label.frame = CGRectMake(40, 0, self.view.tz_width - 50, 28);
+        label.frame = CGRectMake(53, 0, self.view.tz_width - 63, 28);
         label.font = [UIFont systemFontOfSize:10];
         label.textColor = [UIColor whiteColor];
         label.text = [NSBundle tz_localizedStringForKey:@"iCloud sync failed"];

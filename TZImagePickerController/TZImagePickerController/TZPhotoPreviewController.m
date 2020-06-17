@@ -42,6 +42,7 @@
 
 @property (nonatomic, assign) double progress;
 @property (strong, nonatomic) UIAlertController *alertView;
+@property (nonatomic, strong) UIView *iCloudErrorView;
 @end
 
 @implementation TZPhotoPreviewController
@@ -459,8 +460,19 @@
     __weak typeof(self) weakSelf = self;
     if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypeVideo) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZVideoPreviewCell" forIndexPath:indexPath];
+//        TZVideoPreviewCell *videoPreviewCell = (TZVideoPreviewCell *)cell;
+//        videoPreviewCell.iCloudSyncFailedBlock = ^(BOOL hidden) {
+//            weakSelf.iCloudErrorView.hidden = hidden;
+//            self->_doneButton.enabled = hidden;
+//        };
     } else if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypePhotoGif && _tzImagePickerVc.allowPickingGif) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZGifPreviewCell" forIndexPath:indexPath];
+//        TZGifPreviewCell *gifPreviewCell = (TZGifPreviewCell *)cell;
+//        gifPreviewCell.previewView.iCloudSyncFailedBlock = ^(BOOL hidden) {
+//            weakSelf.iCloudErrorView.hidden = hidden;
+//            self->_doneButton.enabled = hidden;
+//        };
+
     } else {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZPhotoPreviewCell" forIndexPath:indexPath];
         TZPhotoPreviewCell *photoPreviewCell = (TZPhotoPreviewCell *)cell;
@@ -485,6 +497,10 @@
                 }
             }
         }];
+//        photoPreviewCell.previewView.iCloudSyncFailedBlock = ^(BOOL hidden) {
+//            weakSelf.iCloudErrorView.hidden = hidden;
+//            self->_doneButton.enabled = hidden;
+//        };
     }
     
     cell.model = model;
@@ -492,6 +508,7 @@
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf didTapPreviewCell];
     }];
+
     return cell;
 }
 
@@ -587,5 +604,25 @@
 - (NSInteger)currentIndex {
     return [TZCommonTools tz_isRightToLeftLayout] ? self.models.count - _currentIndex - 1 : _currentIndex;
 }
+
+//#pragma mark - lazy
+//- (UIView *)iCloudErrorView{
+//    if (!_iCloudErrorView) {
+//        _iCloudErrorView = [[UIView alloc] initWithFrame:CGRectMake(0, [TZCommonTools tz_isIPhoneX] ? 88 + 10 : 64 + 10, self.view.tz_width, 28)];
+//        UIImageView *icloud = [[UIImageView alloc] init];
+//        icloud.image = [UIImage tz_imageNamedFromMyBundle:@"iCloudError"];
+//        icloud.frame = CGRectMake(20, 0, 28, 28);
+//        [_iCloudErrorView addSubview:icloud];
+//        UILabel *label = [[UILabel alloc] init];
+//        label.frame = CGRectMake(53, 0, self.view.tz_width - 63, 28);
+//        label.font = [UIFont systemFontOfSize:10];
+//        label.textColor = [UIColor whiteColor];
+//        label.text = [NSBundle tz_localizedStringForKey:@"iCloud sync failed"];
+//        [_iCloudErrorView addSubview:label];
+//        [self.view addSubview:_iCloudErrorView];
+//        _iCloudErrorView.hidden = YES;
+//    }
+//    return _iCloudErrorView;
+//}
 
 @end
