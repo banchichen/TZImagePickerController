@@ -442,7 +442,6 @@
         _currentIndex = currentIndex;
         [self refreshNaviBarAndBottomBarState];
     }
-    
     [[NSNotificationCenter defaultCenter] postNotificationName:@"photoPreviewCollectionViewDidScroll" object:nil];
 }
 
@@ -460,19 +459,8 @@
     __weak typeof(self) weakSelf = self;
     if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypeVideo) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZVideoPreviewCell" forIndexPath:indexPath];
-//        TZVideoPreviewCell *videoPreviewCell = (TZVideoPreviewCell *)cell;
-//        videoPreviewCell.iCloudSyncFailedBlock = ^(BOOL hidden) {
-//            weakSelf.iCloudErrorView.hidden = hidden;
-//            self->_doneButton.enabled = hidden;
-//        };
     } else if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypePhotoGif && _tzImagePickerVc.allowPickingGif) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZGifPreviewCell" forIndexPath:indexPath];
-//        TZGifPreviewCell *gifPreviewCell = (TZGifPreviewCell *)cell;
-//        gifPreviewCell.previewView.iCloudSyncFailedBlock = ^(BOOL hidden) {
-//            weakSelf.iCloudErrorView.hidden = hidden;
-//            self->_doneButton.enabled = hidden;
-//        };
-
     } else {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZPhotoPreviewCell" forIndexPath:indexPath];
         TZPhotoPreviewCell *photoPreviewCell = (TZPhotoPreviewCell *)cell;
@@ -497,10 +485,6 @@
                 }
             }
         }];
-//        photoPreviewCell.previewView.iCloudSyncFailedBlock = ^(BOOL hidden) {
-//            weakSelf.iCloudErrorView.hidden = hidden;
-//            self->_doneButton.enabled = hidden;
-//        };
     }
     
     cell.model = model;
@@ -579,6 +563,37 @@
         _originalPhotoLabel.hidden = YES;
         _doneButton.hidden = YES;
     }
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.currentIndex inSection:0];
+       UICollectionViewCell *cell = [_collectionView cellForItemAtIndexPath:indexPath];
+       if ([cell isKindOfClass:[TZPhotoPreviewCell class]]) {
+           TZPhotoPreviewCell *currentCell = (TZPhotoPreviewCell *)cell;
+           if (_tzImagePickerVc.selectedModels.count <= 0) {
+               _doneButton.enabled = currentCell.previewView.icloudErrorLB.hidden;
+           } else {
+               _doneButton.enabled = YES;
+           }
+           _selectButton.hidden = !currentCell.previewView.icloudErrorLB.hidden;
+       } else if([cell isKindOfClass:[TZVideoPreviewCell class]]){
+           TZVideoPreviewCell *currentCell = (TZVideoPreviewCell *)cell;
+           if (_tzImagePickerVc.selectedModels.count <= 0) {
+               _doneButton.enabled = currentCell.icloudErrorLB.hidden;
+           } else {
+               _doneButton.enabled = YES;
+           }
+           _selectButton.hidden = !currentCell.icloudErrorLB.hidden;
+       } else if ([cell isKindOfClass:[TZGifPreviewCell class]]){
+           TZGifPreviewCell *currentCell = (TZGifPreviewCell *)cell;
+           if (_tzImagePickerVc.selectedModels.count <= 0) {
+               _doneButton.enabled = currentCell.previewView.icloudErrorLB.hidden;
+           } else {
+               _doneButton.enabled = YES;
+           }
+           _selectButton.hidden = !currentCell.previewView.icloudErrorLB.hidden;
+       }
+    if (model.iCloudFaile) {
+        _selectButton.hidden = YES;
+        _doneButton.enabled = NO;
+    }
     
     if (_tzImagePickerVc.photoPreviewPageDidRefreshStateBlock) {
         _tzImagePickerVc.photoPreviewPageDidRefreshStateBlock(_collectionView, _naviBar, _backButton, _selectButton, _indexLabel, _toolBar, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel);
@@ -604,25 +619,5 @@
 - (NSInteger)currentIndex {
     return [TZCommonTools tz_isRightToLeftLayout] ? self.models.count - _currentIndex - 1 : _currentIndex;
 }
-
-//#pragma mark - lazy
-//- (UIView *)iCloudErrorView{
-//    if (!_iCloudErrorView) {
-//        _iCloudErrorView = [[UIView alloc] initWithFrame:CGRectMake(0, [TZCommonTools tz_isIPhoneX] ? 88 + 10 : 64 + 10, self.view.tz_width, 28)];
-//        UIImageView *icloud = [[UIImageView alloc] init];
-//        icloud.image = [UIImage tz_imageNamedFromMyBundle:@"iCloudError"];
-//        icloud.frame = CGRectMake(20, 0, 28, 28);
-//        [_iCloudErrorView addSubview:icloud];
-//        UILabel *label = [[UILabel alloc] init];
-//        label.frame = CGRectMake(53, 0, self.view.tz_width - 63, 28);
-//        label.font = [UIFont systemFontOfSize:10];
-//        label.textColor = [UIColor whiteColor];
-//        label.text = [NSBundle tz_localizedStringForKey:@"iCloud sync failed"];
-//        [_iCloudErrorView addSubview:label];
-//        [self.view addSubview:_iCloudErrorView];
-//        _iCloudErrorView.hidden = YES;
-//    }
-//    return _iCloudErrorView;
-//}
 
 @end

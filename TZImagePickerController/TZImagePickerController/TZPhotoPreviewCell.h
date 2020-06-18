@@ -12,7 +12,6 @@
 @interface TZAssetPreviewCell : UICollectionViewCell
 @property (nonatomic, strong) TZAssetModel *model;
 @property (nonatomic, copy) void (^singleTapGestureBlock)(void);
-
 - (void)configSubviews;
 - (void)photoPreviewCollectionViewDidScroll;
 @end
@@ -39,6 +38,9 @@
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *imageContainerView;
 @property (nonatomic, strong) TZProgressView *progressView;
+@property (nonatomic, strong) UIImageView *icloudErrorIcon;
+@property (nonatomic, strong) UILabel *icloudErrorLB;
+
 
 @property (nonatomic, assign) BOOL allowCrop;
 @property (nonatomic, assign) CGRect cropRect;
@@ -47,9 +49,6 @@
 @property (nonatomic, strong) id asset;
 @property (nonatomic, copy) void (^singleTapGestureBlock)(void);
 @property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
-@property (nonatomic, copy) void (^iCloudSyncFailedBlock)(BOOL hidden); // iCloud同步失败回调
-@property (nonatomic, strong) UIImageView *icloudErrorIcon;
-@property (nonatomic, strong) UILabel *icloudErrorLB;
 
 @property (nonatomic, assign) int32_t imageRequestID;
 
@@ -64,8 +63,9 @@
 @property (strong, nonatomic) UIButton *playButton;
 @property (strong, nonatomic) UIImage *cover;
 @property (nonatomic, strong) NSURL *videoURL;
+@property (nonatomic, strong) UIImageView *icloudErrorIcon;
+@property (nonatomic, strong) UILabel *icloudErrorLB;
 - (void)pausePlayerAndShowNaviBar;
-@property (nonatomic, copy) void (^iCloudSyncFailedBlock)(BOOL hidden); // iCloud同步失败回调
 @end
 
 
