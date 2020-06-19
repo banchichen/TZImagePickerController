@@ -488,7 +488,7 @@
 					900E657B1C2BB8D5003D9A9E = {
 						CreatedOnToolsVersion = 7.2;
                         DevelopmentTeam = LTFQDC2QVX;
-                        ProvisioningStyle = Automatic;
+						ProvisioningStyle = Automatic;
 					};
 					900E65941C2BB8D5003D9A9E = {
 						CreatedOnToolsVersion = 7.2;
@@ -823,7 +823,7 @@
 				CODE_SIGN_IDENTITY = "";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = LTFQDC2QVX;
+				DEVELOPMENT_TEAM = "";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/TZImagePickerController",

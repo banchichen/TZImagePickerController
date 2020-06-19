@@ -169,10 +169,14 @@
     
     _bigImageRequestID = [[TZImageManager manager] requestImageDataForAsset:_model.asset completion:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
         if (!imageData && [info[PHImageResultIsInCloudKey] boolValue]) {
-            self.model.iCloudFaile = YES;
-            if (self.didSelectPhotoBlock) {
-                self.didSelectPhotoBlock(YES);
-                self.selectImageView.image = self.photoDefImage;
+            if (self.model.type == TZAssetModelMediaTypeVideo ||
+                self.model.type == TZAssetCellTypePhotoGif ||
+                self.model.type == TZAssetModelMediaTypeLivePhoto) {
+                self.model.iCloudFailed = YES;
+                if (self.didSelectPhotoBlock) {
+                    self.didSelectPhotoBlock(YES);
+                    self.selectImageView.image = self.photoDefImage;
+                }
             }
         }
         [self hideProgressView];

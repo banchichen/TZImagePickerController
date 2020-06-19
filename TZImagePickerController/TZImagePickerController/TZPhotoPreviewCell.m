@@ -67,6 +67,7 @@
 - (void)setModel:(TZAssetModel *)model {
     [super setModel:model];
     _previewView.asset = model.asset;
+    _previewView.model = model;
 }
 
 - (void)recoverSubviews {
@@ -177,7 +178,12 @@
                 self->_icloudErrorLB.hidden = YES;
                 self->_icloudErrorIcon.hidden = YES;
             }
-            self.imageView.image = photo;
+            if (self.iCloudSyncFailed) {
+                self.iCloudSyncFailed(model.asset, !self->_icloudErrorLB.hidden);
+            }
+            if (photo) {
+                self.imageView.image = photo;
+            }
             [self resizeSubviews];
             if (self.isRequestingGIF) {
                 return;
@@ -222,15 +228,24 @@
     
     _asset = asset;
     self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        if (!photo && [info[PHImageResultIsInCloudKey] boolValue]) {
-            self->_icloudErrorLB.hidden = NO;
-            self->_icloudErrorIcon.hidden = NO;
-        } else {
-            self->_icloudErrorLB.hidden = YES;
-            self->_icloudErrorIcon.hidden = YES;
+        if (self.model.type == TZAssetModelMediaTypeVideo   ||
+            self.model.type ==TZAssetModelMediaTypePhotoGif ||
+            self.model.type == TZAssetModelMediaTypeLivePhoto) {
+            if (!photo && [info[PHImageResultIsInCloudKey] boolValue]) {
+                self->_icloudErrorLB.hidden = NO;
+                self->_icloudErrorIcon.hidden = NO;
+            } else {
+                self->_icloudErrorLB.hidden = YES;
+                self->_icloudErrorIcon.hidden = YES;
+            }
+            if (self.iCloudSyncFailed) {
+                self.iCloudSyncFailed(asset, !self->_icloudErrorLB.hidden);
+            }
         }
         if (![asset isEqual:self->_asset]) return;
-        self.imageView.image = photo;
+        if (photo) {
+            self.imageView.image = photo;
+        }
         [self resizeSubviews];
         if (self.imageView.tz_height && self.allowCrop) {
             CGFloat scale = MAX(self.cropRect.size.width / self.imageView.tz_width, self.cropRect.size.height / self.imageView.tz_height);
@@ -447,7 +462,12 @@
                 self->_icloudErrorLB.hidden = YES;
                 self->_icloudErrorIcon.hidden = YES;
             }
-            self.cover = photo;
+            if (self.iCloudSyncFailed) {
+                self.iCloudSyncFailed(self.model.asset, !self->_icloudErrorLB.hidden);
+            }
+            if (photo) {
+                self.cover = photo;
+            }
         }];
         [[TZImageManager manager] getVideoWithAsset:self.model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
             dispatch_async(dispatch_get_main_queue(), ^{
