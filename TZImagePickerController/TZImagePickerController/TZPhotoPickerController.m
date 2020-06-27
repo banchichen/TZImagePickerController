@@ -779,9 +779,12 @@ static CGFloat itemMargin = 5;
             }
         }
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self->_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
-            self->_shouldScrollToBottom = NO;
-            self->_collectionView.hidden = NO;
+            [self->_collectionView reloadData];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self->_collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:item inSection:0] atScrollPosition:UICollectionViewScrollPositionBottom animated:NO];
+                self->_shouldScrollToBottom = NO;
+                self->_collectionView.hidden = NO;
+            });
         });
     } else {
         _collectionView.hidden = NO;
