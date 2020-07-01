@@ -341,7 +341,7 @@
         _selectImageView.contentMode = UIViewContentModeScaleAspectFit;
     }
     _indexLabel.frame = _selectImageView.frame;
-    _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
+    self.imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
     
     static CGFloat progressWH = 20;
     CGFloat progressXY = (self.tz_width - progressWH) / 2;
