@@ -169,14 +169,10 @@
     
     _bigImageRequestID = [[TZImageManager manager] requestImageDataForAsset:_model.asset completion:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
         if (!imageData && [info[PHImageResultIsInCloudKey] boolValue]) {
-            if (self.model.type == TZAssetModelMediaTypeVideo ||
-                self.model.type == TZAssetCellTypePhotoGif ||
-                self.model.type == TZAssetModelMediaTypeLivePhoto) {
-                self.model.iCloudFailed = YES;
-                if (self.didSelectPhotoBlock) {
-                    self.didSelectPhotoBlock(YES);
-                    self.selectImageView.image = self.photoDefImage;
-                }
+            self.model.iCloudFailed = YES;
+            if (self.didSelectPhotoBlock) {
+                self.didSelectPhotoBlock(YES);
+                self.selectImageView.image = self.photoDefImage;
             }
         }
         [self hideProgressView];
@@ -196,6 +192,17 @@
             [self cancelBigImageRequest];
         }
     }];
+    if (_model.type == TZAssetCellTypeVideo) {
+        [[TZImageManager manager] getVideoWithAsset:_model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                self->_model.iCloudFailed = YES;
+                if (self->_didSelectPhotoBlock) {
+                    self->_didSelectPhotoBlock(YES);
+                    self->_selectImageView.image = self.photoDefImage;
+                }
+            });
+        }];
+    }
 }
 
 - (void)cancelBigImageRequest {

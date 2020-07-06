@@ -228,19 +228,15 @@
     
     _asset = asset;
     self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        if (self.model.type == TZAssetModelMediaTypeVideo   ||
-            self.model.type ==TZAssetModelMediaTypePhotoGif ||
-            self.model.type == TZAssetModelMediaTypeLivePhoto) {
-            if (!photo && [info[PHImageResultIsInCloudKey] boolValue]) {
-                self->_icloudErrorLB.hidden = NO;
-                self->_icloudErrorIcon.hidden = NO;
-            } else {
-                self->_icloudErrorLB.hidden = YES;
-                self->_icloudErrorIcon.hidden = YES;
-            }
-            if (self.iCloudSyncFailed) {
-                self.iCloudSyncFailed(asset, !self->_icloudErrorLB.hidden);
-            }
+        if (!photo && [info[PHImageResultIsInCloudKey] boolValue]) {
+            self->_icloudErrorLB.hidden = NO;
+            self->_icloudErrorIcon.hidden = NO;
+        } else {
+            self->_icloudErrorLB.hidden = YES;
+            self->_icloudErrorIcon.hidden = YES;
+        }
+        if (self.iCloudSyncFailed) {
+            self.iCloudSyncFailed(asset, !self->_icloudErrorLB.hidden);
         }
         if (![asset isEqual:self->_asset]) return;
         if (photo) {
@@ -471,6 +467,16 @@
         }];
         [[TZImageManager manager] getVideoWithAsset:self.model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
             dispatch_async(dispatch_get_main_queue(), ^{
+                if (!playerItem && [info[PHImageResultIsInCloudKey] boolValue]) {
+                    self->_icloudErrorLB.hidden = NO;
+                    self->_icloudErrorIcon.hidden = NO;
+                } else {
+                    self->_icloudErrorLB.hidden = YES;
+                    self->_icloudErrorIcon.hidden = YES;
+                }
+                if (self.iCloudSyncFailed) {
+                    self.iCloudSyncFailed(self.model.asset, !self->_icloudErrorLB.hidden);
+                }
                 [self configPlayerWithItem:playerItem];
             });
         }];

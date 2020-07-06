@@ -462,6 +462,7 @@
         TZVideoPreviewCell *currentCell = (TZVideoPreviewCell *)cell;
         currentCell.iCloudSyncFailed = ^(id asset, BOOL isSyncFailed) {
             model.iCloudFailed = isSyncFailed;
+            [weakSelf refreshiCloudFailed:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
         };
     } else if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypePhotoGif && _tzImagePickerVc.allowPickingGif) {
@@ -469,6 +470,7 @@
         TZGifPreviewCell *currentCell = (TZGifPreviewCell *)cell;
         currentCell.previewView.iCloudSyncFailed = ^(id asset, BOOL isSyncFailed) {
             model.iCloudFailed = isSyncFailed;
+            [weakSelf refreshiCloudFailed:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
         };
     } else {
@@ -497,6 +499,7 @@
         }];
         photoPreviewCell.previewView.iCloudSyncFailed = ^(id asset, BOOL isSyncFailed) {
             model.iCloudFailed = isSyncFailed;
+            [weakSelf refreshiCloudFailed:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
         };
     }
@@ -578,11 +581,7 @@
         _doneButton.hidden = YES;
     }
    // iCLoud同步失败的UI刷新
-    if (model.type ==  TZAssetModelMediaTypePhotoGif ||
-        model.type == TZAssetModelMediaTypeLivePhoto ||
-        model.type == TZAssetModelMediaTypeVideo) {
-        [self refreshiCloudFailed:model];
-    }
+    [self refreshiCloudFailed:model];
     if (_tzImagePickerVc.photoPreviewPageDidRefreshStateBlock) {
         _tzImagePickerVc.photoPreviewPageDidRefreshStateBlock(_collectionView, _naviBar, _backButton, _selectButton, _indexLabel, _toolBar, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel);
     }
@@ -599,57 +598,22 @@
 }
 
 - (void)refreshiCloudFailed:(TZAssetModel *)model{
-    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (model.iCloudFailed) {
-        _selectButton.hidden = YES;
-        _originalPhotoButton.hidden = YES;
-        _originalPhotoLabel.hidden = YES;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+        // onlyReturnAsset为NO时,依赖TZ返回大图,所以需要有iCloud同步失败的提示,并且不能选择,
+        if (_tzImagePickerVc.onlyReturnAsset) {
+            return;
+        }
+        TZAssetModel *currentModel = self.models[self.currentIndex];
         if (_tzImagePickerVc.selectedModels.count <= 0) {
-            _doneButton.enabled = !model.iCloudFailed;
-        }else{
-            _doneButton.enabled = YES;
+            self->_doneButton.enabled = !currentModel.iCloudFailed;
+        } else {
+            self->_doneButton.enabled = YES;
         }
-    }else{
-        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.currentIndex inSection:0];
-        UICollectionViewCell *cell = [_collectionView cellForItemAtIndexPath:indexPath];
-        if ([cell isKindOfClass:[TZPhotoPreviewCell class]]) {
-            TZPhotoPreviewCell *currentCell = (TZPhotoPreviewCell *)cell;
-            currentCell.previewView.iCloudSyncFailed = ^(id asset, BOOL isSyncFailed) {
-                if ([asset isEqual:model.asset]) {
-                    if (_tzImagePickerVc.selectedModels.count <= 0) {
-                        self->_doneButton.enabled = !isSyncFailed;
-                    } else {
-                        self->_doneButton.enabled = YES;
-                    }
-                    self->_selectButton.hidden = isSyncFailed;
-                }
-            };
-        } else if([cell isKindOfClass:[TZVideoPreviewCell class]]){
-            TZVideoPreviewCell *currentCell = (TZVideoPreviewCell *)cell;
-            currentCell.iCloudSyncFailed = ^(id asset, BOOL isSyncFailed) {
-                if ([asset isEqual:model.asset]) {
-                    if (_tzImagePickerVc.selectedModels.count <= 0) {
-                        self->_doneButton.enabled = !isSyncFailed;
-                    } else {
-                        self->_doneButton.enabled = YES;
-                    }
-                    self->_selectButton.hidden = isSyncFailed;
-                }
-            };
-        } else if ([cell isKindOfClass:[TZGifPreviewCell class]]){
-            TZGifPreviewCell *currentCell = (TZGifPreviewCell *)cell;
-            currentCell.previewView.iCloudSyncFailed = ^(id asset, BOOL isSyncFailed) {
-                if ([asset isEqual:model.asset]) {
-                    if (_tzImagePickerVc.selectedModels.count <= 0) {
-                        self->_doneButton.enabled = !isSyncFailed;
-                    } else {
-                        self->_doneButton.enabled = YES;
-                    }
-                    self->_selectButton.hidden = isSyncFailed;
-                }
-            };
-        }
-    }
+        self->_selectButton.hidden = currentModel.iCloudFailed;
+        self->_originalPhotoButton.hidden = currentModel.iCloudFailed;
+        self->_originalPhotoLabel.hidden = currentModel.iCloudFailed;
+    });
 }
 
 - (void)showPhotoBytes {
