@@ -462,7 +462,7 @@
         TZVideoPreviewCell *currentCell = (TZVideoPreviewCell *)cell;
         currentCell.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
             model.iCloudFailed = isSyncFailed;
-            [weakSelf refreshiCloudFailed:model];
+            [weakSelf didICloudSyncStatusChanged:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
         };
     } else if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypePhotoGif && _tzImagePickerVc.allowPickingGif) {
@@ -470,7 +470,7 @@
         TZGifPreviewCell *currentCell = (TZGifPreviewCell *)cell;
         currentCell.previewView.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
             model.iCloudFailed = isSyncFailed;
-            [weakSelf refreshiCloudFailed:model];
+            [weakSelf didICloudSyncStatusChanged:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
         };
     } else {
@@ -499,7 +499,7 @@
         }];
         photoPreviewCell.previewView.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
             model.iCloudFailed = isSyncFailed;
-            [weakSelf refreshiCloudFailed:model];
+            [weakSelf didICloudSyncStatusChanged:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
         };
     }
@@ -580,8 +580,8 @@
         _originalPhotoLabel.hidden = YES;
         _doneButton.hidden = YES;
     }
-   // iCLoud同步失败的UI刷新
-    [self refreshiCloudFailed:model];
+    // iCloud同步失败的UI刷新
+    [self didICloudSyncStatusChanged:model];
     if (_tzImagePickerVc.photoPreviewPageDidRefreshStateBlock) {
         _tzImagePickerVc.photoPreviewPageDidRefreshStateBlock(_collectionView, _naviBar, _backButton, _selectButton, _indexLabel, _toolBar, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel);
     }
@@ -597,7 +597,7 @@
     });
 }
 
-- (void)refreshiCloudFailed:(TZAssetModel *)model{
+- (void)didICloudSyncStatusChanged:(TZAssetModel *)model{
     dispatch_async(dispatch_get_main_queue(), ^{
         TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
         // onlyReturnAsset为NO时,依赖TZ返回大图,所以需要有iCloud同步失败的提示,并且不能选择,

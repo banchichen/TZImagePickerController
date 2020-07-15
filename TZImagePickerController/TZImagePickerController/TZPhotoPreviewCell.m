@@ -66,7 +66,6 @@
 
 - (void)setModel:(TZAssetModel *)model {
     [super setModel:model];
-    _previewView.asset = model.asset;
     _previewView.model = model;
 }
 
@@ -455,7 +454,7 @@
         }];
         [[TZImageManager manager] getVideoWithAsset:self.model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                BOOL iCloudSyncFailed = !photo && [info[PHImageResultIsInCloudKey] boolValue];
+                BOOL iCloudSyncFailed = !playerItem && [info[PHImageResultIsInCloudKey] boolValue];
                 self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
                 self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
                 if (self.iCloudSyncFailedHandle) {
