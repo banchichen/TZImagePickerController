@@ -305,6 +305,7 @@
 + (NSDictionary *)tz_getInfoDictionary;
 + (BOOL)tz_isRightToLeftLayout;
 + (void)configBarButtonItem:(UIBarButtonItem *)item tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc;
++ (BOOL)isICloudSyncError:(NSError *)error;
 @end
 
 

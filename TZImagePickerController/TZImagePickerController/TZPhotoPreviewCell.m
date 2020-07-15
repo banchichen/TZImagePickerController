@@ -170,12 +170,6 @@
     if (model.type == TZAssetModelMediaTypePhotoGif) {
         // 先显示缩略图
         [[TZImageManager manager] getPhotoWithAsset:model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-            BOOL iCloudSyncFailed = !photo && [info[PHImageResultIsInCloudKey] boolValue];
-            self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
-            self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
-            if (self.iCloudSyncFailedHandle) {
-                self.iCloudSyncFailedHandle(model.asset, iCloudSyncFailed);
-            }
             if (photo) {
                 self.imageView.image = photo;
             }
@@ -188,6 +182,13 @@
             [[TZImageManager manager] getOriginalPhotoDataWithAsset:model.asset progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
                 progress = progress > 0.02 ? progress : 0.02;
                 dispatch_async(dispatch_get_main_queue(), ^{
+                    BOOL iCloudSyncFailed = [TZCommonTools isICloudSyncError:error];
+                    self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
+                    self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
+                    if (self.iCloudSyncFailedHandle) {
+                        self.iCloudSyncFailedHandle(model.asset, iCloudSyncFailed);
+                    }
+                    
                     self.progressView.progress = progress;
                     if (progress >= 1) {
                         self.progressView.hidden = YES;
@@ -223,7 +224,7 @@
     
     _asset = asset;
     self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        BOOL iCloudSyncFailed = !photo && [info[PHImageResultIsInCloudKey] boolValue];
+        BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
         self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
         self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
         if (self.iCloudSyncFailedHandle) {
@@ -442,7 +443,7 @@
     
     if (self.model && self.model.asset) {
         [[TZImageManager manager] getPhotoWithAsset:self.model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-            BOOL iCloudSyncFailed = !photo && [info[PHImageResultIsInCloudKey] boolValue];
+            BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
             self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
             self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
             if (self.iCloudSyncFailedHandle) {
@@ -454,7 +455,7 @@
         }];
         [[TZImageManager manager] getVideoWithAsset:self.model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                BOOL iCloudSyncFailed = !playerItem && [info[PHImageResultIsInCloudKey] boolValue];
+                BOOL iCloudSyncFailed = !playerItem && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
                 self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
                 self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
                 if (self.iCloudSyncFailedHandle) {

@@ -913,6 +913,14 @@
     [item setTitleTextAttributes:textAttrs forState:UIControlStateNormal];
 }
 
++ (BOOL)isICloudSyncError:(NSError *)error {
+    if (!error) return NO;
+    if ([error.domain isEqualToString:@"CKErrorDomain"] || [error.domain isEqualToString:@"CloudPhotoLibraryErrorDomain"]) {
+        return YES;
+    }
+    return NO;
+}
+
 @end
 
 

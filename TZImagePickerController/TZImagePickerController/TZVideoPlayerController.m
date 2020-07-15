@@ -64,13 +64,11 @@
 
 - (void)configMoviePlayer {
     [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        if (!photo && [info[PHImageResultIsInCloudKey] boolValue]) {
-            self.iCloudErrorView.hidden = NO;
-        }
+        BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
+        self.iCloudErrorView.hidden = !iCloudSyncFailed;
         if (!isDegraded && photo) {
             self->_cover = photo;
             self->_doneButton.enabled = YES;
-            self.iCloudErrorView.hidden = YES;
         }
     }];
     [[TZImageManager manager] getVideoWithAsset:_model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
