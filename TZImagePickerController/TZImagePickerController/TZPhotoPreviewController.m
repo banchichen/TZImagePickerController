@@ -460,7 +460,7 @@
     if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypeVideo) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZVideoPreviewCell" forIndexPath:indexPath];
         TZVideoPreviewCell *currentCell = (TZVideoPreviewCell *)cell;
-        currentCell.iCloudSyncFailed = ^(id asset, BOOL isSyncFailed) {
+        currentCell.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
             model.iCloudFailed = isSyncFailed;
             [weakSelf refreshiCloudFailed:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
@@ -468,7 +468,7 @@
     } else if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypePhotoGif && _tzImagePickerVc.allowPickingGif) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZGifPreviewCell" forIndexPath:indexPath];
         TZGifPreviewCell *currentCell = (TZGifPreviewCell *)cell;
-        currentCell.previewView.iCloudSyncFailed = ^(id asset, BOOL isSyncFailed) {
+        currentCell.previewView.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
             model.iCloudFailed = isSyncFailed;
             [weakSelf refreshiCloudFailed:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
@@ -497,7 +497,7 @@
                 }
             }
         }];
-        photoPreviewCell.previewView.iCloudSyncFailed = ^(id asset, BOOL isSyncFailed) {
+        photoPreviewCell.previewView.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
             model.iCloudFailed = isSyncFailed;
             [weakSelf refreshiCloudFailed:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];

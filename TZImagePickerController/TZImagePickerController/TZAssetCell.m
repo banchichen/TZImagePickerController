@@ -194,13 +194,15 @@
     }];
     if (_model.type == TZAssetCellTypeVideo) {
         [[TZImageManager manager] getVideoWithAsset:_model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                self->_model.iCloudFailed = YES;
-                if (self->_didSelectPhotoBlock) {
-                    self->_didSelectPhotoBlock(YES);
-                    self->_selectImageView.image = self.photoDefImage;
-                }
-            });
+            if (!playerItem && [info[PHImageResultIsInCloudKey] boolValue]) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self->_model.iCloudFailed = YES;
+                    if (self->_didSelectPhotoBlock) {
+                        self->_didSelectPhotoBlock(YES);
+                        self->_selectImageView.image = self.photoDefImage;
+                    }
+                });
+            }
         }];
     }
 }

@@ -38,9 +38,9 @@
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *imageContainerView;
 @property (nonatomic, strong) TZProgressView *progressView;
-@property (nonatomic, strong) UIImageView *icloudErrorIcon;
-@property (nonatomic, strong) UILabel *icloudErrorLB;
-@property (nonatomic, copy) void (^iCloudSyncFailed)(id asset, BOOL isSyncFailed);
+@property (nonatomic, strong) UIImageView *iCloudErrorIcon;
+@property (nonatomic, strong) UILabel *iCloudErrorLabel;
+@property (nonatomic, copy) void (^iCloudSyncFailedHandle)(id asset, BOOL isSyncFailed);
 
 
 @property (nonatomic, assign) BOOL allowCrop;
@@ -64,9 +64,9 @@
 @property (strong, nonatomic) UIButton *playButton;
 @property (strong, nonatomic) UIImage *cover;
 @property (nonatomic, strong) NSURL *videoURL;
-@property (nonatomic, strong) UIImageView *icloudErrorIcon;
-@property (nonatomic, strong) UILabel *icloudErrorLB;
-@property (nonatomic, copy) void (^iCloudSyncFailed)(id asset, BOOL isSyncFailed);
+@property (nonatomic, strong) UIImageView *iCloudErrorIcon;
+@property (nonatomic, strong) UILabel *iCloudErrorLabel;
+@property (nonatomic, copy) void (^iCloudSyncFailedHandle)(id asset, BOOL isSyncFailed);
 - (void)pausePlayerAndShowNaviBar;
 @end
 
