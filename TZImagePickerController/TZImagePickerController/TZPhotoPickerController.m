@@ -566,6 +566,11 @@ static CGFloat itemMargin = 5;
                 [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_PHOTO_PICKER_RELOAD_NOTIFICATION" object:strongSelf.navigationController];
             }
             [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
+            if (strongCell.model.iCloudFailed) {
+                [strongSelf->_models replaceObjectAtIndex:indexPath.item withObject:strongCell.model];
+                NSString *title = [NSBundle tz_localizedStringForKey:@"iCloud sync failed"];
+                [tzImagePickerVc showAlertWithTitle:title];
+            }
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
