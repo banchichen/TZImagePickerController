@@ -284,6 +284,7 @@
     if (_bottomView == nil) {
         UIView *bottomView = [[UIView alloc] init];
         static NSInteger rgb = 0;
+        bottomView.userInteractionEnabled = NO;
         bottomView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.8];
         [self.contentView addSubview:bottomView];
         _bottomView = bottomView;
