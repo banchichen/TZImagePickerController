@@ -342,7 +342,7 @@
      cropView.layer.borderWidth = 2.0;
      }];*/
     
-    //imagePickerVc.allowPreview = NO;
+    // imagePickerVc.allowPreview = NO;
     // 自定义导航栏上的返回按钮
     /*
     [imagePickerVc setNavLeftBarButtonSettingBlock:^(UIButton *leftButton){
