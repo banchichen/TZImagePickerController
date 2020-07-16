@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.3.2 - 2020.05.25
+//  version 3.4.0 - 2020.07.16
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -47,6 +47,10 @@
 /// The minimum count photos user must pick, Default is 0
 /// 最小照片必选张数,默认是0
 @property (nonatomic, assign) NSInteger minImagesCount;
+
+/// If the user does not select any pictures, the current picture is automatically selected when the Finish button is clicked,  Default is YES
+/// 如果用户未选择任何图片，在点击完成按钮时自动选中当前图片，默认YES
+@property (nonatomic, assign) BOOL autoSelectCurrentWhenDone;
 
 /// Always enale the done button, not require minimum 1 photo be picked
 /// 让完成按钮一直可以点击，无须最少选择一张图片
@@ -305,6 +309,7 @@
 + (NSDictionary *)tz_getInfoDictionary;
 + (BOOL)tz_isRightToLeftLayout;
 + (void)configBarButtonItem:(UIBarButtonItem *)item tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc;
++ (BOOL)isICloudSyncError:(NSError *)error;
 @end
 
 

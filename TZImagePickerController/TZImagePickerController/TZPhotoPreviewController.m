@@ -42,6 +42,7 @@
 
 @property (nonatomic, assign) double progress;
 @property (strong, nonatomic) UIAlertController *alertView;
+@property (nonatomic, strong) UIView *iCloudErrorView;
 @end
 
 @implementation TZPhotoPreviewController
@@ -435,7 +436,7 @@
     }
     
     // 如果没有选中过照片 点击确定时选中当前预览的照片
-    if (_tzImagePickerVc.selectedModels.count == 0 && _tzImagePickerVc.minImagesCount <= 0) {
+    if (_tzImagePickerVc.selectedModels.count == 0 && _tzImagePickerVc.minImagesCount <= 0 && _tzImagePickerVc.autoSelectCurrentWhenDone) {
         [self select:_selectButton];
     }
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.currentIndex inSection:0];
@@ -494,7 +495,6 @@
         _currentIndex = currentIndex;
         [self refreshNaviBarAndBottomBarState];
     }
-    
     [[NSNotificationCenter defaultCenter] postNotificationName:@"photoPreviewCollectionViewDidScroll" object:nil];
 }
 
@@ -512,8 +512,20 @@
     __weak typeof(self) weakSelf = self;
     if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypeVideo) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZVideoPreviewCell" forIndexPath:indexPath];
+        TZVideoPreviewCell *currentCell = (TZVideoPreviewCell *)cell;
+        currentCell.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
+            model.iCloudFailed = isSyncFailed;
+            [weakSelf didICloudSyncStatusChanged:model];
+            [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
+        };
     } else if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypePhotoGif && _tzImagePickerVc.allowPickingGif) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZGifPreviewCell" forIndexPath:indexPath];
+        TZGifPreviewCell *currentCell = (TZGifPreviewCell *)cell;
+        currentCell.previewView.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
+            model.iCloudFailed = isSyncFailed;
+            [weakSelf didICloudSyncStatusChanged:model];
+            [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
+        };
     } else {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZPhotoPreviewCell" forIndexPath:indexPath];
         TZPhotoPreviewCell *photoPreviewCell = (TZPhotoPreviewCell *)cell;
@@ -538,6 +550,11 @@
                 }
             }
         }];
+        photoPreviewCell.previewView.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
+            model.iCloudFailed = isSyncFailed;
+            [weakSelf didICloudSyncStatusChanged:model];
+            [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
+        };
     }
     
     cell.model = model;
@@ -545,6 +562,7 @@
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf didTapPreviewCell];
     }];
+
     return cell;
 }
 
@@ -615,7 +633,8 @@
         _originalPhotoLabel.hidden = YES;
         _doneButton.hidden = YES;
     }
-    
+    // iCloud同步失败的UI刷新
+    [self didICloudSyncStatusChanged:model];
     if (_tzImagePickerVc.photoPreviewPageDidRefreshStateBlock) {
         _tzImagePickerVc.photoPreviewPageDidRefreshStateBlock(_collectionView, _naviBar, _backButton, _selectButton, _indexLabel, _toolBar, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel);
     }
@@ -628,6 +647,25 @@
         } else {
             self->_selectButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
         }
+    });
+}
+
+- (void)didICloudSyncStatusChanged:(TZAssetModel *)model{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+        // onlyReturnAsset为NO时,依赖TZ返回大图,所以需要有iCloud同步失败的提示,并且不能选择,
+        if (_tzImagePickerVc.onlyReturnAsset) {
+            return;
+        }
+        TZAssetModel *currentModel = self.models[self.currentIndex];
+        if (_tzImagePickerVc.selectedModels.count <= 0) {
+            self->_doneButton.enabled = !currentModel.iCloudFailed;
+        } else {
+            self->_doneButton.enabled = YES;
+        }
+        self->_selectButton.hidden = currentModel.iCloudFailed;
+        self->_originalPhotoButton.hidden = currentModel.iCloudFailed;
+        self->_originalPhotoLabel.hidden = currentModel.iCloudFailed;
     });
 }
 
