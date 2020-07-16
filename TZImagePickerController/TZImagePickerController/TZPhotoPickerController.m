@@ -19,7 +19,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "TZImageRequestOperation.h"
 
-@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
+@interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate, PHPhotoLibraryChangeObserver> {
     NSMutableArray *_models;
     
     UIView *_bottomToolBar;
@@ -76,6 +76,7 @@ static CGFloat itemMargin = 5;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     self.isFirstAppear = YES;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
@@ -116,16 +117,14 @@ static CGFloat itemMargin = 5;
                 self->_models = [NSMutableArray arrayWithArray:self->_model.models];
                 [self initSubviews];
             }];
-        } else {
-            if (self->_showTakePhotoBtn || self->_isFirstAppear) {
-                [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
-                    self->_models = [NSMutableArray arrayWithArray:models];
-                    [self initSubviews];
-                }];
-            } else {
-                self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+        } else if (self->_showTakePhotoBtn || self->_isFirstAppear || !self.model.models) {
+            [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
+                self->_models = [NSMutableArray arrayWithArray:models];
                 [self initSubviews];
-            }
+            }];
+        } else {
+            self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+            [self initSubviews];
         }
     });
 }
@@ -163,13 +162,18 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)configCollectionView {
-    _layout = [[UICollectionViewFlowLayout alloc] init];
-    _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
-    _collectionView.backgroundColor = [UIColor whiteColor];
-    _collectionView.dataSource = self;
-    _collectionView.delegate = self;
-    _collectionView.alwaysBounceHorizontal = NO;
-    _collectionView.contentInset = UIEdgeInsetsMake(itemMargin, itemMargin, itemMargin, itemMargin);
+    if (!_collectionView) {
+        _layout = [[UICollectionViewFlowLayout alloc] init];
+        _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
+        _collectionView.backgroundColor = [UIColor whiteColor];
+        _collectionView.dataSource = self;
+        _collectionView.delegate = self;
+        _collectionView.alwaysBounceHorizontal = NO;
+        _collectionView.contentInset = UIEdgeInsetsMake(itemMargin, itemMargin, itemMargin, itemMargin);
+        [self.view addSubview:_collectionView];
+        [_collectionView registerClass:[TZAssetCell class] forCellWithReuseIdentifier:@"TZAssetCell"];
+        [_collectionView registerClass:[TZAssetCameraCell class] forCellWithReuseIdentifier:@"TZAssetCameraCell"];
+    }
     
     if (_showTakePhotoBtn) {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber) / self.columnNumber) * self.view.tz_width);
@@ -183,11 +187,11 @@ static CGFloat itemMargin = 5;
             _noDataLabel.textColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
             _noDataLabel.font = [UIFont boldSystemFontOfSize:20];
             [_collectionView addSubview:_noDataLabel];
+        } else if (_noDataLabel) {
+            [_noDataLabel removeFromSuperview];
+            _noDataLabel = nil;
         }
     }
-    [self.view addSubview:_collectionView];
-    [_collectionView registerClass:[TZAssetCell class] forCellWithReuseIdentifier:@"TZAssetCell"];
-    [_collectionView registerClass:[TZAssetCameraCell class] forCellWithReuseIdentifier:@"TZAssetCameraCell"];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -207,6 +211,7 @@ static CGFloat itemMargin = 5;
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    self.isFirstAppear = NO;
     // [self updateCachedAssets];
 }
 
@@ -898,8 +903,18 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)dealloc {
+    [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+}
+
+#pragma mark - PHPhotoLibraryChangeObserver
+
+- (void)photoLibraryDidChange:(PHChange *)changeInstance {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.model refreshFetchResult];        
+        [self fetchAssetModels];
+    });
 }
 
 #pragma mark - Asset Caching

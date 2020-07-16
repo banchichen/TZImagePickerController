@@ -707,7 +707,7 @@
 @end
 
 
-@interface TZAlbumPickerController ()<UITableViewDataSource,UITableViewDelegate> {
+@interface TZAlbumPickerController ()<UITableViewDataSource, UITableViewDelegate, PHPhotoLibraryChangeObserver> {
     UITableView *_tableView;
 }
 @property (nonatomic, strong) NSMutableArray *albumArr;
@@ -717,6 +717,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     self.isFirstAppear = YES;
     self.view.backgroundColor = [UIColor whiteColor];
     
@@ -786,6 +787,7 @@
 }
 
 - (void)dealloc {
+    [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
     // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
 }
 
@@ -795,6 +797,14 @@
         return tzImagePicker.statusBarStyle;
     }
     return [super preferredStatusBarStyle];
+}
+
+#pragma mark - PHPhotoLibraryChangeObserver
+
+- (void)photoLibraryDidChange:(PHChange *)changeInstance {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self configTableView];
+    });
 }
 
 #pragma mark - Layout

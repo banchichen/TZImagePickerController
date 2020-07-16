@@ -117,7 +117,7 @@ static dispatch_once_t onceToken;
         if (collection.estimatedAssetCount <= 0) continue;
         if ([self isCameraRollAlbum:collection]) {
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            model = [self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets];
+            model = [self modelWithResult:fetchResult collection:collection isCameraRoll:YES needFetchAssets:needFetchAssets options:option];
             if (completion) completion(model);
             break;
         }
@@ -159,9 +159,9 @@ static dispatch_once_t onceToken;
             if (collection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumAllHidden) continue;
             if (collection.assetCollectionSubtype == 1000000201) continue; //『最近删除』相册
             if ([self isCameraRollAlbum:collection]) {
-                [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets] atIndex:0];
+                [albumArr insertObject:[self modelWithResult:fetchResult collection:collection isCameraRoll:YES needFetchAssets:needFetchAssets options:option] atIndex:0];
             } else {
-                [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:NO needFetchAssets:needFetchAssets]];
+                [albumArr addObject:[self modelWithResult:fetchResult collection:collection isCameraRoll:NO needFetchAssets:needFetchAssets options:option]];
             }
         }
     }
@@ -727,10 +727,12 @@ static dispatch_once_t onceToken;
 
 #pragma mark - Private Method
 
-- (TZAlbumModel *)modelWithResult:(PHFetchResult *)result name:(NSString *)name isCameraRoll:(BOOL)isCameraRoll needFetchAssets:(BOOL)needFetchAssets {
+- (TZAlbumModel *)modelWithResult:(PHFetchResult *)result collection:(PHAssetCollection *)collection isCameraRoll:(BOOL)isCameraRoll needFetchAssets:(BOOL)needFetchAssets options:(PHFetchOptions *)options {
     TZAlbumModel *model = [[TZAlbumModel alloc] init];
     [model setResult:result needFetchAssets:needFetchAssets];
-    model.name = name;
+    model.name = collection.localizedTitle;
+    model.collection = collection;
+    model.options = options;
     model.isCameraRoll = isCameraRoll;
     model.count = result.count;
     return model;
