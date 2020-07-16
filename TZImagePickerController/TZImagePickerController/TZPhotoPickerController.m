@@ -214,11 +214,13 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (!tzImagePickerVc.showSelectBtn) return;
     
-    _bottomToolBar = [[UIView alloc] initWithFrame:CGRectZero];
+    _bottomToolBar = [[UIView alloc] init];
+    _bottomToolBar.translatesAutoresizingMaskIntoConstraints = NO;
     CGFloat rgb = 253 / 255.0;
     _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
     
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _previewButton.translatesAutoresizingMaskIntoConstraints = NO;
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];
     _previewButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_previewButton setTitle:tzImagePickerVc.previewBtnTitleStr forState:UIControlStateNormal];
@@ -229,6 +231,7 @@ static CGFloat itemMargin = 5;
     
     if (tzImagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        _originalPhotoButton.translatesAutoresizingMaskIntoConstraints = NO;
         _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, [TZCommonTools tz_isRightToLeftLayout] ? 10 : -10, 0, 0);
         [_originalPhotoButton addTarget:self action:@selector(originalPhotoButtonClick) forControlEvents:UIControlEventTouchUpInside];
         _originalPhotoButton.titleLabel.font = [UIFont systemFontOfSize:16];
@@ -244,13 +247,15 @@ static CGFloat itemMargin = 5;
         _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
         
         _originalPhotoLabel = [[UILabel alloc] init];
-        _originalPhotoLabel.textAlignment = NSTextAlignmentLeft;
+        _originalPhotoLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        _originalPhotoLabel.textAlignment = NSTextAlignmentNatural;
         _originalPhotoLabel.font = [UIFont systemFontOfSize:16];
         _originalPhotoLabel.textColor = [UIColor blackColor];
         if (_isSelectOriginalPhoto) [self getSelectedPhotoBytes];
     }
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    _doneButton.translatesAutoresizingMaskIntoConstraints = NO;
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
@@ -260,12 +265,14 @@ static CGFloat itemMargin = 5;
     _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
     
     _numberImageView = [[UIImageView alloc] initWithImage:tzImagePickerVc.photoNumberIconImage];
+    _numberImageView.translatesAutoresizingMaskIntoConstraints = NO;
     _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberImageView.clipsToBounds = YES;
     _numberImageView.contentMode = UIViewContentModeScaleAspectFit;
     _numberImageView.backgroundColor = [UIColor clearColor];
     
     _numberLabel = [[UILabel alloc] init];
+    _numberLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _numberLabel.font = [UIFont systemFontOfSize:15];
     _numberLabel.adjustsFontSizeToFitWidth = YES;
     _numberLabel.textColor = [UIColor whiteColor];
@@ -275,6 +282,7 @@ static CGFloat itemMargin = 5;
     _numberLabel.backgroundColor = [UIColor clearColor];
     
     _divideLine = [[UIView alloc] init];
+    _divideLine.translatesAutoresizingMaskIntoConstraints = NO;
     CGFloat rgb2 = 222 / 255.0;
     _divideLine.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
     
@@ -290,6 +298,8 @@ static CGFloat itemMargin = 5;
     if (tzImagePickerVc.photoPickerPageUIConfigBlock) {
         tzImagePickerVc.photoPickerPageUIConfigBlock(_collectionView, _bottomToolBar, _previewButton, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel, _divideLine);
     }
+    
+    [self configBottomToolBarLayout];
 }
 
 #pragma mark - Layout
@@ -324,40 +334,72 @@ static CGFloat itemMargin = 5;
         [_collectionView setContentOffset:CGPointMake(0, offsetY)];
     }
     
-    CGFloat toolBarTop = 0;
-    if (!self.navigationController.navigationBar.isHidden) {
-        toolBarTop = self.view.tz_height - toolBarHeight;
-    } else {
-        CGFloat navigationHeight = naviBarHeight + [TZCommonTools tz_statusBarHeight];
-        toolBarTop = self.view.tz_height - toolBarHeight - navigationHeight;
-    }
-    _bottomToolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
-    
-    CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width + 2;
-    if (!tzImagePickerVc.allowPreview) {
-        previewWidth = 0.0;
-    }
-    _previewButton.frame = CGRectMake(10, 3, previewWidth, 44);
-    _previewButton.tz_width = !tzImagePickerVc.showSelectBtn ? 0 : previewWidth;
-    if (tzImagePickerVc.allowPickingOriginalPhoto) {
-        CGFloat fullImageWidth = [tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
-        _originalPhotoButton.frame = CGRectMake(CGRectGetMaxX(_previewButton.frame), 0, fullImageWidth + 56, 50);
-        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 46, 0, 80, 50);
-    }
-    [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, _doneButton.tz_width, 50);
-    _numberImageView.frame = CGRectMake(_doneButton.tz_left - 24 - 5, 13, 24, 24);
-    _numberLabel.frame = _numberImageView.frame;
-    _divideLine.frame = CGRectMake(0, 0, self.view.tz_width, 1);
-    
     [TZImageManager manager].columnNumber = [TZImageManager manager].columnNumber;
     [TZImageManager manager].photoWidth = tzImagePickerVc.photoWidth;
-    [self.collectionView reloadData];
     
     if (tzImagePickerVc.photoPickerPageDidLayoutSubviewsBlock) {
         tzImagePickerVc.photoPickerPageDidLayoutSubviewsBlock(_collectionView, _bottomToolBar, _previewButton, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel, _divideLine);
     }
 }
+
+- (void)configBottomToolBarLayout{
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (tzImagePickerVc.allowPickingOriginalPhoto) {
+         CGFloat fullImageWidth = [tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
+         _originalPhotoButton.frame = CGRectMake(CGRectGetMaxX(_previewButton.frame), 0, fullImageWidth + 56, 50);
+         _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 46, 0, 80, 50);
+
+         NSLayoutConstraint *originalPhotoButton_left = [NSLayoutConstraint constraintWithItem:_originalPhotoButton attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_previewButton attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:2];
+         NSLayoutConstraint *originalPhotoButton_top = [NSLayoutConstraint constraintWithItem:_originalPhotoButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_bottomToolBar attribute:NSLayoutAttributeTop multiplier:1.0 constant:0];
+         NSLayoutConstraint *originalPhotoButton_width = [NSLayoutConstraint constraintWithItem:_originalPhotoButton attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeWidth multiplier:1.0 constant:fullImageWidth + 56];
+         NSLayoutConstraint *originalPhotoButton_height = [NSLayoutConstraint constraintWithItem:_originalPhotoButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeHeight multiplier:1.0 constant:50];
+         [_bottomToolBar addConstraints:@[originalPhotoButton_left,originalPhotoButton_top]];
+         [_originalPhotoButton addConstraints:@[originalPhotoButton_width,originalPhotoButton_height]];
+
+         NSLayoutConstraint *originalPhotoLabel_left = [NSLayoutConstraint constraintWithItem:_originalPhotoLabel attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_originalPhotoButton attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:-10];
+         NSLayoutConstraint *originalPhotoLabel_centerY = [NSLayoutConstraint constraintWithItem:_originalPhotoLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:_originalPhotoButton attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+         [_bottomToolBar addConstraints:@[originalPhotoLabel_left,originalPhotoLabel_centerY]];
+     }
+    
+     CGFloat toolBarHeight = [TZCommonTools tz_isIPhoneX] ? 50 + (83 - 49) : 50;
+
+     NSLayoutConstraint *bottomToolBar_left = [NSLayoutConstraint constraintWithItem:_bottomToolBar attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0];
+     NSLayoutConstraint *bottomToolBar_width = [NSLayoutConstraint constraintWithItem:_bottomToolBar attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0];
+     NSLayoutConstraint *bottomToolBar_bottom = [NSLayoutConstraint constraintWithItem:_bottomToolBar attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0];
+     NSLayoutConstraint *bottomToolBar_height = [NSLayoutConstraint constraintWithItem:_bottomToolBar attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:toolBarHeight];
+     [self.view addConstraints:@[bottomToolBar_left,bottomToolBar_width,bottomToolBar_bottom]];
+     [_bottomToolBar addConstraints:@[bottomToolBar_height]];
+     
+     NSLayoutConstraint *previewButton_left = [NSLayoutConstraint constraintWithItem:_previewButton attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_bottomToolBar attribute:NSLayoutAttributeLeading multiplier:1.0 constant:10];
+     NSLayoutConstraint *previewButton_top = [NSLayoutConstraint constraintWithItem:_previewButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_bottomToolBar attribute:NSLayoutAttributeTop multiplier:1.0 constant:3];
+     NSLayoutConstraint *previewButton_height = [NSLayoutConstraint constraintWithItem:_previewButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeHeight multiplier:1.0 constant:44];
+     [_bottomToolBar addConstraints:@[previewButton_left,previewButton_top]];
+     [_previewButton addConstraints:@[previewButton_height]];
+     
+     
+     NSLayoutConstraint *doneButton_right = [NSLayoutConstraint constraintWithItem:_doneButton attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:_bottomToolBar attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:-12];
+     NSLayoutConstraint *doneButton_top = [NSLayoutConstraint constraintWithItem:_doneButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_bottomToolBar attribute:NSLayoutAttributeTop multiplier:1.0 constant:10];
+     [_bottomToolBar addConstraints:@[doneButton_right,doneButton_top]];
+
+     NSLayoutConstraint *numberImage_right = [NSLayoutConstraint constraintWithItem:_numberImageView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:_doneButton attribute:NSLayoutAttributeLeading multiplier:1.0 constant:-5];
+     NSLayoutConstraint *numberImage_centerY = [NSLayoutConstraint constraintWithItem:_numberImageView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:_doneButton attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+     NSLayoutConstraint *numberImage_width = [NSLayoutConstraint constraintWithItem:_numberImageView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:24];
+     NSLayoutConstraint *numberImage_height = [NSLayoutConstraint constraintWithItem:_numberImageView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:24];
+     [_bottomToolBar addConstraints:@[numberImage_right,numberImage_centerY]];
+     [_numberImageView addConstraints:@[numberImage_width,numberImage_height]];
+
+     NSLayoutConstraint *numberLabel_centerX = [NSLayoutConstraint constraintWithItem:_numberLabel attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:_numberImageView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0];
+     NSLayoutConstraint *numberLabel_centerY = [NSLayoutConstraint constraintWithItem:_numberLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:_numberImageView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+    [_bottomToolBar addConstraints:@[numberLabel_centerX,numberLabel_centerY]];
+
+     NSLayoutConstraint *divideLine_right = [NSLayoutConstraint constraintWithItem:_divideLine attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:_bottomToolBar attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0];
+     NSLayoutConstraint *divideLine_left = [NSLayoutConstraint constraintWithItem:_divideLine attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_bottomToolBar attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0];
+     NSLayoutConstraint *divideLine_top = [NSLayoutConstraint constraintWithItem:_divideLine attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_bottomToolBar attribute:NSLayoutAttributeTop multiplier:1.0 constant:0];
+     NSLayoutConstraint *divideLine_height = [NSLayoutConstraint constraintWithItem:_divideLine attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeHeight multiplier:1.0 constant:1];
+     [_bottomToolBar addConstraints:@[divideLine_right,divideLine_left,divideLine_top]];
+     [_divideLine addConstraint:divideLine_height];
+}
+
 
 #pragma mark - Notification
 

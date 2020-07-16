@@ -372,8 +372,8 @@
 @end
 
 @interface TZAlbumCell ()
-@property (weak, nonatomic) UIImageView *posterImageView;
-@property (weak, nonatomic) UILabel *titleLabel;
+@property (strong, nonatomic) UIImageView *posterImageView;
+@property (strong, nonatomic) UILabel *titleLabel;
 @end
 
 @implementation TZAlbumCell
@@ -382,7 +382,35 @@
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     self.backgroundColor = [UIColor whiteColor];
     self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    [self setupUI];
     return self;
+}
+
+- (void)setupUI{
+    [self.contentView addSubview:self.posterImageView];
+    NSLayoutConstraint *posterImage_left = [NSLayoutConstraint constraintWithItem:self.posterImageView attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0];
+    NSLayoutConstraint *posterImage_centerY = [NSLayoutConstraint constraintWithItem:self.posterImageView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+    NSLayoutConstraint *posterImage_width = [NSLayoutConstraint constraintWithItem:self.posterImageView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:0.0 constant:70];
+    NSLayoutConstraint *posterImage_height = [NSLayoutConstraint constraintWithItem:self.posterImageView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:0.0 constant:70];
+    [self.contentView addConstraints:@[posterImage_left,posterImage_centerY]];
+    [self.posterImageView addConstraints:@[posterImage_width,posterImage_height]];
+    
+    
+    [self.contentView addSubview:self.titleLabel];
+    NSLayoutConstraint *titleLabel_left = [NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.posterImageView attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:10];
+    NSLayoutConstraint *titleLabel_centerY = [NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.posterImageView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+    NSLayoutConstraint *titleLabel_right = [NSLayoutConstraint constraintWithItem:self.titleLabel attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:-50];
+    [self.contentView addConstraints:@[titleLabel_left,titleLabel_centerY,titleLabel_right]];
+    
+    
+    [self.contentView addSubview:self.selectedCountButton];
+    NSLayoutConstraint *selectedCountButton_centerY = [NSLayoutConstraint constraintWithItem:self.selectedCountButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.posterImageView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+    NSLayoutConstraint *selectedCountButton_right = [NSLayoutConstraint constraintWithItem:self.selectedCountButton attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self.contentView attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:-5];
+    NSLayoutConstraint *selectedCountButton_width = [NSLayoutConstraint constraintWithItem:self.selectedCountButton attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:0.0 constant:24];
+    NSLayoutConstraint *selectedCountButton_height = [NSLayoutConstraint constraintWithItem:self.selectedCountButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:0.0 constant:24];
+    [self.contentView addConstraints:@[selectedCountButton_centerY,selectedCountButton_right]];
+    [self.selectedCountButton addConstraints:@[selectedCountButton_width,selectedCountButton_height]];
+    
 }
 
 - (void)setModel:(TZAlbumModel *)model {
@@ -409,10 +437,6 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 24, 23, 24, 24);
-    NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
-    self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
-    self.posterImageView.frame = CGRectMake(0, 0, 70, 70);
     
     if (self.albumCellDidLayoutSubviewsBlock) {
         self.albumCellDidLayoutSubviewsBlock(self, _posterImageView, _titleLabel);
@@ -430,7 +454,7 @@
         UIImageView *posterImageView = [[UIImageView alloc] init];
         posterImageView.contentMode = UIViewContentModeScaleAspectFill;
         posterImageView.clipsToBounds = YES;
-        [self.contentView addSubview:posterImageView];
+        posterImageView.translatesAutoresizingMaskIntoConstraints = NO;
         _posterImageView = posterImageView;
     }
     return _posterImageView;
@@ -441,8 +465,8 @@
         UILabel *titleLabel = [[UILabel alloc] init];
         titleLabel.font = [UIFont boldSystemFontOfSize:17];
         titleLabel.textColor = [UIColor blackColor];
-        titleLabel.textAlignment = NSTextAlignmentLeft;
-        [self.contentView addSubview:titleLabel];
+        titleLabel.textAlignment = NSTextAlignmentNatural;
+        titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
         _titleLabel = titleLabel;
     }
     return _titleLabel;
@@ -457,7 +481,7 @@
         selectedCountButton.backgroundColor = [UIColor redColor];
         [selectedCountButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         selectedCountButton.titleLabel.font = [UIFont systemFontOfSize:15];
-        [self.contentView addSubview:selectedCountButton];
+        selectedCountButton.translatesAutoresizingMaskIntoConstraints = NO;
         _selectedCountButton = selectedCountButton;
     }
     return _selectedCountButton;
