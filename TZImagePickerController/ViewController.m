@@ -260,6 +260,9 @@
     if (self.maxCountTF.text.integerValue <= 0) {
         return;
     }
+    // 设置languageBundle以使用其它语言，必须在TZImagePickerController初始化前设置 / Set languageBundle to use other language
+    // [TZImagePickerConfig sharedInstance].languageBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"tz-ru" ofType:@"lproj"]];
+
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
     // imagePickerVc.barItemTextColor = [UIColor blackColor];
     // [imagePickerVc.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor blackColor]}];
@@ -383,9 +386,6 @@
     
     // 设置首选语言 / Set preferred language
     // imagePickerVc.preferredLanguage = @"zh-Hans";
-    
-    // 设置languageBundle以使用其它语言 / Set languageBundle to use other language
-    // imagePickerVc.languageBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"tz-ru" ofType:@"lproj"]];
     
 #pragma mark - 到这里为止
     
