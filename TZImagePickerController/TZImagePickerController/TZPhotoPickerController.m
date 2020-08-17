@@ -846,8 +846,11 @@ static CGFloat itemMargin = 5;
         NSURL *videoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
         if (videoUrl) {
             [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(PHAsset *asset, NSError *error) {
-                if (!error) {
+                if (!error && asset) {
                     [self addPHAsset:asset];
+                } else {
+                    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+                    [tzImagePickerVc hideProgressHUD];
                 }
             }];
             self.location = nil;
