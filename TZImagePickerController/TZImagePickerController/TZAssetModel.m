@@ -45,6 +45,7 @@
 
 - (void)refreshFetchResult {
     PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:self.collection options:self.options];
+    self.count = fetchResult.count;
     [self setResult:fetchResult];
 }
 
