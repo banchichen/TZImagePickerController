@@ -83,7 +83,11 @@ static CGFloat itemMargin = 5;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
     self.view.backgroundColor = [UIColor whiteColor];
-    self.navigationItem.title = _model.name;
+    if (tzImagePickerVc.naviTitleStr) {
+        self.navigationItem.title = tzImagePickerVc.naviTitleStr;
+    }else{
+        self.navigationItem.title = _model.name;
+    }
     UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
     [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:tzImagePickerVc];
     self.navigationItem.rightBarButtonItem = cancelItem;
@@ -266,6 +270,11 @@ static CGFloat itemMargin = 5;
     [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
+    
+    if (tzImagePickerVc.doneBtnRightStytle) {
+        UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithCustomView:_doneButton];
+          self.navigationItem.rightBarButtonItem = cancelItem;
+    }
     
     _numberImageView = [[UIImageView alloc] initWithImage:tzImagePickerVc.photoNumberIconImage];
     _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
@@ -737,6 +746,20 @@ static CGFloat itemMargin = 5;
     _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
+    
+    if (tzImagePickerVc.doneBtnRightStytle) {
+        if (tzImagePickerVc.selectedModels.count == 0) {
+            [_doneButton setTitle:@"确认" forState:UIControlStateNormal];
+            [_doneButton setTitle:@"确认" forState:UIControlStateDisabled];
+
+        }else{
+            
+            NSString * tit = [NSString stringWithFormat:@"确认(%zd/%zd)",tzImagePickerVc.selectedModels.count,tzImagePickerVc.maxImagesCount];
+            [_doneButton setTitle:tit forState:UIControlStateNormal];
+            [_doneButton setTitle:tit forState:UIControlStateDisabled];
+        }
+        [_doneButton sizeToFit];
+    }
     
     _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
     _originalPhotoButton.selected = (_isSelectOriginalPhoto && _originalPhotoButton.enabled);

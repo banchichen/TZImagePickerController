@@ -329,7 +329,7 @@
         UILabel *indexLabel = [[UILabel alloc] init];
         indexLabel.font = [UIFont systemFontOfSize:14];
         indexLabel.adjustsFontSizeToFitWidth = YES;
-        indexLabel.textColor = [UIColor whiteColor];
+        indexLabel.textColor = [UIColor blackColor];
         indexLabel.textAlignment = NSTextAlignmentCenter;
         [self.contentView addSubview:indexLabel];
         _indexLabel = indexLabel;
