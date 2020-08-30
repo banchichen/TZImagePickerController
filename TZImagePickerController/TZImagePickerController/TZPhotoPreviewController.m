@@ -77,8 +77,12 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
+    
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    [UIApplication sharedApplication].statusBarHidden = YES;
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (!_tzImagePickerVc.previewStatusBarShow) {
+        [UIApplication sharedApplication].statusBarHidden = YES;
+    }
     if (_currentIndex) {
         [_collectionView setContentOffset:CGPointMake((self.view.tz_width + 20) * self.currentIndex, 0) animated:NO];
     }
@@ -96,7 +100,12 @@
 }
 
 - (BOOL)prefersStatusBarHidden {
-    return YES;
+    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (!_tzImagePickerVc.previewStatusBarShow) {
+        return YES;
+    }
+
+    return NO;
 }
 
 - (void)configCustomNaviBar {

@@ -231,6 +231,7 @@
 
 @property (nonatomic, copy) NSString *doneBtnTitleStr;
 @property (nonatomic, copy) NSString *naviTitleStr;
+@property (nonatomic, assign)BOOL previewStatusBarShow;
 @property (nonatomic, copy) NSString *cancelBtnTitleStr;
 @property (nonatomic, copy) NSString *previewBtnTitleStr;
 @property (nonatomic, copy) NSString *fullImageBtnTitleStr;

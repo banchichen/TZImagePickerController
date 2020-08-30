@@ -298,9 +298,16 @@
     imagePickerVc.showPhotoCannotSelectLayer = YES;
     imagePickerVc.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
     imagePickerVc.naviTitleStr = @"fuclk";
-    imagePickerVc.doneBtnTitleStr = @"完成";
     imagePickerVc.doneBtnRightStytle = YES;
+    imagePickerVc.doneBtnTitleStr = @"完成";
     imagePickerVc.maxImagesCount = 5;
+    imagePickerVc.previewStatusBarShow = YES;
+    [imagePickerVc setPhotoPickerPageUIConfigBlock:^(UICollectionView *collectionView, UIView *bottomToolBar, UIButton *previewButton, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel, UIView *divideLine) {
+               [bottomToolBar removeFromSuperview];
+//        doneButton.backgroundColor = [UIColor yellowColor];
+//        doneButton.layer.cornerRadius = doneButton.tz_height/3;
+//        doneButton.titleLabel.textColor = [UIColor blackColor];
+           }];
     /*
     [imagePickerVc setPhotoPickerPageUIConfigBlock:^(UICollectionView *collectionView, UIView *bottomToolBar, UIButton *previewButton, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel, UIView *divideLine) {
         [doneButton setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
