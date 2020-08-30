@@ -43,6 +43,7 @@
 #pragma mark -
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
+@property (nonatomic, assign) NSUInteger offsetCount;
 
 /// The minimum count photos user must pick, Default is 0
 /// 最小照片必选张数,默认是0

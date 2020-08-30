@@ -552,7 +552,7 @@ static CGFloat itemMargin = 5;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     cell.allowPreview = tzImagePickerVc.allowPreview;
     
-    if (tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount && tzImagePickerVc.showPhotoCannotSelectLayer && !model.isSelected) {
+    if (tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount -tzImagePickerVc.offsetCount && tzImagePickerVc.showPhotoCannotSelectLayer && !model.isSelected) {
         cell.cannotSelectLayerButton.backgroundColor = tzImagePickerVc.cannotSelectLayerColor;
         cell.cannotSelectLayerButton.hidden = NO;
     } else {
@@ -590,7 +590,7 @@ static CGFloat itemMargin = 5;
             }
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
-            if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
+            if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount -tzImagePickerVc.offsetCount) {
                 if (!tzImagePickerVc.allowPreview) {
                     BOOL shouldDone = tzImagePickerVc.maxImagesCount == 1;
                     if (!tzImagePickerVc.allowPickingMultipleVideo && (model.type == TZAssetModelMediaTypeVideo || model.type == TZAssetModelMediaTypePhotoGif)) {
@@ -612,7 +612,7 @@ static CGFloat itemMargin = 5;
                 [strongSelf refreshBottomToolBarStatus];
                 [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
             } else {
-                NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], tzImagePickerVc.maxImagesCount];
+                NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], tzImagePickerVc.maxImagesCount - tzImagePickerVc.offsetCount];
                 [tzImagePickerVc showAlertWithTitle:title];
             }
         }
@@ -754,7 +754,7 @@ static CGFloat itemMargin = 5;
 
         }else{
             
-            NSString * tit = [NSString stringWithFormat:@"确认(%zd/%zd)",tzImagePickerVc.selectedModels.count,tzImagePickerVc.maxImagesCount];
+            NSString * tit = [NSString stringWithFormat:@"确认(%zd/%zd)",tzImagePickerVc.selectedModels.count,tzImagePickerVc.maxImagesCount -tzImagePickerVc.offsetCount];
             [_doneButton setTitle:tit forState:UIControlStateNormal];
             [_doneButton setTitle:tit forState:UIControlStateDisabled];
         }

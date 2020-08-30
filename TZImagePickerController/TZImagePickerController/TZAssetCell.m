@@ -236,7 +236,7 @@
         self.index = [tzImagePickerVc.selectedAssetIds indexOfObject:self.model.asset.localIdentifier] + 1;
     }
     self.indexLabel.hidden = !self.selectPhotoButton.isSelected;
-    if (tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount && tzImagePickerVc.showPhotoCannotSelectLayer && !self.model.isSelected) {
+    if (tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount -tzImagePickerVc.offsetCount && tzImagePickerVc.showPhotoCannotSelectLayer && !self.model.isSelected) {
         self.cannotSelectLayerButton.backgroundColor = tzImagePickerVc.cannotSelectLayerColor;
         self.cannotSelectLayerButton.hidden = NO;
     } else {

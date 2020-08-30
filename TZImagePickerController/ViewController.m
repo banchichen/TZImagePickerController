@@ -263,7 +263,7 @@
     // 设置languageBundle以使用其它语言，必须在TZImagePickerController初始化前设置 / Set languageBundle to use other language
     // [TZImagePickerConfig sharedInstance].languageBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"tz-ru" ofType:@"lproj"]];
 
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:1 columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
     // imagePickerVc.barItemTextColor = [UIColor blackColor];
     // [imagePickerVc.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor blackColor]}];
     // imagePickerVc.navigationBar.tintColor = [UIColor blackColor];
@@ -300,7 +300,9 @@
     imagePickerVc.naviTitleStr = @"fuclk";
     imagePickerVc.doneBtnRightStytle = YES;
     imagePickerVc.doneBtnTitleStr = @"完成";
-    imagePickerVc.maxImagesCount = 5;
+    imagePickerVc.maxImagesCount = 2;
+    imagePickerVc.offsetCount = 0;
+//    imagePickerVc.showSelectBtn = YES;
     imagePickerVc.previewStatusBarShow = YES;
     [imagePickerVc setPhotoPickerPageUIConfigBlock:^(UICollectionView *collectionView, UIView *bottomToolBar, UIButton *previewButton, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel, UIView *divideLine) {
                [bottomToolBar removeFromSuperview];
