@@ -400,7 +400,11 @@
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-    self.backgroundColor = [UIColor whiteColor];
+    if (@available(iOS 13.0, *)) {
+        self.backgroundColor = [UIColor systemBackgroundColor];
+    } else {
+        self.backgroundColor = [UIColor whiteColor];
+    }
     self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return self;
 }
@@ -408,7 +412,13 @@
 - (void)setModel:(TZAlbumModel *)model {
     _model = model;
     
-    NSMutableAttributedString *nameString = [[NSMutableAttributedString alloc] initWithString:model.name attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor blackColor]}];
+    UIColor *titleLabelASColor;
+    if (@available(iOS 13.0, *)) {
+        titleLabelASColor = [UIColor labelColor];
+    } else {
+        titleLabelASColor = [UIColor blackColor];
+    }
+    NSMutableAttributedString *nameString = [[NSMutableAttributedString alloc] initWithString:model.name attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:titleLabelASColor}];
     NSAttributedString *countString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"  (%zd)",model.count] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor lightGrayColor]}];
     [nameString appendAttributedString:countString];
     self.titleLabel.attributedText = nameString;
@@ -461,7 +471,7 @@
     if (_titleLabel == nil) {
         UILabel *titleLabel = [[UILabel alloc] init];
         titleLabel.font = [UIFont boldSystemFontOfSize:17];
-        titleLabel.textColor = [UIColor blackColor];
+        // titleLabel.textColor = [UIColor blackColor]; // will be overwritten by self.titleLabel.attributedText = nameString
         titleLabel.textAlignment = NSTextAlignmentLeft;
         [self.contentView addSubview:titleLabel];
         _titleLabel = titleLabel;

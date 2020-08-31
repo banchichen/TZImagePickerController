@@ -82,7 +82,11 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
-    self.view.backgroundColor = [UIColor whiteColor];
+    if (@available(iOS 13.0, *)) {
+        self.view.backgroundColor = [UIColor systemBackgroundColor];
+    } else {
+        self.view.backgroundColor = [UIColor whiteColor];
+    }
     self.navigationItem.title = _model.name;
     UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
     [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:tzImagePickerVc];
@@ -166,7 +170,7 @@ static CGFloat itemMargin = 5;
     if (!_collectionView) {
         _layout = [[UICollectionViewFlowLayout alloc] init];
         _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
-        _collectionView.backgroundColor = [UIColor whiteColor];
+        _collectionView.backgroundColor = [UIColor clearColor];
         _collectionView.dataSource = self;
         _collectionView.delegate = self;
         _collectionView.alwaysBounceHorizontal = NO;
@@ -223,16 +227,25 @@ static CGFloat itemMargin = 5;
     if (!tzImagePickerVc.showSelectBtn) return;
     
     _bottomToolBar = [[UIView alloc] initWithFrame:CGRectZero];
-    CGFloat rgb = 253 / 255.0;
-    _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+    if (@available(iOS 13.0, *)) {
+        _bottomToolBar.backgroundColor = [UIColor systemBackgroundColor];
+    } else {
+        CGFloat rgb = 253 / 255.0;
+        _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+    }
     
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];
     _previewButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_previewButton setTitle:tzImagePickerVc.previewBtnTitleStr forState:UIControlStateNormal];
     [_previewButton setTitle:tzImagePickerVc.previewBtnTitleStr forState:UIControlStateDisabled];
-    [_previewButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    [_previewButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
+    if (@available(iOS 13.0, *)) {
+        [_previewButton setTitleColor:[UIColor labelColor] forState:UIControlStateNormal];
+        [_previewButton setTitleColor:[UIColor systemGray2Color] forState:UIControlStateDisabled];
+    } else {
+        [_previewButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+        [_previewButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
+    }
     _previewButton.enabled = tzImagePickerVc.selectedModels.count;
     
     if (tzImagePickerVc.allowPickingOriginalPhoto) {
@@ -242,8 +255,13 @@ static CGFloat itemMargin = 5;
         _originalPhotoButton.titleLabel.font = [UIFont systemFontOfSize:16];
         [_originalPhotoButton setTitle:tzImagePickerVc.fullImageBtnTitleStr forState:UIControlStateNormal];
         [_originalPhotoButton setTitle:tzImagePickerVc.fullImageBtnTitleStr forState:UIControlStateSelected];
-        [_originalPhotoButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
-        [_originalPhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
+        if (@available(iOS 13.0, *)) {
+            [_originalPhotoButton setTitleColor:[UIColor systemGray2Color] forState:UIControlStateNormal];
+            [_originalPhotoButton setTitleColor:[UIColor labelColor] forState:UIControlStateSelected];
+        } else {
+           [_originalPhotoButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
+            [_originalPhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
+        }
         [_originalPhotoButton setImage:tzImagePickerVc.photoOriginDefImage forState:UIControlStateNormal];
         [_originalPhotoButton setImage:tzImagePickerVc.photoOriginSelImage forState:UIControlStateSelected];
         _originalPhotoButton.imageView.clipsToBounds = YES;
@@ -254,7 +272,11 @@ static CGFloat itemMargin = 5;
         _originalPhotoLabel = [[UILabel alloc] init];
         _originalPhotoLabel.textAlignment = NSTextAlignmentLeft;
         _originalPhotoLabel.font = [UIFont systemFontOfSize:16];
-        _originalPhotoLabel.textColor = [UIColor blackColor];
+        if (@available(iOS 13.0, *)) {
+            _originalPhotoLabel.textColor = [UIColor labelColor];
+        } else {
+            _originalPhotoLabel.textColor = [UIColor blackColor];
+        }
         if (_isSelectOriginalPhoto) [self getSelectedPhotoBytes];
     }
     
@@ -283,8 +305,12 @@ static CGFloat itemMargin = 5;
     _numberLabel.backgroundColor = [UIColor clearColor];
     
     _divideLine = [[UIView alloc] init];
-    CGFloat rgb2 = 222 / 255.0;
-    _divideLine.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
+    if (@available(iOS 13.0, *)) {
+        _divideLine.backgroundColor = [UIColor separatorColor];
+    } else {
+        CGFloat rgb2 = 222 / 255.0;
+        _divideLine.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
+    }
     
     [_bottomToolBar addSubview:_divideLine];
     [_bottomToolBar addSubview:_previewButton];
@@ -925,7 +951,7 @@ static CGFloat itemMargin = 5;
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.model refreshFetchResult];        
+        [self.model refreshFetchResult];
         [self fetchAssetModels];
     });
 }
