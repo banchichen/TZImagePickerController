@@ -88,9 +88,11 @@ static CGFloat itemMargin = 5;
     }else{
         self.navigationItem.title = _model.name;
     }
-    UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
-    [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:tzImagePickerVc];
-    self.navigationItem.rightBarButtonItem = cancelItem;
+    if (!tzImagePickerVc.doneBtnRightStytle) {
+        UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
+        [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:tzImagePickerVc];
+        self.navigationItem.rightBarButtonItem = cancelItem;
+    }
     if (tzImagePickerVc.navLeftBarButtonSettingBlock) {
         UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
         leftButton.frame = CGRectMake(0, 0, 44, 44);
@@ -297,7 +299,9 @@ static CGFloat itemMargin = 5;
     
     [_bottomToolBar addSubview:_divideLine];
     [_bottomToolBar addSubview:_previewButton];
-    [_bottomToolBar addSubview:_doneButton];
+    if (!tzImagePickerVc.doneBtnRightStytle) {
+          [_bottomToolBar addSubview:_doneButton];
+       }
     [_bottomToolBar addSubview:_numberImageView];
     [_bottomToolBar addSubview:_numberLabel];
     [_bottomToolBar addSubview:_originalPhotoButton];
@@ -948,7 +952,7 @@ static CGFloat itemMargin = 5;
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.model refreshFetchResult];        
+        [self.model refreshFetchResult];
         [self fetchAssetModels];
     });
 }
