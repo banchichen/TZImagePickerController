@@ -663,7 +663,7 @@
         } else {
             self->_doneButton.enabled = YES;
         }
-        self->_selectButton.hidden = currentModel.iCloudFailed;
+        self->_selectButton.hidden = currentModel.iCloudFailed || !_tzImagePickerVc.showSelectBtn;
         self->_originalPhotoButton.hidden = currentModel.iCloudFailed;
         self->_originalPhotoLabel.hidden = currentModel.iCloudFailed;
     });

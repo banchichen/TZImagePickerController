@@ -44,6 +44,7 @@
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
 @property (strong, nonatomic) CLLocation *location;
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
+@property (nonatomic, assign) BOOL isSavingMedia;
 @end
 
 static CGSize AssetGridThumbnailSize;
@@ -173,6 +174,8 @@ static CGFloat itemMargin = 5;
         [self.view addSubview:_collectionView];
         [_collectionView registerClass:[TZAssetCell class] forCellWithReuseIdentifier:@"TZAssetCell"];
         [_collectionView registerClass:[TZAssetCameraCell class] forCellWithReuseIdentifier:@"TZAssetCameraCell"];
+    } else {
+        [_collectionView reloadData];
     }
     
     if (_showTakePhotoBtn) {
@@ -872,7 +875,9 @@ static CGFloat itemMargin = 5;
         UIImage *photo = [info objectForKey:UIImagePickerControllerOriginalImage];
         NSDictionary *meta = [info objectForKey:UIImagePickerControllerMediaMetadata];
         if (photo) {
+            self.isSavingMedia = YES;
             [[TZImageManager manager] savePhotoWithImage:photo meta:meta location:self.location completion:^(PHAsset *asset, NSError *error){
+                self.isSavingMedia = NO;
                 if (!error && asset) {
                     [self addPHAsset:asset];
                 } else {
@@ -887,9 +892,14 @@ static CGFloat itemMargin = 5;
         [imagePickerVc showProgressHUD];
         NSURL *videoUrl = [info objectForKey:UIImagePickerControllerMediaURL];
         if (videoUrl) {
+            self.isSavingMedia = YES;
             [[TZImageManager manager] saveVideoWithUrl:videoUrl location:self.location completion:^(PHAsset *asset, NSError *error) {
-                if (!error) {
+                self.isSavingMedia = NO;
+                if (!error && asset) {
                     [self addPHAsset:asset];
+                } else {
+                    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+                    [tzImagePickerVc hideProgressHUD];
                 }
             }];
             self.location = nil;
@@ -953,6 +963,9 @@ static CGFloat itemMargin = 5;
 #pragma mark - PHPhotoLibraryChangeObserver
 
 - (void)photoLibraryDidChange:(PHChange *)changeInstance {
+    if (self.isSavingMedia) {
+        return;
+    }
     dispatch_async(dispatch_get_main_queue(), ^{
         [self.model refreshFetchResult];        
         [self fetchAssetModels];
