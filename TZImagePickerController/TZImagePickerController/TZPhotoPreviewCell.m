@@ -61,7 +61,7 @@
             strongSelf.imageProgressUpdateBlock(progress);
         }
     }];
-    [self addSubview:self.previewView];
+    [self.contentView addSubview:self.previewView];
 }
 
 - (void)setModel:(TZAssetModel *)model {
@@ -418,9 +418,9 @@
     [_playButton setImage:[UIImage tz_imageNamedFromMyBundle:@"MMVideoPreviewPlay"] forState:UIControlStateNormal];
     [_playButton setImage:[UIImage tz_imageNamedFromMyBundle:@"MMVideoPreviewPlayHL"] forState:UIControlStateHighlighted];
     [_playButton addTarget:self action:@selector(playButtonClick) forControlEvents:UIControlEventTouchUpInside];
-    [self addSubview:_playButton];
-    [self addSubview:_iCloudErrorIcon];
-    [self addSubview:_iCloudErrorLabel];
+    [self.contentView addSubview:_playButton];
+    [self.contentView addSubview:_iCloudErrorIcon];
+    [self.contentView addSubview:_iCloudErrorLabel];
 }
 
 - (void)setModel:(TZAssetModel *)model {
@@ -544,7 +544,7 @@
         __strong typeof(weakSelf) strongSelf = weakSelf;
         [strongSelf signleTapAction];
     }];
-    [self addSubview:_previewView];
+    [self.contentView addSubview:_previewView];
 }
 
 - (void)setModel:(TZAssetModel *)model {
