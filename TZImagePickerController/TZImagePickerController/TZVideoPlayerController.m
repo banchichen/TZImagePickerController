@@ -27,6 +27,7 @@
     UIStatusBarStyle _originStatusBarStyle;
 }
 @property (assign, nonatomic) BOOL needShowStatusBar;
+
 @end
 
 #pragma clang diagnostic push

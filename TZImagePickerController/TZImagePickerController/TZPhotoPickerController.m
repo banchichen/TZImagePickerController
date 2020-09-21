@@ -165,7 +165,11 @@ static CGFloat itemMargin = 5;
 - (void)configCollectionView {
     _layout = [[UICollectionViewFlowLayout alloc] init];
     _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
-    _collectionView.backgroundColor = [UIColor whiteColor];
+    if (@available(iOS 13.0, *)) {
+        _collectionView.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+    } else {
+        _collectionView.backgroundColor = [UIColor whiteColor];
+    }
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
     _collectionView.alwaysBounceHorizontal = NO;
@@ -216,14 +220,22 @@ static CGFloat itemMargin = 5;
     
     _bottomToolBar = [[UIView alloc] initWithFrame:CGRectZero];
     CGFloat rgb = 253 / 255.0;
-    _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+    if (@available(iOS 13.0, *)) {
+        _bottomToolBar.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+    } else {
+        _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+    }
     
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];
     _previewButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_previewButton setTitle:tzImagePickerVc.previewBtnTitleStr forState:UIControlStateNormal];
     [_previewButton setTitle:tzImagePickerVc.previewBtnTitleStr forState:UIControlStateDisabled];
-    [_previewButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    if (@available(iOS 13.0, *)) {
+        [_previewButton setTitleColor:UIColor.labelColor forState:UIControlStateNormal];
+    } else {
+        [_previewButton setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
+    }
     [_previewButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateDisabled];
     _previewButton.enabled = tzImagePickerVc.selectedModels.count;
     
@@ -235,7 +247,11 @@ static CGFloat itemMargin = 5;
         [_originalPhotoButton setTitle:tzImagePickerVc.fullImageBtnTitleStr forState:UIControlStateNormal];
         [_originalPhotoButton setTitle:tzImagePickerVc.fullImageBtnTitleStr forState:UIControlStateSelected];
         [_originalPhotoButton setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
-        [_originalPhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
+        if (@available(iOS 13.0, *)) {
+            [_originalPhotoButton setTitleColor:[UIColor labelColor] forState:UIControlStateSelected];
+        } else {
+            [_originalPhotoButton setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
+        }
         [_originalPhotoButton setImage:tzImagePickerVc.photoOriginDefImage forState:UIControlStateNormal];
         [_originalPhotoButton setImage:tzImagePickerVc.photoOriginSelImage forState:UIControlStateSelected];
         _originalPhotoButton.imageView.clipsToBounds = YES;
@@ -246,7 +262,11 @@ static CGFloat itemMargin = 5;
         _originalPhotoLabel = [[UILabel alloc] init];
         _originalPhotoLabel.textAlignment = NSTextAlignmentLeft;
         _originalPhotoLabel.font = [UIFont systemFontOfSize:16];
-        _originalPhotoLabel.textColor = [UIColor blackColor];
+        if (@available(iOS 13.0, *)) {
+            _originalPhotoLabel.textColor = [UIColor labelColor];
+        } else {
+            _originalPhotoLabel.textColor = [UIColor blackColor];
+        }
         if (_isSelectOriginalPhoto) [self getSelectedPhotoBytes];
     }
     
@@ -276,7 +296,20 @@ static CGFloat itemMargin = 5;
     
     _divideLine = [[UIView alloc] init];
     CGFloat rgb2 = 222 / 255.0;
-    _divideLine.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
+    if (@available(iOS 13.0, *)) {
+        UIColor *divideLineDyColor = [UIColor colorWithDynamicProvider:^UIColor * _Nonnull(UITraitCollection * _Nonnull trainCollection) {
+            if ([trainCollection userInterfaceStyle] == UIUserInterfaceStyleLight) {
+                return [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
+            }
+            else {
+                CGFloat lineDarkRgb = 100 / 255.0;
+                return [UIColor colorWithRed:lineDarkRgb green:lineDarkRgb blue:lineDarkRgb alpha:1.0];
+            }
+        }];
+        _divideLine.backgroundColor = divideLineDyColor;
+    } else {
+        _divideLine.backgroundColor = [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
+    }
     
     [_bottomToolBar addSubview:_divideLine];
     [_bottomToolBar addSubview:_previewButton];
