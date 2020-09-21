@@ -12,6 +12,7 @@
 "Processing..."           = "Verwerken...";
 "No Photos or Videos"     = "Geen foto's of video's";
 "Synchronizing photos from iCloud" = "Foto's synchroniseren vanuit iCloud";
+"iCloud sync failed"    = "iCloud synchronisatie is mislukt";
 "Can not use camera"      = "Kan de camera niet gebruiken";
 "Can not choose both video and photo" = "Kan niet zowel video als foto kiezen";
 "Can not choose both photo and GIF" = "Kan niet zowel foto als GIF kiezen";

@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.3.2 - 2020.05.25
+//  version 3.4.2 - 2020.08.17
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -47,6 +47,10 @@
 /// The minimum count photos user must pick, Default is 0
 /// 最小照片必选张数,默认是0
 @property (nonatomic, assign) NSInteger minImagesCount;
+
+/// If the user does not select any pictures, the current picture is automatically selected when the Finish button is clicked,  Default is YES
+/// 如果用户未选择任何图片，在点击完成按钮时自动选中当前图片，默认YES
+@property (nonatomic, assign) BOOL autoSelectCurrentWhenDone;
 
 /// Always enale the done button, not require minimum 1 photo be picked
 /// 让完成按钮一直可以点击，无须最少选择一张图片
@@ -174,6 +178,7 @@
 @property (nonatomic, copy) void (^photoPreviewPageUIConfigBlock)(UICollectionView *collectionView, UIView *naviBar, UIButton *backButton, UIButton *selectButton, UILabel *indexLabel, UIView *toolBar, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel);
 @property (nonatomic, copy) void (^videoPreviewPageUIConfigBlock)(UIButton *playButton, UIView *toolBar, UIButton *doneButton);
 @property (nonatomic, copy) void (^gifPreviewPageUIConfigBlock)(UIView *toolBar, UIButton *doneButton);
+@property (nonatomic, copy) void (^albumPickerPageUIConfigBlock)(UITableView *tableView);
 @property (nonatomic, copy) void (^assetCellDidSetModelBlock)(TZAssetCell *cell, UIImageView *imageView, UIImageView *selectImageView, UILabel *indexLabel, UIView *bottomView, UILabel *timeLength, UIImageView *videoImgView);
 @property (nonatomic, copy) void (^albumCellDidSetModelBlock)(TZAlbumCell *cell, UIImageView *posterImageView, UILabel *titleLabel);
 /// 【自定义各页面/组件的frame】在界面viewDidLayoutSubviews/组件layoutSubviews后调用，允许外界修改frame等
@@ -181,6 +186,7 @@
 @property (nonatomic, copy) void (^photoPreviewPageDidLayoutSubviewsBlock)(UICollectionView *collectionView, UIView *naviBar, UIButton *backButton, UIButton *selectButton, UILabel *indexLabel, UIView *toolBar, UIButton *originalPhotoButton, UILabel *originalPhotoLabel, UIButton *doneButton, UIImageView *numberImageView, UILabel *numberLabel);
 @property (nonatomic, copy) void (^videoPreviewPageDidLayoutSubviewsBlock)(UIButton *playButton, UIView *toolBar, UIButton *doneButton);
 @property (nonatomic, copy) void (^gifPreviewPageDidLayoutSubviewsBlock)(UIView *toolBar, UIButton *doneButton);
+@property (nonatomic, copy) void (^albumPickerPageDidLayoutSubviewsBlock)(UITableView *tableView);
 @property (nonatomic, copy) void (^assetCellDidLayoutSubviewsBlock)(TZAssetCell *cell, UIImageView *imageView, UIImageView *selectImageView, UILabel *indexLabel, UIView *bottomView, UILabel *timeLength, UIImageView *videoImgView);
 @property (nonatomic, copy) void (^albumCellDidLayoutSubviewsBlock)(TZAlbumCell *cell, UIImageView *posterImageView, UILabel *titleLabel);
 /// 自定义各页面/组件的frame】刷新底部状态(refreshNaviBarAndBottomBarState)使用的
@@ -305,6 +311,7 @@
 + (NSDictionary *)tz_getInfoDictionary;
 + (BOOL)tz_isRightToLeftLayout;
 + (void)configBarButtonItem:(UIBarButtonItem *)item tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc;
++ (BOOL)isICloudSyncError:(NSError *)error;
 @end
 
 

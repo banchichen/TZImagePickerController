@@ -117,7 +117,7 @@ static dispatch_once_t onceToken;
         if (collection.estimatedAssetCount <= 0) continue;
         if ([self isCameraRollAlbum:collection]) {
             PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:option];
-            model = [self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets];
+            model = [self modelWithResult:fetchResult collection:collection isCameraRoll:YES needFetchAssets:needFetchAssets options:option];
             if (completion) completion(model);
             break;
         }
@@ -159,9 +159,9 @@ static dispatch_once_t onceToken;
             if (collection.assetCollectionSubtype == PHAssetCollectionSubtypeSmartAlbumAllHidden) continue;
             if (collection.assetCollectionSubtype == 1000000201) continue; //『最近删除』相册
             if ([self isCameraRollAlbum:collection]) {
-                [albumArr insertObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:YES needFetchAssets:needFetchAssets] atIndex:0];
+                [albumArr insertObject:[self modelWithResult:fetchResult collection:collection isCameraRoll:YES needFetchAssets:needFetchAssets options:option] atIndex:0];
             } else {
-                [albumArr addObject:[self modelWithResult:fetchResult name:collection.localizedTitle isCameraRoll:NO needFetchAssets:needFetchAssets]];
+                [albumArr addObject:[self modelWithResult:fetchResult collection:collection isCameraRoll:NO needFetchAssets:needFetchAssets options:option]];
             }
         }
     }
@@ -485,8 +485,7 @@ static dispatch_once_t onceToken;
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (success && completion) {
-                PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
-                completion(asset, nil);
+                [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
             } else if (error) {
                 NSLog(@"保存照片出错:%@",error.localizedDescription);
                 if (completion) {
@@ -522,8 +521,7 @@ static dispatch_once_t onceToken;
         [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
         dispatch_async(dispatch_get_main_queue(), ^{
             if (success && completion) {
-                PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
-                completion(asset, nil);
+                [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
             } else if (error) {
                 NSLog(@"保存照片出错:%@",error.localizedDescription);
                 if (completion) {
@@ -532,6 +530,19 @@ static dispatch_once_t onceToken;
             }
         });
     }];
+}
+
+- (void)fetchAssetByIocalIdentifier:(NSString *)localIdentifier retryCount:(NSInteger)retryCount completion:(void (^)(PHAsset *asset, NSError *error))completion {
+    PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
+    if (asset || retryCount <= 0) {
+        if (completion) {
+            completion(asset, nil);
+        }
+        return;
+    }
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [self fetchAssetByIocalIdentifier:localIdentifier retryCount:retryCount - 1 completion:completion];
+    });
 }
 
 #pragma mark - Save video
@@ -552,8 +563,7 @@ static dispatch_once_t onceToken;
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if (success && completion) {
-                PHAsset *asset = [[PHAsset fetchAssetsWithLocalIdentifiers:@[localIdentifier] options:nil] firstObject];
-                completion(asset, nil);
+                [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
             } else if (error) {
                 NSLog(@"保存视频出错:%@",error.localizedDescription);
                 if (completion) {
@@ -727,10 +737,12 @@ static dispatch_once_t onceToken;
 
 #pragma mark - Private Method
 
-- (TZAlbumModel *)modelWithResult:(PHFetchResult *)result name:(NSString *)name isCameraRoll:(BOOL)isCameraRoll needFetchAssets:(BOOL)needFetchAssets {
+- (TZAlbumModel *)modelWithResult:(PHFetchResult *)result collection:(PHAssetCollection *)collection isCameraRoll:(BOOL)isCameraRoll needFetchAssets:(BOOL)needFetchAssets options:(PHFetchOptions *)options {
     TZAlbumModel *model = [[TZAlbumModel alloc] init];
     [model setResult:result needFetchAssets:needFetchAssets];
-    model.name = name;
+    model.name = collection.localizedTitle;
+    model.collection = collection;
+    model.options = options;
     model.isCameraRoll = isCameraRoll;
     model.count = result.count;
     return model;

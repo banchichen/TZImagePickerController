@@ -12,6 +12,7 @@
 "Processing..."           = "İşleme...";
 "No Photos or Videos"     = "Fotoğraf veya Video Yok";
 "Synchronizing photos from iCloud" = "Fotoğrafları iCloud'dan senkronize etme";
+"iCloud sync failed"    = "iCloud senkronizasyon başarısız oldu";
 "Can not use camera"      = "Kamera kullanılamaz";
 "Can not choose both video and photo" = "Hem video hem de fotoğraf seçilemiyor";
 "Can not choose both photo and GIF" = "Hem fotoğraf hem de GIF seçilemiyor";

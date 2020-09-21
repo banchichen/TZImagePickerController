@@ -41,6 +41,7 @@
         // Set the cell's thumbnail image if it's still showing the same asset.
         if ([self.representedAssetIdentifier isEqualToString:model.asset.localIdentifier]) {
             self.imageView.image = photo;
+            [self setNeedsLayout];
         } else {
             // NSLog(@"this cell is showing other asset");
             [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
@@ -168,6 +169,12 @@
     }
     
     _bigImageRequestID = [[TZImageManager manager] requestImageDataForAsset:_model.asset completion:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+        BOOL iCloudSyncFailed = !imageData && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
+        self.model.iCloudFailed = iCloudSyncFailed;
+        if (iCloudSyncFailed && self.didSelectPhotoBlock) {
+            self.didSelectPhotoBlock(YES);
+            self.selectImageView.image = self.photoDefImage;
+        }
         [self hideProgressView];
     } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
         if (self.model.isSelected) {
@@ -185,6 +192,18 @@
             [self cancelBigImageRequest];
         }
     }];
+    if (_model.type == TZAssetCellTypeVideo) {
+        [[TZImageManager manager] getVideoWithAsset:_model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
+            BOOL iCloudSyncFailed = !playerItem && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
+            self.model.iCloudFailed = iCloudSyncFailed;
+            if (iCloudSyncFailed && self.didSelectPhotoBlock) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    self.didSelectPhotoBlock(YES);
+                    self.selectImageView.image = self.photoDefImage;
+                });
+            }
+        }];
+    }
 }
 
 - (void)cancelBigImageRequest {
@@ -266,6 +285,7 @@
     if (_bottomView == nil) {
         UIView *bottomView = [[UIView alloc] init];
         static NSInteger rgb = 0;
+        bottomView.userInteractionEnabled = NO;
         bottomView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.8];
         [self.contentView addSubview:bottomView];
         _bottomView = bottomView;
@@ -341,8 +361,8 @@
         _selectImageView.contentMode = UIViewContentModeScaleAspectFit;
     }
     _indexLabel.frame = _selectImageView.frame;
-    _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
-    
+    _imageView.frame = self.bounds;
+
     static CGFloat progressWH = 20;
     CGFloat progressXY = (self.tz_width - progressWH) / 2;
     _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
@@ -398,6 +418,7 @@
     self.titleLabel.attributedText = nameString;
     [[TZImageManager manager] getPostImageWithAlbumModel:model completion:^(UIImage *postImage) {
         self.posterImageView.image = postImage;
+        [self setNeedsLayout];
     }];
     if (model.selectedCount) {
         self.selectedCountButton.hidden = NO;

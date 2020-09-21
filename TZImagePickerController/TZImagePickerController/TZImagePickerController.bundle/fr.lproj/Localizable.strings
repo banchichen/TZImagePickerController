@@ -12,6 +12,7 @@
 "Processing..."           = "En traitement...";
 "No Photos or Videos"     = "Aucune photo ou vidéo";
 "Synchronizing photos from iCloud" = "Synchroniser des photos depuis iCloud";
+"iCloud sync failed"    = "iCloud échec de la synchronisation";
 "Can not use camera"      = "Impossible d'utiliser la caméra";
 "Can not choose both video and photo" = "Impossible de choisir à la fois la vidéo et la photo";
 "Can not choose both photo and GIF" = "Impossible de choisir à la fois photo et GIF";

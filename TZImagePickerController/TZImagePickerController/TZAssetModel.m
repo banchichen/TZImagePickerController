@@ -43,6 +43,12 @@
     }
 }
 
+- (void)refreshFetchResult {
+    PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:self.collection options:self.options];
+    self.count = fetchResult.count;
+    [self setResult:fetchResult];
+}
+
 - (void)setSelectedModels:(NSArray *)selectedModels {
     _selectedModels = selectedModels;
     if (_models) {

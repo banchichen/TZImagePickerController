@@ -8,7 +8,7 @@
  
  ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
  
- ## 重要提示2：3.0.7版本适配了iPhoneXR、XS、XS Max，建议大家尽快更新            
+ ## 重要提示2：3.4.2版本适配了iOS14，修复2个严重问题，强烈建议尽快更新            
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
@@ -123,6 +123,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
+**3.4.2 适配iOS14，若干问题修复**                  
 3.3.2 适配iOS13，若干问题修复                 
 3.2.1 新增裁剪用scaleAspectFillCrop属性，设置为YES后，照片尺寸小于裁剪框时会自动放大撑满                
 3.2.0 加入用NSOperationQueue控制获取原图并发数降低内存的示例          
@@ -130,7 +131,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 3.1.5 相册内无照片时给出提示，修复快速滑动时内存一直增加的问题           
 3.1.3 适配阿拉伯等语言下从右往左布局的特性         
 3.0.8 新增gifImagePlayBlock允许使用FLAnimatedImage等替换内部的GIF播放方案         
-**3.0.7 适配iPhoneXR、XS、XS Max，建议大家尽快更新**           
+3.0.7 适配iPhoneXR、XS、XS Max           
 3.0.6 优化保存照片、视频的方法        
 3.0.1 新增对[TZImagePreviewController](https://github.com/banchichen/TZImagePreviewController)库的支持，允许预览UIImage、NSURL、PHAsset对象       
 **3.0.0 去除iOS6和7的适配代码，更轻量，最低支持iOS8**      
