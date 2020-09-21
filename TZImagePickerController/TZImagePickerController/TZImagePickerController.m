@@ -331,6 +331,11 @@
     _photoOriginSelImage = [UIImage tz_imageNamedFromMyBundle:photoOriginSelImageName];
 }
 
+- (void)setTakePictureImage:(UIImage *)takePictureImage {
+    _takePictureImage = takePictureImage;
+    _takePictureImageName = @"";
+}
+
 - (void)setIconThemeColor:(UIColor *)iconThemeColor {
     _iconThemeColor = iconThemeColor;
     [self configDefaultImageName];
