@@ -163,23 +163,14 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)configCollectionView {
-
-    _layout = [[UICollectionViewFlowLayout alloc] init];
-    _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
-    if (@available(iOS 13.0, *)) {
-        _collectionView.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-    } else {
-        _collectionView.backgroundColor = [UIColor whiteColor];
-    }
-    _collectionView.dataSource = self;
-    _collectionView.delegate = self;
-    _collectionView.alwaysBounceHorizontal = NO;
-    _collectionView.contentInset = UIEdgeInsetsMake(itemMargin, itemMargin, itemMargin, itemMargin);
-
     if (!_collectionView) {
         _layout = [[UICollectionViewFlowLayout alloc] init];
         _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
-        _collectionView.backgroundColor = [UIColor whiteColor];
+        if (@available(iOS 13.0, *)) {
+            _collectionView.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+        } else {
+            _collectionView.backgroundColor = [UIColor whiteColor];
+        }
         _collectionView.dataSource = self;
         _collectionView.delegate = self;
         _collectionView.alwaysBounceHorizontal = NO;
@@ -318,8 +309,7 @@ static CGFloat itemMargin = 5;
         UIColor *divideLineDyColor = [UIColor colorWithDynamicProvider:^UIColor * _Nonnull(UITraitCollection * _Nonnull trainCollection) {
             if ([trainCollection userInterfaceStyle] == UIUserInterfaceStyleLight) {
                 return [UIColor colorWithRed:rgb2 green:rgb2 blue:rgb2 alpha:1.0];
-            }
-            else {
+            } else {
                 CGFloat lineDarkRgb = 100 / 255.0;
                 return [UIColor colorWithRed:lineDarkRgb green:lineDarkRgb blue:lineDarkRgb alpha:1.0];
             }
