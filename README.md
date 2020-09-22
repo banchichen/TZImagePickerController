@@ -60,10 +60,8 @@
 ## 四. More 更多 
 
   If you find a bug, please create a issue.  
-  Welcome to pull requests.  
   More information please view code.  
   如果你发现了bug，请提一个issue。 
-  欢迎给我提pull requests。  
   更多信息详见代码，也可查看我的博客: [我的博客](http://www.jianshu.com/p/1975411a31bb "半尺尘 - 简书")
   
       关于issue: 
@@ -98,8 +96,9 @@ A：考虑下，优先级低
 **Q：是否有QQ/微信群？**            
 A：有QQ群：778723997        
 
-**Q：想提交一个PR？**           
-A：请先加QQ群和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。                 
+**Q：想提交一个Pull Request？**           
+A：请先加下面钉钉群说下方案，和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。     
+<img src="https://gw.alicdn.com/tfs/TB1xvz7jIVl614jSZKPXXaGjpXa-970-1280.jpg" width="30%" height="30%">
 
 **Q：demo在真机上跑不起来？**             
 A：1、team选你自己的；2、bundleId也改成你自己的或改成一个不会和别人重复的。可参考[简书的这篇博客](https://www.jianshu.com/p/cbe59138fca6)             
