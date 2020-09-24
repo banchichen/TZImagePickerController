@@ -266,6 +266,7 @@
         
         _tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapImageView)];
         [_imageView addGestureRecognizer:_tapGesture];
+        self.allowPreview = self.allowPreview;
     }
     return _imageView;
 }
