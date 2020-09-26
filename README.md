@@ -6,9 +6,11 @@
  A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, support iOS6+.   
  一个支持多选、选原图和视频的图片选择器，同时有预览功能，支持iOS6+。
  
- ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
+## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
  
- ## 重要提示2：3.4.2版本适配了iOS14，修复2个严重问题，强烈建议尽快更新            
+## 重要提示2：3.4.3版本适配了iOS14，修复2个严重问题，强烈建议尽快更新  
+     关于iOS14模拟器的问题
+ PHAuthorizationStatusLimited授权模式下，iOS14模拟器有bug，未授权照片无法显示，真机正常，暂可忽略：https://github.com/banchichen/TZImagePickerController/issues/1347 
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
