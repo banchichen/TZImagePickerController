@@ -6,9 +6,11 @@
  A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, support iOS6+.   
  一个支持多选、选原图和视频的图片选择器，同时有预览功能，支持iOS6+。
  
- ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
+## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
  
- ## 重要提示2：3.4.2版本适配了iOS14，修复2个严重问题，强烈建议尽快更新            
+## 重要提示2：3.4.3版本适配了iOS14，修复2个严重问题，强烈建议尽快更新  
+     关于iOS14模拟器的问题
+ PHAuthorizationStatusLimited授权模式下，iOS14模拟器有bug，未授权照片无法显示，真机正常，暂可忽略：https://github.com/banchichen/TZImagePickerController/issues/1347 
  
      关于升级iOS10和Xcdoe8的提示:    
  在Xcode8环境下将项目运行在iOS10的设备/模拟器中，访问相册和相机需要额外配置info.plist文件。分别是Privacy - Photo Library Usage Description和Privacy - Camera Usage Description字段，详见Demo中info.plist中的设置。
@@ -60,10 +62,8 @@
 ## 四. More 更多 
 
   If you find a bug, please create a issue.  
-  Welcome to pull requests.  
   More information please view code.  
   如果你发现了bug，请提一个issue。 
-  欢迎给我提pull requests。  
   更多信息详见代码，也可查看我的博客: [我的博客](http://www.jianshu.com/p/1975411a31bb "半尺尘 - 简书")
   
       关于issue: 
@@ -98,8 +98,9 @@ A：考虑下，优先级低
 **Q：是否有QQ/微信群？**            
 A：有QQ群：778723997        
 
-**Q：想提交一个PR？**           
-A：请先加QQ群和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。                 
+**Q：想提交一个Pull Request？**           
+A：请先加下面钉钉群说下方案，和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。     
+<img src="https://gw.alicdn.com/tfs/TB1xvz7jIVl614jSZKPXXaGjpXa-970-1280.jpg" width="30%" height="30%">
 
 **Q：demo在真机上跑不起来？**             
 A：1、team选你自己的；2、bundleId也改成你自己的或改成一个不会和别人重复的。可参考[简书的这篇博客](https://www.jianshu.com/p/cbe59138fca6)             
@@ -123,6 +124,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
+3.4.3 支持Dark Mode      
 **3.4.2 适配iOS14，若干问题修复**                  
 3.3.2 适配iOS13，若干问题修复                 
 3.2.1 新增裁剪用scaleAspectFillCrop属性，设置为YES后，照片尺寸小于裁剪框时会自动放大撑满                

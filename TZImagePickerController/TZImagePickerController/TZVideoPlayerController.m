@@ -27,8 +27,10 @@
     UIStatusBarStyle _originStatusBarStyle;
 }
 @property (assign, nonatomic) BOOL needShowStatusBar;
+
 // iCloud无法同步提示UI
 @property (nonatomic, strong) UIView *iCloudErrorView;
+
 @end
 
 #pragma clang diagnostic push

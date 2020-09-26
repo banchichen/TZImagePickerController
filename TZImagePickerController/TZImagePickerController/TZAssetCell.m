@@ -266,6 +266,7 @@
         
         _tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapImageView)];
         [_imageView addGestureRecognizer:_tapGesture];
+        self.allowPreview = self.allowPreview;
     }
     return _imageView;
 }
@@ -436,7 +437,11 @@
 - (void)setModel:(TZAlbumModel *)model {
     _model = model;
     
-    NSMutableAttributedString *nameString = [[NSMutableAttributedString alloc] initWithString:model.name attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor blackColor]}];
+    UIColor *nameColor = UIColor.blackColor;
+    if (@available(iOS 13.0, *)) {
+        nameColor = UIColor.labelColor;
+    }
+    NSMutableAttributedString *nameString = [[NSMutableAttributedString alloc] initWithString:model.name attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:nameColor}];
     NSAttributedString *countString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"  (%zd)",model.count] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor lightGrayColor]}];
     [nameString appendAttributedString:countString];
     self.titleLabel.attributedText = nameString;
@@ -485,9 +490,19 @@
     if (_titleLabel == nil) {
         UILabel *titleLabel = [[UILabel alloc] init];
         titleLabel.font = [UIFont boldSystemFontOfSize:17];
+<<<<<<< HEAD
         titleLabel.textColor = [UIColor blackColor];
         titleLabel.textAlignment = NSTextAlignmentNatural;
         titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+=======
+        if (@available(iOS 13.0, *)) {
+            titleLabel.textColor = UIColor.labelColor;
+        } else {
+            titleLabel.textColor = [UIColor blackColor];
+        }
+        titleLabel.textAlignment = NSTextAlignmentLeft;
+        [self.contentView addSubview:titleLabel];
+>>>>>>> cff59d07ff99c118e9f5af659c4ac1fdbb0662b4
         _titleLabel = titleLabel;
     }
     return _titleLabel;
