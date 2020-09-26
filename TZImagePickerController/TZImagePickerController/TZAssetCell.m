@@ -490,19 +490,13 @@
     if (_titleLabel == nil) {
         UILabel *titleLabel = [[UILabel alloc] init];
         titleLabel.font = [UIFont boldSystemFontOfSize:17];
-<<<<<<< HEAD
-        titleLabel.textColor = [UIColor blackColor];
         titleLabel.textAlignment = NSTextAlignmentNatural;
         titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-=======
         if (@available(iOS 13.0, *)) {
             titleLabel.textColor = UIColor.labelColor;
         } else {
             titleLabel.textColor = [UIColor blackColor];
         }
-        titleLabel.textAlignment = NSTextAlignmentLeft;
-        [self.contentView addSubview:titleLabel];
->>>>>>> cff59d07ff99c118e9f5af659c4ac1fdbb0662b4
         _titleLabel = titleLabel;
     }
     return _titleLabel;
