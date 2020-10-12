@@ -8,7 +8,7 @@
  
 ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
  
-## 重要提示2：3.4.3版本适配了iOS14，修复2个严重问题，强烈建议尽快更新  
+## 重要提示2：3.4.4版本适配了iOS14，修复2个严重问题，强烈建议尽快更新  
      关于iOS14模拟器的问题
  PHAuthorizationStatusLimited授权模式下，iOS14模拟器有bug，未授权照片无法显示，真机正常，暂可忽略：https://github.com/banchichen/TZImagePickerController/issues/1347 
  
@@ -124,7 +124,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
-3.4.3 支持Dark Mode      
+3.4.4 支持Dark Mode      
 **3.4.2 适配iOS14，若干问题修复**                  
 3.3.2 适配iOS13，若干问题修复                 
 3.2.1 新增裁剪用scaleAspectFillCrop属性，设置为YES后，照片尺寸小于裁剪框时会自动放大撑满                
