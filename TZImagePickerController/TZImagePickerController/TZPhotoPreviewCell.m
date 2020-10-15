@@ -342,8 +342,8 @@
     CGFloat progressY = (self.tz_height - progressWH) / 2;
     _progressView.frame = CGRectMake(progressX, progressY, progressWH, progressWH);
     [self recoverSubviews];
-    _iCloudErrorIcon.frame = CGRectMake(20, [TZCommonTools tz_isIPhoneX] ? 88 + 10 : 64 + 10, 28, 28);
-    _iCloudErrorLabel.frame = CGRectMake(53, [TZCommonTools tz_isIPhoneX] ? 88 + 10 : 64 + 10, self.tz_width - 63, 28);
+    _iCloudErrorIcon.frame = CGRectMake(20, [TZCommonTools tz_statusBarHeight] + 44 + 10, 28, 28);
+    _iCloudErrorLabel.frame = CGRectMake(53, [TZCommonTools tz_statusBarHeight] + 44 + 10, self.tz_width - 63, 28);
 }
 
 #pragma mark - UITapGestureRecognizer Event
@@ -484,8 +484,8 @@
     [super layoutSubviews];
     _playerLayer.frame = self.bounds;
     _playButton.frame = CGRectMake(0, 64, self.tz_width, self.tz_height - 64 - 44);
-    _iCloudErrorIcon.frame = CGRectMake(20, [TZCommonTools tz_isIPhoneX] ? 88 + 10 : 64 + 10, 28, 28);
-    _iCloudErrorLabel.frame = CGRectMake(53, [TZCommonTools tz_isIPhoneX] ? 88 + 10 : 64 + 10, self.tz_width - 63, 28);
+    _iCloudErrorIcon.frame = CGRectMake(20, [TZCommonTools tz_statusBarHeight] + 44 + 10, 28, 28);
+    _iCloudErrorLabel.frame = CGRectMake(53, [TZCommonTools tz_statusBarHeight] + 44 + 10, self.tz_width - 63, 28);
 }
 
 - (void)photoPreviewCollectionViewDidScroll {

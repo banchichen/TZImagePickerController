@@ -140,6 +140,9 @@
     
     _previewView.frame = self.view.bounds;
     _previewView.scrollView.frame = self.view.bounds;
+//    CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
+//    _toolBar.frame = CGRectMake(0, self.view.tz_height - toolBarHeight, self.view.tz_width, toolBarHeight);
+//    _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, 0, 44, 44);
     
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc.gifPreviewPageDidLayoutSubviewsBlock) {
