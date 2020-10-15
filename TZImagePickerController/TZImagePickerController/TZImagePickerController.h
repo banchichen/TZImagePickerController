@@ -305,6 +305,7 @@
 
 
 @interface TZCommonTools : NSObject
++ (UIEdgeInsets)tz_safeAreaInsets;
 + (BOOL)tz_isIPhoneX;
 + (CGFloat)tz_statusBarHeight;
 // 获得Info.plist数据字典
