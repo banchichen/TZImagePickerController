@@ -228,6 +228,7 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)configBottomToolBar {
+    if (_bottomToolBar) return;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (!tzImagePickerVc.showSelectBtn) return;
     
