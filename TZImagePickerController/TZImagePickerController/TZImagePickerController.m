@@ -936,7 +936,7 @@
 
 + (CGFloat)tz_statusBarHeight {
     if ([UIWindow instancesRespondToSelector:@selector(safeAreaInsets)]) {
-        return [self tz_safeAreaInsets].top > 0 ?: 20;
+        return [self tz_safeAreaInsets].top ?: 20;
     }
     return 20;
 }
