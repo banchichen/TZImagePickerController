@@ -196,7 +196,6 @@
 
 #pragma mark -
 - (UIAlertController *)showAlertWithTitle:(NSString *)title;
-- (void)hideAlertView:(UIAlertController *)alertView;
 - (void)showProgressHUD;
 - (void)hideProgressHUD;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;

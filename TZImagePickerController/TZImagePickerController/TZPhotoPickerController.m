@@ -472,8 +472,10 @@ static CGFloat itemMargin = 5;
                 for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
                 
                 if (havenotShowAlert) {
-                    [tzImagePickerVc hideAlertView:alertView];
-                    [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
+                    [alertView dismissViewControllerAnimated:YES completion:^{
+                        alertView = nil;
+                        [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
+                    }];
                 }
             } progressHandler:^(double progress, NSError * _Nonnull error, BOOL * _Nonnull stop, NSDictionary * _Nonnull info) {
                 // 如果图片正在从iCloud同步中,提醒用户
