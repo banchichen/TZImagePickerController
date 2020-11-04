@@ -19,6 +19,7 @@
 @property (weak, nonatomic) UILabel *indexLabel;
 @property (weak, nonatomic) UIView *bottomView;
 @property (weak, nonatomic) UILabel *timeLength;
+@property (weak, nonatomic) UIImageView *liveIconView;
 @property (strong, nonatomic) UITapGestureRecognizer *tapGesture;
 
 @property (nonatomic, weak) UIImageView *videoImgView;
@@ -32,6 +33,12 @@
     self = [super initWithFrame:frame];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(reload:) name:@"TZ_PHOTO_PICKER_RELOAD_NOTIFICATION" object:nil];
     return self;
+}
+
+- (void)prepareForReuse {
+    [super prepareForReuse];
+    
+    [self.liveIconView setHidden:true];
 }
 
 - (void)setModel:(TZAssetModel *)model {
@@ -59,6 +66,7 @@
     self.selectPhotoButton.selected = model.isSelected;
     self.selectImageView.image = self.selectPhotoButton.isSelected ? self.photoSelImage : self.photoDefImage;
     self.indexLabel.hidden = !self.selectPhotoButton.isSelected;
+    self.liveIconView.hidden = model.type != TZAssetCellTypeLivePhoto;
     
     self.type = (NSInteger)model.type;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
@@ -100,7 +108,7 @@
 
 - (void)setType:(TZAssetCellType)type {
     _type = type;
-    if (type == TZAssetCellTypePhoto || type == TZAssetCellTypeLivePhoto || (type == TZAssetCellTypePhotoGif && !self.allowPickingGif) || self.allowPickingMultipleVideo) {
+    if (type == TZAssetCellTypePhoto || (type == TZAssetCellTypePhotoGif && !self.allowPickingGif) || self.allowPickingMultipleVideo) {
         _selectImageView.hidden = NO;
         _selectPhotoButton.hidden = NO;
         _bottomView.hidden = YES;
@@ -325,6 +333,17 @@
     return _timeLength;
 }
 
+- (UIImageView *)liveIconView {
+    if (!_liveIconView) {
+        UIImageView *liveIconView = [[UIImageView alloc] initWithImage:[UIImage tz_imageNamedFromMyBundle:@"photo_live_icon"]];
+        liveIconView.contentMode = UIViewContentModeCenter;
+        liveIconView.backgroundColor = [UIColor clearColor];
+        _liveIconView = liveIconView;
+        [self.imageView addSubview:_liveIconView];
+    }
+    return _liveIconView;
+}
+
 - (UILabel *)indexLabel {
     if (_indexLabel == nil) {
         UILabel *indexLabel = [[UILabel alloc] init];
@@ -370,6 +389,7 @@
 
     _bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
     _videoImgView.frame = CGRectMake(8, 0, 17, 17);
+    _liveIconView.frame = CGRectMake(8, 8, 17, 17);
     _timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
     
     self.type = (NSInteger)self.model.type;

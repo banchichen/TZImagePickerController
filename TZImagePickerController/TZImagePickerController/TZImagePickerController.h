@@ -209,6 +209,8 @@
 @property (nonatomic, copy) NSString *photoOriginDefImageName __attribute__((deprecated("Use -photoOriginDefImage.")));
 @property (nonatomic, copy) NSString *photoPreviewOriginDefImageName __attribute__((deprecated("Use -photoPreviewOriginDefImage.")));
 @property (nonatomic, copy) NSString *photoNumberIconImageName __attribute__((deprecated("Use -photoNumberIconImage.")));
+@property (nonatomic, copy) NSString *photoLiveIconImageName
+__attribute__((deprecated("Use -photoLiveIconImage.")));
 @property (nonatomic, strong) UIImage *takePictureImage;
 @property (nonatomic, strong) UIImage *photoSelImage;
 @property (nonatomic, strong) UIImage *photoDefImage;
@@ -216,7 +218,7 @@
 @property (nonatomic, strong) UIImage *photoOriginDefImage;
 @property (nonatomic, strong) UIImage *photoPreviewOriginDefImage;
 @property (nonatomic, strong) UIImage *photoNumberIconImage;
-
+@property (nonatomic, strong) UIImage *photoLiveIconImage;
 #pragma mark -
 /// Appearance / 外观颜色 + 按钮文字
 @property (nonatomic, strong) UIColor *oKButtonTitleColorNormal;
