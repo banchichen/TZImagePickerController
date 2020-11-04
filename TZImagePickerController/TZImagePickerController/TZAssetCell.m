@@ -109,7 +109,7 @@
         _selectPhotoButton.hidden = YES;
     }
     
-    if (type == TZAssetCellTypeVideo) {
+    if (type == TZAssetCellTypeVideo || type == TZAssetCellTypeLivePhoto) {
         self.bottomView.hidden = NO;
         self.timeLength.text = _model.timeLength;
         self.videoImgView.hidden = NO;
