@@ -249,6 +249,7 @@ __attribute__((deprecated("Use -photoLiveIconImage.")));
 @property (nonatomic, copy) void (^imagePickerControllerDidCancelHandle)(void);
 @property (nonatomic, copy) void (^didFinishPickingVideoHandle)(UIImage *coverImage,PHAsset *asset);
 @property (nonatomic, copy) void (^didFinishPickingGifImageHandle)(UIImage *animatedImage,id sourceAssets);
+@property (nonatomic, copy) void (^didFinishPickingLivePhotoHandle)(UIImage *coverImage,id sourceAssets);
 
 @property (nonatomic, weak) id<TZImagePickerControllerDelegate> pickerDelegate;
 
@@ -282,6 +283,12 @@ __attribute__((deprecated("Use -photoLiveIconImage.")));
 // 如果用户选择了一个gif图片且allowPickingMultipleVideo是NO，下面的代理方法会被执行
 // 如果allowPickingMultipleVideo是YES，将会调用imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(PHAsset *)asset;
+
+// If user picking a Live Photo and allowPickingMultipleVideo is NO, this callback will be called.
+// If allowPickingMultipleVideo is YES, will call imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:
+// 如果用户选择了一个Live Photo图片且allowPickingMultipleVideo是NO，下面的代理方法会被执行
+// 如果allowPickingMultipleVideo是YES，将会调用imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingLivePhoto:(UIImage *)coverImage sourceAssets:(PHAsset *)asset;
 
 // Decide album show or not't
 // 决定相册显示与否 albumName:相册名字 result:相册原始数据

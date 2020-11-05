@@ -22,7 +22,7 @@ API_AVAILABLE(ios(9.1))
 }
 
 @property (strong, nonatomic) PHLivePhotoView *livePhotoView;
-@property (strong, nonatomic) UIImage *placeHolder;
+@property (strong, nonatomic) UIImage *coverImage;
 @property (assign, nonatomic) BOOL needShowStatusBar;
 
 @end
@@ -71,7 +71,7 @@ API_AVAILABLE(ios(9.1))
     
     [[TZImageManager manager] getPhotoWithAsset:self.model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (photo) {
-            self.placeHolder = photo;
+            self.coverImage = photo;
         }
     }];
     
@@ -178,11 +178,11 @@ API_AVAILABLE(ios(9.1))
 - (void)callDelegateMethod {
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     
-    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingGifImage:sourceAssets:)]) {
-        [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingGifImage:self.placeHolder sourceAssets:_model.asset];
+    if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingLivePhoto:sourceAssets:)]) {
+        [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingLivePhoto:self.coverImage sourceAssets:_model.asset];
     }
-    if (imagePickerVc.didFinishPickingGifImageHandle) {
-        imagePickerVc.didFinishPickingGifImageHandle(self.placeHolder,_model.asset);
+    if (imagePickerVc.didFinishPickingLivePhotoHandle) {
+        imagePickerVc.didFinishPickingLivePhotoHandle(self.coverImage,_model.asset);
     }
 }
 
