@@ -67,8 +67,8 @@
 /// Default is 600px / 默认600像素宽
 @property (nonatomic, assign) CGFloat photoPreviewMaxWidth;
 
-/// Default is 15, While fetching photo, HUD will dismiss automatic if timeout;
-/// 超时时间，默认为15秒，当取图片时间超过15秒还没有取成功时，会自动dismiss HUD；
+/// Default is 30, While fetching photo, HUD will dismiss automatic if timeout;
+/// 超时时间，默认为30秒，当取图片时间超过30秒还没有取成功时，会自动dismiss HUD；
 @property (nonatomic, assign) NSInteger timeout;
 
 /// Default is YES, if set NO, the original photo button will hide. user can't picking original photo.

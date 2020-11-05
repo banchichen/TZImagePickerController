@@ -268,7 +268,7 @@
 
 - (void)configDefaultSetting {
     self.autoSelectCurrentWhenDone = YES;
-    self.timeout = 15;
+    self.timeout = 30;
     self.photoWidth = 828.0;
     self.photoPreviewMaxWidth = 600;
     self.naviTitleColor = [UIColor whiteColor];
