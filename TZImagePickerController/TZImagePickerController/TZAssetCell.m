@@ -37,7 +37,6 @@
 
 - (void)prepareForReuse {
     [super prepareForReuse];
-    
     [self.liveIconView setHidden:true];
 }
 
@@ -67,7 +66,6 @@
     self.selectImageView.image = self.selectPhotoButton.isSelected ? self.photoSelImage : self.photoDefImage;
     self.indexLabel.hidden = !self.selectPhotoButton.isSelected;
     self.liveIconView.hidden = model.type != TZAssetCellTypeLivePhoto;
-    
     self.type = (NSInteger)model.type;
     // 让宽度/高度小于 最小可选照片尺寸 的图片不能选中
     if (![[TZImageManager manager] isPhotoSelectableWithAsset:model.asset]) {

@@ -188,7 +188,6 @@ static CGFloat itemMargin = 5;
         [_collectionView reloadData];
     }
 
-    
     if (_showTakePhotoBtn) {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber) / self.columnNumber) * self.view.tz_width);
     } else {
@@ -519,8 +518,6 @@ static CGFloat itemMargin = 5;
 - (void)callDelegateMethodWithPhotos:(NSArray *)photos assets:(NSArray *)assets infoArr:(NSArray *)infoArr {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if ((tzImagePickerVc.allowPickingVideo || tzImagePickerVc.allowPickingLivePhoto) && tzImagePickerVc.maxImagesCount == 1) {
-        
-        
         if ([[TZImageManager manager] isVideo:[assets firstObject]]) {
             if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
                 [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingVideo:[photos firstObject] sourceAssets:[assets firstObject]];
@@ -535,11 +532,9 @@ static CGFloat itemMargin = 5;
                     [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingLivePhoto:[photos firstObject] sourceAssets:[assets firstObject]];
                 }
             }
-            
             if (tzImagePickerVc.didFinishPickingLivePhotoHandle) {
                 tzImagePickerVc.didFinishPickingLivePhotoHandle([photos firstObject], [assets firstObject]);
             }
-            
             return;
         }
     }

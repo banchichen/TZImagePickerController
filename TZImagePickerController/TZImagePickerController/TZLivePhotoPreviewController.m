@@ -20,11 +20,9 @@ API_AVAILABLE(ios(9.1))
     UIProgressView *_progress;
     UIStatusBarStyle _originStatusBarStyle;
 }
-
 @property (strong, nonatomic) PHLivePhotoView *livePhotoView;
 @property (strong, nonatomic) UIImage *coverImage;
 @property (assign, nonatomic) BOOL needShowStatusBar;
-
 @end
 
 @implementation TZLivePhotoPreviewController
@@ -57,26 +55,21 @@ API_AVAILABLE(ios(9.1))
 }
 
 - (void)configPreviewView {
-    
     if (@available(iOS 9.1, *)) {
         self.livePhotoView = [[PHLivePhotoView alloc] initWithFrame:CGRectZero];
         self.livePhotoView.delegate = self;
         [self.view addSubview:self.livePhotoView];
     }
-    
     [self.view addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(signleTapAction)]];
 }
 
 - (void)configLivePhoto {
-    
     [[TZImageManager manager] getPhotoWithAsset:self.model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (photo) {
             self.coverImage = photo;
         }
     }];
-    
     if (self.livePhotoView) {
-        
         if (@available(iOS 9.1, *)) {
             [[TZImageManager manager] getLivePhotoWithAsset:self.model.asset completion:^(PHLivePhoto *livePhoto, NSDictionary *info) {
                 if (livePhoto) {
@@ -91,7 +84,6 @@ API_AVAILABLE(ios(9.1))
     _toolBar = [[UIView alloc] initWithFrame:CGRectZero];
     CGFloat rgb = 34 / 255.0;
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.7];
-    
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -104,9 +96,7 @@ API_AVAILABLE(ios(9.1))
         [_doneButton setTitleColor:[UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0] forState:UIControlStateNormal];
     }
     [_toolBar addSubview:_doneButton];
-    
     [self.view addSubview:_toolBar];
-    
     if (tzImagePickerVc.gifPreviewPageUIConfigBlock) {
         tzImagePickerVc.gifPreviewPageUIConfigBlock(_toolBar, _doneButton);
     }
@@ -121,19 +111,17 @@ API_AVAILABLE(ios(9.1))
 }
 
 #pragma mark - Live Photo View delegate
-- (void)livePhotoView:(PHLivePhotoView *)livePhotoView willBeginPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle {
+- (void)livePhotoView:(PHLivePhotoView *)livePhotoView willBeginPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle  API_AVAILABLE(ios(9.1)){
     [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_LIVEPHOTO_BEGIN_PLAY_NOTIFICATION" object:livePhotoView];
 }
 
-- (void)livePhotoView:(PHLivePhotoView *)livePhotoView didEndPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle {
+- (void)livePhotoView:(PHLivePhotoView *)livePhotoView didEndPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle  API_AVAILABLE(ios(9.1)){
     [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_LIVEPHOTO_END_PLAY_NOTIFICATION" object:livePhotoView];
 }
 
 #pragma mark - Layout
-
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
-    
     self.livePhotoView.frame = self.view.bounds;
     CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
     _toolBar.frame = CGRectMake(0, self.view.tz_height - toolBarHeight, self.view.tz_width, toolBarHeight);

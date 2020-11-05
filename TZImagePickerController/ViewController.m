@@ -211,7 +211,6 @@
             vc.modalPresentationStyle = UIModalPresentationFullScreen;
             [self presentViewController:vc animated:YES completion:nil];
         }else if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) {
-            
             TZLivePhotoPreviewController *vc = [[TZLivePhotoPreviewController alloc] init];
             TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypeLivePhoto];
             vc.model = model;
@@ -626,7 +625,6 @@
 }
 
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingLivePhoto:(UIImage *)coverImage sourceAssets:(PHAsset *)asset {
-    
     _selectedPhotos = [NSMutableArray arrayWithArray:@[coverImage]];
     _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
     [_collectionView reloadData];

@@ -112,10 +112,6 @@ static dispatch_once_t onceToken;
     __block TZAlbumModel *model;
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
     PHFetchOptions *option = [[PHFetchOptions alloc] init];
-    //    if (!config.allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
-    //    if (!config.allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
-    // option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
-    
     NSMutableString *predicateString = @"".mutableCopy;
     if (config.allowPickingImage) { // 允许选择图片
         if (!config.allowPickingLivePhoto) { // 不允许选择LivePhoto
@@ -134,7 +130,6 @@ static dispatch_once_t onceToken;
             }
         }
     }
-    
     // 允许选择视频
     if (config.allowPickingVideo) {
         if (predicateString.length > 0) {
@@ -143,9 +138,8 @@ static dispatch_once_t onceToken;
             [predicateString appendString:[NSString stringWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo]];
         }
     }
-    
     option.predicate = [NSPredicate predicateWithFormat:predicateString];
-    
+    // option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
     if (!self.sortAscendingByModificationDate) {
         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
     }
@@ -177,9 +171,7 @@ static dispatch_once_t onceToken;
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
     NSMutableArray *albumArr = [NSMutableArray array];
     PHFetchOptions *option = [[PHFetchOptions alloc] init];
-    
     NSMutableString *predicateString = @"".mutableCopy;
-    
     if (config.allowPickingImage) { // 允许选择图片
         if (!config.allowPickingLivePhoto) { // 不允许选择LivePhoto
             if (@available(iOS 9.1, *)) {
@@ -197,7 +189,6 @@ static dispatch_once_t onceToken;
             }
         }
     }
-    
     // 允许选择视频
     if (config.allowPickingVideo) {
         if (predicateString.length > 0) {
@@ -206,9 +197,7 @@ static dispatch_once_t onceToken;
             [predicateString appendString:[NSString stringWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo]];
         }
     }
-    
     option.predicate = [NSPredicate predicateWithFormat:predicateString];
-    
     // option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
     if (!self.sortAscendingByModificationDate) {
         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
@@ -279,7 +268,7 @@ static dispatch_once_t onceToken;
     config.allowPickingVideo = allowPickingVideo;
     config.allowPickingImage = allowPickingImage;
     config.allowPickingLivePhoto = allowPickingLivePhoto;
-    [self getAssetFromFetchResult:result atIndex:index allowPickingVideo:config.allowPickingVideo allowPickingImage:config.allowPickingImage completion:completion];
+    [self getAssetFromFetchResult:result atIndex:index allowPickingVideo:config.allowPickingVideo allowPickingImage:config.allowPickingImage allowPickingLivePhoto:config.allowPickingLivePhoto completion:completion];
 }
 
 - (void)getAssetFromFetchResult:(PHFetchResult *)result atIndex:(NSInteger)index completion:(void (^)(TZAssetModel *))completion {
@@ -706,7 +695,6 @@ static dispatch_once_t onceToken;
             }
         });
     };
-    
     [[PHImageManager defaultManager] requestLivePhotoForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(PHLivePhoto * _Nullable livePhoto, NSDictionary * _Nullable info) {
         !completion ? : completion(livePhoto, info);
     }];
