@@ -112,12 +112,17 @@
         _selectImageView.hidden = NO;
         _selectPhotoButton.hidden = NO;
         _bottomView.hidden = YES;
+    } else if (type == TZAssetCellTypeLivePhoto) {
+        _selectImageView.hidden = YES;
+        _selectPhotoButton.hidden = YES;
+        _liveIconView.hidden = NO;
+        _bottomView.hidden = YES;
     } else { // Video of Gif
         _selectImageView.hidden = YES;
         _selectPhotoButton.hidden = YES;
     }
-    
-    if (type == TZAssetCellTypeVideo || type == TZAssetCellTypeLivePhoto) {
+
+    if (type == TZAssetCellTypeVideo) {
         self.bottomView.hidden = NO;
         self.timeLength.text = _model.timeLength;
         self.videoImgView.hidden = NO;
@@ -336,7 +341,7 @@
 - (UIImageView *)liveIconView {
     if (!_liveIconView) {
         UIImageView *liveIconView = [[UIImageView alloc] initWithImage:[UIImage tz_imageNamedFromMyBundle:@"photo_live_icon"]];
-        liveIconView.contentMode = UIViewContentModeCenter;
+        liveIconView.contentMode = UIViewContentModeScaleAspectFit;
         liveIconView.backgroundColor = [UIColor clearColor];
         _liveIconView = liveIconView;
         [self.imageView addSubview:_liveIconView];
@@ -389,7 +394,7 @@
 
     _bottomView.frame = CGRectMake(0, self.tz_height - 17, self.tz_width, 17);
     _videoImgView.frame = CGRectMake(8, 0, 17, 17);
-    _liveIconView.frame = CGRectMake(8, 8, 17, 17);
+    _liveIconView.frame = CGRectMake(3, 3, 20, 20);
     _timeLength.frame = CGRectMake(self.videoImgView.tz_right, 0, self.tz_width - self.videoImgView.tz_right - 5, 17);
     
     self.type = (NSInteger)self.model.type;

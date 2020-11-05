@@ -9,6 +9,7 @@
 #import "TZPhotoPickerController.h"
 #import "TZImagePickerController.h"
 #import "TZPhotoPreviewController.h"
+#import "TZLivePhotoPreviewController.h"
 #import "TZAssetCell.h"
 #import "TZAssetModel.h"
 #import "UIView+Layout.h"
@@ -682,6 +683,15 @@ static CGFloat itemMargin = 5;
             TZGifPhotoPreviewController *gifPreviewVc = [[TZGifPhotoPreviewController alloc] init];
             gifPreviewVc.model = model;
             [self.navigationController pushViewController:gifPreviewVc animated:YES];
+        }
+    } else if (model.type == TZAssetModelMediaTypeLivePhoto && !tzImagePickerVc.allowPickingMultipleVideo) {
+        if (tzImagePickerVc.selectedModels.count > 0) {
+            TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+            [imagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Can not choose both photo and Live Photo"]];
+        }else {
+            TZLivePhotoPreviewController *livePreviewVc = [[TZLivePhotoPreviewController alloc] init];
+            livePreviewVc.model = model;
+            [self.navigationController pushViewController:livePreviewVc animated:YES];
         }
     } else {
         TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];

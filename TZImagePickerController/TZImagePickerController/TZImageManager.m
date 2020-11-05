@@ -10,6 +10,7 @@
 #import "TZAssetModel.h"
 #import "TZImagePickerController.h"
 #import <MobileCoreServices/MobileCoreServices.h>
+#import <Photos/Photos.h>
 
 @interface TZImageManager ()
 #pragma clang diagnostic push
@@ -620,6 +621,29 @@ static dispatch_once_t onceToken;
     };
     [[PHImageManager defaultManager] requestPlayerItemForVideo:asset options:option resultHandler:^(AVPlayerItem *playerItem, NSDictionary *info) {
         if (completion) completion(playerItem,info);
+    }];
+}
+
+#pragma mark - Get Live Photo
+
+/// Get Video / 获取视频
+- (void)getLivePhotoWithAsset:(PHAsset *)asset completion:(void (^)(PHLivePhoto *, NSDictionary *))completion {
+    [self getLivePhotoWithAsset:asset progressHandler:nil completion:completion];
+}
+
+- (void)getLivePhotoWithAsset:(PHAsset *)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(PHLivePhoto *, NSDictionary *))completion {
+    PHLivePhotoRequestOptions *option = [[PHLivePhotoRequestOptions alloc] init];
+    option.networkAccessAllowed = YES;
+    option.progressHandler = ^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (progressHandler) {
+                progressHandler(progress, error, stop, info);
+            }
+        });
+    };
+    
+    [[PHImageManager defaultManager] requestLivePhotoForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(PHLivePhoto * _Nullable livePhoto, NSDictionary * _Nullable info) {
+        !completion ? : completion(livePhoto, info);
     }];
 }
 

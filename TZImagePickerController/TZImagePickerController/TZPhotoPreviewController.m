@@ -207,6 +207,7 @@
     [_collectionView registerClass:[TZPhotoPreviewCell class] forCellWithReuseIdentifier:@"TZPhotoPreviewCell"];
     [_collectionView registerClass:[TZVideoPreviewCell class] forCellWithReuseIdentifier:@"TZVideoPreviewCell"];
     [_collectionView registerClass:[TZGifPreviewCell class] forCellWithReuseIdentifier:@"TZGifPreviewCell"];
+    [_collectionView registerClass:[TZLivePhotoPreviewCell class] forCellWithReuseIdentifier:@"TZLivePhotoPreviewCell"];
     
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_tzImagePickerVc.scaleAspectFillCrop && _tzImagePickerVc.allowCrop) {
@@ -470,6 +471,14 @@
             [weakSelf didICloudSyncStatusChanged:model];
             [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
         };
+    } else if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypeLivePhoto){
+        cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZLivePhotoPreviewCell" forIndexPath:indexPath];
+        TZLivePhotoPreviewCell *currentCell = (TZLivePhotoPreviewCell *)cell;
+        currentCell.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
+            model.iCloudFailed = isSyncFailed;
+            [weakSelf didICloudSyncStatusChanged:model];
+            [weakSelf.models replaceObjectAtIndex:indexPath.item withObject:model];
+        };
     } else if (_tzImagePickerVc.allowPickingMultipleVideo && model.type == TZAssetModelMediaTypePhotoGif && _tzImagePickerVc.allowPickingGif) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZGifPreviewCell" forIndexPath:indexPath];
         TZGifPreviewCell *currentCell = (TZGifPreviewCell *)cell;
@@ -564,7 +573,7 @@
     // If is previewing video, hide original photo button
     // 如果正在预览的是视频，隐藏原图按钮
     if (!_isHideNaviBar) {
-        if (model.type == TZAssetModelMediaTypeVideo) {
+        if (model.type == TZAssetModelMediaTypeVideo || model.type == TZAssetModelMediaTypeLivePhoto) {
             _originalPhotoButton.hidden = YES;
             _originalPhotoLabel.hidden = YES;
         } else {
@@ -615,8 +624,14 @@
             self->_doneButton.enabled = YES;
         }
         self->_selectButton.hidden = currentModel.iCloudFailed || !_tzImagePickerVc.showSelectBtn;
-        self->_originalPhotoButton.hidden = currentModel.iCloudFailed;
-        self->_originalPhotoLabel.hidden = currentModel.iCloudFailed;
+        // 预览视频和livePhoto时不显示原图
+        if (model.type == TZAssetModelMediaTypeVideo || model.type == TZAssetModelMediaTypeLivePhoto) {
+            self->_originalPhotoButton.hidden = YES;
+            self->_originalPhotoLabel.hidden = YES;
+        }else {
+            self->_originalPhotoButton.hidden = currentModel.iCloudFailed;
+            self->_originalPhotoLabel.hidden = currentModel.iCloudFailed;
+        }
     });
 }
 

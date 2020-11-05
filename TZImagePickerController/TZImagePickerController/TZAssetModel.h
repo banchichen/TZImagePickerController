@@ -12,7 +12,7 @@
 
 typedef enum : NSUInteger {
     TZAssetModelMediaTypePhoto = 0,
-    TZAssetModelMediaTypeLivePhoto,
+    TZAssetModelMediaTypeLivePhoto, // 当做video处理
     TZAssetModelMediaTypePhotoGif,
     TZAssetModelMediaTypeVideo,
     TZAssetModelMediaTypeAudio

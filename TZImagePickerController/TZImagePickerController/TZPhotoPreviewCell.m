@@ -14,6 +14,7 @@
 #import "TZImageCropManager.h"
 #import <MediaPlayer/MediaPlayer.h>
 #import "TZImagePickerController.h"
+#import <PhotosUI/PhotosUI.h>
 
 @implementation TZAssetPreviewCell
 
@@ -562,6 +563,55 @@
 #pragma mark - Click Event
 
 - (void)signleTapAction {    
+    if (self.singleTapGestureBlock) {
+        self.singleTapGestureBlock();
+    }
+}
+
+@end
+
+
+
+/// Live Photo
+@implementation TZLivePhotoPreviewCell
+
+- (void)configSubviews {
+    [self configPreviewView];
+}
+
+- (void)configPreviewView {
+    
+    if (@available(iOS 9.1, *)) {
+        _previewView = [[PHLivePhotoView alloc] initWithFrame:CGRectZero];
+        [self.contentView addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(p_livePhotoTap)]];
+        [self.contentView addSubview:_previewView];
+    }
+}
+
+- (void)setModel:(TZAssetModel *)model {
+    [super setModel:model];
+    
+    if (@available(iOS 9.1, *)) {
+        [[TZImageManager manager] getLivePhotoWithAsset:model.asset completion:^(PHLivePhoto *livePhoto, NSDictionary *info) {
+            BOOL iCloudSyncFailed = !livePhoto && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
+            !self.iCloudSyncFailedHandle ? : self.iCloudSyncFailedHandle(self.model.asset, iCloudSyncFailed);
+            self.previewView.livePhoto =  livePhoto;
+        }];
+    }
+}
+
+- (void)p_livePhotoTap {
+    [self signleTapAction];
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _previewView.frame = self.bounds;
+}
+
+#pragma mark - Click Event
+
+- (void)signleTapAction {
     if (self.singleTapGestureBlock) {
         self.singleTapGestureBlock();
     }

@@ -93,6 +93,10 @@
 - (void)getVideoWithAsset:(PHAsset *)asset completion:(void (^)(AVPlayerItem * playerItem, NSDictionary * info))completion;
 - (void)getVideoWithAsset:(PHAsset *)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(AVPlayerItem *, NSDictionary *))completion;
 
+/// Get Live Photo 获得live photo
+- (void)getLivePhotoWithAsset:(PHAsset *)asset completion:(void (^)(PHLivePhoto * livePhoto, NSDictionary * info))completion API_AVAILABLE(ios(9.1));
+- (void)getLivePhotoWithAsset:(PHAsset *)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(PHLivePhoto *, NSDictionary *))completion API_AVAILABLE(ios(9.1));
+
 /// Export video 导出视频 presetName: 预设名字，默认值是AVAssetExportPreset640x480
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
