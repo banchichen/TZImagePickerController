@@ -14,7 +14,7 @@
 #import "TZImageManager.h"
 
 API_AVAILABLE(ios(9.1))
-@interface TZLivePhotoPreviewController (){
+@interface TZLivePhotoPreviewController () <PHLivePhotoViewDelegate>{
     UIView *_toolBar;
     UIButton *_doneButton;
     UIProgressView *_progress;
@@ -60,6 +60,7 @@ API_AVAILABLE(ios(9.1))
     
     if (@available(iOS 9.1, *)) {
         self.livePhotoView = [[PHLivePhotoView alloc] initWithFrame:CGRectZero];
+        self.livePhotoView.delegate = self;
         [self.view addSubview:self.livePhotoView];
     }
     
@@ -119,6 +120,15 @@ API_AVAILABLE(ios(9.1))
     return [super preferredStatusBarStyle];
 }
 
+#pragma mark - Live Photo View delegate
+- (void)livePhotoView:(PHLivePhotoView *)livePhotoView willBeginPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle {
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_LIVEPHOTO_BEGIN_PLAY_NOTIFICATION" object:livePhotoView];
+}
+
+- (void)livePhotoView:(PHLivePhotoView *)livePhotoView didEndPlaybackWithStyle:(PHLivePhotoViewPlaybackStyle)playbackStyle {
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_LIVEPHOTO_END_PLAY_NOTIFICATION" object:livePhotoView];
+}
+
 #pragma mark - Layout
 
 - (void)viewDidLayoutSubviews {
@@ -167,7 +177,7 @@ API_AVAILABLE(ios(9.1))
 
 - (void)callDelegateMethod {
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-//    UIImage *animatedImage = self.previewView.imageView.image;
+    
     if ([imagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingGifImage:sourceAssets:)]) {
         [imagePickerVc.pickerDelegate imagePickerController:imagePickerVc didFinishPickingGifImage:self.placeHolder sourceAssets:_model.asset];
     }
