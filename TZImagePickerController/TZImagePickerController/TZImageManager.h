@@ -122,6 +122,10 @@
 /// 判断asset是否是视频
 - (BOOL)isVideo:(PHAsset *)asset;
 
+/// 判断是否是Live Photo
+/// @param asset 需要判断的资源对象
+- (BOOL)isLivePhoto:(PHAsset *)asset;
+
 /// for TZImagePreviewController
 - (NSString *)getNewTimeFromDurationSecond:(NSInteger)duration;
 

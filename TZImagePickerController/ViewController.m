@@ -16,6 +16,7 @@
 #import "TZVideoPlayerController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZGifPhotoPreviewController.h"
+#import "TZLivePhotoPreviewController.h"
 #import "TZLocationManager.h"
 #import "TZAssetCell.h"
 #import <MobileCoreServices/MobileCoreServices.h>
@@ -209,6 +210,13 @@
             vc.model = model;
             vc.modalPresentationStyle = UIModalPresentationFullScreen;
             [self presentViewController:vc animated:YES completion:nil];
+        }else if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) {
+            
+            TZLivePhotoPreviewController *vc = [[TZLivePhotoPreviewController alloc] init];
+            TZAssetModel *model = [TZAssetModel modelWithAsset:asset type:TZAssetModelMediaTypeLivePhoto];
+            vc.model = model;
+            vc.modalPresentationStyle = UIModalPresentationFullScreen;
+            [self presentViewController:vc animated:true completion:nil];
         } else { // preview photos / 预览照片
             TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithSelectedAssets:_selectedAssets selectedPhotos:_selectedPhotos index:indexPath.item];
             imagePickerVc.maxImagesCount = self.maxCountTF.text.integerValue;
@@ -615,6 +623,17 @@
     _selectedPhotos = [NSMutableArray arrayWithArray:@[animatedImage]];
     _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
     [_collectionView reloadData];
+}
+
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingLivePhoto:(UIImage *)coverImage sourceAssets:(PHAsset *)asset {
+    
+    _selectedPhotos = [NSMutableArray arrayWithArray:@[coverImage]];
+    _selectedAssets = [NSMutableArray arrayWithArray:@[asset]];
+    [_collectionView reloadData];
+    
+    [[TZImageManager manager] getLivePhotoWithAsset:asset completion:^(PHLivePhoto *livePhoto, NSDictionary *info) {
+        NSLog(@"livePhoto:%@",livePhoto);
+    }];
 }
 
 // Decide album show or not't

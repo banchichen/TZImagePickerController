@@ -515,7 +515,9 @@ static CGFloat itemMargin = 5;
 
 - (void)callDelegateMethodWithPhotos:(NSArray *)photos assets:(NSArray *)assets infoArr:(NSArray *)infoArr {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (tzImagePickerVc.allowPickingVideo && tzImagePickerVc.maxImagesCount == 1) {
+    if ((tzImagePickerVc.allowPickingVideo || tzImagePickerVc.allowPickingLivePhoto) && tzImagePickerVc.maxImagesCount == 1) {
+        
+        
         if ([[TZImageManager manager] isVideo:[assets firstObject]]) {
             if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
                 [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingVideo:[photos firstObject] sourceAssets:[assets firstObject]];
@@ -523,6 +525,18 @@ static CGFloat itemMargin = 5;
             if (tzImagePickerVc.didFinishPickingVideoHandle) {
                 tzImagePickerVc.didFinishPickingVideoHandle([photos firstObject], [assets firstObject]);
             }
+            return;
+        }else if ([[TZImageManager manager] isLivePhoto:[assets firstObject]]) {
+            if ([[TZImageManager manager] isLivePhoto:[assets firstObject]]) {
+                if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingLivePhoto:sourceAssets:)]) {
+                    [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingLivePhoto:[photos firstObject] sourceAssets:[assets firstObject]];
+                }
+            }
+            
+            if (tzImagePickerVc.didFinishPickingLivePhotoHandle) {
+                tzImagePickerVc.didFinishPickingLivePhotoHandle([photos firstObject], [assets firstObject]);
+            }
+            
             return;
         }
     }

@@ -85,6 +85,10 @@
 /// 默认为NO，如果设置为YES,用户可以选择gif图片
 @property (nonatomic, assign) BOOL allowPickingGif;
 
+/// Default is YES, if set NO, user can't picking LivePhoto.
+/// 默认为YES，如果设置为NO,用户不可以选择LivePhoto
+@property (nonatomic, assign) BOOL allowPickingLivePhoto;
+
 /// Default is YES, if set NO, user can't picking image.
 /// 默认为YES，如果设置为NO,用户将不能选择发送图片
 @property (nonatomic, assign) BOOL allowPickingImage;
@@ -327,8 +331,9 @@ __attribute__((deprecated("Use -photoLiveIconImage.")));
 @interface TZImagePickerConfig : NSObject
 + (instancetype)sharedInstance;
 @property (copy, nonatomic) NSString *preferredLanguage;
-@property(nonatomic, assign) BOOL allowPickingImage;
-@property (nonatomic, assign) BOOL allowPickingVideo;
+@property (assign, nonatomic) BOOL allowPickingImage;
+@property (assign, nonatomic) BOOL allowPickingVideo;
+@property (assign, nonatomic) BOOL allowPickingLivePhoto;
 @property (strong, nonatomic) NSBundle *languageBundle;
 @property (assign, nonatomic) BOOL showSelectedIndex;
 @property (assign, nonatomic) BOOL showPhotoCannotSelectLayer;

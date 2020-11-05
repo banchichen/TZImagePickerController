@@ -49,7 +49,7 @@ static dispatch_once_t onceToken;
 
 - (void)setColumnNumber:(NSInteger)columnNumber {
     [self configTZScreenWidth];
-
+    
     _columnNumber = columnNumber;
     CGFloat margin = 4;
     CGFloat itemWH = (TZScreenWidth - 2 * margin - 4) / columnNumber - margin;
@@ -99,10 +99,11 @@ static dispatch_once_t onceToken;
 
 #pragma mark - Get Album
 
-- (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(TZAlbumModel *model))completion {
+- (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage allowPickingLivePhoto:(BOOL)allowPickingLivePhoto needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(TZAlbumModel *model))completion {
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
     config.allowPickingVideo = allowPickingVideo;
     config.allowPickingImage = allowPickingImage;
+    config.allowPickingLivePhoto = allowPickingLivePhoto;
     [self getCameraRollAlbumWithFetchAssets:needFetchAssets completion:completion];
 }
 
@@ -111,10 +112,40 @@ static dispatch_once_t onceToken;
     __block TZAlbumModel *model;
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
     PHFetchOptions *option = [[PHFetchOptions alloc] init];
-    if (!config.allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
-    if (!config.allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
-                                                PHAssetMediaTypeVideo];
+    //    if (!config.allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
+    //    if (!config.allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo];
     // option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
+    
+    NSMutableString *predicateString = @"".mutableCopy;
+    if (config.allowPickingImage) { // 允许选择图片
+        if (!config.allowPickingLivePhoto) { // 不允许选择LivePhoto
+            if (@available(iOS 9.1, *)) {
+                [predicateString appendString:[NSString stringWithFormat:@"(mediaType == %ld AND mediaSubtypes != %ld)", PHAssetMediaTypeImage, PHAssetMediaSubtypePhotoLive]];
+            } else {
+                [predicateString appendString:[NSString stringWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage]];
+            }
+        }else { // 允许选择LivePhoto
+            [predicateString appendString:[NSString stringWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage]];
+        }
+    }else {
+        if (config.allowPickingLivePhoto) {    // 不允许选择图片，只允许选择LivePhoto
+            if (@available(iOS 9.1, *)) {
+                [predicateString appendString:[NSString stringWithFormat:@"mediaSubtypes == %ld", PHAssetMediaSubtypePhotoLive]];
+            }
+        }
+    }
+    
+    // 允许选择视频
+    if (config.allowPickingVideo) {
+        if (predicateString.length > 0) {
+            [predicateString appendString:[NSString stringWithFormat:@"OR mediaType == %ld",PHAssetMediaTypeVideo]];
+        }else {
+            [predicateString appendString:[NSString stringWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo]];
+        }
+    }
+    
+    option.predicate = [NSPredicate predicateWithFormat:predicateString];
+    
     if (!self.sortAscendingByModificationDate) {
         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
     }
@@ -133,20 +164,51 @@ static dispatch_once_t onceToken;
     }
 }
 
-- (void)getAllAlbums:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(NSArray<TZAlbumModel *> *))completion {
+- (void)getAllAlbums:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage allowPickingLivePhoto:(BOOL)allowPickingLivePhoto needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(NSArray<TZAlbumModel *> *))completion {
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
     config.allowPickingVideo = allowPickingVideo;
     config.allowPickingImage = allowPickingImage;
+    config.allowPickingLivePhoto = allowPickingLivePhoto;
     [self getAllAlbumsWithFetchAssets:needFetchAssets completion:completion];
 }
 
+// 所有相册的列表
 - (void)getAllAlbumsWithFetchAssets:(BOOL)needFetchAssets completion:(void (^)(NSArray<TZAlbumModel *> *))completion {
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
     NSMutableArray *albumArr = [NSMutableArray array];
     PHFetchOptions *option = [[PHFetchOptions alloc] init];
-    if (!config.allowPickingVideo) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage];
-    if (!config.allowPickingImage) option.predicate = [NSPredicate predicateWithFormat:@"mediaType == %ld",
-                                                PHAssetMediaTypeVideo];
+    
+    NSMutableString *predicateString = @"".mutableCopy;
+    
+    if (config.allowPickingImage) { // 允许选择图片
+        if (!config.allowPickingLivePhoto) { // 不允许选择LivePhoto
+            if (@available(iOS 9.1, *)) {
+                [predicateString appendString:[NSString stringWithFormat:@"(mediaType == %ld AND mediaSubtypes != %ld)", PHAssetMediaTypeImage, PHAssetMediaSubtypePhotoLive]];
+            } else {
+                [predicateString appendString:[NSString stringWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage]];
+            }
+        }else { // 允许选择LivePhoto
+            [predicateString appendString:[NSString stringWithFormat:@"mediaType == %ld", PHAssetMediaTypeImage]];
+        }
+    }else {
+        if (config.allowPickingLivePhoto) {    // 不允许选择图片，只允许选择LivePhoto
+            if (@available(iOS 9.1, *)) {
+                [predicateString appendString:[NSString stringWithFormat:@"mediaSubtypes == %ld", PHAssetMediaSubtypePhotoLive]];
+            }
+        }
+    }
+    
+    // 允许选择视频
+    if (config.allowPickingVideo) {
+        if (predicateString.length > 0) {
+            [predicateString appendString:[NSString stringWithFormat:@"OR mediaType == %ld",PHAssetMediaTypeVideo]];
+        }else {
+            [predicateString appendString:[NSString stringWithFormat:@"mediaType == %ld", PHAssetMediaTypeVideo]];
+        }
+    }
+    
+    option.predicate = [NSPredicate predicateWithFormat:predicateString];
+    
     // option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"modificationDate" ascending:self.sortAscendingByModificationDate]];
     if (!self.sortAscendingByModificationDate) {
         option.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:self.sortAscendingByModificationDate]];
@@ -190,10 +252,11 @@ static dispatch_once_t onceToken;
 #pragma mark - Get Assets
 
 /// Get Assets 获得照片数组
-- (void)getAssetsFromFetchResult:(PHFetchResult *)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAssetModel *> *))completion {
+- (void)getAssetsFromFetchResult:(PHFetchResult *)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage allowPickingLivePhoto:(BOOL)allowPickingLivePhoto completion:(void (^)(NSArray<TZAssetModel *> *))completion {
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
     config.allowPickingVideo = allowPickingVideo;
     config.allowPickingImage = allowPickingImage;
+    config.allowPickingLivePhoto = allowPickingLivePhoto;
     return [self getAssetsFromFetchResult:result completion:completion];
 }
 
@@ -201,7 +264,7 @@ static dispatch_once_t onceToken;
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
     NSMutableArray *photoArr = [NSMutableArray array];
     [result enumerateObjectsUsingBlock:^(PHAsset *asset, NSUInteger idx, BOOL * _Nonnull stop) {
-        TZAssetModel *model = [self assetModelWithAsset:asset allowPickingVideo:config.allowPickingVideo allowPickingImage:config.allowPickingImage];
+        TZAssetModel *model = [self assetModelWithAsset:asset allowPickingVideo:config.allowPickingVideo allowPickingImage:config.allowPickingImage allowPickingLivePhoto:config.allowPickingLivePhoto];
         if (model) {
             [photoArr addObject:model];
         }
@@ -211,10 +274,11 @@ static dispatch_once_t onceToken;
 
 ///  Get asset at index 获得下标为index的单个照片
 ///  if index beyond bounds, return nil in callback 如果索引越界, 在回调中返回 nil
-- (void)getAssetFromFetchResult:(PHFetchResult *)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAssetModel *))completion {
+- (void)getAssetFromFetchResult:(PHFetchResult *)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage allowPickingLivePhoto:(BOOL)allowPickingLivePhoto completion:(void (^)(TZAssetModel *))completion {
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
     config.allowPickingVideo = allowPickingVideo;
     config.allowPickingImage = allowPickingImage;
+    config.allowPickingLivePhoto = allowPickingLivePhoto;
     [self getAssetFromFetchResult:result atIndex:index allowPickingVideo:config.allowPickingVideo allowPickingImage:config.allowPickingImage completion:completion];
 }
 
@@ -228,11 +292,11 @@ static dispatch_once_t onceToken;
         return;
     }
     TZImagePickerConfig *config = [TZImagePickerConfig sharedInstance];
-    TZAssetModel *model = [self assetModelWithAsset:asset allowPickingVideo:config.allowPickingVideo allowPickingImage:config.allowPickingImage];
+    TZAssetModel *model = [self assetModelWithAsset:asset allowPickingVideo:config.allowPickingVideo allowPickingImage:config.allowPickingImage allowPickingLivePhoto:config.allowPickingLivePhoto];
     if (completion) completion(model);
 }
 
-- (TZAssetModel *)assetModelWithAsset:(PHAsset *)asset allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage {
+- (TZAssetModel *)assetModelWithAsset:(PHAsset *)asset allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage allowPickingLivePhoto:(BOOL)allowPickingLivePhoto {
     BOOL canSelect = YES;
     if ([self.pickerDelegate respondsToSelector:@selector(isAssetCanSelect:)]) {
         canSelect = [self.pickerDelegate isAssetCanSelect:asset];
@@ -244,6 +308,7 @@ static dispatch_once_t onceToken;
     if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return nil;
     if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return nil;
     if (!allowPickingImage && type == TZAssetModelMediaTypePhotoGif) return nil;
+    if (!allowPickingLivePhoto && type == TZAssetModelMediaTypeLivePhoto) return nil;
     
     PHAsset *phAsset = (PHAsset *)asset;
     if (self.hideWhenCanNotSelect) {
@@ -265,7 +330,7 @@ static dispatch_once_t onceToken;
     else if (phAsset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
     else if (phAsset.mediaType == PHAssetMediaTypeImage) {
         if (@available(iOS 9.1, *)) {
-             if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
+            if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
         }
         // Gif
         if ([[phAsset valueForKey:@"filename"] hasSuffix:@"GIF"]) {
@@ -446,7 +511,7 @@ static dispatch_once_t onceToken;
 
 /// Get Original Photo / 获取原图
 - (PHImageRequestID)getOriginalPhotoWithAsset:(PHAsset *)asset completion:(void (^)(UIImage *photo,NSDictionary *info))completion {
-   return [self getOriginalPhotoWithAsset:asset newCompletion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+    return [self getOriginalPhotoWithAsset:asset newCompletion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         if (completion) {
             completion(photo,info);
         }
@@ -717,7 +782,7 @@ static dispatch_once_t onceToken;
                 session.videoComposition = videoComposition;
             }
         }
-
+        
         // Begin to export video to the output path asynchronously.
         [session exportAsynchronouslyWithCompletionHandler:^(void) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -809,16 +874,16 @@ static dispatch_once_t onceToken;
         return newImage;
         
         /* 好像不怎么管用：https://mp.weixin.qq.com/s/CiqMlEIp1Ir2EJSDGgMooQ
-        CGFloat maxPixelSize = MAX(size.width, size.height);
-        CGImageSourceRef sourceRef = CGImageSourceCreateWithData((__bridge CFDataRef)UIImageJPEGRepresentation(image, 0.9), nil);
-        NSDictionary *options = @{(__bridge id)kCGImageSourceCreateThumbnailFromImageAlways:(__bridge id)kCFBooleanTrue,
-                                  (__bridge id)kCGImageSourceThumbnailMaxPixelSize:[NSNumber numberWithFloat:maxPixelSize]
-                                  };
-        CGImageRef imageRef = CGImageSourceCreateImageAtIndex(sourceRef, 0, (__bridge CFDictionaryRef)options);
-        UIImage *newImage = [UIImage imageWithCGImage:imageRef scale:2 orientation:image.imageOrientation];
-        CGImageRelease(imageRef);
-        CFRelease(sourceRef);
-        return newImage;
+         CGFloat maxPixelSize = MAX(size.width, size.height);
+         CGImageSourceRef sourceRef = CGImageSourceCreateWithData((__bridge CFDataRef)UIImageJPEGRepresentation(image, 0.9), nil);
+         NSDictionary *options = @{(__bridge id)kCGImageSourceCreateThumbnailFromImageAlways:(__bridge id)kCFBooleanTrue,
+         (__bridge id)kCGImageSourceThumbnailMaxPixelSize:[NSNumber numberWithFloat:maxPixelSize]
+         };
+         CGImageRef imageRef = CGImageSourceCreateImageAtIndex(sourceRef, 0, (__bridge CFDictionaryRef)options);
+         UIImage *newImage = [UIImage imageWithCGImage:imageRef scale:2 orientation:image.imageOrientation];
+         CGImageRelease(imageRef);
+         CFRelease(sourceRef);
+         return newImage;
          */
     } else {
         return image;
@@ -828,6 +893,12 @@ static dispatch_once_t onceToken;
 /// 判断asset是否是视频
 - (BOOL)isVideo:(PHAsset *)asset {
     return asset.mediaType == PHAssetMediaTypeVideo;
+}
+
+/// 判断是否是Live Photo
+/// @param asset 需要判断的资源对象
+- (BOOL)isLivePhoto:(PHAsset *)asset {
+    return asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive;
 }
 
 - (TZAssetModel *)createModelWithAsset:(PHAsset *)asset {
