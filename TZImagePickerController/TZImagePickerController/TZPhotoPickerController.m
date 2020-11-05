@@ -46,6 +46,7 @@
 @property (strong, nonatomic) CLLocation *location;
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 @property (nonatomic, assign) BOOL isSavingMedia;
+@property (nonatomic, assign) BOOL isFetchingMedia;
 @end
 
 static CGSize AssetGridThumbnailSize;
@@ -441,6 +442,7 @@ static CGFloat itemMargin = 5;
     
     [tzImagePickerVc showProgressHUD];
     _doneButton.enabled = NO;
+    self.isFetchingMedia = YES;
     NSMutableArray *assets = [NSMutableArray array];
     NSMutableArray *photos;
     NSMutableArray *infoArr;
@@ -503,6 +505,7 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     [tzImagePickerVc hideProgressHUD];
     _doneButton.enabled = YES;
+    self.isFetchingMedia = NO;
 
     if (tzImagePickerVc.autoDismiss) {
         [self.navigationController dismissViewControllerAnimated:YES completion:^{
@@ -987,7 +990,7 @@ static CGFloat itemMargin = 5;
 #pragma mark - PHPhotoLibraryChangeObserver
 
 - (void)photoLibraryDidChange:(PHChange *)changeInstance {
-    if (self.isSavingMedia) {
+    if (self.isSavingMedia || self.isFetchingMedia) {
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{

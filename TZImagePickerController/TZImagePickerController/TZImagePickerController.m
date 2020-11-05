@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.5.1 - 2020.10.29
+//  version 3.5.2 - 2020.11.05
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -269,7 +269,7 @@
 
 - (void)configDefaultSetting {
     self.autoSelectCurrentWhenDone = YES;
-    self.timeout = 15;
+    self.timeout = 30;
     self.photoWidth = 828.0;
     self.photoPreviewMaxWidth = 600;
     self.naviTitleColor = [UIColor whiteColor];
