@@ -45,6 +45,7 @@
 @property (strong, nonatomic) CLLocation *location;
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 @property (nonatomic, assign) BOOL isSavingMedia;
+@property (nonatomic, assign) BOOL isFetchingMedia;
 @end
 
 static CGSize AssetGridThumbnailSize;
@@ -117,7 +118,7 @@ static CGFloat itemMargin = 5;
     }
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && self->_model.isCameraRoll) {
-            [[TZImageManager manager] getCameraRollAlbum:tzImagePickerVc.allowPickingVideo allowPickingImage:tzImagePickerVc.allowPickingImage needFetchAssets:YES completion:^(TZAlbumModel *model) {
+            [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:YES completion:^(TZAlbumModel *model) {
                 self->_model = model;
                 self->_models = [NSMutableArray arrayWithArray:self->_model.models];
                 [self initSubviews];
@@ -228,6 +229,7 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)configBottomToolBar {
+    if (_bottomToolBar) return;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (!tzImagePickerVc.showSelectBtn) return;
     
@@ -481,6 +483,7 @@ static CGFloat itemMargin = 5;
     
     [tzImagePickerVc showProgressHUD];
     _doneButton.enabled = NO;
+    self.isFetchingMedia = YES;
     NSMutableArray *assets = [NSMutableArray array];
     NSMutableArray *photos;
     NSMutableArray *infoArr;
@@ -512,8 +515,12 @@ static CGFloat itemMargin = 5;
                 
                 for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
                 
-                if (havenotShowAlert) {
-                    [tzImagePickerVc hideAlertView:alertView];
+                if (havenotShowAlert && alertView) {
+                    [alertView dismissViewControllerAnimated:YES completion:^{
+                        alertView = nil;
+                        [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
+                    }];
+                } else {
                     [self didGetAllPhotos:photos assets:assets infoArr:infoArr];
                 }
             } progressHandler:^(double progress, NSError * _Nonnull error, BOOL * _Nonnull stop, NSDictionary * _Nonnull info) {
@@ -539,6 +546,7 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     [tzImagePickerVc hideProgressHUD];
     _doneButton.enabled = YES;
+    self.isFetchingMedia = NO;
 
     if (tzImagePickerVc.autoDismiss) {
         [self.navigationController dismissViewControllerAnimated:YES completion:^{
@@ -1000,7 +1008,7 @@ static CGFloat itemMargin = 5;
 #pragma mark - PHPhotoLibraryChangeObserver
 
 - (void)photoLibraryDidChange:(PHChange *)changeInstance {
-    if (self.isSavingMedia) {
+    if (self.isSavingMedia || self.isFetchingMedia) {
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{

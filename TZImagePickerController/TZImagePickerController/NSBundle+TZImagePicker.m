@@ -12,7 +12,11 @@
 @implementation NSBundle (TZImagePicker)
 
 + (NSBundle *)tz_imagePickerBundle {
+#ifdef TZ_SPM
+    NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+#else
     NSBundle *bundle = [NSBundle bundleForClass:[TZImagePickerController class]];
+#endif
     NSURL *url = [bundle URLForResource:@"TZImagePickerController" withExtension:@"bundle"];
     bundle = [NSBundle bundleWithURL:url];
     return bundle;

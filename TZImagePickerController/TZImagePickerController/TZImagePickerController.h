@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.4.5 - 2020.10.15
+//  version 3.5.2 - 2020.11.05
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -67,8 +67,8 @@
 /// Default is 600px / 默认600像素宽
 @property (nonatomic, assign) CGFloat photoPreviewMaxWidth;
 
-/// Default is 15, While fetching photo, HUD will dismiss automatic if timeout;
-/// 超时时间，默认为15秒，当取图片时间超过15秒还没有取成功时，会自动dismiss HUD；
+/// Default is 30, While fetching photo, HUD will dismiss automatic if timeout;
+/// 超时时间，默认为30秒，当取图片时间超过30秒还没有取成功时，会自动dismiss HUD；
 @property (nonatomic, assign) NSInteger timeout;
 
 /// Default is YES, if set NO, the original photo button will hide. user can't picking original photo.
@@ -196,7 +196,6 @@
 
 #pragma mark -
 - (UIAlertController *)showAlertWithTitle:(NSString *)title;
-- (void)hideAlertView:(UIAlertController *)alertView;
 - (void)showProgressHUD;
 - (void)hideProgressHUD;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
