@@ -124,6 +124,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
+3.5.3 修复iOS14下iCloud视频导出失败问题        
 **3.5.2 适配iPhone12系列设备**        
 3.4.4 支持Dark Mode      
 **3.4.2 适配iOS14，若干问题修复**                  

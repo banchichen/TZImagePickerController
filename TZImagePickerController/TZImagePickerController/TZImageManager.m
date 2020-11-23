@@ -627,14 +627,15 @@ static dispatch_once_t onceToken;
 
 /// Export Video / 导出视频
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
-    [self getVideoOutputPathWithAsset:asset presetName:AVAssetExportPreset640x480 success:success failure:failure];
+    [self getVideoOutputPathWithAsset:asset presetName:AVAssetExportPresetMediumQuality success:success failure:failure];
 }
 
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
-    PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
-    options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
-    options.networkAccessAllowed = YES;
-    [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:options resultHandler:^(AVAsset* avasset, AVAudioMix* audioMix, NSDictionary* info){
+    if (@available(iOS 14.0, *)) {
+        [self requestVideoOutputPathWithAsset:asset presetName:presetName success:success failure:failure];
+        return;
+    }
+    [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:[self getVideoRequestOptions] resultHandler:^(AVAsset* avasset, AVAudioMix* audioMix, NSDictionary* info){
         // NSLog(@"Info:\n%@",info);
         AVURLAsset *videoAsset = (AVURLAsset*)avasset;
         // NSLog(@"AVAsset URL: %@",myAsset.URL);
@@ -642,25 +643,20 @@ static dispatch_once_t onceToken;
     }];
 }
 
-/// Deprecated, Use -getVideoOutputPathWithAsset:failure:success:
-- (void)getVideoOutputPathWithAsset:(PHAsset *)asset completion:(void (^)(NSString *outputPath))completion {
-    [self getVideoOutputPathWithAsset:asset success:completion failure:nil];
-}
-
 - (void)startExportVideoWithVideoAsset:(AVURLAsset *)videoAsset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+    if (!presetName) {
+        presetName = AVAssetExportPresetMediumQuality;
+    }
     // Find compatible presets by video asset.
     NSArray *presets = [AVAssetExportSession exportPresetsCompatibleWithAsset:videoAsset];
-    
     // Begin to compress video
     // Now we just compress to low resolution if it supports
     // If you need to upload to the server, but server does't support to upload by streaming,
     // You can compress the resolution to lower. Or you can support more higher resolution.
     if ([presets containsObject:presetName]) {
         AVAssetExportSession *session = [[AVAssetExportSession alloc] initWithAsset:videoAsset presetName:presetName];
-        NSDateFormatter *formater = [[NSDateFormatter alloc] init];
-        [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss-SSS"];
-        NSString *outputPath = [NSHomeDirectory() stringByAppendingFormat:@"/tmp/video-%@.mp4", [formater stringFromDate:[NSDate date]]];
-        
+        NSString *outputPath = [self getVideoOutputPath];
+
         // Optimize for network use.
         session.shouldOptimizeForNetworkUse = true;
         
@@ -696,38 +692,7 @@ static dispatch_once_t onceToken;
 
         // Begin to export video to the output path asynchronously.
         [session exportAsynchronouslyWithCompletionHandler:^(void) {
-            dispatch_async(dispatch_get_main_queue(), ^{
-                switch (session.status) {
-                    case AVAssetExportSessionStatusUnknown: {
-                        NSLog(@"AVAssetExportSessionStatusUnknown");
-                    }  break;
-                    case AVAssetExportSessionStatusWaiting: {
-                        NSLog(@"AVAssetExportSessionStatusWaiting");
-                    }  break;
-                    case AVAssetExportSessionStatusExporting: {
-                        NSLog(@"AVAssetExportSessionStatusExporting");
-                    }  break;
-                    case AVAssetExportSessionStatusCompleted: {
-                        NSLog(@"AVAssetExportSessionStatusCompleted");
-                        if (success) {
-                            success(outputPath);
-                        }
-                    }  break;
-                    case AVAssetExportSessionStatusFailed: {
-                        NSLog(@"AVAssetExportSessionStatusFailed");
-                        if (failure) {
-                            failure(@"视频导出失败", session.error);
-                        }
-                    }  break;
-                    case AVAssetExportSessionStatusCancelled: {
-                        NSLog(@"AVAssetExportSessionStatusCancelled");
-                        if (failure) {
-                            failure(@"导出任务已被取消", nil);
-                        }
-                    }  break;
-                    default: break;
-                }
-            });
+            [self handleVideoExportResult:session outputPath:outputPath success:success failure:failure];
         }];
     } else {
         if (failure) {
@@ -735,6 +700,84 @@ static dispatch_once_t onceToken;
             failure(errorMessage, nil);
         }
     }
+}
+
+- (void)requestVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+    if (!presetName) {
+        presetName = AVAssetExportPresetMediumQuality;
+    }
+    [[PHImageManager defaultManager] requestExportSessionForVideo:asset options:[self getVideoRequestOptions] exportPreset:presetName resultHandler:^(AVAssetExportSession *_Nullable exportSession, NSDictionary *_Nullable info) {
+        NSString *outputPath = [self getVideoOutputPath];
+        exportSession.outputURL = [NSURL fileURLWithPath:outputPath];
+        exportSession.shouldOptimizeForNetworkUse = NO;
+        exportSession.outputFileType = AVFileTypeMPEG4;
+        [exportSession exportAsynchronouslyWithCompletionHandler:^{
+            [self handleVideoExportResult:exportSession outputPath:outputPath success:success failure:failure];
+        }];
+    }];
+}
+
+- (void)requestVideoURLWithAsset:(PHAsset *)asset success:(void (^)(NSURL *videoURL))success failure:(void (^)(NSDictionary* info))failure {
+    [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:[self getVideoRequestOptions] resultHandler:^(AVAsset* avasset, AVAudioMix* audioMix, NSDictionary* info){
+        // NSLog(@"AVAsset URL: %@",myAsset.URL);
+        if ([asset isKindOfClass:[AVURLAsset class]]) {
+            NSURL *url = [(AVURLAsset *)avasset URL];
+            if (success) {
+                success(url);
+            }
+        } else if (failure) {
+            failure(info);
+        }
+    }];
+}
+
+- (void)handleVideoExportResult:(AVAssetExportSession *)session outputPath:(NSString *)outputPath success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        switch (session.status) {
+            case AVAssetExportSessionStatusUnknown: {
+                NSLog(@"AVAssetExportSessionStatusUnknown");
+            }  break;
+            case AVAssetExportSessionStatusWaiting: {
+                NSLog(@"AVAssetExportSessionStatusWaiting");
+            }  break;
+            case AVAssetExportSessionStatusExporting: {
+                NSLog(@"AVAssetExportSessionStatusExporting");
+            }  break;
+            case AVAssetExportSessionStatusCompleted: {
+                NSLog(@"AVAssetExportSessionStatusCompleted");
+                if (success) {
+                    success(outputPath);
+                }
+            }  break;
+            case AVAssetExportSessionStatusFailed: {
+                NSLog(@"AVAssetExportSessionStatusFailed");
+                if (failure) {
+                    failure(@"视频导出失败", session.error);
+                }
+            }  break;
+            case AVAssetExportSessionStatusCancelled: {
+                NSLog(@"AVAssetExportSessionStatusCancelled");
+                if (failure) {
+                    failure(@"导出任务已被取消", nil);
+                }
+            }  break;
+            default: break;
+        }
+    });
+}
+
+- (PHVideoRequestOptions *)getVideoRequestOptions {
+    PHVideoRequestOptions* options = [[PHVideoRequestOptions alloc] init];
+    options.deliveryMode = PHVideoRequestOptionsDeliveryModeAutomatic;
+    options.networkAccessAllowed = YES;
+    return options;
+}
+
+- (NSString *)getVideoOutputPath {
+    NSDateFormatter *formater = [[NSDateFormatter alloc] init];
+    [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss-SSS"];
+    NSString *outputPath = [NSHomeDirectory() stringByAppendingFormat:@"/tmp/video-%@-%d.mp4", [formater stringFromDate:[NSDate date]], arc4random_uniform(10000000)];
+    return outputPath;
 }
 
 - (BOOL)isCameraRollAlbum:(PHAssetCollection *)metadata {
