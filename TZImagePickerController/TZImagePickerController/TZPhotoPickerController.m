@@ -620,7 +620,6 @@ static CGFloat itemMargin = 5;
             }
             [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
             if (strongCell.model.iCloudFailed) {
-                [strongSelf->_models replaceObjectAtIndex:indexPath.item withObject:strongCell.model];
                 NSString *title = [NSBundle tz_localizedStringForKey:@"iCloud sync failed"];
                 [tzImagePickerVc showAlertWithTitle:title];
             }
