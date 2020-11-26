@@ -1,5 +1,5 @@
 //
-//  UIView+Layout.h
+//  UIView+TZLayout.h
 //
 //  Created by 谭真 on 15/2/24.
 //  Copyright © 2015年 谭真. All rights reserved.
@@ -12,7 +12,7 @@ typedef enum : NSUInteger {
     TZOscillatoryAnimationToSmaller,
 } TZOscillatoryAnimationType;
 
-@interface UIView (Layout)
+@interface UIView (TZLayout)
 
 @property (nonatomic) CGFloat tz_left;        ///< Shortcut for frame.origin.x.
 @property (nonatomic) CGFloat tz_top;         ///< Shortcut for frame.origin.y
