@@ -183,6 +183,9 @@
 }
 
 - (void)doneButtonClick {
+    if (![[TZImageManager manager] checkAssetCanBeSelected:_model.asset]) {
+        return;
+    }
     if (self.navigationController) {
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
         if (imagePickerVc.autoDismiss) {

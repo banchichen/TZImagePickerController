@@ -805,6 +805,15 @@ static dispatch_once_t onceToken;
     return YES;
 }
 
+/// 检查照片能否被选中
+- (BOOL)checkAssetCanBeSelected:(PHAsset *)asset {
+    if ([self.pickerDelegate respondsToSelector:@selector(isAssetCanBeSelected:)]) {
+        BOOL canSelectAsset = [self.pickerDelegate isAssetCanBeSelected:asset];
+        return canSelectAsset;
+    }
+    return YES;
+}
+
 #pragma mark - Private Method
 
 - (TZAlbumModel *)modelWithResult:(PHFetchResult *)result collection:(PHAssetCollection *)collection isCameraRoll:(BOOL)isCameraRoll needFetchAssets:(BOOL)needFetchAssets options:(PHFetchOptions *)options {
