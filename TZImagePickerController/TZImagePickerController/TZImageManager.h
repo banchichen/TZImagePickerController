@@ -110,7 +110,7 @@
 - (BOOL)isPhotoSelectableWithAsset:(PHAsset *)asset;
 
 /// 检查照片能否被选中
-- (BOOL)checkAssetCanBeSelected:(PHAsset *)asset;
+- (BOOL)isAssetCannotBeSelected:(PHAsset *)asset;
 
 /// 修正图片转向
 - (UIImage *)fixOrientation:(UIImage *)aImage;

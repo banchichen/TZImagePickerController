@@ -632,7 +632,7 @@
 
 // Decide asset show or not't
 // 决定asset显示与否
-- (BOOL)isAssetCanSelect:(PHAsset *)asset {
+- (BOOL)isAssetCanBeDisplayed:(PHAsset *)asset {
     /*
     switch (asset.mediaType) {
         case PHAssetMediaTypeVideo: {

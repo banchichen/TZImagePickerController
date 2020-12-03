@@ -183,7 +183,7 @@
 }
 
 - (void)doneButtonClick {
-    if (![[TZImageManager manager] checkAssetCanBeSelected:_model.asset]) {
+    if ([[TZImageManager manager] isAssetCannotBeSelected:_model.asset]) {
         return;
     }
     if (self.navigationController) {

@@ -627,7 +627,7 @@ static CGFloat itemMargin = 5;
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
-                if (![[TZImageManager manager] checkAssetCanBeSelected:model.asset]) {
+                if ([[TZImageManager manager] isAssetCannotBeSelected:model.asset]) {
                     return;
                 }
                 if (!tzImagePickerVc.allowPreview) {
@@ -944,7 +944,7 @@ static CGFloat itemMargin = 5;
         if (assetModel.type == TZAssetModelMediaTypeVideo && !tzImagePickerVc.allowPickingMultipleVideo) {
             // 不能多选视频的情况下，不选中拍摄的视频
         } else {
-            if (![[TZImageManager manager] checkAssetCanBeSelected:assetModel.asset]) {
+            if ([[TZImageManager manager] isAssetCannotBeSelected:assetModel.asset]) {
                 return;
             }
             assetModel.isSelected = YES;
