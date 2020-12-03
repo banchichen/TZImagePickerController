@@ -632,7 +632,36 @@
 
 // Decide asset show or not't
 // 决定asset显示与否
-- (BOOL)isAssetCanSelect:(PHAsset *)asset {
+- (BOOL)isAssetCanBeDisplayed:(PHAsset *)asset {
+    /*
+    switch (asset.mediaType) {
+        case PHAssetMediaTypeVideo: {
+            // 视频时长
+            // NSTimeInterval duration = phAsset.duration;
+            return NO;
+        } break;
+        case PHAssetMediaTypeImage: {
+            // 图片尺寸
+            if (phAsset.pixelWidth > 3000 || phAsset.pixelHeight > 3000) {
+                // return NO;
+            }
+            return YES;
+        } break;
+        case PHAssetMediaTypeAudio:
+            return NO;
+            break;
+        case PHAssetMediaTypeUnknown:
+            return NO;
+            break;
+        default: break;
+    }
+     */
+    return YES;
+}
+
+// Decide asset can be selected
+// 决定照片能否被选中
+- (BOOL)isAssetCanBeSelected:(PHAsset *)asset {
     /*
     switch (asset.mediaType) {
         case PHAssetMediaTypeVideo: {

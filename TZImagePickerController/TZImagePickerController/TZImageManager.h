@@ -109,6 +109,9 @@
 /// 检查照片大小是否满足最小要求
 - (BOOL)isPhotoSelectableWithAsset:(PHAsset *)asset;
 
+/// 检查照片能否被选中
+- (BOOL)isAssetCannotBeSelected:(PHAsset *)asset;
+
 /// 修正图片转向
 - (UIImage *)fixOrientation:(UIImage *)aImage;
 

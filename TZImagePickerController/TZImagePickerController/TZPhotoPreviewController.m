@@ -314,6 +314,9 @@
             return;
             // 2. if not over the maxImagesCount / 如果没有超过最大个数限制
         } else {
+            if ([[TZImageManager manager] isAssetCannotBeSelected:model.asset]) {
+                return;
+            }
             [_tzImagePickerVc addSelectedModel:model];
             if (self.photos) {
                 [_tzImagePickerVc.selectedAssets addObject:_assetsTemp[self.currentIndex]];
@@ -389,6 +392,10 @@
     
     // 如果没有选中过照片 点击确定时选中当前预览的照片
     if (_tzImagePickerVc.selectedModels.count == 0 && _tzImagePickerVc.minImagesCount <= 0 && _tzImagePickerVc.autoSelectCurrentWhenDone) {
+        TZAssetModel *model = _models[self.currentIndex];
+        if ([[TZImageManager manager] isAssetCannotBeSelected:model.asset]) {
+            return;
+        }
         [self select:_selectButton];
     }
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.currentIndex inSection:0];
@@ -415,6 +422,10 @@
 }
 
 - (void)originalPhotoButtonClick {
+    TZAssetModel *model = _models[self.currentIndex];
+    if ([[TZImageManager manager] isAssetCannotBeSelected:model.asset]) {
+        return;
+    }
     _originalPhotoButton.selected = !_originalPhotoButton.isSelected;
     _isSelectOriginalPhoto = _originalPhotoButton.isSelected;
     _originalPhotoLabel.hidden = !_originalPhotoButton.isSelected;
