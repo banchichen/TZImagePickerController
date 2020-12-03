@@ -287,7 +287,7 @@
 
 // Decide asset show or not't
 // 决定照片显示与否
-- (BOOL)isAssetCanSelect:(PHAsset *)asset __attribute__((deprecated("Use -isAssetCanBeDisplayed.")));
+- (BOOL)isAssetCanSelect:(PHAsset *)asset __attribute__((deprecated("Use -isAssetCanBeDisplayed:.")));
 - (BOOL)isAssetCanBeDisplayed:(PHAsset *)asset;
 
 // Decide asset can be selected
