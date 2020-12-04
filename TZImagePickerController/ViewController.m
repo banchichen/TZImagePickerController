@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 #import "TZImagePickerController.h"
-#import "UIView+Layout.h"
+#import "UIView+TZLayout.h"
 #import "TZTestCell.h"
 #import <Photos/Photos.h>
 #import "LxGridViewFlowLayout.h"
