@@ -642,8 +642,8 @@
         } break;
         case PHAssetMediaTypeImage: {
             // 图片尺寸
-            if (phAsset.pixelWidth > 3000 || phAsset.pixelHeight > 3000) {
-                // return NO;
+            if (asset.pixelWidth > 3000 || asset.pixelHeight > 3000) {
+                 return NO;
             }
             return YES;
         } break;
@@ -671,8 +671,11 @@
         } break;
         case PHAssetMediaTypeImage: {
             // 图片尺寸
-            if (phAsset.pixelWidth > 3000 || phAsset.pixelHeight > 3000) {
-                // return NO;
+            if (asset.pixelWidth > 3000 || asset.pixelHeight > 3000) {
+                UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"不支持选择超大图片" message:nil preferredStyle:UIAlertControllerStyleAlert];
+                [alertController addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:nil]];
+                [self.presentedViewController presentViewController:alertController animated:YES completion:nil];
+                return NO;
             }
             return YES;
         } break;

@@ -87,7 +87,8 @@ A：请参考 https://github.com/banchichen/TZImagePickerController/issues/443 �
 A：3.0.1版本已支持，需新接一个库：[TZImagePreviewController](https://github.com/banchichen/TZImagePreviewController)，请参考里面的Demo使用。       
 
 **Q：设置可选视频的最大/最小时长？照片的最小/最大尺寸？不符合要求的不显示**       
-A：可以的，参照Demo的isAssetCanBeDisplayed方法实现。我会返回asset出来，显示与否你来决定，注意这个是一个同步方法，对于需要根据asset去异步获取的信息如视频的大小、视频是否存在iCloud里来过滤的，无法做到。如果真要这样做，相册打开速度会变慢，你需要改我源码。
+A：可以的，参照Demo的isAssetCanBeDisplayed方法实现。我会返回asset出来，显示与否你来决定，注意这个是一个同步方法，对于需要根据asset去异步获取的信息如视频的大小、视频是否存在iCloud里来过滤的，无法做到。如果真要这样做，相册打开速度会变慢，你需要改我源码。       
+如果需要显示，选择时才提醒用户不可选，则实现isAssetCanBeSelected，用户选择时会调用它        
 
 **Q：预览页面出现了导航栏？**        
 A：https://github.com/banchichen/TZImagePickerController/issues/652         
