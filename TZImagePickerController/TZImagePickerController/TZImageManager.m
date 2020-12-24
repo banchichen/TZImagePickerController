@@ -467,14 +467,14 @@ static dispatch_once_t onceToken;
         [option setProgressHandler:progressHandler];
     }
     option.resizeMode = PHImageRequestOptionsResizeModeFast;
-    return [[PHImageManager defaultManager] requestImageForAsset:asset targetSize:PHImageManagerMaximumSize contentMode:PHImageContentModeAspectFit options:option resultHandler:^(UIImage *result, NSDictionary *info) {
-        BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
-        if (!cancelled && result) {
-            result = [self fixOrientation:result];
-            BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
-            if (completion) completion(result,info,isDegraded);
-        }
-    }];
+    return [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+            BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
+            if (!cancelled && imageData) {
+                UIImage *result = [self fixOrientation:[UIImage imageWithData:imageData]];
+                BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
+                if (completion) completion(result,info,isDegraded);
+            }
+        }];
 }
 
 - (PHImageRequestID)getOriginalPhotoDataWithAsset:(PHAsset *)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion {
