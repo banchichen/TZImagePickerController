@@ -8,7 +8,7 @@
 
 #import "TZAssetCell.h"
 #import "TZAssetModel.h"
-#import "UIView+Layout.h"
+#import "UIView+TZLayout.h"
 #import "TZImageManager.h"
 #import "TZImagePickerController.h"
 #import "TZProgressView.h"

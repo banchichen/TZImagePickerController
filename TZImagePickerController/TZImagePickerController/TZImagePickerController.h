@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.5.2 - 2020.11.05
+//  version 3.5.8 - 2020.12.25
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -287,7 +287,12 @@
 
 // Decide asset show or not't
 // 决定照片显示与否
-- (BOOL)isAssetCanSelect:(PHAsset *)asset;
+- (BOOL)isAssetCanSelect:(PHAsset *)asset __attribute__((deprecated("Use -isAssetCanBeDisplayed:.")));
+- (BOOL)isAssetCanBeDisplayed:(PHAsset *)asset;
+
+// Decide asset can be selected
+// 决定照片能否被选中
+- (BOOL)isAssetCanBeSelected:(PHAsset *)asset;
 @end
 
 

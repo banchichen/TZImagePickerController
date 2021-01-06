@@ -5,7 +5,7 @@
 
 #import "LxGridViewFlowLayout.h"
 #import "TZTestCell.h"
-#import "UIView+Layout.h"
+#import "UIView+TZLayout.h"
 
 #define stringify   __STRING
 

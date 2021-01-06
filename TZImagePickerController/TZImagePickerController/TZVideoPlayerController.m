@@ -8,7 +8,7 @@
 
 #import "TZVideoPlayerController.h"
 #import <MediaPlayer/MediaPlayer.h>
-#import "UIView+Layout.h"
+#import "UIView+TZLayout.h"
 #import "TZImageManager.h"
 #import "TZAssetModel.h"
 #import "TZImagePickerController.h"
@@ -183,6 +183,9 @@
 }
 
 - (void)doneButtonClick {
+    if ([[TZImageManager manager] isAssetCannotBeSelected:_model.asset]) {
+        return;
+    }
     if (self.navigationController) {
         TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
         if (imagePickerVc.autoDismiss) {

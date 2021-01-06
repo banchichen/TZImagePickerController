@@ -11,7 +11,7 @@
 #import "TZPhotoPreviewController.h"
 #import "TZAssetCell.h"
 #import "TZAssetModel.h"
-#import "UIView+Layout.h"
+#import "UIView+TZLayout.h"
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
@@ -117,13 +117,14 @@ static CGFloat itemMargin = 5;
         [tzImagePickerVc showProgressHUD];
     }
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        CGFloat systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
         if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && self->_model.isCameraRoll) {
             [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:YES completion:^(TZAlbumModel *model) {
                 self->_model = model;
                 self->_models = [NSMutableArray arrayWithArray:self->_model.models];
                 [self initSubviews];
             }];
-        } else if (self->_showTakePhotoBtn || self->_isFirstAppear || !self.model.models) {
+        } else if (self->_showTakePhotoBtn || self->_isFirstAppear || !self.model.models || systemVersion >= 14.0) {
             [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
                 self->_models = [NSMutableArray arrayWithArray:models];
                 [self initSubviews];
@@ -662,13 +663,15 @@ static CGFloat itemMargin = 5;
             }
             [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
             if (strongCell.model.iCloudFailed) {
-                [strongSelf->_models replaceObjectAtIndex:indexPath.item withObject:strongCell.model];
                 NSString *title = [NSBundle tz_localizedStringForKey:@"iCloud sync failed"];
                 [tzImagePickerVc showAlertWithTitle:title];
             }
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
             if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
+                if ([[TZImageManager manager] isAssetCannotBeSelected:model.asset]) {
+                    return;
+                }
                 if (!tzImagePickerVc.allowPreview) {
                     BOOL shouldDone = tzImagePickerVc.maxImagesCount == 1;
                     if (!tzImagePickerVc.allowPickingMultipleVideo && (model.type == TZAssetModelMediaTypeVideo || model.type == TZAssetModelMediaTypePhotoGif)) {
@@ -983,6 +986,9 @@ static CGFloat itemMargin = 5;
         if (assetModel.type == TZAssetModelMediaTypeVideo && !tzImagePickerVc.allowPickingMultipleVideo) {
             // 不能多选视频的情况下，不选中拍摄的视频
         } else {
+            if ([[TZImageManager manager] isAssetCannotBeSelected:assetModel.asset]) {
+                return;
+            }
             assetModel.isSelected = YES;
             [tzImagePickerVc addSelectedModel:assetModel];
             [self refreshBottomToolBarStatus];
