@@ -309,6 +309,10 @@ static CGFloat itemMargin = 5;
     _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
     _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
     _numberLabel.backgroundColor = [UIColor clearColor];
+    _numberLabel.userInteractionEnabled = YES;
+
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doneButtonClick)];
+    [_numberLabel addGestureRecognizer:tapGesture];
     
     _divideLine = [[UIView alloc] init];
     CGFloat rgb2 = 222 / 255.0;
