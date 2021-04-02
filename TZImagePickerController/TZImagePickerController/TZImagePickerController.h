@@ -269,6 +269,16 @@
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingPhotos:(NSArray<UIImage *> *)photos sourceAssets:(NSArray *)assets isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto infos:(NSArray<NSDictionary *> *)infos;
 - (void)tz_imagePickerControllerDidCancel:(TZImagePickerController *)picker;
 
+/// 如果用户选择了某张照片下面的代理方法会被执行
+/// 如果isSelectOriginalPhoto为YES，表明用户选择了原图
+/// 你可以通过一个asset获得原图，通过这个方法：[[TZImageManager manager] getOriginalPhotoWithAsset:completion:]
+- (void)imagePickerController:(TZImagePickerController *)picker didSelectAsset:(PHAsset *)asset photo:(UIImage *)photo isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto;
+
+/// 如果用户取消选择了某张照片下面的代理方法会被执行
+/// 如果isSelectOriginalPhoto为YES，表明用户选择了原图
+/// 你可以通过一个asset获得原图，通过这个方法：[[TZImageManager manager] getOriginalPhotoWithAsset:completion:]
+- (void)imagePickerController:(TZImagePickerController *)picker didDeselectAsset:(PHAsset *)asset photo:(UIImage *)photo isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto;
+
 // If user picking a video and allowPickingMultipleVideo is NO, this callback will be called.
 // If allowPickingMultipleVideo is YES, will call imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:
 // 如果用户选择了一个视频且allowPickingMultipleVideo是NO，下面的代理方法会被执行

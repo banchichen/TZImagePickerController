@@ -616,6 +616,7 @@ static CGFloat itemMargin = 5;
             for (TZAssetModel *model_item in selectedModels) {
                 if ([model.asset.localIdentifier isEqualToString:model_item.asset.localIdentifier]) {
                     [tzImagePickerVc removeSelectedModel:model_item];
+                    [strongSelf setAsset:model_item.asset isSelect:NO];
                     break;
                 }
             }
@@ -652,6 +653,7 @@ static CGFloat itemMargin = 5;
                 if (tzImagePickerVc.showSelectedIndex || tzImagePickerVc.showPhotoCannotSelectLayer) {
                     [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_PHOTO_PICKER_RELOAD_NOTIFICATION" object:strongSelf.navigationController];
                 }
+                [strongSelf setAsset:model.asset isSelect:YES];
                 [strongSelf refreshBottomToolBarStatus];
                 [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
             } else {
@@ -874,6 +876,34 @@ static CGFloat itemMargin = 5;
     }
 }
 
+/// 选中/取消选中某张照片
+- (void)setAsset:(PHAsset *)asset isSelect:(BOOL)isSelect {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (isSelect && [tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didSelectAsset:photo:isSelectOriginalPhoto:)]) {
+        [self callDelegate:asset isSelect:YES];
+    }
+    if (!isSelect && [tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didDeselectAsset:photo:isSelectOriginalPhoto:)]) {
+        [self callDelegate:asset isSelect:NO];
+    }
+}
+
+/// 调用选中/取消选中某张照片的代理方法
+- (void)callDelegate:(PHAsset *)asset isSelect:(BOOL)isSelect {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    __weak typeof(self) weakSelf = self;
+    __weak typeof(tzImagePickerVc) weakImagePickerVc= tzImagePickerVc;
+    [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        if (isDegraded) return;
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        __strong typeof(weakImagePickerVc) strongImagePickerVc = weakImagePickerVc;
+        if (isSelect) {
+            [strongImagePickerVc.pickerDelegate imagePickerController:strongImagePickerVc didSelectAsset:asset photo:photo isSelectOriginalPhoto:strongSelf.isSelectOriginalPhoto];
+        } else {
+            [strongImagePickerVc.pickerDelegate imagePickerController:strongImagePickerVc didDeselectAsset:asset photo:photo isSelectOriginalPhoto:strongSelf.isSelectOriginalPhoto];
+        }
+    }];
+}
+
 #pragma mark - UIImagePickerControllerDelegate
 
 - (void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
@@ -980,7 +1010,7 @@ static CGFloat itemMargin = 5;
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.model refreshFetchResult];        
+        [self.model refreshFetchResult];
         [self fetchAssetModels];
     });
 }
