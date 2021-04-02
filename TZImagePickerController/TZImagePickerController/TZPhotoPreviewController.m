@@ -318,6 +318,7 @@
                 return;
             }
             [_tzImagePickerVc addSelectedModel:model];
+            [self setAsset:model.asset isSelect:YES];
             if (self.photos) {
                 [_tzImagePickerVc.selectedAssets addObject:_assetsTemp[self.currentIndex]];
                 [self.photos addObject:_photosTemp[self.currentIndex]];
@@ -353,6 +354,7 @@
                     // [_tzImagePickerVc.selectedAssets removeObject:_assetsTemp[self.currentIndex]];
                     [self.photos removeObject:_photosTemp[self.currentIndex]];
                 }
+                [self setAsset:model.asset isSelect:NO];
                 break;
             }
         }
@@ -636,6 +638,34 @@
 
 - (NSInteger)currentIndex {
     return [TZCommonTools tz_isRightToLeftLayout] ? self.models.count - _currentIndex - 1 : _currentIndex;
+}
+
+/// 选中/取消选中某张照片
+- (void)setAsset:(PHAsset *)asset isSelect:(BOOL)isSelect {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (isSelect && [tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didSelectAsset:photo:isSelectOriginalPhoto:)]) {
+        [self callDelegate:asset isSelect:YES];
+    }
+    if (!isSelect && [tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didDeselectAsset:photo:isSelectOriginalPhoto:)]) {
+        [self callDelegate:asset isSelect:NO];
+    }
+}
+
+/// 调用选中/取消选中某张照片的代理方法
+- (void)callDelegate:(PHAsset *)asset isSelect:(BOOL)isSelect {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    __weak typeof(self) weakSelf = self;
+    __weak typeof(tzImagePickerVc) weakImagePickerVc= tzImagePickerVc;
+    [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        if (isDegraded) return;
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        __strong typeof(weakImagePickerVc) strongImagePickerVc = weakImagePickerVc;
+        if (isSelect) {
+            [strongImagePickerVc.pickerDelegate imagePickerController:strongImagePickerVc didSelectAsset:asset photo:photo isSelectOriginalPhoto:strongSelf.isSelectOriginalPhoto];
+        } else {
+            [strongImagePickerVc.pickerDelegate imagePickerController:strongImagePickerVc didDeselectAsset:asset photo:photo isSelectOriginalPhoto:strongSelf.isSelectOriginalPhoto];
+        }
+    }];
 }
 
 @end

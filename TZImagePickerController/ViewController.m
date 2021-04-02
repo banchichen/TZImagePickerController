@@ -563,14 +563,14 @@
     _isSelectOriginalPhoto = isSelectOriginalPhoto;
     [_collectionView reloadData];
     // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
-    
+
     // 1.打印图片名字
     [self printAssetsName:assets];
     // 2.图片位置信息
     for (PHAsset *phAsset in assets) {
         NSLog(@"location:%@",phAsset.location);
     }
-    
+
     // 3. 获取原图的示例，用队列限制最大并发为1，避免内存暴增
     self.operationQueue = [[NSOperationQueue alloc] init];
     self.operationQueue.maxConcurrentOperationCount = 1;
@@ -585,6 +585,32 @@
         }];
         [self.operationQueue addOperation:operation];
     }
+}
+
+/// 如果用户选择了某张照片下面的代理方法会被执行
+/// 如果isSelectOriginalPhoto为YES，表明用户选择了原图
+/// 你可以通过一个asset获得原图，通过这个方法：[[TZImageManager manager] getOriginalPhotoWithAsset:completion:]
+- (void)imagePickerController:(TZImagePickerController *)picker didSelectAsset:(PHAsset *)asset photo:(UIImage *)photo isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
+//    [_selectedAssets addObject:asset];
+//    [_selectedPhotos addObject:photo];
+//    [self.collectionView reloadData];
+}
+
+/// 如果用户取消选择了某张照片下面的代理方法会被执行
+/// 如果isSelectOriginalPhoto为YES，表明用户选择了原图
+/// 你可以通过一个asset获得原图，通过这个方法：[[TZImageManager manager] getOriginalPhotoWithAsset:completion:]
+- (void)imagePickerController:(TZImagePickerController *)picker didDeselectAsset:(PHAsset *)asset photo:(UIImage *)photo isSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
+//    int index = -1;
+//    for (int i = 0; i < _selectedAssets.count; i++) {
+//        if ([_selectedAssets[i] isEqual:asset]) {
+//            index = i;
+//        }
+//    }
+//    if (index > -1) {
+//        [_selectedAssets removeObjectAtIndex:index];
+//        [_selectedPhotos removeObjectAtIndex:index];
+//        [self.collectionView reloadData];
+//    }
 }
 
 // If user picking a video and allowPickingMultipleVideo is NO, this callback will be called.
