@@ -339,11 +339,7 @@ static dispatch_once_t onceToken;
 
 /// Get photo 获得照片本身
 - (PHImageRequestID)getPhotoWithAsset:(PHAsset *)asset completion:(void (^)(UIImage *, NSDictionary *, BOOL isDegraded))completion {
-    CGFloat fullScreenWidth = TZScreenWidth;
-    if (fullScreenWidth > _photoPreviewMaxWidth) {
-        fullScreenWidth = _photoPreviewMaxWidth;
-    }
-    return [self getPhotoWithAsset:asset photoWidth:fullScreenWidth completion:completion progressHandler:nil networkAccessAllowed:YES];
+    return [self getPhotoWithAsset:asset completion:completion progressHandler:nil networkAccessAllowed:YES];
 }
 
 - (PHImageRequestID)getPhotoWithAsset:(PHAsset *)asset photoWidth:(CGFloat)photoWidth completion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion {
