@@ -52,14 +52,14 @@
 
 /// Get Album 获得相册/相册数组
 - (void)getCameraRollAlbumWithFetchAssets:(BOOL)needFetchAssets completion:(void (^)(TZAlbumModel *model))completion;
-- (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(TZAlbumModel *model))completion __attribute__((deprecated("Use -getCameraRollAlbumWithFetchAssets:completion:. You can config allowPickingImage、allowPickingVideo by TZImagePickerConfig")));
-- (void)getAllAlbums:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(NSArray<TZAlbumModel *> *models))completion __attribute__((deprecated("Use -getAllAlbumsWithFetchAssets:completion:. You can config allowPickingImage、allowPickingVideo by TZImagePickerConfig")));
+- (void)getCameraRollAlbum:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage allowPickingLivePhoto:(BOOL)allowPickingLivePhoto needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(TZAlbumModel *model))completion __attribute__((deprecated("Use -getCameraRollAlbumWithFetchAssets:completion:. You can config allowPickingImage、allowPickingVideo by TZImagePickerConfig")));
+- (void)getAllAlbums:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage allowPickingLivePhoto:(BOOL)allowPickingLivePhoto needFetchAssets:(BOOL)needFetchAssets completion:(void (^)(NSArray<TZAlbumModel *> *models))completion __attribute__((deprecated("Use -getAllAlbumsWithFetchAssets:completion:. You can config allowPickingImage、allowPickingVideo by TZImagePickerConfig")));
 - (void)getAllAlbumsWithFetchAssets:(BOOL)needFetchAssets completion:(void (^)(NSArray<TZAlbumModel *> *models))completion;
 
 /// Get Assets 获得Asset数组
 - (void)getAssetsFromFetchResult:(PHFetchResult *)result completion:(void (^)(NSArray<TZAssetModel *> *models))completion;
-- (void)getAssetsFromFetchResult:(PHFetchResult *)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(NSArray<TZAssetModel *> *models))completion __attribute__((deprecated("Use -getAssetsFromFetchResult:completion:. You can config allowPickingImage、allowPickingVideo by TZImagePickerConfig")));
-- (void)getAssetFromFetchResult:(PHFetchResult *)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage completion:(void (^)(TZAssetModel *model))completion __attribute__((deprecated("Use -getAssetFromFetchResult:atIndex:completion:. You can config allowPickingImage、allowPickingVideo by TZImagePickerConfig")));
+- (void)getAssetsFromFetchResult:(PHFetchResult *)result allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage allowPickingLivePhoto:(BOOL)allowPickingLivePhoto completion:(void (^)(NSArray<TZAssetModel *> *models))completion __attribute__((deprecated("Use -getAssetsFromFetchResult:completion:. You can config allowPickingImage、allowPickingVideo by TZImagePickerConfig")));
+- (void)getAssetFromFetchResult:(PHFetchResult *)result atIndex:(NSInteger)index allowPickingVideo:(BOOL)allowPickingVideo allowPickingImage:(BOOL)allowPickingImage allowPickingLivePhoto:(BOOL)allowPickingLivePhoto completion:(void (^)(TZAssetModel *model))completion __attribute__((deprecated("Use -getAssetFromFetchResult:atIndex:completion:. You can config allowPickingImage、allowPickingVideo by TZImagePickerConfig")));
 - (void)getAssetFromFetchResult:(PHFetchResult *)result atIndex:(NSInteger)index completion:(void (^)(TZAssetModel *model))completion;
 
 /// Get photo 获得照片
@@ -93,6 +93,10 @@
 - (void)getVideoWithAsset:(PHAsset *)asset completion:(void (^)(AVPlayerItem * playerItem, NSDictionary * info))completion;
 - (void)getVideoWithAsset:(PHAsset *)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(AVPlayerItem *, NSDictionary *))completion;
 
+/// Get Live Photo 获得live photo
+- (void)getLivePhotoWithAsset:(PHAsset *)asset completion:(void (^)(PHLivePhoto * livePhoto, NSDictionary * info))completion API_AVAILABLE(ios(9.1));
+- (void)getLivePhotoWithAsset:(PHAsset *)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(PHLivePhoto *, NSDictionary *))completion API_AVAILABLE(ios(9.1));
+
 /// Export video 导出视频 presetName: 预设名字，默认值是AVAssetExportPreset640x480
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
@@ -122,6 +126,10 @@
 
 /// 判断asset是否是视频
 - (BOOL)isVideo:(PHAsset *)asset;
+
+/// 判断是否是Live Photo
+/// @param asset 需要判断的资源对象
+- (BOOL)isLivePhoto:(PHAsset *)asset;
 
 /// for TZImagePreviewController
 - (NSString *)getNewTimeFromDurationSecond:(NSInteger)duration;

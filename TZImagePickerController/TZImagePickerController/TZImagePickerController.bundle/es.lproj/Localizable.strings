@@ -16,6 +16,7 @@
 "Can not use camera"      = "No puedo usar la camara";
 "Can not choose both video and photo" = "No se puede elegir tanto el video como la foto.";
 "Can not choose both photo and GIF" = "No se puede elegir tanto foto como GIF";
+"Can not choose both photo and Live Photo" = "No se puede elegir tanto foto como Live Photo";
 "Select the video when in multi state, we will handle the video as a photo" = "Seleccione el vídeo en estado múltiple, trataremos el vídeo como una fotografía";
 "Can not jump to the privacy settings page, please go to the settings page by self, thank you" = "No se puede saltar a la página de ajustes de privacidad, vaya a la página de ajustes manualmente, muchas gracias";
 "Select a maximum of %zd photos" = "Seleccione solamente hasta %zd imágenes";

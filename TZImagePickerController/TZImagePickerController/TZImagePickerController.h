@@ -85,6 +85,10 @@
 /// 默认为NO，如果设置为YES,用户可以选择gif图片
 @property (nonatomic, assign) BOOL allowPickingGif;
 
+/// Default is YES, if set NO, user can't picking LivePhoto.
+/// 默认为YES，如果设置为NO,用户不可以选择LivePhoto
+@property (nonatomic, assign) BOOL allowPickingLivePhoto;
+
 /// Default is YES, if set NO, user can't picking image.
 /// 默认为YES，如果设置为NO,用户将不能选择发送图片
 @property (nonatomic, assign) BOOL allowPickingImage;
@@ -209,6 +213,8 @@
 @property (nonatomic, copy) NSString *photoOriginDefImageName __attribute__((deprecated("Use -photoOriginDefImage.")));
 @property (nonatomic, copy) NSString *photoPreviewOriginDefImageName __attribute__((deprecated("Use -photoPreviewOriginDefImage.")));
 @property (nonatomic, copy) NSString *photoNumberIconImageName __attribute__((deprecated("Use -photoNumberIconImage.")));
+@property (nonatomic, copy) NSString *photoLiveIconImageName
+__attribute__((deprecated("Use -photoLiveIconImage.")));
 @property (nonatomic, strong) UIImage *takePictureImage;
 @property (nonatomic, strong) UIImage *photoSelImage;
 @property (nonatomic, strong) UIImage *photoDefImage;
@@ -216,7 +222,7 @@
 @property (nonatomic, strong) UIImage *photoOriginDefImage;
 @property (nonatomic, strong) UIImage *photoPreviewOriginDefImage;
 @property (nonatomic, strong) UIImage *photoNumberIconImage;
-
+@property (nonatomic, strong) UIImage *photoLiveIconImage;
 #pragma mark -
 /// Appearance / 外观颜色 + 按钮文字
 @property (nonatomic, strong) UIColor *oKButtonTitleColorNormal;
@@ -247,6 +253,7 @@
 @property (nonatomic, copy) void (^imagePickerControllerDidCancelHandle)(void);
 @property (nonatomic, copy) void (^didFinishPickingVideoHandle)(UIImage *coverImage,PHAsset *asset);
 @property (nonatomic, copy) void (^didFinishPickingGifImageHandle)(UIImage *animatedImage,id sourceAssets);
+@property (nonatomic, copy) void (^didFinishPickingLivePhotoHandle)(UIImage *coverImage,id sourceAssets);
 
 @property (nonatomic, weak) id<TZImagePickerControllerDelegate> pickerDelegate;
 
@@ -291,6 +298,12 @@
 // 如果allowPickingMultipleVideo是YES，将会调用imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:
 - (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingGifImage:(UIImage *)animatedImage sourceAssets:(PHAsset *)asset;
 
+// If user picking a Live Photo and allowPickingMultipleVideo is NO, this callback will be called.
+// If allowPickingMultipleVideo is YES, will call imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:
+// 如果用户选择了一个Live Photo图片且allowPickingMultipleVideo是NO，下面的代理方法会被执行
+// 如果allowPickingMultipleVideo是YES，将会调用imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingLivePhoto:(UIImage *)coverImage sourceAssets:(PHAsset *)asset;
+
 // Decide album show or not't
 // 决定相册显示与否 albumName:相册名字 result:相册原始数据
 - (BOOL)isAlbumCanSelect:(NSString *)albumName result:(PHFetchResult *)result;
@@ -333,8 +346,9 @@
 @interface TZImagePickerConfig : NSObject
 + (instancetype)sharedInstance;
 @property (copy, nonatomic) NSString *preferredLanguage;
-@property(nonatomic, assign) BOOL allowPickingImage;
-@property (nonatomic, assign) BOOL allowPickingVideo;
+@property (assign, nonatomic) BOOL allowPickingImage;
+@property (assign, nonatomic) BOOL allowPickingVideo;
+@property (assign, nonatomic) BOOL allowPickingLivePhoto;
 @property (strong, nonatomic) NSBundle *languageBundle;
 @property (assign, nonatomic) BOOL showSelectedIndex;
 @property (assign, nonatomic) BOOL showPhotoCannotSelectLayer;

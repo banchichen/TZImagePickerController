@@ -74,3 +74,9 @@
 @interface TZGifPreviewCell : TZAssetPreviewCell
 @property (strong, nonatomic) TZPhotoPreviewView *previewView;
 @end
+
+@class PHLivePhotoView;
+@interface TZLivePhotoPreviewCell : TZAssetPreviewCell
+@property (strong, nonatomic) PHLivePhotoView *previewView;
+@property (nonatomic, copy) void (^iCloudSyncFailedHandle)(id asset, BOOL isSyncFailed);
+@end

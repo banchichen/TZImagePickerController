@@ -16,6 +16,7 @@
 "Can not use camera"      = "カメラが使えない";
 "Can not choose both video and photo" = "ビデオと写真の両方を選択することはできません";
 "Can not choose both photo and GIF" = "写真とGIFの両方を選択することはできません";
+"Can not choose both photo and Live Photo" = "写真とLive Photoの両方を選択することはできません";
 "Select the video when in multi state, we will handle the video as a photo" = "多肢選択の状態で、ビデオを選択すると、ビデオをデフォルトに画像として送信します。";
 "Can not jump to the privacy settings page, please go to the settings page by self, thank you" = "プライバシー設定画面にジャンプできません。手動で設定画面を表示してください。";
 "Select a maximum of %zd photos" = "写真は多くとも%zd 枚選択できます。";

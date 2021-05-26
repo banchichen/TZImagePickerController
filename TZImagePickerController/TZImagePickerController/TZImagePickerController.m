@@ -169,6 +169,7 @@
         // 默认准许用户选择原图和视频, 你也可以在这个方法后置为NO
         self.allowPickingOriginalPhoto = YES;
         self.allowPickingVideo = YES;
+        self.allowPickingLivePhoto = YES;
         self.allowPickingImage = YES;
         self.allowTakePicture = YES;
         self.allowTakeVideo = YES;
@@ -298,6 +299,7 @@
     self.photoPreviewOriginDefImageName = @"preview_original_def";
     self.photoOriginDefImageName = @"photo_original_def";
     self.photoOriginSelImageName = @"photo_original_sel";
+    self.photoLiveIconImageName = @"photo_live_icon";
 }
 
 - (void)setTakePictureImageName:(NSString *)takePictureImageName {
@@ -493,6 +495,7 @@
     if (allowCrop) { // 允许裁剪的时候，不能选原图和GIF
         self.allowPickingOriginalPhoto = NO;
         self.allowPickingGif = NO;
+        self.allowPickingLivePhoto = NO;
     }
 }
 
@@ -601,6 +604,14 @@
     [TZImagePickerConfig sharedInstance].allowPickingVideo = allowPickingVideo;
     if (!allowPickingVideo) {
         _allowTakeVideo = NO;
+    }
+}
+
+- (void)setAllowPickingLivePhoto:(BOOL)allowPickingLivePhoto {
+    _allowPickingLivePhoto = allowPickingLivePhoto;
+    [TZImagePickerConfig sharedInstance].allowPickingLivePhoto = allowPickingLivePhoto;
+    if (!allowPickingLivePhoto) {
+        _allowPickingLivePhoto = NO;
     }
 }
 

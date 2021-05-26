@@ -9,6 +9,7 @@
 #import "TZPhotoPickerController.h"
 #import "TZImagePickerController.h"
 #import "TZPhotoPreviewController.h"
+#import "TZLivePhotoPreviewController.h"
 #import "TZAssetCell.h"
 #import "TZAssetModel.h"
 #import "UIView+TZLayout.h"
@@ -188,7 +189,6 @@ static CGFloat itemMargin = 5;
         [_collectionView reloadData];
     }
 
-    
     if (_showTakePhotoBtn) {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber) / self.columnNumber) * self.view.tz_width);
     } else {
@@ -522,13 +522,23 @@ static CGFloat itemMargin = 5;
 
 - (void)callDelegateMethodWithPhotos:(NSArray *)photos assets:(NSArray *)assets infoArr:(NSArray *)infoArr {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (tzImagePickerVc.allowPickingVideo && tzImagePickerVc.maxImagesCount == 1) {
+    if ((tzImagePickerVc.allowPickingVideo || tzImagePickerVc.allowPickingLivePhoto) && tzImagePickerVc.maxImagesCount == 1) {
         if ([[TZImageManager manager] isVideo:[assets firstObject]]) {
             if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
                 [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingVideo:[photos firstObject] sourceAssets:[assets firstObject]];
             }
             if (tzImagePickerVc.didFinishPickingVideoHandle) {
                 tzImagePickerVc.didFinishPickingVideoHandle([photos firstObject], [assets firstObject]);
+            }
+            return;
+        }else if ([[TZImageManager manager] isLivePhoto:[assets firstObject]]) {
+            if ([[TZImageManager manager] isLivePhoto:[assets firstObject]]) {
+                if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingLivePhoto:sourceAssets:)]) {
+                    [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingLivePhoto:[photos firstObject] sourceAssets:[assets firstObject]];
+                }
+            }
+            if (tzImagePickerVc.didFinishPickingLivePhotoHandle) {
+                tzImagePickerVc.didFinishPickingLivePhotoHandle([photos firstObject], [assets firstObject]);
             }
             return;
         }
@@ -694,6 +704,15 @@ static CGFloat itemMargin = 5;
             TZGifPhotoPreviewController *gifPreviewVc = [[TZGifPhotoPreviewController alloc] init];
             gifPreviewVc.model = model;
             [self.navigationController pushViewController:gifPreviewVc animated:YES];
+        }
+    } else if (model.type == TZAssetModelMediaTypeLivePhoto && !tzImagePickerVc.allowPickingMultipleVideo) {
+        if (tzImagePickerVc.selectedModels.count > 0) {
+            TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+            [imagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Can not choose both photo and Live Photo"]];
+        }else {
+            TZLivePhotoPreviewController *livePreviewVc = [[TZLivePhotoPreviewController alloc] init];
+            livePreviewVc.model = model;
+            [self.navigationController pushViewController:livePreviewVc animated:YES];
         }
     } else {
         TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];

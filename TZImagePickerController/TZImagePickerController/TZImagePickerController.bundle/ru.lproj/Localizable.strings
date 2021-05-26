@@ -16,6 +16,7 @@
 "Can not use camera"      = "Не могу использовать камеру";
 "Can not choose both video and photo" = "Не могу выбрать как видео,так и фото";
 "Can not choose both photo and GIF" = "Не могу выбрать фото и GIF";
+"Can not choose both photo and Live Photo" = "Не могу выбрать фото и Live Photo";
 "Select the video when in multi state, we will handle the video as a photo" = "В случае выбора видео при нахождении в мультирежиме видео будет обработано как фотография";
 "Can not jump to the privacy settings page, please go to the settings page by self, thank you" = "Не удается перейти на страницу настроек конфиденциальности. Перейдите на эту страницу самостоятельно";
 "Select a maximum of %zd photos" = "Вы можете выбрать до %zd изображений";
