@@ -511,10 +511,12 @@ static dispatch_once_t onceToken;
         request.creationDate = [NSDate date];
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (success && completion) {
+            if (success && completion && localIdentifier) {
                 [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
-            } else if (error) {
-                NSLog(@"保存照片出错:%@",error.localizedDescription);
+            } else {
+                if (error) {
+                    NSLog(@"保存照片出错:%@",error.localizedDescription);
+                }
                 if (completion) {
                     completion(nil, error);
                 }
@@ -547,10 +549,12 @@ static dispatch_once_t onceToken;
     } completionHandler:^(BOOL success, NSError *error) {
         [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (success && completion) {
+            if (success && completion && localIdentifier) {
                 [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
-            } else if (error) {
-                NSLog(@"保存照片出错:%@",error.localizedDescription);
+            } else {
+                if (error) {
+                    NSLog(@"保存照片出错:%@",error.localizedDescription);
+                }
                 if (completion) {
                     completion(nil, error);
                 }
@@ -589,10 +593,12 @@ static dispatch_once_t onceToken;
         request.creationDate = [NSDate date];
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (success && completion) {
+            if (success && completion && localIdentifier) {
                 [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
-            } else if (error) {
-                NSLog(@"保存视频出错:%@",error.localizedDescription);
+            } else {
+                if (error) {
+                    NSLog(@"保存视频出错:%@",error.localizedDescription);
+                }
                 if (completion) {
                     completion(nil, error);
                 }
