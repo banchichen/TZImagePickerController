@@ -21,11 +21,13 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "FLAnimatedImage.h"
 #import "TZImageUploadOperation.h"
+#import "TZVideoEditedPreviewController.h"
 
 @interface ViewController ()<TZImagePickerControllerDelegate,UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
     NSMutableArray *_selectedPhotos;
     NSMutableArray *_selectedAssets;
     BOOL _isSelectOriginalPhoto;
+    BOOL _isAllowEditVideo;
     
     CGFloat _itemWH;
     CGFloat _margin;
@@ -132,9 +134,13 @@
         return _selectedPhotos.count;
     }
     if (!self.allowPickingMuitlpleVideoSwitch.isOn) {
-        for (PHAsset *asset in _selectedAssets) {
-            if (asset.mediaType == PHAssetMediaTypeVideo) {
-                return _selectedPhotos.count;
+        if (_isAllowEditVideo) {
+            return 1;
+        } else {
+            for (PHAsset *asset in _selectedAssets) {
+                if (asset.mediaType == PHAssetMediaTypeVideo) {
+                    return _selectedPhotos.count;
+                }
             }
         }
     }
@@ -150,7 +156,9 @@
         cell.gifLable.hidden = YES;
     } else {
         cell.imageView.image = _selectedPhotos[indexPath.item];
-        cell.asset = _selectedAssets[indexPath.item];
+        if (!_isAllowEditVideo) {
+            cell.asset = _selectedAssets[indexPath.item];
+        }
         cell.deleteBtn.hidden = NO;
     }
     if (!self.allowPickingGifSwitch.isOn) {
@@ -193,6 +201,11 @@
         } else {
             [self pushTZImagePickerController];
         }
+    } else if (_isAllowEditVideo) { // preview edited video / 预览编辑后的视频
+        TZVideoEditedPreviewController *vc = [[TZVideoEditedPreviewController alloc] init];
+        vc.videoURL = _selectedAssets[indexPath.item];
+        vc.modalPresentationStyle = UIModalPresentationFullScreen;
+        [self presentViewController:vc animated:YES completion:nil];
     } else { // preview photos or video / 预览照片或者视频
         PHAsset *asset = _selectedAssets[indexPath.item];
         BOOL isVideo = NO;
@@ -280,6 +293,10 @@
     imagePickerVc.allowTakePicture = self.showTakePhotoBtnSwitch.isOn; // 在内部显示拍照按钮
     imagePickerVc.allowTakeVideo = self.showTakeVideoBtnSwitch.isOn;   // 在内部显示拍视频按
     imagePickerVc.videoMaximumDuration = 10; // 视频最大拍摄时间
+    imagePickerVc.allowEditVideo = YES; // 允许编辑视频
+    // imagePickerVc.saveEditedVideoToCollection = YES; // 编辑后的视频是否自动保存到相册
+    // imagePickerVc.maxCropVideoDuration = 30; // 裁剪视频的最大时长
+    // imagePickerVc.presetName = AVAssetExportPresetMediumQuality // 编辑后的视频的导出质量
     [imagePickerVc setUiImagePickerControllerSettingBlock:^(UIImagePickerController *imagePickerController) {
         imagePickerController.videoQuality = UIImagePickerControllerQualityTypeHigh;
     }];
@@ -631,6 +648,31 @@
     }];
     [_collectionView reloadData];
     // _collectionView.contentSize = CGSizeMake(0, ((_selectedPhotos.count + 2) / 3 ) * (_margin + _itemWH));
+}
+
+// If allowEditVideo is YES and allowPickingMultipleVideo is NO, When user picking a video, this callback will be called.
+// If allowPickingMultipleVideo is YES, video editing is not supported, will call imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:
+// 当allowEditVideo是YES且allowPickingMultipleVideo是NO是，如果用户选择了一个视频，下面的代理方法会被执行
+// 如果allowPickingMultipleVideo是YES，则不支持编辑视频，将会调用imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:
+- (void)imagePickerController:(TZImagePickerController *)picker didFinishPickingAndEditingVideo:(UIImage *)coverImage outputPath:(NSString *)outputPath error:(NSString *)errorMsg {
+    _isAllowEditVideo = YES;
+    self->_selectedPhotos = [NSMutableArray arrayWithArray:@[coverImage]];
+    self->_selectedAssets = [NSMutableArray arrayWithArray:@[[NSURL fileURLWithPath:outputPath]]];
+    if (outputPath) {
+        // NSData *data = [NSData dataWithContentsOfFile:outputPath];
+        NSLog(@"视频导出到本地完成,outputPath为:%@",outputPath);
+        // Export completed, send video here, send by outputPath or NSData
+        // 导出完成，在这里写上传代码，通过路径或者通过NSData上传
+    } else {
+        NSLog(@"视频导出失败:%@",errorMsg);
+    }
+    [self.collectionView reloadData];
+}
+
+// If user fail to save edited, this callback will be called.
+// 如果用户保存编辑好的视频失败，将会调用
+- (void)imagePickerController:(TZImagePickerController *)picker didFailToSaveEditedVideoWithError:(NSError *)error {
+    NSLog(@"编辑后的视频自动保存到相册失败:%@",error.description);
 }
 
 // If user picking a gif image and allowPickingMultipleVideo is NO, this callback will be called.
