@@ -339,11 +339,7 @@ static dispatch_once_t onceToken;
 
 /// Get photo 获得照片本身
 - (PHImageRequestID)getPhotoWithAsset:(PHAsset *)asset completion:(void (^)(UIImage *, NSDictionary *, BOOL isDegraded))completion {
-    CGFloat fullScreenWidth = TZScreenWidth;
-    if (fullScreenWidth > _photoPreviewMaxWidth) {
-        fullScreenWidth = _photoPreviewMaxWidth;
-    }
-    return [self getPhotoWithAsset:asset photoWidth:fullScreenWidth completion:completion progressHandler:nil networkAccessAllowed:YES];
+    return [self getPhotoWithAsset:asset completion:completion progressHandler:nil networkAccessAllowed:YES];
 }
 
 - (PHImageRequestID)getPhotoWithAsset:(PHAsset *)asset photoWidth:(CGFloat)photoWidth completion:(void (^)(UIImage *photo,NSDictionary *info,BOOL isDegraded))completion {
@@ -531,10 +527,12 @@ static dispatch_once_t onceToken;
         request.creationDate = [NSDate date];
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (success && completion) {
+            if (success && completion && localIdentifier) {
                 [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
-            } else if (error) {
-                NSLog(@"保存照片出错:%@",error.localizedDescription);
+            } else {
+                if (error) {
+                    NSLog(@"保存照片出错:%@",error.localizedDescription);
+                }
                 if (completion) {
                     completion(nil, error);
                 }
@@ -567,10 +565,12 @@ static dispatch_once_t onceToken;
     } completionHandler:^(BOOL success, NSError *error) {
         [[NSFileManager defaultManager] removeItemAtPath:path error:nil];
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (success && completion) {
+            if (success && completion && localIdentifier) {
                 [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
-            } else if (error) {
-                NSLog(@"保存照片出错:%@",error.localizedDescription);
+            } else {
+                if (error) {
+                    NSLog(@"保存照片出错:%@",error.localizedDescription);
+                }
                 if (completion) {
                     completion(nil, error);
                 }
@@ -609,10 +609,12 @@ static dispatch_once_t onceToken;
         request.creationDate = [NSDate date];
     } completionHandler:^(BOOL success, NSError *error) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            if (success && completion) {
+            if (success && completion && localIdentifier) {
                 [self fetchAssetByIocalIdentifier:localIdentifier retryCount:10 completion:completion];
-            } else if (error) {
-                NSLog(@"保存视频出错:%@",error.localizedDescription);
+            } else {
+                if (error) {
+                    NSLog(@"保存视频出错:%@",error.localizedDescription);
+                }
                 if (completion) {
                     completion(nil, error);
                 }

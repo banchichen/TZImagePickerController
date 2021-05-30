@@ -528,8 +528,8 @@
     _timeout = timeout;
     if (timeout < 5) {
         _timeout = 5;
-    } else if (_timeout > 60) {
-        _timeout = 60;
+    } else if (_timeout > 600) {
+        _timeout = 600;
     }
 }
 
