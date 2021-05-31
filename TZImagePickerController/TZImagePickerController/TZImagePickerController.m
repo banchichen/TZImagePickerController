@@ -14,6 +14,7 @@
 #import "TZAssetCell.h"
 #import "UIView+TZLayout.h"
 #import "TZImageManager.h"
+#import "TZVideoCropController.h"
 
 @interface TZImagePickerController () {
     NSTimer *_timer;
@@ -282,6 +283,8 @@
     self.statusBarStyle = UIStatusBarStyleLightContent;
     self.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
     self.allowCameraLocation = YES;
+    self.presetName = AVAssetExportPresetMediumQuality;
+    self.maxCropVideoDuration = 30;
     
     self.iconThemeColor = [UIColor colorWithRed:31 / 255.0 green:185 / 255.0 blue:34 / 255.0 alpha:1.0];
     [self configDefaultBtnTitle];
@@ -352,6 +355,7 @@
     self.fullImageBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Full image"];
     self.settingBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Setting"];
     self.processHintStr = [NSBundle tz_localizedStringForKey:@"Processing..."];
+    self.editBtnTitleStr = [NSBundle tz_localizedStringForKey:@"Edit"];
 }
 
 - (void)setShowSelectedIndex:(BOOL)showSelectedIndex {
@@ -706,6 +710,13 @@
     if (self.imagePickerControllerDidCancelHandle) {
         self.imagePickerControllerDidCancelHandle();
     }
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    if ([self.topViewController isKindOfClass:TZVideoPlayerController.class] && self.topViewController.presentedViewController) {
+        return UIInterfaceOrientationMaskPortrait;
+    }
+    return UIInterfaceOrientationMaskAll;
 }
 
 @end

@@ -494,6 +494,22 @@ static dispatch_once_t onceToken;
     }];
 }
 
+- (UIImage *)getImageWithVideoURL:(NSURL *)videoURL {
+    AVURLAsset *asset = [[AVURLAsset alloc] initWithURL:videoURL options:nil];
+    if (!asset) {
+        return nil;
+    }
+    AVAssetImageGenerator *generator =[[AVAssetImageGenerator alloc] initWithAsset:asset];
+    generator.appliesPreferredTrackTransform = YES;
+    generator.apertureMode = AVAssetImageGeneratorApertureModeEncodedPixels;
+    
+    CFTimeInterval time = 0.1;
+    CGImageRef imageRef = [generator copyCGImageAtTime:CMTimeMake(time, 60) actualTime:NULL error:nil];
+    UIImage *image = [[UIImage alloc] initWithCGImage:imageRef];
+    CGImageRelease(imageRef);
+    return image;
+}
+
 #pragma mark - Save photo
 
 - (void)savePhotoWithImage:(UIImage *)image completion:(void (^)(PHAsset *asset, NSError *error))completion {
@@ -637,19 +653,27 @@ static dispatch_once_t onceToken;
 }
 
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+    [self getVideoOutputPathWithAsset:asset presetName:presetName timeRange:kCMTimeRangeZero success:success failure:failure];
+}
+
+- (void)startExportVideoWithVideoAsset:(AVURLAsset *)videoAsset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+    [self startExportVideoWithVideoAsset:videoAsset timeRange:kCMTimeRangeZero presetName:presetName success:success failure:failure];
+}
+
+- (void)getVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName timeRange:(CMTimeRange)timeRange success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
     if (@available(iOS 14.0, *)) {
-        [self requestVideoOutputPathWithAsset:asset presetName:presetName success:success failure:failure];
+        [self requestVideoOutputPathWithAsset:asset presetName:presetName timeRange:timeRange success:success failure:failure];
         return;
     }
     [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:[self getVideoRequestOptions] resultHandler:^(AVAsset* avasset, AVAudioMix* audioMix, NSDictionary* info){
         // NSLog(@"Info:\n%@",info);
         AVURLAsset *videoAsset = (AVURLAsset*)avasset;
         // NSLog(@"AVAsset URL: %@",myAsset.URL);
-        [self startExportVideoWithVideoAsset:videoAsset presetName:presetName success:success failure:failure];
+        [self startExportVideoWithVideoAsset:videoAsset timeRange:timeRange presetName:presetName success:success failure:failure];
     }];
 }
 
-- (void)startExportVideoWithVideoAsset:(AVURLAsset *)videoAsset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+- (void)startExportVideoWithVideoAsset:(AVURLAsset *)videoAsset timeRange:(CMTimeRange)timeRange presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure  {
     if (!presetName) {
         presetName = AVAssetExportPresetMediumQuality;
     }
@@ -665,6 +689,9 @@ static dispatch_once_t onceToken;
 
         // Optimize for network use.
         session.shouldOptimizeForNetworkUse = true;
+        if (!CMTimeRangeEqual(timeRange, kCMTimeRangeZero)) {
+            session.timeRange = timeRange;
+        }
         
         NSArray *supportedTypeArray = session.supportedFileTypes;
         if ([supportedTypeArray containsObject:AVFileTypeMPEG4]) {
@@ -708,7 +735,7 @@ static dispatch_once_t onceToken;
     }
 }
 
-- (void)requestVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+- (void)requestVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName timeRange:(CMTimeRange)timeRange success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
     if (!presetName) {
         presetName = AVAssetExportPresetMediumQuality;
     }
@@ -717,6 +744,9 @@ static dispatch_once_t onceToken;
         exportSession.outputURL = [NSURL fileURLWithPath:outputPath];
         exportSession.shouldOptimizeForNetworkUse = NO;
         exportSession.outputFileType = AVFileTypeMPEG4;
+        if (!CMTimeRangeEqual(timeRange, kCMTimeRangeZero)) {
+            exportSession.timeRange = timeRange;
+        }
         [exportSession exportAsynchronouslyWithCompletionHandler:^{
             [self handleVideoExportResult:exportSession outputPath:outputPath success:success failure:failure];
         }];
