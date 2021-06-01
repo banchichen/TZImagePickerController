@@ -78,6 +78,7 @@
     [[TZImageManager manager] getPhotoWithAsset:_model.asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
         self.iCloudErrorView.hidden = !iCloudSyncFailed;
+        self->_doneButton.enabled = !iCloudSyncFailed;
     }];
     [[TZImageManager manager] getVideoWithAsset:_model.asset completion:^(AVPlayerItem *playerItem, NSDictionary *info) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -125,6 +126,7 @@
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:self.imagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     [_doneButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+    [_doneButton setTitleColor:self.imagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     [self.view addSubview:_doneButton];
     
     if (self.imagePickerVc.videoEditViewPageUIConfigBlock) {
@@ -175,8 +177,10 @@
     CGFloat statusBarAndNaviBarHeight = statusBarHeight + self.navigationController.navigationBar.tz_height;
     
     CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
+    CGFloat doneButtonWidth = [_doneButton.currentTitle boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width;
     _cancelButton.frame = CGRectMake(12, self.view.tz_height - toolBarHeight, 44, 44);
-    _doneButton.frame = CGRectMake(self.view.tz_width - 44 - 12, self.view.tz_height - toolBarHeight, 44, 44);
+    [_cancelButton sizeToFit];
+    _doneButton.frame = CGRectMake(self.view.tz_width - doneButtonWidth - 12, self.view.tz_height - toolBarHeight, doneButtonWidth, 44);
     _playButton.frame = CGRectMake(0, statusBarAndNaviBarHeight, self.view.tz_width, self.view.tz_height - statusBarAndNaviBarHeight - toolBarHeight);
     
     CGFloat collectionViewH = (self.view.tz_width - VideoEditLeftMargin * 2 - 2 * PanImageWidth) / 10.0 * 2;
@@ -212,15 +216,21 @@
     if (durationSeconds <= self.imagePickerVc.maxCropVideoDuration) {
         imageCount = 10;
         self.videoEditView.allImgWidth = maxCropWidth;
-        _cropVideoDurationLabel.text = [NSString stringWithFormat:@"已选取%.fs",durationSeconds];
+        _cropVideoDurationLabel.text = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Selected for %ld seconds"], (NSInteger)durationSeconds];
     } else {
         CGFloat singleWidthSecond = maxCropWidth / self.imagePickerVc.maxCropVideoDuration;
         CGFloat allImgWidth = singleWidthSecond * durationSeconds;
         self.videoEditView.allImgWidth = allImgWidth;
         imageCount = allImgWidth / _itemW;
-        _cropVideoDurationLabel.text = [NSString stringWithFormat:@"已选取%lds",(long)self.imagePickerVc.maxCropVideoDuration];
+        _cropVideoDurationLabel.text = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Selected for %ld seconds"],(long)self.imagePickerVc.maxCropVideoDuration];
     }
-    
+    NSArray *assetTracks = [_asset tracksWithMediaType:AVMediaTypeVideo];
+    if (!assetTracks.count) {
+        self.iCloudErrorView.hidden = NO;
+        _doneButton.enabled = NO;
+        _cropVideoDurationLabel.hidden = YES;
+        return;
+    };
     Float64 frameRate = [[_asset tracksWithMediaType:AVMediaTypeVideo][0] nominalFrameRate];;
     NSMutableArray *times = NSMutableArray.array;
     NSTimeInterval intervalSecond = durationSeconds/imageCount;
@@ -287,7 +297,7 @@
     [_playerLayer.player seekToTime:[self getCropStartTime] toleranceBefore:kCMTimeZero toleranceAfter:kCMTimeZero];
     
     NSTimeInterval second = [self getCropVideoDuration];
-    _cropVideoDurationLabel.text = [NSString stringWithFormat:@"已选取%.fs",second];
+    _cropVideoDurationLabel.text = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Selected for %ld seconds"], (NSInteger)second];
 }
 
 - (void)editViewCropRectEndChange {
