@@ -178,6 +178,7 @@
     _playButton.frame = CGRectMake(0, statusBarAndNaviBarHeight, self.view.tz_width, self.view.tz_height - statusBarAndNaviBarHeight - toolBarHeight);
     if (tzImagePickerVc.allowEditVideo) {
         _editButton.frame = CGRectMake(12, 0, 44, 44);
+        [_editButton sizeToFit];
     }
     if (tzImagePickerVc.videoPreviewPageDidLayoutSubviewsBlock) {
         tzImagePickerVc.videoPreviewPageDidLayoutSubviewsBlock(_playButton, _toolBar, _editButton, _doneButton);
