@@ -2,6 +2,7 @@
 "OK"                      = "OK";
 "Back"                    = "バック";
 "Done"                    = "完了";
+"Edit"                    = "編集する";
 "Sorry"                   = "ごめんなさい";
 "Cancel"                  = "キャンセル";
 "Setting"                 = "設定";
@@ -22,3 +23,4 @@
 "Select a minimum of %zd photos" = "少なくとも %zd 枚の写真を選択してください。";
 "Allow %@ to access your album in \"Settings -> Privacy -> Photos\"" = "iPhoneの「設定-プライバシー-写真」のオプションで、r%@の携帯電話のアルバムへのアクセス権限を許可してください。";
 "Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\"" = "iPhoneの「設定-プライバシー-カメラ」で、%@のカメラへのアクセス権限を許可してください。";
+"Selected for %ld seconds" = "%ld 秒間選択されました";

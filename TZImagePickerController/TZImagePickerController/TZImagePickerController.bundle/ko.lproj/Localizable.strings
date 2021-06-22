@@ -2,6 +2,7 @@
 "OK"                      = "승인";
 "Back"                    = "뒤로";
 "Done"                    = "끝난";
+"Edit"                    = "편집하다";
 "Sorry"                   = "죄송합니다";
 "Cancel"                  = "취소";
 "Setting"                 = "환경";
@@ -16,3 +17,4 @@
 "Can not use camera"      = "카메라를 사용할 수 없습니다.";
 "Can not choose both video and photo" = "동영상과 사진을 모두 선택할 수 없습니다.";
 "Can not choose both photo and GIF" = "사진과 GIF를 모두 선택할 수 없습니다.";
+"Selected for %ld seconds" = "%ld 초 동안 선택됨";

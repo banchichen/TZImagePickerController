@@ -2,6 +2,7 @@
 "OK"                      = "Хорошо";
 "Back"                    = "назад";
 "Done"                    = "Готово";
+"Edit"                    = "редактировать";
 "Sorry"                   = "сожалею";
 "Cancel"                  = "отменить";
 "Setting"                 = "настройка";
@@ -22,3 +23,4 @@
 "Select a minimum of %zd photos" = "Вы можете выбрать не менее %zd изображений";
 "Allow %@ to access your album in \"Settings -> Privacy -> Photos\"" = "Разрешите доступ %@ к вашему альбому,перейдя в Настройки > Конфиденциальность > Фото";
 "Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\"" = "Разрешите доступ %@ к камере вашего устройства,перейдя в Настройки > Конфиденциальность > Камера";
+"Selected for %ld seconds" = "Выбрано для %ld секунд";

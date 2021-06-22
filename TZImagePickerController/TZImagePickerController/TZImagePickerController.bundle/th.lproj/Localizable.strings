@@ -2,6 +2,7 @@
 "OK"                      = "ตกลง";
 "Back"                    = "กลับ";
 "Done"                    = "เสร็จสิ้น";
+"Edit"                    = "แก้ไข";
 "Sorry"                   = "ขอโทษ";
 "Cancel"                  = "ยกเลิก";
 "Setting"                 = "การตั้งค่า";
@@ -16,3 +17,4 @@
 "Can not use camera"      = "ไม่สามารถใช้กล้องถ่ายรูป";
 "Can not choose both video and photo" = "ไม่สามารถเลือกได้ทั้งวิดีโอและภาพถ่าย";
 "Can not choose both photo and GIF" = "ไม่สามารถเลือกได้ทั้งภาพถ่ายและ GIF";
+"Selected for %ld seconds" = "เลือกไว้เป็นเวลา %ld วินาที";

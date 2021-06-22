@@ -2,6 +2,7 @@
 "OK"                      = "حسنا";
 "Back"                    = "الى الخلف";
 "Done"                    = "فعله";
+"Edit"                    = "تعديل";
 "Sorry"                   = "آسف";
 "Cancel"                  = "إلغاء";
 "Setting"                 = "ضبط";
@@ -22,3 +23,4 @@
 "Select a minimum of %zd photos" = "الرجاء تحديد %zd صورة على الأقل";
 "Allow %@ to access your album in \"Settings -> Privacy -> Photos\"" = "السماح لـ %@ بالوصول إلى الألبوم في \"الإعدادات > الخصوصية > الصور\"";
 "Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\"" = "الرجاء السماح لـ %@ بالوصول إلى الكاميرا في \"الإعدادات > الخصوصية > الكاميرا\"";
+"Selected for %ld seconds" = "محدد لمدة %ld ثانية";

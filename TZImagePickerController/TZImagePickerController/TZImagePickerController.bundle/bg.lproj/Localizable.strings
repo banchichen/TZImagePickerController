@@ -2,6 +2,7 @@
 "OK"                      = "Добре";
 "Back"                    = "обратно";
 "Done"                    = "Свършен";
+"Edit"                    = "редактиране";
 "Sorry"                   = "съжалявам";
 "Cancel"                  = "Отказ";
 "Setting"                 = "обстановка";
@@ -16,3 +17,4 @@
 "Can not use camera"      = "Не може да се използва камера";
 "Can not choose both video and photo" = "Не можете да изберете видео и снимка";
 "Can not choose both photo and GIF" = "Не може да се избере снимка и GIF";
+"Selected for %ld seconds" = "Избрано за %ld секунди";

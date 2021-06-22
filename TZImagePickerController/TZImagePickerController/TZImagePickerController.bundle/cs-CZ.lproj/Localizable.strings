@@ -2,6 +2,7 @@
 "OK"                      = "OK";
 "Back"                    = "Zadní";
 "Done"                    = "Hotovo";
+"Edit"                    = "Upravit";
 "Sorry"                   = "Promiňte";
 "Cancel"                  = "zrušení";
 "Setting"                 = "Nastavení";
@@ -16,3 +17,4 @@
 "Can not use camera"      = "Nelze použít fotoaparát";
 "Can not choose both video and photo" = "Nelze vybrat video ani fotografii";
 "Can not choose both photo and GIF" = "Nelze vybrat fotografie a GIF";
+"Selected for %ld seconds" = "Vybráno na %ld sekund";

@@ -2,6 +2,7 @@
 "OK"                      = "Xác nhận";
 "Back"                    = "Quay lại";
 "Done"                    = "Hoàn thành";
+"Edit"                    = "biên tập";
 "Sorry"                   = "Xin lỗi";
 "Cancel"                  = "Hủy";
 "Setting"                 = "Cài đặt";
@@ -23,3 +24,4 @@
 "Select a minimum of %zd photos" = "Chọn ít nhất %zd tấm hình";
 "Allow %@ to access your album in \"Settings -> Privacy -> Photos\"" = "Vui lòng tại mục iPhone \" Cài đặt – quyền riêng tư - Ảnh\" mở quyền cho phép %@ truy cập ảnh.";
 "Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\"" = "Vui lòng tại mục iPhone \" Cài đặt – quyền riêng tư - Ảnh\" mở quyền cho phép %@ truy cập máy ảnh";
+"Selected for %ld seconds" = "Đã chọn cho %ld giây";

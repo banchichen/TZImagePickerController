@@ -2,6 +2,7 @@
 "OK"                      = "그래";
 "Back"                    = "뒤로";
 "Done"                    = "완료";
+"Edit"                    = "편집하다";
 "Sorry"                   = "미안해요";
 "Cancel"                  = "취소";
 "Setting"                 = "설정";
@@ -22,3 +23,4 @@
 "Select a minimum of %zd photos" = "최소 %zd장의 사진을 선택해 주세요.";
 "Allow %@ to access your album in \"Settings -> Privacy -> Photos\"" = "\"설정 > 개인 정보 보호 > 사진\"에서 %@이(가) 앨범에 접근할 수 있도록 허용하세요.";
 "Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\"" = "\"설정 > 개인 정보 보호 > 카메라\"에서 %@이(가) 카메라에 접근할 수 있도록 허용하세요.";
+"Selected for %ld seconds" = "%ld 초 동안 선택됨";

@@ -2,6 +2,7 @@
 "OK"                      = "dobrze";
 "Back"                    = "Z powrotem";
 "Done"                    = "Gotowe";
+"Edit"                    = "edytować";
 "Sorry"                   = "Przepraszam";
 "Cancel"                  = "Anuluj";
 "Setting"                 = "Oprawa";
@@ -16,3 +17,4 @@
 "Can not use camera"      = "Nie można używać aparatu";
 "Can not choose both video and photo" = "Nie można wybrać zarówno wideo,jak i zdjęcia";
 "Can not choose both photo and GIF" = "Nie można wybrać zarówno zdjęcia,jak i GIF";
+"Selected for %ld seconds" = "Wybrany przez %ld sekund";

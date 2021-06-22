@@ -2,6 +2,7 @@
 "OK"                      = "OK";
 "Back"                    = "Terug";
 "Done"                    = "Gedaan";
+"Edit"                    = "Bewerk";
 "Sorry"                   = "Sorry";
 "Cancel"                  = "annuleren";
 "Setting"                 = "omgeving";
@@ -16,3 +17,4 @@
 "Can not use camera"      = "Kan de camera niet gebruiken";
 "Can not choose both video and photo" = "Kan niet zowel video als foto kiezen";
 "Can not choose both photo and GIF" = "Kan niet zowel foto als GIF kiezen";
+"Selected for %ld seconds" = "Geselecteerd voor %ld seconden";
