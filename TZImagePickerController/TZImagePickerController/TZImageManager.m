@@ -811,7 +811,7 @@ static dispatch_once_t onceToken;
 
 - (NSString *)getVideoOutputPath {
     NSDateFormatter *formater = [[NSDateFormatter alloc] init];
-    [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss-SSS"];
+    [formater setDateFormat:@"yyyy-MM-dd-HH-mm-ss-SSS"];
     NSString *outputPath = [NSHomeDirectory() stringByAppendingFormat:@"/tmp/video-%@-%d.mp4", [formater stringFromDate:[NSDate date]], arc4random_uniform(10000000)];
     return outputPath;
 }
