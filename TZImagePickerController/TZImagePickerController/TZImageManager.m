@@ -735,6 +735,10 @@ static dispatch_once_t onceToken;
     }
 }
 
+- (void)requestVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+    [self requestVideoOutputPathWithAsset:asset presetName:presetName timeRange:kCMTimeRangeZero success:success failure:failure];
+}
+
 - (void)requestVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName timeRange:(CMTimeRange)timeRange success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
     if (!presetName) {
         presetName = AVAssetExportPresetMediumQuality;

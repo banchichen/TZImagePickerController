@@ -583,7 +583,7 @@
             _originalPhotoLabel.hidden = YES;
         } else {
             _originalPhotoButton.hidden = NO;
-            if (_isSelectOriginalPhoto)  _originalPhotoLabel.hidden = NO;
+            if (_isSelectOriginalPhoto) _originalPhotoLabel.hidden = NO;
         }
     }
     
@@ -629,8 +629,10 @@
             self->_doneButton.enabled = YES;
         }
         self->_selectButton.hidden = currentModel.iCloudFailed || !_tzImagePickerVc.showSelectBtn;
-        self->_originalPhotoButton.hidden = currentModel.iCloudFailed;
-        self->_originalPhotoLabel.hidden = currentModel.iCloudFailed;
+        if (currentModel.iCloudFailed) {
+            self->_originalPhotoButton.hidden = YES;
+            self->_originalPhotoLabel.hidden = YES;
+        }
     });
 }
 

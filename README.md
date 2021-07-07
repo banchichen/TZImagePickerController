@@ -125,7 +125,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
-3.6.1 新增allowEditVideo，单选视频时支持裁剪        
+3.6.2 新增allowEditVideo，单选视频时支持裁剪        
 3.6.0 修复iOS14下iCloud视频导出失败问题        
 **3.5.2 适配iPhone12系列设备**        
 3.4.4 支持Dark Mode      

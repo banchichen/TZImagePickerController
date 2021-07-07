@@ -201,7 +201,7 @@
         } else {
             [self pushTZImagePickerController];
         }
-    } else if (_isAllowEditVideo) { // preview edited video / 预览编辑后的视频
+    } else if (_isAllowEditVideo && [_selectedAssets[indexPath.item] isKindOfClass:[NSURL class]]) { // preview edited video / 预览编辑后的视频
         TZVideoEditedPreviewController *vc = [[TZVideoEditedPreviewController alloc] init];
         vc.videoURL = _selectedAssets[indexPath.item];
         vc.modalPresentationStyle = UIModalPresentationFullScreen;
