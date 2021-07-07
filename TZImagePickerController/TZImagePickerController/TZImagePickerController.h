@@ -120,6 +120,7 @@
 @property (nonatomic, copy) void(^uiImagePickerControllerSettingBlock)(UIImagePickerController *imagePickerController);
 
 /// 首选语言，如果设置了就用该语言，不设则取当前系统语言。
+/// 由于目前只支持中文、繁体中文、英文、越南语、阿拉伯。故该属性只支持zh-Hans、zh-Hant、en、vi、ar五种值，其余值无效。
 /// 支持zh-Hans、zh-Hant、en、vi等值，详见TZImagePickerController.bundle内的语言资源
 @property (copy, nonatomic) NSString *preferredLanguage;
 
