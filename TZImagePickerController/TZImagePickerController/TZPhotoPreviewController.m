@@ -47,6 +47,15 @@
 
 @implementation TZPhotoPreviewController
 
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _enableDoneWhenNoneSelect = YES;
+    }
+    return self;
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     [TZImageManager manager].shouldFixOrientation = YES;
@@ -365,6 +374,7 @@
     }
     model.isSelected = !selectButton.isSelected;
     [self refreshNaviBarAndBottomBarState];
+    [self checkDoneButtonEnable];
     if (model.isSelected) {
         [UIView showOscillatoryAnimationWithLayer:selectButton.imageView.layer type:TZOscillatoryAnimationToBigger];
     }
@@ -553,6 +563,19 @@
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     // NSLog(@"%@ dealloc",NSStringFromClass(self.class));
+}
+
+- (void)checkDoneButtonEnable {
+    if (!_enableDoneWhenNoneSelect) {
+        // When no photos are selected, can't click the done button
+        // 没有选择任何照片时，不可以点击done按钮
+        TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+        if (_tzImagePickerVc.selectedModels.count == 0 && _tzImagePickerVc.minImagesCount <= 0) {
+            _doneButton.enabled = NO;
+        } else {
+            _doneButton.enabled = YES;
+        }
+    }
 }
 
 - (void)refreshNaviBarAndBottomBarState {
