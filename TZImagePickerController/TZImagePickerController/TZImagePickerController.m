@@ -1011,7 +1011,7 @@
     dispatch_once(&onceToken, ^{
         if (config == nil) {
             config = [[TZImagePickerConfig alloc] init];
-            config.preferredLanguage = nil;
+            config.preferredLanguage = [NSLocale preferredLanguages].firstObject;
             config.gifPreviewMaxImagesCount = 50;
         }
     });
@@ -1021,9 +1021,7 @@
 - (void)setPreferredLanguage:(NSString *)preferredLanguage {
     _preferredLanguage = preferredLanguage;
     
-    if (!preferredLanguage || !preferredLanguage.length) {
-        preferredLanguage = [NSLocale preferredLanguages].firstObject;
-    }
+#warning 如果你的应用移除了zh-Hant、vi的语言包，移除相应的逻辑 或者 使用下面👇的判断逻辑，以防止Crash
     if ([preferredLanguage rangeOfString:@"zh-Hans"].location != NSNotFound) {
         preferredLanguage = @"zh-Hans";
     } else if ([preferredLanguage rangeOfString:@"zh-Hant"].location != NSNotFound) {
@@ -1033,6 +1031,13 @@
     } else {
         preferredLanguage = @"en";
     }
+    /* 判空逻辑
+    NSString *languagePath = [[NSBundle tz_imagePickerBundle] pathForResource:preferredLanguage ofType:@"lproj"];
+    NSAssert(languagePath, @"请检查是否缺少了相应的语言文件");
+    if (!languagePath) {
+        preferredLanguage = @"en";
+    }
+    */
     _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:preferredLanguage ofType:@"lproj"]];
 }
 
