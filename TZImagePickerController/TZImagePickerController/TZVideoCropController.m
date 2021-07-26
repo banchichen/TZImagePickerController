@@ -178,6 +178,7 @@
     
     CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
     CGFloat doneButtonWidth = [_doneButton.currentTitle boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width;
+    doneButtonWidth = MAX(44, doneButtonWidth);
     _cancelButton.frame = CGRectMake(12, self.view.tz_height - toolBarHeight, 44, 44);
     [_cancelButton sizeToFit];
     _cancelButton.tz_height = 44;
