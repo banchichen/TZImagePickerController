@@ -238,13 +238,13 @@
 }
 
 - (void)dismissAndCallDelegateMethod {
-    UIViewController *vc = self.navigationController;
-    if (!vc) {
-        vc = self;
-    }
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (!imagePickerVc) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+        return;
+    }
     if (imagePickerVc.autoDismiss) {
-        [vc dismissViewControllerAnimated:YES completion:^{
+        [imagePickerVc dismissViewControllerAnimated:YES completion:^{
             [self callDelegateMethod];
         }];
     } else {
