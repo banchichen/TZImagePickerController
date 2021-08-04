@@ -106,6 +106,9 @@ A：请先加下面钉钉群说下方案，和我确认下，避免同时改动�
 **Q：demo在真机上跑不起来？**             
 A：1、team选你自己的；2、bundleId也改成你自己的或改成一个不会和别人重复的。可参考[简书的这篇博客](https://www.jianshu.com/p/cbe59138fca6)             
 
+**Q：3.6.4以上版本设置导航栏颜色无效？**            
+A：参考Demo里的代码，加上imagePickerVc.navigationBar.standardAppearance的相关设置                     
+
 **Q：设置导航栏颜色无效？导航栏颜色总是白色？**            
 A：是否有集成WRNavigationBar？如有，参考其readme调一下它的wr_setBlackList，把TZImagePickerController相关的控制器放到黑名单里，使得不受WRNavigationBar的影响。如果没有集成，可在issues列表里搜一下看看类似的issue参考下，如实在没头绪，可加群提供个能复现该问题的demo，0~2天给你解决。最近发现WRNavigationBar的黑名单会有不生效的情况，临时解决方案大家可参考：[https://github.com/wangrui460/WRNavigationBar/issues/145](https://github.com/wangrui460/WRNavigationBar/issues/145)                          
 
