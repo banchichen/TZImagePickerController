@@ -64,6 +64,17 @@ static dispatch_once_t onceToken;
     }
 }
 
+/// iOS14之后 是否为限制选择照片
+-(BOOL)xy_authorizationStatusLimit{
+    if (@available(iOS 14,*)) {
+        NSInteger status = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+        if (status == 4) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 /// Return YES if Authorized 返回YES如果得到了授权
 - (BOOL)authorizationStatusAuthorized {
     if (self.isPreviewNetworkImage) {

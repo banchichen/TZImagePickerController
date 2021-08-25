@@ -23,6 +23,7 @@
     BOOL _pushPhotoPickerVc;
     BOOL _didPushPhotoPickerVc;
     CGRect _cropRect;
+    BOOL _xyIsLimitAuth;
     
     UIButton *_progressHUD;
     UIView *_HUDContainer;
@@ -195,6 +196,7 @@
         self.autoDismiss = YES;
         self.columnNumber = columnNumber;
         [self configDefaultSetting];
+        _xyIsLimitAuth = [[TZImageManager manager] xy_authorizationStatusLimit];
         
         if (![[TZImageManager manager] authorizationStatusAuthorized]) {
             _tipLabel = [[UILabel alloc] init];
@@ -315,6 +317,7 @@
     self.photoPreviewOriginDefImageName = @"preview_original_def";
     self.photoOriginDefImageName = @"photo_original_def";
     self.photoOriginSelImageName = @"photo_original_sel";
+    _xy_addMoreLimitImage = [UIImage tz_imageNamedFromMyBundle:@"addMore"];
 }
 
 - (void)setTakePictureImageName:(NSString *)takePictureImageName {
@@ -646,6 +649,10 @@
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
     viewController.automaticallyAdjustsScrollViewInsets = NO;
     [super pushViewController:viewController animated:animated];
+}
+
+- (BOOL)xy_isLimitAuth{
+    return _xyIsLimitAuth;
 }
 
 - (void)dealloc {

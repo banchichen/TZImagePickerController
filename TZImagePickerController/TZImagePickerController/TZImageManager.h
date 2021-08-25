@@ -46,6 +46,8 @@
 @property (nonatomic, assign) NSInteger minPhotoHeightSelectable;
 @property (nonatomic, assign) BOOL hideWhenCanNotSelect;
 
+/// iOS14之后 是否为限制选择照片
+-(BOOL)xy_authorizationStatusLimit;
 /// Return YES if Authorized 返回YES如果得到了授权
 - (BOOL)authorizationStatusAuthorized;
 - (void)requestAuthorizationWithCompletion:(void (^)(void))completion;

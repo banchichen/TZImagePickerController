@@ -18,6 +18,7 @@
 #import "TZLocationManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "TZImageRequestOperation.h"
+#import "TZTipShowFooterView.h"
 
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate, PHPhotoLibraryChangeObserver> {
     NSMutableArray *_models;
@@ -33,12 +34,15 @@
     
     BOOL _shouldScrollToBottom;
     BOOL _showTakePhotoBtn;
+    BOOL _showLimitMore;//选择添加更多照片
     
     CGFloat _offsetItemCount;
+    NSInteger _allCount;//所有的item
 }
 @property CGRect previousPreheatRect;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
 @property (nonatomic, strong) TZCollectionView *collectionView;
+@property (nonatomic,strong) TZTipShowFooterView *footerTipView;//底部提示
 @property (nonatomic, strong) UILabel *noDataLabel;
 @property (strong, nonatomic) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
@@ -46,6 +50,7 @@
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 @property (nonatomic, assign) BOOL isSavingMedia;
 @property (nonatomic, assign) BOOL isFetchingMedia;
+
 @end
 
 static CGSize AssetGridThumbnailSize;
@@ -104,6 +109,7 @@ static CGFloat itemMargin = 5;
         [tzImagePickerVc.childViewControllers firstObject].navigationItem.backBarButtonItem = backItem;
     }
     _showTakePhotoBtn = _model.isCameraRoll && ((tzImagePickerVc.allowTakePicture && tzImagePickerVc.allowPickingImage) || (tzImagePickerVc.allowTakeVideo && tzImagePickerVc.allowPickingVideo));
+    _showLimitMore = tzImagePickerVc.xy_isLimitAuth;
     // [self resetCachedAssets];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
     
@@ -188,6 +194,13 @@ static CGFloat itemMargin = 5;
         [_collectionView reloadData];
     }
 
+    if (!_footerTipView&&_showLimitMore) {
+        
+        _footerTipView = [[TZTipShowFooterView alloc] initWithFrame:CGRectMake(0, 0, self.view.tz_width, 80)];
+        UITapGestureRecognizer *footTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(xy_showAlbumSetting)];
+        [_footerTipView addGestureRecognizer:footTap];
+        [self.view addSubview:_footerTipView];
+    }
     
     if (_showTakePhotoBtn) {
         _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber) / self.columnNumber) * self.view.tz_width);
@@ -364,7 +377,9 @@ static CGFloat itemMargin = 5;
     } else {
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - toolBarHeight : self.view.tz_height;
     }
-    _collectionView.frame = CGRectMake(0, top, self.view.tz_width, collectionViewHeight);
+
+    CGFloat tipViewH = _showLimitMore ? 80 : 0;
+    _collectionView.frame = CGRectMake(0, top, self.view.tz_width, collectionViewHeight - tipViewH);
     _noDataLabel.frame = _collectionView.bounds;
     CGFloat itemWH = (self.view.tz_width - (self.columnNumber + 1) * itemMargin) / self.columnNumber;
     _layout.itemSize = CGSizeMake(itemWH, itemWH);
@@ -384,7 +399,14 @@ static CGFloat itemMargin = 5;
         toolBarTop = self.view.tz_height - toolBarHeight - navigationHeight;
     }
     _bottomToolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
-    
+    if (_showLimitMore) {
+        CGFloat tipY = toolBarTop - tipViewH;
+        CGRect tipRect = CGRectMake(0, self.view.tz_height - tipViewH, self.view.tz_width, tipViewH);;
+        if (_bottomToolBar) {
+            tipRect = CGRectMake(0, tipY, self.view.tz_width, tipViewH);
+        }
+        _footerTipView.frame = tipRect;
+    }
     CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width + 2;
     if (!tzImagePickerVc.allowPreview) {
         previewWidth = 0.0;
@@ -551,15 +573,40 @@ static CGFloat itemMargin = 5;
 #pragma mark - UICollectionViewDataSource && Delegate
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
+    NSInteger count = _models.count;
     if (_showTakePhotoBtn) {
-        return _models.count + 1;
+        count += 1;
     }
-    return _models.count;
+    
+    if (_showLimitMore) {
+        count += 1;
+    }
+    _allCount = count;
+    return count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    // the cell lead to take a picture / 去拍照的cell
+    
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    // the cell lead to add more picture / 去添加更多照片的cell
+    
+    if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.item >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.item == 1))&&_showLimitMore) {
+        NSInteger count;
+        if (tzImagePickerVc.sortAscendingByModificationDate) {
+            count = _showTakePhotoBtn ? _allCount - 2 : _allCount - 1;
+        }else{
+            count = 1;
+        }
+        if (indexPath.item==count) {
+            TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
+            cell.imageView.image = tzImagePickerVc.xy_addMoreLimitImage;
+            cell.imageView.contentMode = UIViewContentModeScaleAspectFit;
+            cell.imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
+            return cell;
+        }
+    }
+    
+    // the cell lead to take a picture / 去拍照的cell
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.item >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.item == 0)) && _showTakePhotoBtn) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
         cell.imageView.image = tzImagePickerVc.takePictureImage;
@@ -583,7 +630,11 @@ static CGFloat itemMargin = 5;
     if (tzImagePickerVc.sortAscendingByModificationDate || !_showTakePhotoBtn) {
         model = _models[indexPath.item];
     } else {
-        model = _models[indexPath.item - 1];
+        NSInteger count = indexPath.item - 1;
+        if (_showLimitMore) {
+            count -= 1;
+        }
+        model = _models[count];
     }
     cell.allowPickingGif = tzImagePickerVc.allowPickingGif;
     cell.model = model;
@@ -668,13 +719,31 @@ static CGFloat itemMargin = 5;
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     // take a photo / 去拍照
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.item >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.item == 1))&&_showLimitMore) {
+        NSInteger count;
+        if (tzImagePickerVc.sortAscendingByModificationDate) {
+            count = _showTakePhotoBtn ? _allCount - 2 : _allCount - 1;
+        }else{
+            count = 1;
+        }
+        if (indexPath.item==count) {
+           //去选择更多照片
+            [self xy_showAlbumSetting];
+            return;
+        }
+    }
+    
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.item >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.item == 0)) && _showTakePhotoBtn)  {
         [self takePhoto]; return;
     }
     // preview phote or video / 预览照片或视频
     NSInteger index = indexPath.item;
     if (!tzImagePickerVc.sortAscendingByModificationDate && _showTakePhotoBtn) {
-        index = indexPath.item - 1;
+        NSInteger count = indexPath.item - 1;
+        if (_showLimitMore) {
+            count -= 1;
+        }
+        index = count;
     }
     TZAssetModel *model = _models[index];
     if (model.type == TZAssetModelMediaTypeVideo && !tzImagePickerVc.allowPickingMultipleVideo) {
@@ -740,6 +809,17 @@ static CGFloat itemMargin = 5;
         }];
     } else {
         [self pushImagePickerController];
+    }
+}
+
+//显示相册设置
+-(void)xy_showAlbumSetting{
+    NSURL * url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    if (@available(iOS 10.0, *)) {
+        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+    } else {
+        // Fallback on earlier versions
+        [[UIApplication sharedApplication] openURL:url];
     }
 }
 
