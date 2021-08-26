@@ -19,7 +19,7 @@
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "TZImageRequestOperation.h"
 #import "TZTipShowFooterView.h"
-
+#import <PhotosUI/PhotosUI.h>
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate, PHPhotoLibraryChangeObserver> {
     NSMutableArray *_models;
     
@@ -728,7 +728,7 @@ static CGFloat itemMargin = 5;
         }
         if (indexPath.item==count) {
            //去选择更多照片
-            [self xy_showAlbumSetting];
+            [self addMorePicture];
             return;
         }
     }
@@ -821,6 +821,14 @@ static CGFloat itemMargin = 5;
         // Fallback on earlier versions
         [[UIApplication sharedApplication] openURL:url];
     }
+  
+}
+
+-(void)addMorePicture{
+    if (@available(iOS 14, *)) {
+        [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+    }
+    
 }
 
 // 调用相机
