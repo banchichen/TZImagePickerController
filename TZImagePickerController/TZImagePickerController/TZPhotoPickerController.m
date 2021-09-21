@@ -99,7 +99,7 @@ static CGFloat itemMargin = 5;
         tzImagePickerVc.navLeftBarButtonSettingBlock(leftButton);
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
     } else if (tzImagePickerVc.childViewControllers.count) {
-        UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
+        UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:self action:@selector(navLeftBarButtonClick)];
         [TZCommonTools configBarButtonItem:backItem tzImagePickerVc:tzImagePickerVc];
         [tzImagePickerVc.childViewControllers firstObject].navigationItem.backBarButtonItem = backItem;
     }
