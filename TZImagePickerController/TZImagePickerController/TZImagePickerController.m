@@ -1024,6 +1024,10 @@
 @end
 
 
+@interface TZImagePickerConfig ()
+@property (strong, nonatomic) NSSet *supportedLanguages;
+@end
+
 @implementation TZImagePickerConfig
 
 + (instancetype)sharedInstance {
@@ -1032,6 +1036,7 @@
     dispatch_once(&onceToken, ^{
         if (config == nil) {
             config = [[TZImagePickerConfig alloc] init];
+            config.supportedLanguages = [NSSet setWithObjects:@"zh-Hans", @"zh-Hant", @"en", @"ar", @"bg", @"cs-CZ", @"de", @"el", @"es", @"fr", @"he", @"it", @"ja", @"ko-KP", @"ko", @"nl", @"pl", @"pt", @"ro", @"ru", @"sk", @"sv", @"th", @"tr", @"uk", @"vi", nil];
             config.preferredLanguage = nil;
             config.gifPreviewMaxImagesCount = 50;
         }
@@ -1045,16 +1050,16 @@
     if (!preferredLanguage || !preferredLanguage.length) {
         preferredLanguage = [NSLocale preferredLanguages].firstObject;
     }
-    if ([preferredLanguage rangeOfString:@"zh-Hans"].location != NSNotFound) {
-        preferredLanguage = @"zh-Hans";
-    } else if ([preferredLanguage rangeOfString:@"zh-Hant"].location != NSNotFound) {
-        preferredLanguage = @"zh-Hant";
-    } else if ([preferredLanguage rangeOfString:@"vi"].location != NSNotFound) {
-        preferredLanguage = @"vi";
-    } else {
-        preferredLanguage = @"en";
+
+    NSString *usedLanguage = @"en";
+    for (NSString *language in self.supportedLanguages) {
+        if ([preferredLanguage hasPrefix:language]) {
+            usedLanguage = language;
+            break;
+        }
     }
-    _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:preferredLanguage ofType:@"lproj"]];
+    _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:usedLanguage ofType:@"lproj"]];
+
 }
 
 @end
