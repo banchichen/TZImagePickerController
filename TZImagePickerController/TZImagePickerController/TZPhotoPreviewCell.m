@@ -288,7 +288,7 @@
         
         _imageContainerView.tz_width = width;
         _imageContainerView.tz_height = self.tz_height;
-        _imageContainerView.tz_centerX = self.tz_width  / 2;
+        _imageContainerView.tz_centerX = self.scrollView.tz_width  / 2;
     } else {
         CGFloat height = image.size.height / image.size.width * self.scrollView.tz_width;
         if (height < 1 || isnan(height)) height = self.tz_height;
