@@ -58,6 +58,7 @@
     _toolBar = [[UIView alloc] initWithFrame:CGRectZero];
     CGFloat rgb = 34 / 255.0;
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.7];
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _doneButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
@@ -65,7 +66,7 @@
     _doneButton.layer.masksToBounds = YES;
     [_doneButton setBackgroundColor:tzImagePickerVc.iconThemeColor];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    
     if (tzImagePickerVc) {
         [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
         [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
