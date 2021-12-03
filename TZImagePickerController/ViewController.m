@@ -16,8 +16,8 @@
 #import "TZVideoPlayerController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZGifPhotoPreviewController.h"
-#import "TZLocationManager.h"
-#import "TZAssetCell.h"
+//#import "TZLocationManager.h"
+//#import "TZAssetCell.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "FLAnimatedImage.h"
 #import "TZImageUploadOperation.h"
@@ -478,13 +478,13 @@
 - (void)pushImagePickerController {
     // 提前定位
     __weak typeof(self) weakSelf = self;
-    [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.location = [locations firstObject];
-    } failureBlock:^(NSError *error) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        strongSelf.location = nil;
-    }];
+//    [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
+//        __strong typeof(weakSelf) strongSelf = weakSelf;
+//        strongSelf.location = [locations firstObject];
+//    } failureBlock:^(NSError *error) {
+//        __strong typeof(weakSelf) strongSelf = weakSelf;
+//        strongSelf.location = nil;
+//    }];
     
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {

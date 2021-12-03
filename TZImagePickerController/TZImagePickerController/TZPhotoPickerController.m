@@ -15,7 +15,7 @@
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
-#import "TZLocationManager.h"
+//#import "TZLocationManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "TZImageRequestOperation.h"
 
@@ -565,10 +565,10 @@ static CGFloat itemMargin = 5;
         cell.imageView.image = tzImagePickerVc.takePictureImage;
         if ([tzImagePickerVc.takePictureImageName isEqualToString:@"takePicture80"]) {
             cell.imageView.contentMode = UIViewContentModeCenter;
-            CGFloat rgb = 223 / 255.0;
-            cell.imageView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+//            CGFloat rgb = 223 / 255.0;
+//            cell.imageView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
         } else {
-            cell.imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
+//            cell.imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
         }
         return cell;
     }
@@ -748,16 +748,16 @@ static CGFloat itemMargin = 5;
 - (void)pushImagePickerController {
     // 提前定位
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (tzImagePickerVc.allowCameraLocation) {
-        __weak typeof(self) weakSelf = self;
-        [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            strongSelf.location = [locations firstObject];
-        } failureBlock:^(NSError *error) {
-            __strong typeof(weakSelf) strongSelf = weakSelf;
-            strongSelf.location = nil;
-        }];
-    }
+//    if (tzImagePickerVc.allowCameraLocation) {
+//        __weak typeof(self) weakSelf = self;
+//        [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
+//            __strong typeof(weakSelf) strongSelf = weakSelf;
+//            strongSelf.location = [locations firstObject];
+//        } failureBlock:^(NSError *error) {
+//            __strong typeof(weakSelf) strongSelf = weakSelf;
+//            strongSelf.location = nil;
+//        }];
+//    }
     
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: sourceType]) {

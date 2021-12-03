@@ -22,7 +22,7 @@
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
-#import "TZLocationManager.h"
+//#import "TZLocationManager.h"
 #import "TZPhotoPreviewController.h"
 #import "TZPhotoPreviewCell.h"
 
