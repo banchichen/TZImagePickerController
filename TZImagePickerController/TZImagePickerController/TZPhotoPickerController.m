@@ -46,6 +46,7 @@
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 @property (nonatomic, assign) BOOL isSavingMedia;
 @property (nonatomic, assign) BOOL isFetchingMedia;
+@property (nonatomic, assign) BOOL isAnimation;
 @end
 
 static CGSize AssetGridThumbnailSize;
@@ -88,21 +89,29 @@ static CGFloat itemMargin = 5;
     } else {
         self.view.backgroundColor = [UIColor whiteColor];
     }
-    self.navigationItem.title = _model.name;
-    UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
-    [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:tzImagePickerVc];
-    self.navigationItem.rightBarButtonItem = cancelItem;
-    if (tzImagePickerVc.navLeftBarButtonSettingBlock) {
-        UIButton *leftButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        leftButton.frame = CGRectMake(0, 0, 44, 44);
-        [leftButton addTarget:self action:@selector(navLeftBarButtonClick) forControlEvents:UIControlEventTouchUpInside];
-        tzImagePickerVc.navLeftBarButtonSettingBlock(leftButton);
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
-    } else if (tzImagePickerVc.childViewControllers.count) {
-        UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:self action:@selector(navLeftBarButtonClick)];
-        [TZCommonTools configBarButtonItem:backItem tzImagePickerVc:tzImagePickerVc];
-        [tzImagePickerVc.childViewControllers firstObject].navigationItem.backBarButtonItem = backItem;
-    }
+    
+    UIImage *image = tzImagePickerVc.arrowBtnIconImage;
+    
+    UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 40)];
+    UIButton *titleButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 100, 40)];
+    [titleView addSubview:titleButton];
+    titleButton.titleLabel.font = [UIFont boldSystemFontOfSize:18];
+    [titleButton setTitle:_model.name forState:UIControlStateNormal];
+    [titleButton setImage:image forState:UIControlStateNormal];
+    [titleButton addTarget:self action:@selector(titleTapAction) forControlEvents:UIControlEventTouchUpInside];
+    CGFloat padding = 0;
+    //图片在右，文字在左
+    titleButton.titleEdgeInsets = UIEdgeInsetsMake(0, -(20 + padding/2), 0, (20 + padding/2));
+    [titleButton.titleLabel sizeToFit];
+    titleButton.imageEdgeInsets = UIEdgeInsetsMake(0, (titleButton.titleLabel.frame.size.width+ padding/2), 0, -(titleButton.titleLabel.frame.size.width+ padding/2));
+    
+    self.navigationItem.titleView = titleView;
+    
+    //
+    UIBarButtonItem *closeItem = [[UIBarButtonItem alloc] initWithImage:tzImagePickerVc.closeBtnIconImage style:(UIBarButtonItemStylePlain) target:tzImagePickerVc action:@selector(cancelButtonClick)];
+    [TZCommonTools configBarButtonItem:closeItem tzImagePickerVc:tzImagePickerVc];
+    self.navigationItem.leftBarButtonItem = closeItem;
+
     _showTakePhotoBtn = _model.isCameraRoll && ((tzImagePickerVc.allowTakePicture && tzImagePickerVc.allowPickingImage) || (tzImagePickerVc.allowTakeVideo && tzImagePickerVc.allowPickingVideo));
     // [self resetCachedAssets];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
@@ -294,9 +303,13 @@ static CGFloat itemMargin = 5;
     [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
+    // 刷新title显示
+    [self reloadDoneBtnTitle];
     
     _numberImageView = [[UIImageView alloc] initWithImage:tzImagePickerVc.photoNumberIconImage];
-    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
+//    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    // 新UI不显示这个
+    _numberImageView.hidden = YES;
     _numberImageView.clipsToBounds = YES;
     _numberImageView.contentMode = UIViewContentModeScaleAspectFit;
     _numberImageView.backgroundColor = [UIColor clearColor];
@@ -307,7 +320,9 @@ static CGFloat itemMargin = 5;
     _numberLabel.textColor = [UIColor whiteColor];
     _numberLabel.textAlignment = NSTextAlignmentCenter;
     _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
-    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
+//    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    // 新UI不显示这个
+    _numberLabel.hidden = YES;
     _numberLabel.backgroundColor = [UIColor clearColor];
     _numberLabel.userInteractionEnabled = YES;
 
@@ -341,6 +356,79 @@ static CGFloat itemMargin = 5;
     
     if (tzImagePickerVc.photoPickerPageUIConfigBlock) {
         tzImagePickerVc.photoPickerPageUIConfigBlock(_collectionView, _bottomToolBar, _previewButton, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel, _divideLine);
+    }
+}
+
+// 刷新完成按钮的title
+- (void)reloadDoneBtnTitle {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    // 带数字显示
+    if (tzImagePickerVc.selectedModels.count > 0) {
+        NSString *title = [NSString stringWithFormat:@"%@(%zd)", tzImagePickerVc.doneBtnTitleStr, tzImagePickerVc.selectedModels.count];
+        [_doneButton setTitle:title forState:UIControlStateNormal];
+    } else {
+        [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
+    }
+    
+    [_doneButton sizeToFit];
+    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width + 1), 44);
+}
+
+- (void)titleTapAction {
+    NSLog(@"titleTapAction");
+    if (self.albumPicker) {
+        __weak typeof(self) weakSelf = self;
+        self.albumPicker.selectedBlock = ^(TZAlbumModel *model) {
+            [weakSelf showAlbumPicker];
+        };
+        [self addChildViewController:self.albumPicker];
+        [self showAlbumPicker];
+    }
+}
+
+- (void)showAlbumPicker {
+    if (self.isAnimation) {
+        return;
+    }
+    BOOL isShow = self.albumPicker.view.hidden;
+    // 计算frame
+    CGFloat width = [UIScreen mainScreen].bounds.size.width;
+    CGFloat height = [UIScreen mainScreen].bounds.size.height;
+    CGFloat statusBarHeight = 0;
+    // 获取状态栏高度
+    if (@available(iOS 13.0, *)) {
+        UIStatusBarManager *statusBarManager = [UIApplication sharedApplication].windows.firstObject.windowScene.statusBarManager;
+        statusBarHeight = statusBarManager.statusBarFrame.size.height;
+    }
+    else {
+        statusBarHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
+    }
+    // 顶部间距
+    CGFloat topOffset = statusBarHeight + 44;
+    
+    self.isAnimation = YES;
+    if (isShow) {
+        self.albumPicker.view.alpha = 0.5;
+        self.albumPicker.view.hidden = NO;
+        self.albumPicker.view.frame = CGRectMake(0, -100, 0, 0);
+        [self.view addSubview:self.albumPicker.view];
+        // 需要显示
+        [UIView animateWithDuration:0.35 animations:^{
+            self.albumPicker.view.alpha = 1.0;
+            self.albumPicker.view.frame = CGRectMake(0, topOffset, width, height - topOffset);
+        } completion:^(BOOL finished) {
+            self.isAnimation = NO;
+        }];
+    } else {
+        // 需要隐藏
+        [UIView animateWithDuration:0.35 animations:^{
+            self.albumPicker.view.alpha = 0;
+            self.albumPicker.view.frame = CGRectMake(0, -(height), width, height - topOffset);
+        } completion:^(BOOL finished) {
+            self.isAnimation = NO;
+            self.albumPicker.view.hidden = YES;
+            [self.albumPicker.view removeFromSuperview];
+        }];
     }
 }
 
@@ -509,6 +597,7 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     [tzImagePickerVc hideProgressHUD];
     _doneButton.enabled = YES;
+    [self reloadDoneBtnTitle];
     self.isFetchingMedia = NO;
 
     if (tzImagePickerVc.autoDismiss) {
@@ -670,7 +759,12 @@ static CGFloat itemMargin = 5;
     // take a photo / 去拍照
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (((tzImagePickerVc.sortAscendingByModificationDate && indexPath.item >= _models.count) || (!tzImagePickerVc.sortAscendingByModificationDate && indexPath.item == 0)) && _showTakePhotoBtn)  {
-        [self takePhoto]; return;
+        if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
+            [self takePhoto];
+            return;
+        } else {
+            return;
+        }
     }
     // preview phote or video / 预览照片或视频
     NSInteger index = indexPath.item;
@@ -785,9 +879,13 @@ static CGFloat itemMargin = 5;
     
     _previewButton.enabled = tzImagePickerVc.selectedModels.count > 0;
     _doneButton.enabled = tzImagePickerVc.selectedModels.count > 0 || tzImagePickerVc.alwaysEnableDoneBtn;
-    
-    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
-    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    [self reloadDoneBtnTitle];
+//    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    // 新UI不显示这个
+    _numberImageView.hidden = YES;
+//    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    // 新UI不显示这个
+    _numberLabel.hidden = YES;
     _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
     
     _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
@@ -900,6 +998,13 @@ static CGFloat itemMargin = 5;
             [strongImagePickerVc.pickerDelegate imagePickerController:strongImagePickerVc didDeselectAsset:asset photo:photo isSelectOriginalPhoto:strongSelf.isSelectOriginalPhoto];
         }
     }];
+}
+#pragma mark - public
+- (void)reloadImageData {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.model refreshFetchResult];
+        [self fetchAssetModels];
+    });
 }
 
 #pragma mark - UIImagePickerControllerDelegate

@@ -235,6 +235,8 @@
 @property (nonatomic, strong) UIImage *photoOriginDefImage;
 @property (nonatomic, strong) UIImage *photoPreviewOriginDefImage;
 @property (nonatomic, strong) UIImage *photoNumberIconImage;
+@property (nonatomic, strong) UIImage *closeBtnIconImage;
+@property (nonatomic, strong) UIImage *arrowBtnIconImage;
 
 #pragma mark -
 /// Appearance / 外观颜色 + 按钮文字
@@ -342,6 +344,10 @@
 @property (nonatomic, assign) NSInteger columnNumber;
 @property (assign, nonatomic) BOOL isFirstAppear;
 - (void)configTableView;
+
+// 选中
+@property (nonatomic, copy) void(^selectedBlock)(TZAlbumModel *model);
+
 @end
 
 

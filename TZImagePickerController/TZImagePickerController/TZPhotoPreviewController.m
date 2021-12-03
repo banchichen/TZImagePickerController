@@ -168,7 +168,9 @@
     _numberImageView.backgroundColor = [UIColor clearColor];
     _numberImageView.clipsToBounds = YES;
     _numberImageView.contentMode = UIViewContentModeScaleAspectFit;
-    _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 0;
+//    _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 0;
+    // 新UI不显示这个
+    _numberImageView.hidden = YES;
     
     _numberLabel = [[UILabel alloc] init];
     _numberLabel.font = [UIFont systemFontOfSize:15];
@@ -176,7 +178,9 @@
     _numberLabel.textColor = [UIColor whiteColor];
     _numberLabel.textAlignment = NSTextAlignmentCenter;
     _numberLabel.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
-    _numberLabel.hidden = _tzImagePickerVc.selectedModels.count <= 0;
+//    _numberLabel.hidden = _tzImagePickerVc.selectedModels.count <= 0;
+    // 新UI不显示这个
+    _numberLabel.hidden = YES;
     _numberLabel.backgroundColor = [UIColor clearColor];
     _numberLabel.userInteractionEnabled = YES;
     
@@ -423,6 +427,8 @@
             cropedImage = [TZImageCropManager circularClipImage:cropedImage];
         }
         _doneButton.enabled = YES;
+        [self reloadDoneBtnTitle];
+        
         [_tzImagePickerVc hideProgressHUD];
         if (self.doneButtonClickBlockCropMode) {
             TZAssetModel *model = _models[self.currentIndex];
@@ -577,8 +583,12 @@
         _indexLabel.hidden = YES;
     }
     _numberLabel.text = [NSString stringWithFormat:@"%zd",_tzImagePickerVc.selectedModels.count];
-    _numberImageView.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);
+//    _numberImageView.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);
+    // 新UI不显示这个
+    _numberImageView.hidden = YES;
     _numberLabel.hidden = (_tzImagePickerVc.selectedModels.count <= 0 || _isHideNaviBar || _isCropImage);
+    // 新UI不显示这个
+    _numberLabel.hidden = YES;
     
     _originalPhotoButton.selected = _isSelectOriginalPhoto;
     _originalPhotoLabel.hidden = !_originalPhotoButton.isSelected;
@@ -637,12 +647,28 @@
         } else {
             self->_doneButton.enabled = YES;
         }
+        [self reloadDoneBtnTitle];
         self->_selectButton.hidden = currentModel.iCloudFailed || !_tzImagePickerVc.showSelectBtn;
         if (currentModel.iCloudFailed) {
             self->_originalPhotoButton.hidden = YES;
             self->_originalPhotoLabel.hidden = YES;
         }
     });
+}
+
+// 刷新完成按钮的title
+- (void)reloadDoneBtnTitle {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    // 带数字显示
+    if (tzImagePickerVc.selectedModels.count > 0) {
+        NSString *title = [NSString stringWithFormat:@"%@(%zd)", tzImagePickerVc.doneBtnTitleStr, tzImagePickerVc.selectedModels.count];
+        [_doneButton setTitle:title forState:UIControlStateNormal];
+    } else {
+        [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
+    }
+    
+    [_doneButton sizeToFit];
+    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width + 1), 44);
 }
 
 - (void)showPhotoBytes {
