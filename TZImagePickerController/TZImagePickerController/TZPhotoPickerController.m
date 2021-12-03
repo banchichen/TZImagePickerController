@@ -81,6 +81,9 @@ static CGFloat itemMargin = 5;
     [super viewDidLoad];
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     self.isFirstAppear = YES;
+    
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
@@ -384,6 +387,8 @@ static CGFloat itemMargin = 5;
     if (self.albumPicker) {
         __weak typeof(self) weakSelf = self;
         self.albumPicker.selectedBlock = ^(TZAlbumModel *model) {
+            weakSelf.model = model;
+            [weakSelf reloadImageData];
             [weakSelf showAlbumPicker];
         };
         [self addChildViewController:self.albumPicker];
@@ -397,6 +402,7 @@ static CGFloat itemMargin = 5;
     }
     BOOL isShow = self.albumPicker.view.hidden;
     // 计算frame
+    CGFloat frameY = _collectionView.frame.origin.y;
     CGFloat width = [UIScreen mainScreen].bounds.size.width;
     CGFloat height = [UIScreen mainScreen].bounds.size.height;
     CGFloat statusBarHeight = 0;
@@ -415,12 +421,12 @@ static CGFloat itemMargin = 5;
     if (isShow) {
         self.albumPicker.view.alpha = 0.5;
         self.albumPicker.view.hidden = NO;
-        self.albumPicker.view.frame = CGRectMake(0, -100, 0, 0);
+        self.albumPicker.view.frame = CGRectMake(0, -height, width, 0);
         [self.view addSubview:self.albumPicker.view];
         // 需要显示
         [UIView animateWithDuration:0.35 animations:^{
             self.albumPicker.view.alpha = 1.0;
-            self.albumPicker.view.frame = CGRectMake(0, topOffset, width, height - topOffset);
+            self.albumPicker.view.frame = CGRectMake(0, frameY, width, height - topOffset);
         } completion:^(BOOL finished) {
             self.isAnimation = NO;
         }];

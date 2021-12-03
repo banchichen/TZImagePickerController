@@ -758,6 +758,9 @@
         self.view.backgroundColor = [UIColor whiteColor];
     }
     
+    self.automaticallyAdjustsScrollViewInsets = NO;
+//    self.edgesForExtendedLayout = UIRectEdgeNone;
+    
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
 //    UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:imagePickerVc action:@selector(cancelButtonClick)];
     UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithImage:imagePickerVc.closeBtnIconImage style:(UIBarButtonItemStylePlain) target:self action:@selector(cancelButtonClick)];
