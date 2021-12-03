@@ -76,12 +76,13 @@
     _doneButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
     _doneButton.layer.cornerRadius = 14.0;
     _doneButton.layer.masksToBounds = YES;
-    [_doneButton setBackgroundColor:tzImagePickerVc.iconThemeColor];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     
     if (tzImagePickerVc) {
         [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
         [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+        [_doneButton setBackgroundImage:tzImagePickerVc.doneBtnNormalImage forState:UIControlStateNormal];
+        [_doneButton setBackgroundImage:tzImagePickerVc.doneBtnDisableImage forState:UIControlStateDisabled];
     } else {
         [_doneButton setTitle:[NSBundle tz_localizedStringForKey:@"Done"] forState:UIControlStateNormal];
         [_doneButton setTitleColor:[UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0] forState:UIControlStateNormal];
@@ -122,7 +123,7 @@
     CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
     _toolBar.frame = CGRectMake(0, self.view.tz_height - toolBarHeight, self.view.tz_width, toolBarHeight);
     [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12 - 12, 0, MAX(44, _doneButton.tz_width + 12), 28);
+    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12 - 16, 12, MAX(44, _doneButton.tz_width + 16), 28);
     
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc.gifPreviewPageDidLayoutSubviewsBlock) {

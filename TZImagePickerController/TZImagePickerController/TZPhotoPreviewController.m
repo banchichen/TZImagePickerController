@@ -162,10 +162,11 @@
     _doneButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
     _doneButton.layer.cornerRadius = 14.0;
     _doneButton.layer.masksToBounds = YES;
-    [_doneButton setBackgroundColor:_tzImagePickerVc.iconThemeColor];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:_tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     [_doneButton setTitleColor:_tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+    [_doneButton setBackgroundImage:_tzImagePickerVc.doneBtnNormalImage forState:UIControlStateNormal];
+    [_doneButton setBackgroundImage:_tzImagePickerVc.doneBtnDisableImage forState:UIControlStateDisabled];
     
     _numberImageView = [[UIImageView alloc] initWithImage:_tzImagePickerVc.photoNumberIconImage];
     _numberImageView.backgroundColor = [UIColor clearColor];
@@ -298,7 +299,7 @@
         _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
     }
     [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12 - 12, 0, MAX(44, _doneButton.tz_width + 12), 28);
+    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12 - 16, 12, MAX(44, _doneButton.tz_width + 16), 28);
     _numberImageView.frame = CGRectMake(_doneButton.tz_left - 24 - 5, 10, 24, 24);
     _numberLabel.frame = _numberImageView.frame;
     
@@ -671,7 +672,7 @@
     }
     
     [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12 - 12, 0, MAX(44, _doneButton.tz_width + 12), 28);
+    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12 - 16, 12, MAX(44, _doneButton.tz_width + 16), 28);
 }
 
 - (void)showPhotoBytes {

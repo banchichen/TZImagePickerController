@@ -128,7 +128,9 @@
     [_doneButton setBackgroundColor:self.imagePickerVc.iconThemeColor];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:self.imagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
-    [_doneButton setTitleColor:UIColor.whiteColor forState:UIControlStateNormal];
+    [_doneButton setBackgroundImage:self.imagePickerVc.doneBtnNormalImage forState:UIControlStateNormal];
+    [_doneButton setBackgroundImage:self.imagePickerVc.doneBtnDisableImage forState:UIControlStateDisabled];
+    [_doneButton setTitleColor:self.imagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     [_doneButton setTitleColor:self.imagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     [self.view addSubview:_doneButton];
     
@@ -185,7 +187,7 @@
     _cancelButton.frame = CGRectMake(12, self.view.tz_height - toolBarHeight, 44, 44);
     [_cancelButton sizeToFit];
     _cancelButton.tz_height = 44;
-    _doneButton.frame = CGRectMake(self.view.tz_width - doneButtonWidth - 12 - 12, self.view.tz_height - toolBarHeight, doneButtonWidth + 12, 28);
+    _doneButton.frame = CGRectMake(self.view.tz_width - doneButtonWidth - 12 - 16, 12, doneButtonWidth + 16, 28);
     _playButton.frame = CGRectMake(0, statusBarAndNaviBarHeight, self.view.tz_width, self.view.tz_height - statusBarAndNaviBarHeight - toolBarHeight);
     
     CGFloat collectionViewH = (self.view.tz_width - VideoEditLeftMargin * 2 - 2 * PanImageWidth) / 10.0 * 2;

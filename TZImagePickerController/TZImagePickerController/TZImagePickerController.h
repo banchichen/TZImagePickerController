@@ -237,6 +237,8 @@
 @property (nonatomic, strong) UIImage *photoNumberIconImage;
 @property (nonatomic, strong) UIImage *closeBtnIconImage;
 @property (nonatomic, strong) UIImage *arrowBtnIconImage;
+@property (nonatomic, strong) UIImage *doneBtnNormalImage;
+@property (nonatomic, strong) UIImage *doneBtnDisableImage;
 
 #pragma mark -
 /// Appearance / 外观颜色 + 按钮文字
