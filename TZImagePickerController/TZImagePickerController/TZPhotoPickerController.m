@@ -300,7 +300,6 @@ static CGFloat itemMargin = 5;
     _doneButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
     _doneButton.layer.cornerRadius = 14.0;
     _doneButton.layer.masksToBounds = YES;
-    [_doneButton setBackgroundColor:tzImagePickerVc.iconThemeColor];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setBackgroundImage:tzImagePickerVc.doneBtnNormalImage forState:UIControlStateNormal];
     [_doneButton setBackgroundImage:tzImagePickerVc.doneBtnDisableImage forState:UIControlStateDisabled];

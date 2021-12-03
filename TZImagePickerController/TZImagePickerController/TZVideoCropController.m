@@ -125,7 +125,6 @@
     _doneButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
     _doneButton.layer.cornerRadius = 14.0;
     _doneButton.layer.masksToBounds = YES;
-    [_doneButton setBackgroundColor:self.imagePickerVc.iconThemeColor];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:self.imagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     [_doneButton setBackgroundImage:self.imagePickerVc.doneBtnNormalImage forState:UIControlStateNormal];
