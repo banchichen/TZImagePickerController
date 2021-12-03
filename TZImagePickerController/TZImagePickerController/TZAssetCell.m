@@ -503,7 +503,7 @@
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        self.backgroundColor = [UIColor whiteColor];
+        self.backgroundColor = [UIColor clearColor];
         _imageView = [[UIImageView alloc] init];
         _imageView.backgroundColor = [UIColor colorWithRed:71/255.0 green:70/255.0 blue:100/255.0 alpha:1];
         _imageView.contentMode = UIViewContentModeScaleAspectFill;
