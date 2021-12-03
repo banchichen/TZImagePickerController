@@ -119,7 +119,10 @@
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.7];
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    _doneButton.titleLabel.font = [UIFont boldSystemFontOfSize:16];
+    _doneButton.layer.cornerRadius = 14.0;
+    _doneButton.layer.masksToBounds = YES;
+    [_doneButton setBackgroundColor:tzImagePickerVc.iconThemeColor];
     if (!_cover) {
         _doneButton.enabled = NO;
     }
@@ -175,7 +178,7 @@
     CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
     _toolBar.frame = CGRectMake(0, self.view.tz_height - toolBarHeight, self.view.tz_width, toolBarHeight);
     [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 44);
+    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12 - 12, 0, MAX(44, _doneButton.tz_width + 12), 28);
     _playButton.frame = CGRectMake(0, statusBarAndNaviBarHeight, self.view.tz_width, self.view.tz_height - statusBarAndNaviBarHeight - toolBarHeight);
     if (tzImagePickerVc.allowEditVideo) {
         _editButton.frame = CGRectMake(12, 0, 44, 44);
