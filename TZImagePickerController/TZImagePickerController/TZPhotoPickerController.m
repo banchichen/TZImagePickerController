@@ -97,8 +97,8 @@ static CGFloat itemMargin = 5;
     
     UIImage *image = tzImagePickerVc.arrowBtnIconImage;
     
-    UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 40)];
-    UIButton *titleButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 100, 40)];
+    UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
+    UIButton *titleButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
     self.titleButton = titleButton;
     [titleView addSubview:titleButton];
     titleButton.titleLabel.font = [UIFont boldSystemFontOfSize:18];
@@ -106,6 +106,7 @@ static CGFloat itemMargin = 5;
     [titleButton setTitleColor:tzImagePickerVc.naviTitleColor forState:UIControlStateNormal];
     [titleButton setImage:image forState:UIControlStateNormal];
     [titleButton addTarget:self action:@selector(titleTapAction) forControlEvents:UIControlEventTouchUpInside];
+    
     CGFloat padding = 0;
     //图片在右，文字在左
     titleButton.titleEdgeInsets = UIEdgeInsetsMake(0, -(20 + padding/2), 0, (20 + padding/2));
@@ -392,6 +393,13 @@ static CGFloat itemMargin = 5;
         self.albumPicker.selectedBlock = ^(TZAlbumModel *model) {
             weakSelf.model = model;
             [weakSelf.titleButton setTitle:model.name forState:UIControlStateNormal];
+            
+            CGFloat padding = 0;
+            //图片在右，文字在左
+            weakSelf.titleButton.titleEdgeInsets = UIEdgeInsetsMake(0, -(20 + padding/2), 0, (20 + padding/2));
+            [weakSelf.titleButton.titleLabel sizeToFit];
+            weakSelf.titleButton.imageEdgeInsets = UIEdgeInsetsMake(0, (weakSelf.titleButton.titleLabel.frame.size.width+ padding/2), 0, -(weakSelf.titleButton.titleLabel.frame.size.width+ padding/2));
+            
             [weakSelf reloadImageData];
             [weakSelf showAlbumPicker];
         };
