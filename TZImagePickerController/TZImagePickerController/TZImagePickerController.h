@@ -246,6 +246,7 @@
 @property (nonatomic, strong) UIColor *oKButtonTitleColorDisabled;
 @property (nonatomic, strong) UIColor *naviBgColor;
 @property (nonatomic, strong) UIColor *naviTitleColor;
+@property (nonatomic, strong) UIColor *naviSubTitleColor;
 @property (nonatomic, strong) UIFont *naviTitleFont;
 @property (nonatomic, strong) UIColor *barItemTextColor;
 @property (nonatomic, strong) UIFont *barItemTextFont;

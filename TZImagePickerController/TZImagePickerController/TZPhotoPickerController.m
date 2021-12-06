@@ -39,6 +39,7 @@
 @property CGRect previousPreheatRect;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
 @property (nonatomic, strong) TZCollectionView *collectionView;
+@property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UILabel *noDataLabel;
 @property (strong, nonatomic) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
@@ -98,6 +99,7 @@ static CGFloat itemMargin = 5;
     
     UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 40)];
     UIButton *titleButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 100, 40)];
+    self.titleButton = titleButton;
     [titleView addSubview:titleButton];
     titleButton.titleLabel.font = [UIFont boldSystemFontOfSize:18];
     [titleButton setTitle:_model.name forState:UIControlStateNormal];
@@ -389,6 +391,7 @@ static CGFloat itemMargin = 5;
         __weak typeof(self) weakSelf = self;
         self.albumPicker.selectedBlock = ^(TZAlbumModel *model) {
             weakSelf.model = model;
+            [weakSelf.titleButton setTitle:model.name forState:UIControlStateNormal];
             [weakSelf reloadImageData];
             [weakSelf showAlbumPicker];
         };
@@ -417,6 +420,7 @@ static CGFloat itemMargin = 5;
     }
     // 顶部间距
     CGFloat topOffset = statusBarHeight + 44;
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     
     self.isAnimation = YES;
     if (isShow) {
@@ -428,6 +432,10 @@ static CGFloat itemMargin = 5;
         [UIView animateWithDuration:0.35 delay:0 options:(UIViewAnimationOptionCurveEaseOut) animations:^{
             self.albumPicker.view.alpha = 1.0;
             self.albumPicker.view.frame = CGRectMake(0, frameY, width, height - topOffset);
+            
+            UIImage *image = tzImagePickerVc.arrowBtnIconImage;
+            UIImage *flipImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:UIImageOrientationDown];
+            [self.titleButton setImage:flipImage forState:UIControlStateNormal];
         } completion:^(BOOL finished) {
             self.isAnimation = NO;
         }];
@@ -437,6 +445,10 @@ static CGFloat itemMargin = 5;
         [UIView animateWithDuration:0.35 delay:0 options:(UIViewAnimationOptionCurveEaseIn) animations:^{
             self.albumPicker.view.alpha = 0;
             self.albumPicker.view.frame = CGRectMake(0, -(height), width, height - topOffset);
+            
+            UIImage *image = tzImagePickerVc.arrowBtnIconImage;
+            UIImage *flipImage = [UIImage imageWithCGImage:image.CGImage scale:image.scale orientation:UIImageOrientationUp];
+            [self.titleButton setImage:flipImage forState:UIControlStateNormal];
         } completion:^(BOOL finished) {
             self.isAnimation = NO;
             self.albumPicker.view.hidden = YES;

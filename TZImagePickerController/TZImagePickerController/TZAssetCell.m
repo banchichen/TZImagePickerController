@@ -403,19 +403,15 @@
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     self.backgroundColor = [UIColor whiteColor];
-    self.accessoryType = UITableViewCellAccessoryNone;
+//    self.accessoryType = UITableViewCellAccessoryNone;
     return self;
 }
 
 - (void)setModel:(TZAlbumModel *)model {
     _model = model;
     
-    UIColor *nameColor = UIColor.blackColor;
-    if (@available(iOS 13.0, *)) {
-        nameColor = UIColor.labelColor;
-    }
-    NSMutableAttributedString *nameString = [[NSMutableAttributedString alloc] initWithString:model.name attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:nameColor}];
-    NSAttributedString *countString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"  (%zd)",model.count] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor lightGrayColor]}];
+    NSMutableAttributedString *nameString = [[NSMutableAttributedString alloc] initWithString:model.name attributes:@{NSFontAttributeName:[UIFont boldSystemFontOfSize:16],NSForegroundColorAttributeName:self.titleColor}];
+    NSAttributedString *countString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"  (%zd)",model.count] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:self.countColor}];
     [nameString appendAttributedString:countString];
     self.titleLabel.attributedText = nameString;
     [[TZImageManager manager] getPostImageWithAlbumModel:model completion:^(UIImage *postImage) {
@@ -424,7 +420,8 @@
     }];
     if (model.selectedCount) {
         self.selectedCountButton.hidden = NO;
-        [self.selectedCountButton setTitle:[NSString stringWithFormat:@"%zd",model.selectedCount] forState:UIControlStateNormal];
+//        [self.selectedCountButton setImage:<#(nullable UIImage *)#> forState:UIControlStateNormal];
+//        [self.selectedCountButton setTitle:[NSString stringWithFormat:@"%zd",model.selectedCount] forState:UIControlStateNormal];
     } else {
         self.selectedCountButton.hidden = YES;
     }
@@ -436,7 +433,7 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 24, 23, 24, 24);
+    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 24 - 16, 23, 24, 24);
     NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
     self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
     self.posterImageView.frame = CGRectMake(0, 0, 70, 70);

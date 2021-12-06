@@ -901,9 +901,12 @@
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     cell.albumCellDidLayoutSubviewsBlock = imagePickerVc.albumCellDidLayoutSubviewsBlock;
     cell.albumCellDidSetModelBlock = imagePickerVc.albumCellDidSetModelBlock;
-    cell.selectedCountButton.backgroundColor = imagePickerVc.iconThemeColor;
+    [cell.selectedCountButton setImage:imagePickerVc.photoOriginSelImage forState:UIControlStateNormal];
+    cell.selectedCountButton.backgroundColor = [UIColor clearColor];
+    cell.titleColor = imagePickerVc.naviTitleColor;
+    cell.countColor = imagePickerVc.naviSubTitleColor;
     cell.model = _albumArr[indexPath.row];
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    cell.accessoryType = UITableViewCellAccessoryNone;
     return cell;
 }
 
