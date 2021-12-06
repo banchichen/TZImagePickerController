@@ -160,6 +160,7 @@
 /// 用户选中过的图片数组
 @property (nonatomic, strong) NSMutableArray *selectedAssets;
 @property (nonatomic, strong) NSMutableArray<TZAssetModel *> *selectedModels;
+@property (nonatomic, strong) TZAlbumModel *selectedAlbum;
 @property (nonatomic, strong) NSMutableArray *selectedAssetIds;
 - (void)addSelectedModel:(TZAssetModel *)model;
 - (void)removeSelectedModel:(TZAssetModel *)model;

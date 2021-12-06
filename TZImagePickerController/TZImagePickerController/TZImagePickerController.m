@@ -803,8 +803,17 @@
                 self->_albumArr = [NSMutableArray arrayWithArray:models];
                 for (TZAlbumModel *albumModel in self->_albumArr) {
                     albumModel.selectedModels = imagePickerVc.selectedModels;
+                    if (imagePickerVc.selectedAlbum && [imagePickerVc.selectedAlbum.collection.localIdentifier isEqualToString:albumModel.collection.localIdentifier]) {
+                        albumModel.isCurrentSelected = YES;
+                    }
                 }
                 [imagePickerVc hideProgressHUD];
+                
+                if (!imagePickerVc.selectedAlbum) {
+                    TZAlbumModel *albumModel = [self->_albumArr firstObject];
+                    albumModel.isCurrentSelected = YES;
+                    imagePickerVc.selectedAlbum = albumModel;
+                }
                 
                 if (self.isFirstAppear) {
                     self.isFirstAppear = NO;
@@ -852,6 +861,13 @@
         return tzImagePicker.statusBarStyle;
     }
     return [super preferredStatusBarStyle];
+}
+
+/// 重置选中状态
+- (void)resetAlbumSelected {
+    for (TZAlbumModel *model in _albumArr) {
+        model.isCurrentSelected = NO;
+    }
 }
 
 #pragma mark - PHPhotoLibraryChangeObserver
@@ -913,6 +929,12 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     TZAlbumModel *model = _albumArr[indexPath.row];
+    [self resetAlbumSelected];
+    model.isCurrentSelected = YES;
+    // 暂存
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    imagePickerVc.selectedAlbum = model;
+    //
     if (self.selectedBlock) {
         self.selectedBlock(model);
     }

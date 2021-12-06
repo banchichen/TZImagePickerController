@@ -418,7 +418,7 @@
         self.posterImageView.image = postImage;
         [self setNeedsLayout];
     }];
-    if (model.selectedCount) {
+    if (model.isCurrentSelected) {
         self.selectedCountButton.hidden = NO;
 //        [self.selectedCountButton setImage:<#(nullable UIImage *)#> forState:UIControlStateNormal];
 //        [self.selectedCountButton setTitle:[NSString stringWithFormat:@"%zd",model.selectedCount] forState:UIControlStateNormal];
