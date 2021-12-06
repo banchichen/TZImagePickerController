@@ -249,12 +249,12 @@ static CGFloat itemMargin = 5;
     if (!tzImagePickerVc.showSelectBtn) return;
     
     _bottomToolBar = [[UIView alloc] initWithFrame:CGRectZero];
-//    CGFloat rgb = 253 / 255.0;
-//    if (@available(iOS 13.0, *)) {
-//        _bottomToolBar.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-//    } else {
-//        _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
-//    }
+    CGFloat rgb = 253 / 255.0;
+    if (@available(iOS 13.0, *)) {
+        _bottomToolBar.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+    } else {
+        _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+    }
     
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];

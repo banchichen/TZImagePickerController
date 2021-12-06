@@ -894,12 +894,11 @@
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     TZAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TZAlbumCell"];
     
-    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-    cell.backgroundColor = imagePickerVc.naviBgColor;
-//    if (@available(iOS 13.0, *)) {
-//        cell.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-//    }
+    if (@available(iOS 13.0, *)) {
+        cell.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+    }
     
+    TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     cell.albumCellDidLayoutSubviewsBlock = imagePickerVc.albumCellDidLayoutSubviewsBlock;
     cell.albumCellDidSetModelBlock = imagePickerVc.albumCellDidSetModelBlock;
     cell.selectedCountButton.backgroundColor = imagePickerVc.iconThemeColor;
