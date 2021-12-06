@@ -52,11 +52,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
-    if (@available(iOS 13.0, *)) {
-        self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-    } else {
-        self.view.backgroundColor = [UIColor whiteColor];
-    }
+//    if (@available(iOS 13.0, *)) {
+//        self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+//    } else {
+//        self.view.backgroundColor = [UIColor whiteColor];
+//    }
+    self.view.backgroundColor = self.naviBgColor;
     self.navigationBar.barStyle = UIBarStyleBlack;
     self.navigationBar.translucent = YES;
     [TZImageManager manager].shouldFixOrientation = NO;
@@ -752,16 +753,16 @@
     [super viewDidLoad];
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     self.isFirstAppear = YES;
-    if (@available(iOS 13.0, *)) {
-        self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-    } else {
-        self.view.backgroundColor = [UIColor whiteColor];
-    }
+//    if (@available(iOS 13.0, *)) {
+//        self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+//    } else {
+//        self.view.backgroundColor = [UIColor whiteColor];
+//    }
     
     self.automaticallyAdjustsScrollViewInsets = NO;
-//    self.edgesForExtendedLayout = UIRectEdgeNone;
     
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    self.view.backgroundColor = imagePickerVc.naviBgColor;
 //    UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:imagePickerVc action:@selector(cancelButtonClick)];
     UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithImage:imagePickerVc.closeBtnIconImage style:(UIBarButtonItemStylePlain) target:self action:@selector(cancelButtonClick)];
     [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:imagePickerVc];
@@ -817,11 +818,12 @@
                         // Fallback on earlier versions
                     }
                     self->_tableView.rowHeight = 70;
-                    if (@available(iOS 13.0, *)) {
-                        self->_tableView.backgroundColor = [UIColor tertiarySystemBackgroundColor];
-                    } else {
-                        self->_tableView.backgroundColor = [UIColor whiteColor];
-                    }
+//                    if (@available(iOS 13.0, *)) {
+//                        self->_tableView.backgroundColor = [UIColor tertiarySystemBackgroundColor];
+//                    } else {
+//                        self->_tableView.backgroundColor = [UIColor whiteColor];
+//                    }
+                    self->_tableView.backgroundColor = imagePickerVc.naviBgColor;
                     self->_tableView.tableFooterView = [[UIView alloc] init];
                     self->_tableView.dataSource = self;
                     self->_tableView.delegate = self;
@@ -891,10 +893,13 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
     TZAlbumCell *cell = [tableView dequeueReusableCellWithIdentifier:@"TZAlbumCell"];
-    if (@available(iOS 13.0, *)) {
-        cell.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-    }
+    
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
+    cell.backgroundColor = imagePickerVc.naviBgColor;
+//    if (@available(iOS 13.0, *)) {
+//        cell.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+//    }
+    
     cell.albumCellDidLayoutSubviewsBlock = imagePickerVc.albumCellDidLayoutSubviewsBlock;
     cell.albumCellDidSetModelBlock = imagePickerVc.albumCellDidSetModelBlock;
     cell.selectedCountButton.backgroundColor = imagePickerVc.iconThemeColor;

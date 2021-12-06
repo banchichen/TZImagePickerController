@@ -87,11 +87,12 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
-    if (@available(iOS 13.0, *)) {
-        self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-    } else {
-        self.view.backgroundColor = [UIColor whiteColor];
-    }
+//    if (@available(iOS 13.0, *)) {
+//        self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+//    } else {
+//        self.view.backgroundColor = [UIColor whiteColor];
+//    }
+    self.view.backgroundColor = tzImagePickerVc.naviBgColor;
     
     UIImage *image = tzImagePickerVc.arrowBtnIconImage;
     
@@ -185,11 +186,11 @@ static CGFloat itemMargin = 5;
     if (!_collectionView) {
         _layout = [[UICollectionViewFlowLayout alloc] init];
         _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
-        if (@available(iOS 13.0, *)) {
-            _collectionView.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-        } else {
-            _collectionView.backgroundColor = [UIColor whiteColor];
-        }
+//        if (@available(iOS 13.0, *)) {
+//            _collectionView.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+//        } else {
+//            _collectionView.backgroundColor = [UIColor whiteColor];
+//        }
         _collectionView.dataSource = self;
         _collectionView.delegate = self;
         _collectionView.alwaysBounceHorizontal = NO;
@@ -248,12 +249,12 @@ static CGFloat itemMargin = 5;
     if (!tzImagePickerVc.showSelectBtn) return;
     
     _bottomToolBar = [[UIView alloc] initWithFrame:CGRectZero];
-    CGFloat rgb = 253 / 255.0;
-    if (@available(iOS 13.0, *)) {
-        _bottomToolBar.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-    } else {
-        _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
-    }
+//    CGFloat rgb = 253 / 255.0;
+//    if (@available(iOS 13.0, *)) {
+//        _bottomToolBar.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+//    } else {
+//        _bottomToolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+//    }
     
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -424,15 +425,16 @@ static CGFloat itemMargin = 5;
         self.albumPicker.view.frame = CGRectMake(0, -height, width, 0);
         [self.view addSubview:self.albumPicker.view];
         // 需要显示
-        [UIView animateWithDuration:0.35 animations:^{
+        [UIView animateWithDuration:0.35 delay:0 options:(UIViewAnimationOptionCurveEaseOut) animations:^{
             self.albumPicker.view.alpha = 1.0;
             self.albumPicker.view.frame = CGRectMake(0, frameY, width, height - topOffset);
         } completion:^(BOOL finished) {
             self.isAnimation = NO;
         }];
+        
     } else {
         // 需要隐藏
-        [UIView animateWithDuration:0.35 animations:^{
+        [UIView animateWithDuration:0.35 delay:0 options:(UIViewAnimationOptionCurveEaseIn) animations:^{
             self.albumPicker.view.alpha = 0;
             self.albumPicker.view.frame = CGRectMake(0, -(height), width, height - topOffset);
         } completion:^(BOOL finished) {
