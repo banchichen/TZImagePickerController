@@ -934,6 +934,7 @@
     // 暂存
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     imagePickerVc.selectedAlbum = model;
+    [self->_tableView reloadData];
     //
     if (self.selectedBlock) {
         self.selectedBlock(model);
