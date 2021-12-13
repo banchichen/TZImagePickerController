@@ -100,6 +100,7 @@ static CGFloat itemMargin = 5;
     UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
     UIButton *titleButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
     self.titleButton = titleButton;
+    titleButton.hidden = ![[TZImageManager manager] authorizationStatusAuthorized];
     [titleView addSubview:titleButton];
     titleButton.titleLabel.font = [UIFont boldSystemFontOfSize:18];
     [titleButton setTitle:_model.name forState:UIControlStateNormal];
@@ -129,6 +130,9 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)fetchAssetModels {
+    if ([[TZImageManager manager] authorizationStatusAuthorized]) {
+        self.titleButton.hidden = NO;
+    }
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_isFirstAppear && !_model.models.count) {
         [tzImagePickerVc showProgressHUD];
