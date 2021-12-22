@@ -106,6 +106,9 @@ A：请先加下面钉钉群说下方案，和我确认下，避免同时改动�
 **Q：demo在真机上跑不起来？**             
 A：1、team选你自己的；2、bundleId也改成你自己的或改成一个不会和别人重复的。可参考[简书的这篇博客](https://www.jianshu.com/p/cbe59138fca6)             
 
+**Q：3.6.4以上版本设置导航栏颜色无效？**            
+A：参考Demo里的代码，加上imagePickerVc.navigationBar.standardAppearance的相关设置                     
+
 **Q：设置导航栏颜色无效？导航栏颜色总是白色？**            
 A：是否有集成WRNavigationBar？如有，参考其readme调一下它的wr_setBlackList，把TZImagePickerController相关的控制器放到黑名单里，使得不受WRNavigationBar的影响。如果没有集成，可在issues列表里搜一下看看类似的issue参考下，如实在没头绪，可加群提供个能复现该问题的demo，0~2天给你解决。最近发现WRNavigationBar的黑名单会有不生效的情况，临时解决方案大家可参考：[https://github.com/wangrui460/WRNavigationBar/issues/145](https://github.com/wangrui460/WRNavigationBar/issues/145)                          
 
@@ -125,6 +128,9 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
+**3.6.8 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题** [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
+**3.6.7 修复Xcode13&iOS15下导航栏颜色异常问题**        
+3.6.2 新增allowEditVideo，单选视频时支持裁剪        
 3.6.0 修复iOS14下iCloud视频导出失败问题        
 **3.5.2 适配iPhone12系列设备**        
 3.4.4 支持Dark Mode      

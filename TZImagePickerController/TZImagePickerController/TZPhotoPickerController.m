@@ -78,7 +78,9 @@ static CGFloat itemMargin = 5;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+    if ([[TZImageManager manager] authorizationStatusAuthorized]) {
+        [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+    }
     self.isFirstAppear = YES;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
@@ -99,7 +101,7 @@ static CGFloat itemMargin = 5;
         tzImagePickerVc.navLeftBarButtonSettingBlock(leftButton);
         self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:leftButton];
     } else if (tzImagePickerVc.childViewControllers.count) {
-        UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
+        UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:self action:@selector(navLeftBarButtonClick)];
         [TZCommonTools configBarButtonItem:backItem tzImagePickerVc:tzImagePickerVc];
         [tzImagePickerVc.childViewControllers firstObject].navigationItem.backBarButtonItem = backItem;
     }
@@ -386,6 +388,32 @@ static CGFloat itemMargin = 5;
         [_collectionView setContentOffset:CGPointMake(0, offsetY)];
     }
     
+//    CGFloat toolBarTop = 0;
+//    if (!self.navigationController.navigationBar.isHidden) {
+//        toolBarTop = self.view.tz_height - toolBarHeight;
+//    } else {
+//        CGFloat navigationHeight = naviBarHeight + [TZCommonTools tz_statusBarHeight];
+//        toolBarTop = self.view.tz_height - toolBarHeight - navigationHeight;
+//    }
+//    _bottomToolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
+//    
+//    CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width + 2;
+//    if (!tzImagePickerVc.allowPreview) {
+//        previewWidth = 0.0;
+//    }
+//    _previewButton.frame = CGRectMake(10, 3, previewWidth, 44);
+//    _previewButton.tz_width = !tzImagePickerVc.showSelectBtn ? 0 : previewWidth;
+//    if (tzImagePickerVc.allowPickingOriginalPhoto) {
+//        CGFloat fullImageWidth = [tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
+//        _originalPhotoButton.frame = CGRectMake(CGRectGetMaxX(_previewButton.frame), 0, fullImageWidth + 56, 50);
+//        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 46, 0, 80, 50);
+//    }
+//    [_doneButton sizeToFit];
+//    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 50);
+//    _numberImageView.frame = CGRectMake(_doneButton.tz_left - 24 - 5, 13, 24, 24);
+//    _numberLabel.frame = _numberImageView.frame;
+//    _divideLine.frame = CGRectMake(0, 0, self.view.tz_width, 1);
+    
     [TZImageManager manager].columnNumber = [TZImageManager manager].columnNumber;
     [TZImageManager manager].photoWidth = tzImagePickerVc.photoWidth;
     
@@ -635,7 +663,8 @@ static CGFloat itemMargin = 5;
     cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     cell.allowPreview = tzImagePickerVc.allowPreview;
     
-    if (tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount && tzImagePickerVc.showPhotoCannotSelectLayer && !model.isSelected) {
+    BOOL notSelectable = [TZCommonTools isAssetNotSelectable:model tzImagePickerVc:tzImagePickerVc];
+    if (notSelectable && tzImagePickerVc.showPhotoCannotSelectLayer && !model.isSelected) {
         cell.cannotSelectLayerButton.backgroundColor = tzImagePickerVc.cannotSelectLayerColor;
         cell.cannotSelectLayerButton.hidden = NO;
     } else {
@@ -758,11 +787,8 @@ static CGFloat itemMargin = 5;
     AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied)) {
         
-        NSDictionary *infoDict = [TZCommonTools tz_getInfoDictionary];
         // 无权限 做一个友好的提示
-        NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
-        if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
-        if (!appName) appName = [infoDict valueForKey:@"CFBundleExecutable"];
+        NSString *appName = [TZCommonTools tz_getAppName];
 
         NSString *title = [NSBundle tz_localizedStringForKey:@"Can not use camera"];
         NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
@@ -1009,7 +1035,7 @@ static CGFloat itemMargin = 5;
             }
             photoPreviewVc.models = _models;
             [self pushPhotoPrevireViewController:photoPreviewVc];
-        } else {
+        } else if (tzImagePickerVc.selectedModels.count < 1) {
             [tzImagePickerVc addSelectedModel:assetModel];
             [self doneButtonClick];
         }

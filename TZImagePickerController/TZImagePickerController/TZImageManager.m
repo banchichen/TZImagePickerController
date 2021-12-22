@@ -737,6 +737,10 @@ static dispatch_once_t onceToken;
     }
 }
 
+- (void)requestVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
+    [self requestVideoOutputPathWithAsset:asset presetName:presetName timeRange:kCMTimeRangeZero success:success failure:failure];
+}
+
 - (void)requestVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName timeRange:(CMTimeRange)timeRange success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure {
     if (!presetName) {
         presetName = AVAssetExportPresetMediumQuality;
@@ -813,7 +817,7 @@ static dispatch_once_t onceToken;
 
 - (NSString *)getVideoOutputPath {
     NSDateFormatter *formater = [[NSDateFormatter alloc] init];
-    [formater setDateFormat:@"yyyy-MM-dd-HH:mm:ss-SSS"];
+    [formater setDateFormat:@"yyyy-MM-dd-HH-mm-ss-SSS"];
     NSString *outputPath = [NSHomeDirectory() stringByAppendingFormat:@"/tmp/video-%@-%d.mp4", [formater stringFromDate:[NSDate date]], arc4random_uniform(10000000)];
     return outputPath;
 }

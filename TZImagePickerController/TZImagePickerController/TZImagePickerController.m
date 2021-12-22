@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.6.0 - 2021.04.02
+//  version 3.6.8 - 2021.12.14
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -75,6 +75,7 @@
 - (void)setNaviBgColor:(UIColor *)naviBgColor {
     _naviBgColor = naviBgColor;
     self.navigationBar.barTintColor = naviBgColor;
+    [self configNavigationBarAppearance];
 }
 
 - (void)setNaviTitleColor:(UIColor *)naviTitleColor {
@@ -96,6 +97,22 @@
         textAttrs[NSFontAttributeName] = self.naviTitleFont;
     }
     self.navigationBar.titleTextAttributes = textAttrs;
+    [self configNavigationBarAppearance];
+}
+
+- (void)configNavigationBarAppearance {
+    if (@available(iOS 13.0, *)) {
+        UINavigationBarAppearance *barAppearance = [[UINavigationBarAppearance alloc] init];
+        if (self.navigationBar.isTranslucent) {
+            UIColor *barTintColor = self.navigationBar.barTintColor;
+            barAppearance.backgroundColor = [barTintColor colorWithAlphaComponent:0.85];
+        } else {
+            barAppearance.backgroundColor = self.navigationBar.barTintColor;
+        }
+        barAppearance.titleTextAttributes = self.navigationBar.titleTextAttributes;
+        self.navigationBar.standardAppearance = barAppearance;
+        self.navigationBar.scrollEdgeAppearance = barAppearance;
+    }
 }
 
 - (void)setBarItemTextFont:(UIFont *)barItemTextFont {
@@ -188,10 +205,7 @@
             _tipLabel.textColor = [UIColor blackColor];
             _tipLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 
-            NSDictionary *infoDict = [TZCommonTools tz_getInfoDictionary];
-            NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
-            if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
-            if (!appName) appName = [infoDict valueForKey:@"CFBundleExecutable"];
+            NSString *appName = [TZCommonTools tz_getAppName];
             NSString *tipText = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Allow %@ to access your album in \"Settings -> Privacy -> Photos\""],appName];
             _tipLabel.text = tipText;
             [self.view addSubview:_tipLabel];
@@ -732,7 +746,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+    if ([[TZImageManager manager] authorizationStatusAuthorized]) {
+        [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+    }
     self.isFirstAppear = YES;
     if (@available(iOS 13.0, *)) {
         self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
@@ -959,6 +975,20 @@
     return infoDict ? infoDict : @{};
 }
 
++ (NSString *)tz_getAppName {
+    NSDictionary *infoDict = [self tz_getInfoDictionary];
+    NSString *appName = [infoDict valueForKey:@"CFBundleDisplayName"];
+    if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
+    if (!appName) appName = [infoDict valueForKey:@"CFBundleExecutable"];
+    if (!appName) {
+        infoDict = [NSBundle mainBundle].infoDictionary;
+        appName = [infoDict valueForKey:@"CFBundleDisplayName"];
+        if (!appName) appName = [infoDict valueForKey:@"CFBundleName"];
+        if (!appName) appName = [infoDict valueForKey:@"CFBundleExecutable"];
+    }
+    return appName;
+}
+
 + (BOOL)tz_isRightToLeftLayout {
     if (@available(iOS 9.0, *)) {
         if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:UISemanticContentAttributeUnspecified] == UIUserInterfaceLayoutDirectionRightToLeft) {
@@ -979,6 +1009,10 @@
     textAttrs[NSForegroundColorAttributeName] = tzImagePickerVc.barItemTextColor;
     textAttrs[NSFontAttributeName] = tzImagePickerVc.barItemTextFont;
     [item setTitleTextAttributes:textAttrs forState:UIControlStateNormal];
+    
+    NSMutableDictionary *textAttrsHighlighted = [NSMutableDictionary dictionary];
+    textAttrsHighlighted[NSFontAttributeName] = tzImagePickerVc.barItemTextFont;
+    [item setTitleTextAttributes:textAttrsHighlighted forState:UIControlStateHighlighted];
 }
 
 + (BOOL)isICloudSyncError:(NSError *)error {
@@ -989,8 +1023,22 @@
     return NO;
 }
 
++ (BOOL)isAssetNotSelectable:(TZAssetModel *)model tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc {
+    BOOL notSelectable = tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount;
+    if (tzImagePickerVc.selectedModels && tzImagePickerVc.selectedModels.count > 0 && !tzImagePickerVc.allowPickingMultipleVideo) {
+        if (model.asset.mediaType == PHAssetMediaTypeVideo) {
+            notSelectable = true;
+        }
+    }
+    return notSelectable;
+}
+
 @end
 
+
+@interface TZImagePickerConfig ()
+@property (strong, nonatomic) NSSet *supportedLanguages;
+@end
 
 @implementation TZImagePickerConfig
 
@@ -1000,6 +1048,7 @@
     dispatch_once(&onceToken, ^{
         if (config == nil) {
             config = [[TZImagePickerConfig alloc] init];
+            config.supportedLanguages = [NSSet setWithObjects:@"zh-Hans", @"zh-Hant", @"en", @"ar", @"bg", @"cs-CZ", @"de", @"el", @"es", @"fr", @"he", @"it", @"ja", @"ko-KP", @"ko", @"nl", @"pl", @"pt", @"ro", @"ru", @"sk", @"sv", @"th", @"tr", @"uk", @"vi", nil];
             config.preferredLanguage = nil;
             config.gifPreviewMaxImagesCount = 50;
         }
@@ -1010,21 +1059,29 @@
 - (void)setPreferredLanguage:(NSString *)preferredLanguage {
     _preferredLanguage = preferredLanguage;
     
-    if (!preferredLanguage || !preferredLanguage.length) {
-        preferredLanguage = [NSLocale preferredLanguages].firstObject;
+//    if (!preferredLanguage || !preferredLanguage.length) {
+//        preferredLanguage = [NSLocale preferredLanguages].firstObject;
+//    }
+//    if ([preferredLanguage rangeOfString:@"zh-Hans"].location != NSNotFound) {
+//        preferredLanguage = @"zh-Hans";
+//    } else if ([preferredLanguage rangeOfString:@"zh-Hant"].location != NSNotFound) {
+//        preferredLanguage = @"zh-Hant";
+//    } else if ([preferredLanguage rangeOfString:@"vi"].location != NSNotFound) {
+//        preferredLanguage = @"vi";
+//    } else if ([preferredLanguage rangeOfString:@"ar"].location != NSNotFound){
+//        preferredLanguage = @"ar";
+//    }else {
+//        preferredLanguage = @"en";
+//    }
+    NSString *usedLanguage = @"en";
+    for (NSString *language in self.supportedLanguages) {
+        if ([preferredLanguage hasPrefix:language]) {
+            usedLanguage = language;
+            break;
+        }
     }
-    if ([preferredLanguage rangeOfString:@"zh-Hans"].location != NSNotFound) {
-        preferredLanguage = @"zh-Hans";
-    } else if ([preferredLanguage rangeOfString:@"zh-Hant"].location != NSNotFound) {
-        preferredLanguage = @"zh-Hant";
-    } else if ([preferredLanguage rangeOfString:@"vi"].location != NSNotFound) {
-        preferredLanguage = @"vi";
-    } else if ([preferredLanguage rangeOfString:@"ar"].location != NSNotFound){
-        preferredLanguage = @"ar";
-    }else {
-        preferredLanguage = @"en";
-    }
-    _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:preferredLanguage ofType:@"lproj"]];
+    _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:usedLanguage ofType:@"lproj"]];
+
 }
 
 @end

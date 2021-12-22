@@ -273,6 +273,9 @@
     _collectionView.showsHorizontalScrollIndicator = NO;
     _collectionView.contentOffset = CGPointMake(0, 0);
     _collectionView.contentSize = CGSizeMake(self.models.count * (self.view.tz_width + 20), 0);
+    if (@available(iOS 11, *)) {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
     [self.view addSubview:_collectionView];
     [_collectionView registerClass:[TZPhotoPreviewCell class] forCellWithReuseIdentifier:@"TZPhotoPreviewCell"];
     [_collectionView registerClass:[TZVideoPreviewCell class] forCellWithReuseIdentifier:@"TZVideoPreviewCell"];
@@ -344,6 +347,16 @@
     CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
     CGFloat toolBarTop = self.view.tz_height - toolBarHeight;
     _toolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
+
+//    if (_tzImagePickerVc.allowPickingOriginalPhoto) {
+//        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
+//        _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
+//        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
+//    }
+//    [_doneButton sizeToFit];
+//    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 44);
+//    _numberImageView.frame = CGRectMake(_doneButton.tz_left - 24 - 5, 10, 24, 24);
+//    _numberLabel.frame = _numberImageView.frame;
     
     [self configCropView];
     
@@ -361,6 +374,10 @@
 #pragma mark - Click Event
 
 - (void)select:(UIButton *)selectButton {
+    [self select:selectButton refreshCount:YES];
+}
+
+- (void)select:(UIButton *)selectButton refreshCount:(BOOL)refreshCount {
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     TZAssetModel *model = _models[self.currentIndex];
     if (!selectButton.isSelected) {
@@ -417,7 +434,9 @@
         }
     }
     model.isSelected = !selectButton.isSelected;
-    [self refreshNaviBarAndBottomBarState];
+    if (refreshCount) {
+        [self refreshNaviBarAndBottomBarState];
+    }
     if (model.isSelected) {
         [UIView showOscillatoryAnimationWithLayer:selectButton.imageView.layer type:TZOscillatoryAnimationToBigger];
     }
@@ -455,7 +474,7 @@
         if ([[TZImageManager manager] isAssetCannotBeSelected:model.asset]) {
             return;
         }
-        [self select:_selectButton];
+        [self select:_selectButton refreshCount:NO];
     }
     NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.currentIndex inSection:0];
     TZPhotoPreviewCell *cell = (TZPhotoPreviewCell *)[_collectionView cellForItemAtIndexPath:indexPath];
@@ -636,7 +655,7 @@
             _originalPhotoLabel.hidden = YES;
         } else {
             _originalPhotoButton.hidden = NO;
-            if (_isSelectOriginalPhoto)  _originalPhotoLabel.hidden = NO;
+            if (_isSelectOriginalPhoto) _originalPhotoLabel.hidden = NO;
         }
     }
     
@@ -682,8 +701,10 @@
             self->_doneButton.enabled = YES;
         }
         self->_selectButton.hidden = currentModel.iCloudFailed || !_tzImagePickerVc.showSelectBtn;
-        self->_originalPhotoButton.hidden = currentModel.iCloudFailed;
-        self->_originalPhotoLabel.hidden = currentModel.iCloudFailed;
+        if (currentModel.iCloudFailed) {
+            self->_originalPhotoButton.hidden = YES;
+            self->_originalPhotoLabel.hidden = YES;
+        }
     });
 }
 

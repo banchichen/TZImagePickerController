@@ -282,7 +282,13 @@
     
     UIImage *image = _imageView.image;
     if (image.size.height / image.size.width > self.tz_height / self.scrollView.tz_width) {
-        _imageContainerView.tz_height = floor(image.size.height / (image.size.width / self.scrollView.tz_width));
+        CGFloat width = image.size.width / image.size.height * self.scrollView.tz_height;
+        if (width < 1 || isnan(width)) width = self.tz_width;
+        width = floor(width);
+        
+        _imageContainerView.tz_width = width;
+        _imageContainerView.tz_height = self.tz_height;
+        _imageContainerView.tz_centerX = self.scrollView.tz_width  / 2;
     } else {
         CGFloat height = image.size.height / image.size.width * self.scrollView.tz_width;
         if (height < 1 || isnan(height)) height = self.tz_height;
@@ -319,15 +325,15 @@
     if (_allowCrop) {
         // 1.7.2 如果允许裁剪,需要让图片的任意部分都能在裁剪框内，于是对_scrollView做了如下处理：
         // 1.让contentSize增大(裁剪框右下角的图片部分)
-        CGFloat contentWidthAdd = self.scrollView.tz_width - CGRectGetMaxX(_cropRect);
-        CGFloat contentHeightAdd = (MIN(_imageContainerView.tz_height, self.tz_height) - self.cropRect.size.height) / 2;
-        CGFloat newSizeW = self.scrollView.contentSize.width + contentWidthAdd;
-        CGFloat newSizeH = MAX(self.scrollView.contentSize.height, self.tz_height) + contentHeightAdd;
+        CGFloat contentWidthAdd = (MIN(_imageContainerView.tz_width, self.scrollView.tz_width) - _cropRect.size.width) / 2;
+        CGFloat contentHeightAdd = (MIN(_imageContainerView.tz_height, self.scrollView.tz_height) - _cropRect.size.height) / 2;
+        CGFloat newSizeW = MAX(self.scrollView.contentSize.width, self.scrollView.tz_width) + contentWidthAdd;
+        CGFloat newSizeH = MAX(self.scrollView.contentSize.height, self.scrollView.tz_height) + contentHeightAdd;
         _scrollView.contentSize = CGSizeMake(newSizeW, newSizeH);
         _scrollView.alwaysBounceVertical = YES;
         // 2.让scrollView新增滑动区域（裁剪框左上角的图片部分）
         if (contentHeightAdd > 0 || contentWidthAdd > 0) {
-            _scrollView.contentInset = UIEdgeInsetsMake(contentHeightAdd, _cropRect.origin.x, 0, 0);
+            _scrollView.contentInset = UIEdgeInsetsMake(contentHeightAdd, contentWidthAdd, 0, 0);
         } else {
             _scrollView.contentInset = UIEdgeInsetsZero;
         }

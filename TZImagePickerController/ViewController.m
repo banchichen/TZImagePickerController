@@ -116,6 +116,9 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.scrollView.contentSize = CGSizeMake(0, contentSizeH + 5);
     });
+    if (self.scrollView.tz_height + 80 > self.view.tz_height) {
+        self.scrollView.tz_height = self.view.tz_height - 80;
+    }
     
     _margin = 4;
     _itemWH = (self.view.tz_width - 2 * _margin - 4) / 3 - _margin;
@@ -201,7 +204,7 @@
         } else {
             [self pushTZImagePickerController];
         }
-    } else if (_isAllowEditVideo) { // preview edited video / 预览编辑后的视频
+    } else if (_isAllowEditVideo && [_selectedAssets[indexPath.item] isKindOfClass:[NSURL class]]) { // preview edited video / 预览编辑后的视频
         TZVideoEditedPreviewController *vc = [[TZVideoEditedPreviewController alloc] init];
         vc.videoURL = _selectedAssets[indexPath.item];
         vc.modalPresentationStyle = UIModalPresentationFullScreen;
@@ -277,11 +280,6 @@
     // [TZImagePickerConfig sharedInstance].languageBundle = [NSBundle bundleWithPath:[[NSBundle mainBundle] pathForResource:@"tz-ru" ofType:@"lproj"]];
 
     TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:self.maxCountTF.text.integerValue columnNumber:self.columnNumberTF.text.integerValue delegate:self pushPhotoPickerVc:YES];
-    // imagePickerVc.barItemTextColor = [UIColor blackColor];
-    // [imagePickerVc.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor blackColor]}];
-    // imagePickerVc.navigationBar.tintColor = [UIColor blackColor];
-    // imagePickerVc.naviBgColor = [UIColor whiteColor];
-    // imagePickerVc.navigationBar.translucent = NO;
     
 #pragma mark - 五类个性化设置，这些参数都可以不传，此时会走默认设置
     imagePickerVc.isSelectOriginalPhoto = _isSelectOriginalPhoto;
@@ -310,7 +308,18 @@
     // imagePickerVc.navigationBar.barTintColor = [UIColor greenColor];
     // imagePickerVc.oKButtonTitleColorDisabled = [UIColor lightGrayColor];
     // imagePickerVc.oKButtonTitleColorNormal = [UIColor greenColor];
+    // imagePickerVc.barItemTextColor = [UIColor blackColor];
     // imagePickerVc.navigationBar.translucent = NO;
+    // [imagePickerVc.navigationBar setTitleTextAttributes:@{NSForegroundColorAttributeName : [UIColor blackColor]}];
+    // imagePickerVc.navigationBar.tintColor = [UIColor blackColor];
+    // if (@available(iOS 13.0, *)) {
+    //     UINavigationBarAppearance *barAppearance = [[UINavigationBarAppearance alloc] init];
+    //     barAppearance.backgroundColor = imagePickerVc.navigationBar.barTintColor;
+    //     barAppearance.titleTextAttributes = imagePickerVc.navigationBar.titleTextAttributes;
+    //     imagePickerVc.navigationBar.standardAppearance = barAppearance;
+    //     imagePickerVc.navigationBar.scrollEdgeAppearance = barAppearance;
+    // }
+    
     imagePickerVc.iconThemeColor = [UIColor colorWithRed:31 / 255.0 green:185 / 255.0 blue:34 / 255.0 alpha:1.0];
     imagePickerVc.showPhotoCannotSelectLayer = YES;
     imagePickerVc.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
