@@ -521,9 +521,15 @@
 
 - (void)setCropRect:(CGRect)cropRect {
     _cropRect = cropRect;
-    _cropRectPortrait = cropRect;
-    CGFloat widthHeight = cropRect.size.width;
-    _cropRectLandscape = CGRectMake((self.view.tz_height - widthHeight) / 2, cropRect.origin.x, widthHeight, widthHeight);
+    if ([TZCommonTools tz_isLandscape]) {
+        _cropRectLandscape = cropRect;
+        CGFloat widthHeight = cropRect.size.height;
+        _cropRectPortrait = CGRectMake(cropRect.origin.y, (self.view.tz_width - widthHeight) / 2, widthHeight, widthHeight);
+    } else {
+        _cropRectPortrait = cropRect;
+        CGFloat widthHeight = cropRect.size.width;
+        _cropRectLandscape = CGRectMake((self.view.tz_height - widthHeight) / 2, cropRect.origin.x, widthHeight, widthHeight);
+    }
 }
 
 - (CGRect)cropRect {
@@ -953,6 +959,14 @@
             CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(844, 390)) ||
             CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(428, 926)) ||
             CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(926, 428)));
+}
+
++ (BOOL)tz_isLandscape {
+    if ([UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeRight ||
+        [UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeLeft) {
+        return true;
+    }
+    return false;
 }
 
 + (CGFloat)tz_statusBarHeight {
