@@ -97,7 +97,7 @@ A：https://github.com/banchichen/TZImagePickerController/issues/652
 A：考虑下，优先级低  
 
 **Q：是否有QQ/微信群？**            
-A：有QQ群：778723997        
+A：有QQ群：859033147           
 
 **Q：想提交一个Pull Request？**           
 A：请先加下面钉钉群说下方案，和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。     
