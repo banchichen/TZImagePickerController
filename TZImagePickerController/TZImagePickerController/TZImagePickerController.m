@@ -152,6 +152,7 @@
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
     [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
+    [self configNavigationBarAppearance];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
