@@ -39,6 +39,7 @@
 @property CGRect previousPreheatRect;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
 @property (nonatomic, strong) TZCollectionView *collectionView;
+@property (nonatomic, strong) UIView *titleBGView;
 @property (nonatomic, strong) UIButton *titleButton;
 @property (nonatomic, strong) UILabel *noDataLabel;
 @property (strong, nonatomic) UICollectionViewFlowLayout *layout;
@@ -100,6 +101,7 @@ static CGFloat itemMargin = 5;
     UIImage *image = tzImagePickerVc.arrowBtnIconImage;
     
     UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
+    self.titleBGView = titleView;
     UIButton *titleButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
     self.titleButton = titleButton;
     titleButton.hidden = ![[TZImageManager manager] authorizationStatusAuthorized];
@@ -131,9 +133,24 @@ static CGFloat itemMargin = 5;
     self.operationQueue.maxConcurrentOperationCount = 3;
 }
 
+- (void)setupTitleText:(NSString *)text {
+    [self.titleButton setTitle:text forState:UIControlStateNormal];
+    
+    CGFloat padding = 0;
+    //图片在右，文字在左
+    self.titleButton.titleEdgeInsets = UIEdgeInsetsMake(0, -(20 + padding/2), 0, (20 + padding/2));
+    [self.titleButton.titleLabel sizeToFit];
+    self.titleButton.imageEdgeInsets = UIEdgeInsetsMake(0, (self.titleButton.titleLabel.frame.size.width+ padding/2), 0, -(self.titleButton.titleLabel.frame.size.width+ padding/2));
+    
+    self.titleBGView.bounds = CGRectMake(0, 0, self.titleButton.titleLabel.frame.size.width + 50, 32);
+}
+
 - (void)fetchAssetModels {
     if ([[TZImageManager manager] authorizationStatusAuthorized]) {
         self.titleButton.hidden = NO;
+        self.titleBGView.hidden = NO;
+        _noDataLabel.hidden = YES;
+        [self setupTitleText:_model.name];
     }
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_isFirstAppear && !_model.models.count) {
@@ -398,14 +415,7 @@ static CGFloat itemMargin = 5;
         __weak typeof(self) weakSelf = self;
         self.albumPicker.selectedBlock = ^(TZAlbumModel *model) {
             weakSelf.model = model;
-            [weakSelf.titleButton setTitle:model.name forState:UIControlStateNormal];
-            
-            CGFloat padding = 0;
-            //图片在右，文字在左
-            weakSelf.titleButton.titleEdgeInsets = UIEdgeInsetsMake(0, -(20 + padding/2), 0, (20 + padding/2));
-            [weakSelf.titleButton.titleLabel sizeToFit];
-            weakSelf.titleButton.imageEdgeInsets = UIEdgeInsetsMake(0, (weakSelf.titleButton.titleLabel.frame.size.width+ padding/2), 0, -(weakSelf.titleButton.titleLabel.frame.size.width+ padding/2));
-            
+            [weakSelf setupTitleText:model.name];
             [weakSelf reloadImageData];
             [weakSelf showAlbumPicker];
         };
