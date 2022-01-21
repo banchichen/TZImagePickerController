@@ -100,9 +100,17 @@ static CGFloat itemMargin = 5;
     
     UIImage *image = tzImagePickerVc.arrowBtnIconImage;
     
-    UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
-    self.titleBGView = titleView;
-    UIButton *titleButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 200, 40)];
+    CGFloat width = [UIScreen mainScreen].bounds.size.width * 0.6;
+    UIView *titleView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, width, 40)];
+    self.titleBGView = [[UIView alloc] init];
+    [titleView addSubview:self.titleBGView];
+    self.titleBGView.hidden = ![[TZImageManager manager] authorizationStatusAuthorized];
+    self.titleBGView.layer.cornerRadius = 16.f;
+    self.titleBGView.center = CGPointMake(width * 0.5 - 7, 20);
+    self.titleBGView.bounds = CGRectMake(0, 0, 40, 32);
+    self.titleBGView.backgroundColor = [UIColor clearColor];
+    
+    UIButton *titleButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, width, 40)];
     self.titleButton = titleButton;
     titleButton.hidden = ![[TZImageManager manager] authorizationStatusAuthorized];
     [titleView addSubview:titleButton];
@@ -117,6 +125,7 @@ static CGFloat itemMargin = 5;
     titleButton.titleEdgeInsets = UIEdgeInsetsMake(0, -(20 + padding/2), 0, (20 + padding/2));
     [titleButton.titleLabel sizeToFit];
     titleButton.imageEdgeInsets = UIEdgeInsetsMake(0, (titleButton.titleLabel.frame.size.width+ padding/2), 0, -(titleButton.titleLabel.frame.size.width+ padding/2));
+    self.titleBGView.bounds = CGRectMake(0, 0, titleButton.titleLabel.frame.size.width + 50, 32);
     
     self.navigationItem.titleView = titleView;
     
