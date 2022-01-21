@@ -361,6 +361,11 @@
     NSInteger left = 30;
     NSInteger widthHeight = self.view.tz_width - 2 * left;
     NSInteger top = (self.view.tz_height - widthHeight) / 2;
+    if ([TZCommonTools tz_isLandscape]) {
+        top = 30;
+        widthHeight = self.view.tz_height - 2 * left;
+        left = (self.view.tz_width - widthHeight) / 2;
+    }
     imagePickerVc.cropRect = CGRectMake(left, top, widthHeight, widthHeight);
     imagePickerVc.scaleAspectFillCrop = YES;
     // 设置横屏下的裁剪尺寸

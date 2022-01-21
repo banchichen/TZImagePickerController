@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.6.7 - 2021.11.06
+//  version 3.7.2 - 2022.01.12
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -363,6 +363,7 @@
 @interface TZCommonTools : NSObject
 + (UIEdgeInsets)tz_safeAreaInsets;
 + (BOOL)tz_isIPhoneX;
++ (BOOL)tz_isLandscape;
 + (CGFloat)tz_statusBarHeight;
 // 获得Info.plist数据字典
 + (NSDictionary *)tz_getInfoDictionary;
