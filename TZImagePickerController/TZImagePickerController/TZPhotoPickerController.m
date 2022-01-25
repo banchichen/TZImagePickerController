@@ -695,7 +695,9 @@ static CGFloat itemMargin = 5;
         if (tzImagePickerVc.uiImagePickerControllerSettingBlock) {
             tzImagePickerVc.uiImagePickerControllerSettingBlock(_imagePickerVc);
         }
-        [self presentViewController:_imagePickerVc animated:YES completion:nil];
+        if (!self.presentedViewController) {
+            [self presentViewController:_imagePickerVc animated:YES completion:nil];
+        }
     } else {
         NSLog(@"模拟器中无法打开照相机,请在真机中使用");
     }
