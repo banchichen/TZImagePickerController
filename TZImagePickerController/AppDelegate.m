@@ -56,7 +56,7 @@
 }
 
 - (void)pushTZImagePickerController {
-    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 columnNumber:4 delegate:nil pushPhotoPickerVc:YES];
+    TZImagePickerController *imagePickerVc = [[TZImagePickerController alloc] initWithMaxImagesCount:9 columnNumber:4 delegate:nil];
     imagePickerVc.modalPresentationStyle = UIModalPresentationFullScreen;
     UINavigationController *nav = (UINavigationController *)[UIApplication sharedApplication].keyWindow.rootViewController;
     [nav.topViewController presentViewController:imagePickerVc animated:YES completion:nil];

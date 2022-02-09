@@ -34,7 +34,6 @@
 /// Use this init method / 用这个初始化方法
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount delegate:(id<TZImagePickerControllerDelegate>)delegate;
 - (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate;
-- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc;
 /// This init method just for previewing photos / 用这个初始化方法以预览图片
 - (instancetype)initWithSelectedAssets:(NSMutableArray *)selectedAssets selectedPhotos:(NSMutableArray *)selectedPhotos index:(NSInteger)index;
 /// This init method for crop photo / 用这个初始化方法以裁剪图片
@@ -336,14 +335,6 @@
 // 决定照片能否被选中
 - (BOOL)isAssetCanBeSelected:(PHAsset *)asset;
 @end
-
-
-@interface TZAlbumPickerController : UIViewController
-@property (nonatomic, assign) NSInteger columnNumber;
-@property (assign, nonatomic) BOOL isFirstAppear;
-- (void)configTableView;
-@end
-
 
 @interface UIImage (MyBundle)
 + (UIImage *)tz_imageNamedFromMyBundle:(NSString *)name;

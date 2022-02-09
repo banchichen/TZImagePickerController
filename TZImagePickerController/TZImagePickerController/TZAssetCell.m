@@ -396,6 +396,7 @@
 @interface TZAlbumCell ()
 @property (weak, nonatomic) UIImageView *posterImageView;
 @property (weak, nonatomic) UILabel *titleLabel;
+@property (weak, nonatomic) UIImageView *selectedImageView;
 @end
 
 @implementation TZAlbumCell
@@ -403,7 +404,6 @@
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
     self.backgroundColor = [UIColor whiteColor];
-    self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return self;
 }
 
@@ -434,9 +434,18 @@
     }
 }
 
+- (void)setIsSelected:(BOOL)isSelected {
+    _isSelected = isSelected;
+    
+    self.selectedImageView.hidden = !self.isSelected;
+}
+
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 24, 23, 24, 24);
+    CGSize size = self.selectedImageView.image.size;
+    self.selectedImageView.frame = CGRectMake(self.tz_width - 20 - size.width, (self.tz_height - size.height) / 2, size.width, size.height);
+    size = CGSizeMake(24, 24);
+    _selectedCountButton.frame = CGRectMake(self.selectedImageView.tz_left - 5 - size.width, (self.tz_height - size.height) / 2, size.width, size.height);
     NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
     self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
     self.posterImageView.frame = CGRectMake(0, 0, 70, 70);
@@ -492,6 +501,16 @@
         _selectedCountButton = selectedCountButton;
     }
     return _selectedCountButton;
+}
+
+- (UIImageView *)selectedImageView {
+    if (_selectedImageView == nil) {
+        UIImageView *selectedImageView = [[UIImageView alloc] init];
+        selectedImageView.image = [UIImage tz_imageNamedFromMyBundle:@"photo_sel_photoPickerVc"];
+        [self.contentView addSubview:selectedImageView];
+        _selectedImageView = selectedImageView;
+    }
+    return _selectedImageView;
 }
 
 @end
