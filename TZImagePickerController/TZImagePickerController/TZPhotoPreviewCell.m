@@ -14,6 +14,7 @@
 #import "TZImageCropManager.h"
 #import <MediaPlayer/MediaPlayer.h>
 #import "TZImagePickerController.h"
+#import "ImageProcessor.h"
 
 @implementation TZAssetPreviewCell
 
@@ -73,6 +74,10 @@
     [_previewView recoverSubviews];
 }
 
+- (void)reloadImageView {
+    [_previewView reloadImageView];
+}
+
 - (void)setAllowCrop:(BOOL)allowCrop {
     _allowCrop = allowCrop;
     _previewView.allowCrop = allowCrop;
@@ -129,8 +134,8 @@
         [_scrollView addSubview:_imageContainerView];
         
         _imageView = [[UIImageView alloc] init];
-        _imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
-        _imageView.contentMode = UIViewContentModeScaleAspectFill;
+        _imageView.backgroundColor = [UIColor blackColor];
+        _imageView.contentMode = UIViewContentModeScaleAspectFit;
         _imageView.clipsToBounds = YES;
         [_imageContainerView addSubview:_imageView];
 
@@ -223,50 +228,149 @@
     }
     
     _asset = asset;
-    self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
-        self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
-        self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
-        if (self.iCloudSyncFailedHandle) {
-            self.iCloudSyncFailedHandle(asset, iCloudSyncFailed);
+    
+    self.originImage = nil;
+    self.correctedImage = nil;
+    
+    [self reloadImageViewInternal];
+}
+
+- (void)reloadImageView
+{
+    if (_asset && self.imageRequestID) {
+        [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+    }
+    
+    [self reloadImageViewInternal];
+}
+
+- (void)setTempCorrectedStrenth:(float)tempCorrectedStrenth
+{
+    if (_tempCorrectedStrenth != tempCorrectedStrenth) {
+        _tempCorrectedStrenth = tempCorrectedStrenth;
+        self.correctedImage = nil;
+    }
+}
+
+- (void)reloadImageViewInternal {
+    id asset = _asset;
+    
+    if (_model.showCorrectedImage) { // 需要展示色彩还原
+        if (self.correctedImage) { //
+            _imageView.image = self.correctedImage;
+            [self resizeSubviews];
+            _progressView.hidden = YES;
         }
-        if (![asset isEqual:self->_asset]) return;
-        if (photo) {
-            self.imageView.image = photo;
-        }
-        [self resizeSubviews];
-        if (self.imageView.tz_height && self.allowCrop) {
-            CGFloat scale = MAX(self.cropRect.size.width / self.imageView.tz_width, self.cropRect.size.height / self.imageView.tz_height);
-            if (self.scaleAspectFillCrop && scale > 1) { // 如果设置图片缩放裁剪并且图片需要缩放
-                CGFloat multiple = self.scrollView.maximumZoomScale / self.scrollView.minimumZoomScale;
-                self.scrollView.minimumZoomScale = scale;
-                self.scrollView.maximumZoomScale = scale * MAX(multiple, 2);
-                [self.scrollView setZoomScale:scale animated:YES];
+        else {
+            if (self.originImage) {
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                    UIImage* result = [[ImageProcessor sharedInstance] tryAddWatermarkToImage:[ImageProcessor autoColor:self.originImage strenth:_tempCorrectedStrenth]];
+                    self.correctedImage = result;
+                    
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        self.imageView.image = result;
+                        
+                        [self resizeSubviews];
+                        _progressView.hidden = YES;
+                    });
+                });
+            }
+            else {
+                self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+                    if (![asset isEqual:_asset]) return;
+                    
+                    if (!isDegraded) {
+                        self.originImage = photo;
+                    }
+                    
+                    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+                        UIImage* result = photo ? [[ImageProcessor sharedInstance] tryAddWatermarkToImage:[ImageProcessor autoColor:photo strenth:_tempCorrectedStrenth]] : nil;
+                        self.correctedImage = result;
+                        
+                        dispatch_async(dispatch_get_main_queue(), ^{
+                            self.imageView.image = result;
+                            
+                            [self resizeSubviews];
+                            _progressView.hidden = YES;
+                            if (self.imageProgressUpdateBlock) {
+                                self.imageProgressUpdateBlock(1);
+                            }
+                            if (!isDegraded) {
+                                self.imageRequestID = 0;
+                            }
+                        });
+                    });
+                } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+                    if (![asset isEqual:_asset]) return;
+                    _progressView.hidden = NO;
+                    [self bringSubviewToFront:_progressView];
+                    progress = progress > 0.02 ? progress : 0.02;
+                    _progressView.progress = progress;
+                    if (self.imageProgressUpdateBlock && progress < 1) {
+                        self.imageProgressUpdateBlock(progress);
+                    }
+                    
+                    if (progress >= 1) {
+                        _progressView.hidden = YES;
+                        self.imageRequestID = 0;
+                    }
+                } networkAccessAllowed:YES];
             }
         }
-        
-        self->_progressView.hidden = YES;
-        if (self.imageProgressUpdateBlock) {
-            self.imageProgressUpdateBlock(1);
+    }
+    else { // 展示原图
+        if (self.originImage) {
+            _imageView.image = self.originImage;
+            [self resizeSubviews];
+            _progressView.hidden = YES;
         }
-        if (!isDegraded) {
-            self.imageRequestID = 0;
+        else {
+            self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+                    BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
+                    self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
+                    self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
+                    if (self.iCloudSyncFailedHandle) {
+                        self.iCloudSyncFailedHandle(asset, iCloudSyncFailed);
+                    }
+                    if (![asset isEqual:self->_asset]) return;
+                    if (photo) {
+                        self.imageView.image = photo;
+                    }
+                    [self resizeSubviews];
+                    if (self.imageView.tz_height && self.allowCrop) {
+                        CGFloat scale = MAX(self.cropRect.size.width / self.imageView.tz_width, self.cropRect.size.height / self.imageView.tz_height);
+                        if (self.scaleAspectFillCrop && scale > 1) { // 如果设置图片缩放裁剪并且图片需要缩放
+                            CGFloat multiple = self.scrollView.maximumZoomScale / self.scrollView.minimumZoomScale;
+                            self.scrollView.minimumZoomScale = scale;
+                            self.scrollView.maximumZoomScale = scale * MAX(multiple, 2);
+                            [self.scrollView setZoomScale:scale animated:YES];
+                        }
+                    }
+                    
+                    self->_progressView.hidden = YES;
+                    if (self.imageProgressUpdateBlock) {
+                        self.imageProgressUpdateBlock(1);
+                    }
+                    if (!isDegraded) {
+                        self.imageRequestID = 0;
+                    }
+                } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+                    if (![asset isEqual:self->_asset]) return;
+                    self->_progressView.hidden = NO;
+                    [self bringSubviewToFront:self->_progressView];
+                    progress = progress > 0.02 ? progress : 0.02;
+                    self->_progressView.progress = progress;
+                    if (self.imageProgressUpdateBlock && progress < 1) {
+                        self.imageProgressUpdateBlock(progress);
+                    }
+                    
+                    if (progress >= 1) {
+                        self->_progressView.hidden = YES;
+                        self.imageRequestID = 0;
+                    }
+                } networkAccessAllowed:YES];
         }
-    } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-        if (![asset isEqual:self->_asset]) return;
-        self->_progressView.hidden = NO;
-        [self bringSubviewToFront:self->_progressView];
-        progress = progress > 0.02 ? progress : 0.02;
-        self->_progressView.progress = progress;
-        if (self.imageProgressUpdateBlock && progress < 1) {
-            self.imageProgressUpdateBlock(progress);
-        }
-        
-        if (progress >= 1) {
-            self->_progressView.hidden = YES;
-            self.imageRequestID = 0;
-        }
-    } networkAccessAllowed:YES];
+    }
     
     [self configMaximumZoomScale];
 }

@@ -17,6 +17,17 @@ typedef enum : NSUInteger {
     TZAssetCellTypeAudio,
 } TZAssetCellType;
 
+@interface TZImageCell : UICollectionViewCell
+
+@property (weak, nonatomic) UIButton *selectPhotoButton;
+@property (nonatomic, strong) UIImage *image;
+@property (nonatomic, assign) BOOL isSelected;
+@property (nonatomic, assign) BOOL isFailed;
+
+@property (nonatomic, copy) void (^didSelectPhotoBlock)(BOOL);
+
+@end
+
 @class TZAssetModel;
 @interface TZAssetCell : UICollectionViewCell
 @property (weak, nonatomic) UIButton *selectPhotoButton;

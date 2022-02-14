@@ -16,6 +16,8 @@
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
 #import "TZLocationManager.h"
+#import "VideoEditViewController.h"
+#import "DPThemeConfigure.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "TZImageRequestOperation.h"
 
@@ -85,11 +87,7 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
-    if (@available(iOS 13.0, *)) {
-        self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-    } else {
-        self.view.backgroundColor = [UIColor whiteColor];
-    }
+    self.view.backgroundColor = [DPThemeConfigure shareInstance].MainBackgroundColor;
     self.navigationItem.title = _model.name;
     UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
     [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:tzImagePickerVc];
@@ -174,11 +172,7 @@ static CGFloat itemMargin = 5;
     if (!_collectionView) {
         _layout = [[UICollectionViewFlowLayout alloc] init];
         _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
-        if (@available(iOS 13.0, *)) {
-            _collectionView.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-        } else {
-            _collectionView.backgroundColor = [UIColor whiteColor];
-        }
+        _collectionView.backgroundColor = [DPThemeConfigure shareInstance].MainBackgroundColor;
         _collectionView.dataSource = self;
         _collectionView.delegate = self;
         _collectionView.alwaysBounceHorizontal = NO;
@@ -293,15 +287,15 @@ static CGFloat itemMargin = 5;
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateDisabled];
-    [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+    [_doneButton setTitleColor:tzImagePickerVc.iconThemeColor forState:UIControlStateNormal];
     [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
     _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
     
-    _numberImageView = [[UIImageView alloc] initWithImage:tzImagePickerVc.photoNumberIconImage];
+    _numberImageView = [[UIImageView alloc] init];
+    _numberImageView.layer.cornerRadius = 12;
+    _numberImageView.layer.masksToBounds = YES;
     _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
-    _numberImageView.clipsToBounds = YES;
-    _numberImageView.contentMode = UIViewContentModeScaleAspectFit;
-    _numberImageView.backgroundColor = [UIColor clearColor];
+    _numberImageView.backgroundColor = tzImagePickerVc.iconThemeColor;
     
     _numberLabel = [[UILabel alloc] init];
     _numberLabel.font = [UIFont systemFontOfSize:15];
@@ -441,7 +435,7 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     // 1.6.8 判断是否满足最小必选张数的限制
     if (tzImagePickerVc.minImagesCount && tzImagePickerVc.selectedModels.count < tzImagePickerVc.minImagesCount) {
-        NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a minimum of %zd photos"], tzImagePickerVc.minImagesCount];
+        NSString *title = DPLocalFormat(@"ColorCorrection_MinSelection", [NSString stringWithFormat:@"%zd", tzImagePickerVc.minImagesCount]);
         [tzImagePickerVc showAlertWithTitle:title];
         return;
     }
@@ -634,7 +628,17 @@ static CGFloat itemMargin = 5;
             }
         } else {
             // 2. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
-            if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
+			// Modified by DDL 新增isAssetCanSelect delegate逻辑
+            BOOL canSelect = YES;
+            if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(isAssetCanSelect:)]) {
+                canSelect = [tzImagePickerVc.pickerDelegate isAssetCanSelect:model.asset];
+            }
+			
+            if (!canSelect) {
+                NSString *title = [NSBundle tz_localizedStringForKey:DPLocal(@"dive_log_edit_view_one_video_nine_photos")];
+                [tzImagePickerVc showAlertWithTitle:title];
+            }
+            else if (tzImagePickerVc.selectedModels.count < tzImagePickerVc.maxImagesCount) {
                 if ([[TZImageManager manager] isAssetCannotBeSelected:model.asset]) {
                     return;
                 }
@@ -660,7 +664,7 @@ static CGFloat itemMargin = 5;
                 [strongSelf refreshBottomToolBarStatus];
                 [UIView showOscillatoryAnimationWithLayer:strongLayer type:TZOscillatoryAnimationToSmaller];
             } else {
-                NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], tzImagePickerVc.maxImagesCount];
+                NSString *title = DPLocalFormat(@"ColorCorrection_MaxSelection", [NSString stringWithFormat:@"%zd", tzImagePickerVc.maxImagesCount]);
                 [tzImagePickerVc showAlertWithTitle:title];
             }
         }
@@ -683,7 +687,9 @@ static CGFloat itemMargin = 5;
     if (model.type == TZAssetModelMediaTypeVideo && !tzImagePickerVc.allowPickingMultipleVideo) {
         if (tzImagePickerVc.selectedModels.count > 0) {
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-            [imagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Can not choose both video and photo"]];
+            [imagePickerVc showAlertWithTitle:DPLocal(@"SelectPhoto_CanChooseBothVideoPhoto")];
+        } else if (tzImagePickerVc.isColorCorrection) {
+            [VideoEditViewController showVideoEditViewController:model onVC:self];
         } else {
             TZVideoPlayerController *videoPlayerVc = [[TZVideoPlayerController alloc] init];
             videoPlayerVc.model = model;
@@ -692,7 +698,7 @@ static CGFloat itemMargin = 5;
     } else if (model.type == TZAssetModelMediaTypePhotoGif && tzImagePickerVc.allowPickingGif && !tzImagePickerVc.allowPickingMultipleVideo) {
         if (tzImagePickerVc.selectedModels.count > 0) {
             TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
-            [imagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Can not choose both photo and GIF"]];
+            [imagePickerVc showAlertWithTitle:DPLocal(@"SelectPhoto_CanChooseBothGIFPhoto")];
         } else {
             TZGifPhotoPreviewController *gifPreviewVc = [[TZGifPhotoPreviewController alloc] init];
             gifPreviewVc.model = model;
@@ -722,12 +728,12 @@ static CGFloat itemMargin = 5;
         // 无权限 做一个友好的提示
         NSString *appName = [TZCommonTools tz_getAppName];
 
-        NSString *title = [NSBundle tz_localizedStringForKey:@"Can not use camera"];
-        NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
+        NSString *title = DPLocal(@"SelectPhoto_CanNotUserCamera");
+        NSString *message = DPLocalFormat(@"ColorCorrection_AuthGuide", @"Dive+");
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
-        UIAlertAction *cancelAct = [UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] style:UIAlertActionStyleCancel handler:nil];
+        UIAlertAction *cancelAct = [UIAlertAction actionWithTitle:DPLocal(@"Common_CancelButton") style:UIAlertActionStyleCancel handler:nil];
         [alertController addAction:cancelAct];
-        UIAlertAction *settingAct = [UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"Setting"] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UIAlertAction *settingAct = [UIAlertAction actionWithTitle:DPLocal(@"SelectPhoto_Setting") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
         }];
         [alertController addAction:settingAct];
@@ -852,15 +858,15 @@ static CGFloat itemMargin = 5;
 - (void)prepareScrollCollectionViewToBottom {
     if (_shouldScrollToBottom && _models.count > 0) {
         // try fix #1562：https://github.com/banchichen/TZImagePickerController/issues/1562
-        if (@available(iOS 15.0, *)) {
-            [_collectionView performBatchUpdates:^{} completion:^(BOOL finished) {
-                [self scrollCollectionViewToBottom];
-            }];
-        } else {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//        if (@available(iOS 15.0, *)) {
+//            [_collectionView performBatchUpdates:^{} completion:^(BOOL finished) {
+//                [self scrollCollectionViewToBottom];
+//            }];
+//        } else {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self scrollCollectionViewToBottom];
             });
-        }
+//        }
     } else {
         _collectionView.hidden = NO;
     }

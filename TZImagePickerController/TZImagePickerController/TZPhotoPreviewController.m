@@ -162,13 +162,13 @@
     _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:_tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
-    [_doneButton setTitleColor:_tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+    [_doneButton setTitleColor:_tzImagePickerVc.iconThemeColor forState:UIControlStateNormal];
     
-    _numberImageView = [[UIImageView alloc] initWithImage:_tzImagePickerVc.photoNumberIconImage];
-    _numberImageView.backgroundColor = [UIColor clearColor];
-    _numberImageView.clipsToBounds = YES;
-    _numberImageView.contentMode = UIViewContentModeScaleAspectFit;
+    _numberImageView = [[UIImageView alloc] init];
+    _numberImageView.layer.cornerRadius = 12;
+    _numberImageView.layer.masksToBounds = YES;
     _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 0;
+    _numberImageView.backgroundColor = _tzImagePickerVc.iconThemeColor;
     
     _numberLabel = [[UILabel alloc] init];
     _numberLabel.font = [UIFont systemFontOfSize:15];
@@ -320,7 +320,7 @@
     if (!selectButton.isSelected) {
         // 1. select:check if over the maxImagesCount / 选择照片,检查是否超过了最大个数的限制
         if (_tzImagePickerVc.selectedModels.count >= _tzImagePickerVc.maxImagesCount) {
-            NSString *title = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Select a maximum of %zd photos"], _tzImagePickerVc.maxImagesCount];
+            NSString *title = DPLocalFormat(@"ColorCorrection_MaxSelection", [NSString stringWithFormat:@"%zd", _tzImagePickerVc.maxImagesCount]);
             [_tzImagePickerVc showAlertWithTitle:title];
             return;
             // 2. if not over the maxImagesCount / 如果没有超过最大个数限制
@@ -335,7 +335,7 @@
                 [self.photos addObject:_photosTemp[self.currentIndex]];
             }
             if (model.type == TZAssetModelMediaTypeVideo && !_tzImagePickerVc.allowPickingMultipleVideo) {
-                [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Select the video when in multi state, we will handle the video as a photo"]];
+                [_tzImagePickerVc showAlertWithTitle:DPLocal(@"SelectPhoto_MultiVideosTips")];
             }
         }
     } else {
@@ -401,7 +401,7 @@
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     // 如果图片正在从iCloud同步中,提醒用户
     if (_progress > 0 && _progress < 1 && (_selectButton.isSelected || !_tzImagePickerVc.selectedModels.count )) {
-        _alertView = [_tzImagePickerVc showAlertWithTitle:[NSBundle tz_localizedStringForKey:@"Synchronizing photos from iCloud"]];
+        _alertView = [_tzImagePickerVc showAlertWithTitle:DPLocal(@"SelectPhoto_SyncingFromCloud")];
         return;
     }
     

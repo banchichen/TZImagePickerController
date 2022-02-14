@@ -12,6 +12,8 @@
 #import <Photos/Photos.h>
 #import "TZAssetModel.h"
 
+typedef void(^ProgressBlock)(double progress, NSError * _Nullable error, BOOL * _Nonnull stop, NSDictionary * _Nullable info);
+
 @class TZAlbumModel,TZAssetModel;
 @protocol TZImagePickerControllerDelegate;
 @interface TZImageManager : NSObject
@@ -97,8 +99,10 @@
 - (void)getVideoWithAsset:(PHAsset *)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(AVPlayerItem *, NSDictionary *))completion;
 
 /// Export video 导出视频 presetName: 预设名字，默认值是AVAssetExportPreset640x480
+
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
+- (void)getVideoOutputPathWithAsset:(PHAsset *)asset success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
 - (void)getVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName timeRange:(CMTimeRange)timeRange success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;
 /// 新的导出视频API，解决iOS14 iCloud视频导出失败的问题，未大量测试，请大家多多测试，有问题群里反馈
 - (void)requestVideoOutputPathWithAsset:(PHAsset *)asset presetName:(NSString *)presetName success:(void (^)(NSString *outputPath))success failure:(void (^)(NSString *errorMessage, NSError *error))failure;

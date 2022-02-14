@@ -13,6 +13,94 @@
 #import "TZImagePickerController.h"
 #import "TZProgressView.h"
 
+@interface TZImageCell ()
+@property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
+@property (weak, nonatomic) UIImageView *selectImageView;
+
+@end
+
+@implementation TZImageCell
+
+- (void)setImage:(UIImage *)image
+{
+    @autoreleasepool {
+        //    _image = image;
+        self.imageView.image = image;
+        
+        [self setNeedsLayout];
+    }
+}
+
+- (void)setIsSelected:(BOOL)isSelected
+{
+    _isSelected = isSelected;
+    
+    self.selectPhotoButton.selected = isSelected;
+    self.selectImageView.hidden = !self.selectPhotoButton.isSelected;
+}
+
+- (void)setIsFailed:(BOOL)isFailed
+{
+    _isFailed = isFailed;
+    self.selectImageView.image = isFailed ? [UIImage tz_imageNamedFromMyBundle:@"photo_unselectable"] : [UIImage tz_imageNamedFromMyBundle:@"photo_sel_photoPickerVc"];
+    self.selectImageView.hidden = !isFailed;
+    self.selectPhotoButton.enabled = !isFailed;
+    self.selectPhotoButton.backgroundColor = isFailed ? [UIColor colorWithRed:0 green:0 blue:0 alpha:0.5] : [UIColor clearColor];
+}
+
+- (void)selectPhotoButtonClick:(UIButton *)sender {
+    if (self.didSelectPhotoBlock) {
+        self.didSelectPhotoBlock(sender.isSelected);
+    }
+    if (sender.isSelected) {
+        [UIView showOscillatoryAnimationWithLayer:_selectImageView.layer type:TZOscillatoryAnimationToBigger];
+    }
+}
+
+#pragma mark - Lazy load
+
+- (UIButton *)selectPhotoButton {
+    if (_selectImageView == nil) {
+        UIButton *selectPhotoButton = [[UIButton alloc] init];
+        [selectPhotoButton addTarget:self action:@selector(selectPhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [self.contentView addSubview:selectPhotoButton];
+        _selectPhotoButton = selectPhotoButton;
+    }
+    return _selectPhotoButton;
+}
+
+- (UIImageView *)imageView {
+    if (_imageView == nil) {
+        UIImageView *imageView = [[UIImageView alloc] init];
+        imageView.contentMode = UIViewContentModeScaleAspectFill;
+        imageView.clipsToBounds = YES;
+        [self.contentView addSubview:imageView];
+        _imageView = imageView;
+        
+        [self.contentView bringSubviewToFront:_selectImageView];
+    }
+    return _imageView;
+}
+
+- (UIImageView *)selectImageView {
+    if (_selectImageView == nil) {
+        UIImageView *selectImageView = [[UIImageView alloc] init];
+        [self.contentView addSubview:selectImageView];
+        _selectImageView = selectImageView;
+        self.selectImageView.image = _isFailed ? [UIImage tz_imageNamedFromMyBundle:@"photo_unselectable"] : [UIImage tz_imageNamedFromMyBundle:@"photo_sel_photoPickerVc"];
+    }
+    return _selectImageView;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _selectPhotoButton.frame = self.bounds;
+    _selectImageView.frame = CGRectMake(self.tz_width / 2.0 - 13.5, self.tz_height / 2.0 - 13.5 , 27, 27);
+    _imageView.frame = CGRectMake(0, 0, self.tz_width, self.tz_height);
+}
+
+@end
+
 @interface TZAssetCell ()
 @property (weak, nonatomic) UIImageView *imageView;       // The photo / 照片
 @property (weak, nonatomic) UIImageView *selectImageView;
@@ -38,6 +126,10 @@
     _model = model;
     self.representedAssetIdentifier = model.asset.localIdentifier;
     int32_t imageRequestID = [[TZImageManager manager] getPhotoWithAsset:model.asset photoWidth:self.tz_width completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        if (_progressView) {
+            self.progressView.hidden = YES;
+            self.imageView.alpha = 1.0;
+        }
         // Set the cell's thumbnail image if it's still showing the same asset.
         if ([self.representedAssetIdentifier isEqualToString:model.asset.localIdentifier]) {
             self.imageView.image = photo;
@@ -79,6 +171,10 @@
     if (self.assetCellDidSetModelBlock) {
         self.assetCellDidSetModelBlock(self, _imageView, _selectImageView, _indexLabel, _bottomView, _timeLength, _videoImgView);
     }
+}
+
+- (void)setPhotoSelImage:(UIImage *)photoSelImage {
+    _photoSelImage = photoSelImage;
 }
 
 - (void)setIndex:(NSInteger)index {
@@ -265,9 +361,9 @@
         [self.contentView addSubview:imageView];
         _imageView = imageView;
         
-        _tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapImageView)];
-        [_imageView addGestureRecognizer:_tapGesture];
-        self.allowPreview = self.allowPreview;
+//        _tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapImageView)];
+//        [_imageView addGestureRecognizer:_tapGesture];
+//        self.allowPreview = self.allowPreview;
     }
     return _imageView;
 }
@@ -402,19 +498,16 @@
 
 - (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier {
     self = [super initWithStyle:style reuseIdentifier:reuseIdentifier];
-    self.backgroundColor = [UIColor whiteColor];
     self.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    self.backgroundColor = [DPThemeConfigure shareInstance].MainBackgroundColor;
+    self.selectionStyle = UITableViewCellSelectionStyleNone;
     return self;
 }
 
 - (void)setModel:(TZAlbumModel *)model {
     _model = model;
     
-    UIColor *nameColor = UIColor.blackColor;
-    if (@available(iOS 13.0, *)) {
-        nameColor = UIColor.labelColor;
-    }
-    NSMutableAttributedString *nameString = [[NSMutableAttributedString alloc] initWithString:model.name attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:nameColor}];
+    NSMutableAttributedString *nameString = [[NSMutableAttributedString alloc] initWithString:model.name attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor whiteColor]}];
     NSAttributedString *countString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"  (%zd)",model.count] attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16],NSForegroundColorAttributeName:[UIColor lightGrayColor]}];
     [nameString appendAttributedString:countString];
     self.titleLabel.attributedText = nameString;
@@ -467,11 +560,7 @@
     if (_titleLabel == nil) {
         UILabel *titleLabel = [[UILabel alloc] init];
         titleLabel.font = [UIFont boldSystemFontOfSize:17];
-        if (@available(iOS 13.0, *)) {
-            titleLabel.textColor = UIColor.labelColor;
-        } else {
-            titleLabel.textColor = [UIColor blackColor];
-        }
+        titleLabel.textColor = [UIColor blackColor];
         titleLabel.textAlignment = NSTextAlignmentLeft;
         [self.contentView addSubview:titleLabel];
         _titleLabel = titleLabel;

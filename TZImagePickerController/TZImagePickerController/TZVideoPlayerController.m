@@ -13,6 +13,9 @@
 #import "TZAssetModel.h"
 #import "TZImagePickerController.h"
 #import "TZPhotoPreviewController.h"
+#import "MBProgressHUD.h"
+#import "Utils.h"
+#import "SCLAlertView.h"
 #import "TZVideoCropController.h"
 
 @interface TZVideoPlayerController () {
@@ -49,6 +52,7 @@
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
         self.navigationItem.title = tzImagePickerVc.previewBtnTitleStr;
+        self.navigationItem.leftBarButtonItem.tintColor = UIColor.whiteColor;
     }
     [self configMoviePlayer];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(pausePlayerAndShowNaviBar) name:UIApplicationWillResignActiveNotification object:nil];
@@ -127,9 +131,9 @@
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
         [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
-        [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+        [_doneButton setTitleColor:tzImagePickerVc.iconThemeColor forState:UIControlStateNormal];
     } else {
-        [_doneButton setTitle:[NSBundle tz_localizedStringForKey:@"Done"] forState:UIControlStateNormal];
+        [_doneButton setTitle:DPLocal(@"Common_DoneButton") forState:UIControlStateNormal];
         [_doneButton setTitleColor:[UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0] forState:UIControlStateNormal];
     }
     [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorDisabled forState:UIControlStateDisabled];
