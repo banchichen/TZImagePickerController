@@ -128,7 +128,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
-**3.7.2 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题** [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
+**3.7.3 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题** [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
 **3.6.7 修复Xcode13&iOS15下导航栏颜色异常问题**        
 3.6.2 新增allowEditVideo，单选视频时支持裁剪        
 3.6.0 修复iOS14下iCloud视频导出失败问题        
