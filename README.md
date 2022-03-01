@@ -96,12 +96,11 @@ A：https://github.com/banchichen/TZImagePickerController/issues/652
 **Q：可否增加微信编辑图片的功能？**           
 A：考虑下，优先级低  
 
-**Q：是否有QQ/微信群？**            
-A：有QQ群：859033147           
+**Q：是否有QQ/微信群/钉钉群？**            
+A：有「钉钉群：33192786」和「QQ群：859033147」，推荐加钉钉群，答疑响应更快         
 
 **Q：想提交一个Pull Request？**           
-A：请先加下面钉钉群说下方案，和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。     
-<img src="https://gw.alicdn.com/tfs/TB1xvz7jIVl614jSZKPXXaGjpXa-970-1280.jpg" width="30%" height="30%">
+A：请先加钉钉群(33192786)说下方案，和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。     
 
 **Q：demo在真机上跑不起来？**             
 A：1、team选你自己的；2、bundleId也改成你自己的或改成一个不会和别人重复的。可参考[简书的这篇博客](https://www.jianshu.com/p/cbe59138fca6)             
