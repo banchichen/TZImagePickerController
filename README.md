@@ -8,7 +8,7 @@
  
 ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
  
-## 重要提示2：3.7.0版本修复了iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题，强烈建议尽快更新  
+## 重要提示2：3.7.4版本修复了iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题，强烈建议尽快更新   
      关于iOS14模拟器的问题
  PHAuthorizationStatusLimited授权模式下，iOS14模拟器有bug，未授权照片无法显示，真机正常，暂可忽略：https://github.com/banchichen/TZImagePickerController/issues/1347 
  
@@ -128,7 +128,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
-**3.7.3 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题** [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
+**3.7.4 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题** [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
 **3.6.7 修复Xcode13&iOS15下导航栏颜色异常问题**        
 3.6.2 新增allowEditVideo，单选视频时支持裁剪        
 3.6.0 修复iOS14下iCloud视频导出失败问题        
