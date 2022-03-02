@@ -397,7 +397,6 @@
     // imagePickerVc.allowCameraLocation = NO;
     
     // 自定义gif播放方案
-    imagePickerVc.allowPickingGif = YES; // 设置了gifImagePlayBlock时，必须开启allowPickingGif
     [[TZImagePickerConfig sharedInstance] setGifImagePlayBlock:^(TZPhotoPreviewView *view, UIImageView *imageView, NSData *gifData, NSDictionary *info) {
         FLAnimatedImage *animatedImage = [FLAnimatedImage animatedImageWithGIFData:gifData];
         FLAnimatedImageView *animatedImageView;
