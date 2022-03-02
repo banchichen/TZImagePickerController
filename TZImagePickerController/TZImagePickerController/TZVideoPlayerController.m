@@ -19,6 +19,7 @@
     AVPlayer *_player;
     AVPlayerLayer *_playerLayer;
     UIButton *_playButton;
+    UIImage *_playButtonNormalImage;
     UIImage *_cover;
     NSString *_outputPath;
     NSString *_errorMsg;
@@ -198,6 +199,7 @@
         [_player play];
         [self.navigationController setNavigationBarHidden:YES];
         _toolBar.hidden = YES;
+        _playButtonNormalImage = [_playButton imageForState:UIControlStateNormal];
         [_playButton setImage:nil forState:UIControlStateNormal];
         [UIApplication sharedApplication].statusBarHidden = YES;
     } else {
@@ -286,7 +288,8 @@
     [_player pause];
     _toolBar.hidden = NO;
     [self.navigationController setNavigationBarHidden:NO];
-    [_playButton setImage:[UIImage tz_imageNamedFromMyBundle:@"MMVideoPreviewPlay"] forState:UIControlStateNormal];
+    UIImage *normalImage = _playButtonNormalImage ?: [UIImage tz_imageNamedFromMyBundle:@"MMVideoPreviewPlay"];
+    [_playButton setImage:normalImage forState:UIControlStateNormal];
     
     if (self.needShowStatusBar) {
         [UIApplication sharedApplication].statusBarHidden = NO;
