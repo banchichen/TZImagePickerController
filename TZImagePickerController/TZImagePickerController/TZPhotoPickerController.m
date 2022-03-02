@@ -526,13 +526,16 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc.allowPickingVideo && tzImagePickerVc.maxImagesCount == 1) {
         if ([[TZImageManager manager] isVideo:[assets firstObject]]) {
+            BOOL triggered = NO;
             if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingVideo:sourceAssets:)]) {
                 [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingVideo:[photos firstObject] sourceAssets:[assets firstObject]];
+                triggered = YES;
             }
             if (tzImagePickerVc.didFinishPickingVideoHandle) {
                 tzImagePickerVc.didFinishPickingVideoHandle([photos firstObject], [assets firstObject]);
+                triggered = YES;
             }
-            return;
+            if (triggered) return;
         }
     }
     
