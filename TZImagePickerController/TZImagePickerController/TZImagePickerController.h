@@ -232,6 +232,7 @@
 @property (nonatomic, copy) NSString *photoPreviewOriginDefImageName __attribute__((deprecated("Use -photoPreviewOriginDefImage.")));
 @property (nonatomic, copy) NSString *photoNumberIconImageName __attribute__((deprecated("Use -photoNumberIconImage.")));
 @property (nonatomic, strong) UIImage *takePictureImage;
+@property (nonatomic, strong) UIImage *addMorePhotoImage;
 @property (nonatomic, strong) UIImage *photoSelImage;
 @property (nonatomic, strong) UIImage *photoDefImage;
 @property (nonatomic, strong) UIImage *photoOriginSelImage;
