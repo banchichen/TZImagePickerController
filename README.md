@@ -8,7 +8,7 @@
  
 ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
  
-## 重要提示2：3.5.2版本适配了iOS14、iPhone12，修复2个严重问题，强烈建议尽快更新  
+## 重要提示2：3.7.5版本修复了iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题，强烈建议尽快更新   
      关于iOS14模拟器的问题
  PHAuthorizationStatusLimited授权模式下，iOS14模拟器有bug，未授权照片无法显示，真机正常，暂可忽略：https://github.com/banchichen/TZImagePickerController/issues/1347 
  
@@ -96,12 +96,11 @@ A：https://github.com/banchichen/TZImagePickerController/issues/652
 **Q：可否增加微信编辑图片的功能？**           
 A：考虑下，优先级低  
 
-**Q：是否有QQ/微信群？**            
-A：有QQ群：778723997        
+**Q：是否有QQ/微信群/钉钉群？**            
+A：有「钉钉群：33192786」和「QQ群：859033147」，推荐加钉钉群，答疑响应更快         
 
 **Q：想提交一个Pull Request？**           
-A：请先加下面钉钉群说下方案，和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。     
-<img src="https://gw.alicdn.com/tfs/TB1xvz7jIVl614jSZKPXXaGjpXa-970-1280.jpg" width="30%" height="30%">
+A：请先加钉钉群(33192786)说下方案，和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。     
 
 **Q：demo在真机上跑不起来？**             
 A：1、team选你自己的；2、bundleId也改成你自己的或改成一个不会和别人重复的。可参考[简书的这篇博客](https://www.jianshu.com/p/cbe59138fca6)             
@@ -128,7 +127,8 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
-**3.6.4 修复Xcode13&iOS15下导航栏颜色异常问题**        
+**3.7.6 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题** [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
+**3.6.7 修复Xcode13&iOS15下导航栏颜色异常问题**        
 3.6.2 新增allowEditVideo，单选视频时支持裁剪        
 3.6.0 修复iOS14下iCloud视频导出失败问题        
 **3.5.2 适配iPhone12系列设备**        

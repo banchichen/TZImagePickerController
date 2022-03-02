@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.6.4 - 2021.08.02
+//  version 3.7.6 - 2022.03.02
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -25,6 +25,9 @@
 #import "TZLocationManager.h"
 #import "TZPhotoPreviewController.h"
 #import "TZPhotoPreviewCell.h"
+
+#define CURRENT_SYSTEM_VERSION         [[UIDevice currentDevice] systemVersion]
+#define SYSTEM_VERSION_GREATER_THAN_15 ([CURRENT_SYSTEM_VERSION floatValue] >= 15.0)
 
 @class TZAlbumCell, TZAssetCell;
 @protocol TZImagePickerControllerDelegate;
@@ -355,6 +358,7 @@
 @interface TZCommonTools : NSObject
 + (UIEdgeInsets)tz_safeAreaInsets;
 + (BOOL)tz_isIPhoneX;
++ (BOOL)tz_isLandscape;
 + (CGFloat)tz_statusBarHeight;
 // 获得Info.plist数据字典
 + (NSDictionary *)tz_getInfoDictionary;
@@ -362,6 +366,7 @@
 + (BOOL)tz_isRightToLeftLayout;
 + (void)configBarButtonItem:(UIBarButtonItem *)item tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc;
 + (BOOL)isICloudSyncError:(NSError *)error;
++ (BOOL)isAssetNotSelectable:(TZAssetModel *)model tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc;
 @end
 
 

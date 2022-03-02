@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.6.4 - 2021.08.02
+//  version 3.7.6 - 2022.03.02
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -153,6 +153,7 @@
     [super viewWillAppear:animated];
     _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
     [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
+    [self configNavigationBarAppearance];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -245,6 +246,12 @@
         __weak typeof(self) weakSelf = self;
         [previewVc setDoneButtonClickBlockWithPreviewType:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto) {
             __strong typeof(weakSelf) strongSelf = weakSelf;
+            if (!strongSelf.autoDismiss) {
+                if (strongSelf.didFinishPickingPhotosHandle) {
+                    strongSelf.didFinishPickingPhotosHandle(photos,assets,isSelectOriginalPhoto);
+                }
+                return;
+            }
             [strongSelf dismissViewControllerAnimated:YES completion:^{
                 if (!strongSelf) return;
                 if (strongSelf.didFinishPickingPhotosHandle) {
@@ -524,9 +531,15 @@
 
 - (void)setCropRect:(CGRect)cropRect {
     _cropRect = cropRect;
-    _cropRectPortrait = cropRect;
-    CGFloat widthHeight = cropRect.size.width;
-    _cropRectLandscape = CGRectMake((self.view.tz_height - widthHeight) / 2, cropRect.origin.x, widthHeight, widthHeight);
+    if ([TZCommonTools tz_isLandscape]) {
+        _cropRectLandscape = cropRect;
+        CGFloat widthHeight = cropRect.size.height;
+        _cropRectPortrait = CGRectMake(cropRect.origin.y, (self.view.tz_width - widthHeight) / 2, widthHeight, widthHeight);
+    } else {
+        _cropRectPortrait = cropRect;
+        CGFloat widthHeight = cropRect.size.width;
+        _cropRectLandscape = CGRectMake((self.view.tz_height - widthHeight) / 2, cropRect.origin.x, widthHeight, widthHeight);
+    }
 }
 
 - (CGRect)cropRect {
@@ -753,7 +766,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+    if ([[TZImageManager manager] authorizationStatusAuthorized] || !SYSTEM_VERSION_GREATER_THAN_15) {
+        [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+    }
     self.isFirstAppear = YES;
     if (@available(iOS 13.0, *)) {
         self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
@@ -960,6 +975,14 @@
             CGSizeEqualToSize([UIScreen mainScreen].bounds.size, CGSizeMake(926, 428)));
 }
 
++ (BOOL)tz_isLandscape {
+    if ([UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeRight ||
+        [UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeLeft) {
+        return true;
+    }
+    return false;
+}
+
 + (CGFloat)tz_statusBarHeight {
     if ([UIWindow instancesRespondToSelector:@selector(safeAreaInsets)]) {
         return [self tz_safeAreaInsets].top ?: 20;
@@ -1014,6 +1037,10 @@
     textAttrs[NSForegroundColorAttributeName] = tzImagePickerVc.barItemTextColor;
     textAttrs[NSFontAttributeName] = tzImagePickerVc.barItemTextFont;
     [item setTitleTextAttributes:textAttrs forState:UIControlStateNormal];
+    
+    NSMutableDictionary *textAttrsHighlighted = [NSMutableDictionary dictionary];
+    textAttrsHighlighted[NSFontAttributeName] = tzImagePickerVc.barItemTextFont;
+    [item setTitleTextAttributes:textAttrsHighlighted forState:UIControlStateHighlighted];
 }
 
 + (BOOL)isICloudSyncError:(NSError *)error {
@@ -1024,8 +1051,22 @@
     return NO;
 }
 
++ (BOOL)isAssetNotSelectable:(TZAssetModel *)model tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc {
+    BOOL notSelectable = tzImagePickerVc.selectedModels.count >= tzImagePickerVc.maxImagesCount;
+    if (tzImagePickerVc.selectedModels && tzImagePickerVc.selectedModels.count > 0 && !tzImagePickerVc.allowPickingMultipleVideo) {
+        if (model.asset.mediaType == PHAssetMediaTypeVideo) {
+            notSelectable = true;
+        }
+    }
+    return notSelectable;
+}
+
 @end
 
+
+@interface TZImagePickerConfig ()
+@property (strong, nonatomic) NSSet *supportedLanguages;
+@end
 
 @implementation TZImagePickerConfig
 
@@ -1035,6 +1076,7 @@
     dispatch_once(&onceToken, ^{
         if (config == nil) {
             config = [[TZImagePickerConfig alloc] init];
+            config.supportedLanguages = [NSSet setWithObjects:@"zh-Hans", @"zh-Hant", @"en", @"ar", @"bg", @"cs-CZ", @"de", @"el", @"es", @"fr", @"he", @"it", @"ja", @"ko-KP", @"ko", @"nl", @"pl", @"pt", @"ro", @"ru", @"sk", @"sv", @"th", @"tr", @"uk", @"vi", nil];
             config.preferredLanguage = nil;
             config.gifPreviewMaxImagesCount = 50;
         }
@@ -1048,16 +1090,15 @@
     if (!preferredLanguage || !preferredLanguage.length) {
         preferredLanguage = [NSLocale preferredLanguages].firstObject;
     }
-    if ([preferredLanguage rangeOfString:@"zh-Hans"].location != NSNotFound) {
-        preferredLanguage = @"zh-Hans";
-    } else if ([preferredLanguage rangeOfString:@"zh-Hant"].location != NSNotFound) {
-        preferredLanguage = @"zh-Hant";
-    } else if ([preferredLanguage rangeOfString:@"vi"].location != NSNotFound) {
-        preferredLanguage = @"vi";
-    } else {
-        preferredLanguage = @"en";
+
+    NSString *usedLanguage = @"en";
+    for (NSString *language in self.supportedLanguages) {
+        if ([preferredLanguage hasPrefix:language]) {
+            usedLanguage = language;
+            break;
+        }
     }
-    _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:preferredLanguage ofType:@"lproj"]];
+    _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:usedLanguage ofType:@"lproj"]];
 }
 
 @end

@@ -116,6 +116,9 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.scrollView.contentSize = CGSizeMake(0, contentSizeH + 5);
     });
+    if (self.scrollView.tz_height + 80 > self.view.tz_height) {
+        self.scrollView.tz_height = self.view.tz_height - 80;
+    }
     
     _margin = 4;
     _itemWH = (self.view.tz_width - 2 * _margin - 4) / 3 - _margin;
@@ -358,6 +361,11 @@
     NSInteger left = 30;
     NSInteger widthHeight = self.view.tz_width - 2 * left;
     NSInteger top = (self.view.tz_height - widthHeight) / 2;
+    if ([TZCommonTools tz_isLandscape]) {
+        top = 30;
+        widthHeight = self.view.tz_height - 2 * left;
+        left = (self.view.tz_width - widthHeight) / 2;
+    }
     imagePickerVc.cropRect = CGRectMake(left, top, widthHeight, widthHeight);
     imagePickerVc.scaleAspectFillCrop = YES;
     // 设置横屏下的裁剪尺寸
