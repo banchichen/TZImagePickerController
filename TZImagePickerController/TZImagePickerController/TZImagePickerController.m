@@ -1092,7 +1092,6 @@
         }
     }
     _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:usedLanguage ofType:@"lproj"]];
-
 }
 
 @end
