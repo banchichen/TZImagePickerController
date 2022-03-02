@@ -18,7 +18,7 @@
 #import "TZLocationManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "TZImageRequestOperation.h"
-#import "TZTipShowFooterView.h"
+#import "TZAuthLimitedFooterTipView.h"
 #import <PhotosUI/PhotosUI.h>
 @interface TZPhotoPickerController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIImagePickerControllerDelegate,UINavigationControllerDelegate, PHPhotoLibraryChangeObserver> {
     NSMutableArray *_models;
@@ -34,14 +34,14 @@
     
     BOOL _shouldScrollToBottom;
     BOOL _showTakePhotoBtn;
-    BOOL _authorizationStatusLimited;
+    BOOL _authorizationLimited;
     
     CGFloat _offsetItemCount;
 }
 @property CGRect previousPreheatRect;
 @property (nonatomic, assign) BOOL isSelectOriginalPhoto;
 @property (nonatomic, strong) TZCollectionView *collectionView;
-@property (nonatomic,strong) TZTipShowFooterView *footerTipView;//底部提示
+@property (nonatomic, strong) TZAuthLimitedFooterTipView *authFooterTipView;
 @property (nonatomic, strong) UILabel *noDataLabel;
 @property (strong, nonatomic) UICollectionViewFlowLayout *layout;
 @property (nonatomic, strong) UIImagePickerController *imagePickerVc;
@@ -110,7 +110,7 @@ static CGFloat itemMargin = 5;
         [tzImagePickerVc.childViewControllers firstObject].navigationItem.backBarButtonItem = backItem;
     }
     _showTakePhotoBtn = _model.isCameraRoll && ((tzImagePickerVc.allowTakePicture && tzImagePickerVc.allowPickingImage) || (tzImagePickerVc.allowTakeVideo && tzImagePickerVc.allowPickingVideo));
-    _authorizationStatusLimited = [[TZImageManager manager] isPHAuthorizationStatusLimited];
+    _authorizationLimited = [[TZImageManager manager] isPHAuthorizationStatusLimited];
     // [self resetCachedAssets];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
     
@@ -195,29 +195,25 @@ static CGFloat itemMargin = 5;
         [_collectionView reloadData];
     }
 
-    if (!_footerTipView && _authorizationStatusLimited) {
-        _footerTipView = [[TZTipShowFooterView alloc] initWithFrame:CGRectMake(0, 0, self.view.tz_width, 80)];
+    if (!_authFooterTipView && _authorizationLimited) {
+        _authFooterTipView = [[TZAuthLimitedFooterTipView alloc] initWithFrame:CGRectMake(0, 0, self.view.tz_width, 80)];
         UITapGestureRecognizer *footTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(openSettingsApplication)];
-        [_footerTipView addGestureRecognizer:footTap];
-        [self.view addSubview:_footerTipView];
+        [_authFooterTipView addGestureRecognizer:footTap];
+        [self.view addSubview:_authFooterTipView];
     }
     
-    if (_showTakePhotoBtn) {
-        _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber) / self.columnNumber) * self.view.tz_width);
-    } else {
-        _collectionView.contentSize = CGSizeMake(self.view.tz_width, ((_model.count + self.columnNumber - 1) / self.columnNumber) * self.view.tz_width);
-        if (_models.count == 0) {
-            _noDataLabel = [UILabel new];
-            _noDataLabel.textAlignment = NSTextAlignmentCenter;
-            _noDataLabel.text = [NSBundle tz_localizedStringForKey:@"No Photos or Videos"];
-            CGFloat rgb = 153 / 256.0;
-            _noDataLabel.textColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
-            _noDataLabel.font = [UIFont boldSystemFontOfSize:20];
-            [_collectionView addSubview:_noDataLabel];
-        } else if (_noDataLabel) {
-            [_noDataLabel removeFromSuperview];
-            _noDataLabel = nil;
-        }
+    _collectionView.contentSize = CGSizeMake(self.view.tz_width, (([self getAllCellCount] + self.columnNumber - 1) / self.columnNumber) * self.view.tz_width);
+    if (_models.count == 0) {
+        _noDataLabel = [UILabel new];
+        _noDataLabel.textAlignment = NSTextAlignmentCenter;
+        _noDataLabel.text = [NSBundle tz_localizedStringForKey:@"No Photos or Videos"];
+        CGFloat rgb = 153 / 256.0;
+        _noDataLabel.textColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+        _noDataLabel.font = [UIFont boldSystemFontOfSize:20];
+        [_collectionView addSubview:_noDataLabel];
+    } else if (_noDataLabel) {
+        [_noDataLabel removeFromSuperview];
+        _noDataLabel = nil;
     }
 }
 
@@ -367,6 +363,7 @@ static CGFloat itemMargin = 5;
     CGFloat top = 0;
     CGFloat collectionViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
+    CGFloat footerTipViewH = _authorizationLimited ? 80 : 0;
     BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
     BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
     CGFloat toolBarHeight = 50 + [TZCommonTools tz_safeAreaInsets].bottom;
@@ -377,9 +374,9 @@ static CGFloat itemMargin = 5;
     } else {
         collectionViewHeight = tzImagePickerVc.showSelectBtn ? self.view.tz_height - toolBarHeight : self.view.tz_height;
     }
+    collectionViewHeight -= footerTipViewH;
 
-    CGFloat tipViewH = _authorizationStatusLimited ? 80 : 0;
-    _collectionView.frame = CGRectMake(0, top, self.view.tz_width, collectionViewHeight - tipViewH);
+    _collectionView.frame = CGRectMake(0, top, self.view.tz_width, collectionViewHeight);
     _noDataLabel.frame = _collectionView.bounds;
     CGFloat itemWH = (self.view.tz_width - (self.columnNumber + 1) * itemMargin) / self.columnNumber;
     _layout.itemSize = CGSizeMake(itemWH, itemWH);
@@ -399,13 +396,9 @@ static CGFloat itemMargin = 5;
         toolBarTop = self.view.tz_height - toolBarHeight - navigationHeight;
     }
     _bottomToolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
-    if (_authorizationStatusLimited) {
-        CGFloat tipY = toolBarTop - tipViewH;
-        CGRect tipRect = CGRectMake(0, self.view.tz_height - tipViewH, self.view.tz_width, tipViewH);;
-        if (_bottomToolBar) {
-            tipRect = CGRectMake(0, tipY, self.view.tz_width, tipViewH);
-        }
-        _footerTipView.frame = tipRect;
+    if (_authFooterTipView) {
+        CGFloat footerTipViewY = _bottomToolBar ? toolBarTop - footerTipViewH : self.view.tz_height - footerTipViewH;
+        _authFooterTipView.frame = CGRectMake(0, footerTipViewY, self.view.tz_width, footerTipViewH);;
     }
     CGFloat previewWidth = [tzImagePickerVc.previewBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:16]} context:nil].size.width + 2;
     if (!tzImagePickerVc.allowPreview) {
@@ -584,7 +577,7 @@ static CGFloat itemMargin = 5;
     // the cell lead to add more photo / 去添加更多照片的cell
     if (indexPath.item == [self getAddMorePhotoCellIndex]) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
-        cell.imageView.image = tzImagePickerVc.xy_addMoreLimitImage;
+        cell.imageView.image = tzImagePickerVc.addMorePhotoImage;
         cell.imageView.contentMode = UIViewContentModeScaleAspectFit;
         cell.imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
         return cell;
@@ -751,7 +744,7 @@ static CGFloat itemMargin = 5;
     if (_showTakePhotoBtn) {
         count += 1;
     }
-    if (_authorizationStatusLimited) {
+    if (_authorizationLimited) {
         count += 1;
     }
     return count;
@@ -771,7 +764,7 @@ static CGFloat itemMargin = 5;
 
 - (NSInteger)getAddMorePhotoCellIndex {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (!_authorizationStatusLimited) {
+    if (!_authorizationLimited) {
         return -1;
     }
     if (tzImagePickerVc.sortAscendingByModificationDate) {

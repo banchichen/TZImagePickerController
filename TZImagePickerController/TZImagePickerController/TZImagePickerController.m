@@ -322,7 +322,7 @@
     self.photoPreviewOriginDefImageName = @"preview_original_def";
     self.photoOriginDefImageName = @"photo_original_def";
     self.photoOriginSelImageName = @"photo_original_sel";
-    _xy_addMoreLimitImage = [UIImage tz_imageNamedFromMyBundle:@"addMore"];
+    self.addMorePhotoImage = [UIImage tz_imageNamedFromMyBundle:@"addMore"];
 }
 
 - (void)setTakePictureImageName:(NSString *)takePictureImageName {

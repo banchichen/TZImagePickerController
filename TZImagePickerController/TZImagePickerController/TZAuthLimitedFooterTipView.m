@@ -1,20 +1,20 @@
 //
-//  XYTipShowFooterView.m
-//  XYUIComponents
+//  TZAuthLimitedFooterTipView.m
+//  TZImagePickerController
 //
 //  Created by qiaoxy on 2021/8/24.
 //
 
-#import "TZTipShowFooterView.h"
+#import "TZAuthLimitedFooterTipView.h"
 #import "TZImagePickerController.h"
 
-@interface TZTipShowFooterView()
+@interface TZAuthLimitedFooterTipView()
 @property (nonatomic,strong) UIImageView *tipImgView;
 @property (nonatomic,strong) UILabel *tipLable;
 @property (nonatomic,strong) UIImageView *detailImgView;
 @end
 
-@implementation TZTipShowFooterView
+@implementation TZAuthLimitedFooterTipView
 
 - (instancetype)init {
     self = [super init];

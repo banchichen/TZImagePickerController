@@ -1,6 +1,6 @@
 //
-//  XYTipShowFooterView.h
-//  XYUIComponents
+//  TZAuthLimitedFooterTipView.h
+//  TZImagePickerController
 //
 //  Created by qiaoxy on 2021/8/24.
 //
@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface TZTipShowFooterView : UIView
+@interface TZAuthLimitedFooterTipView : UIView
 
 @end
 
