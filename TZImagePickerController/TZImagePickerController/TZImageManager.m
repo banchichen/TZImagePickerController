@@ -64,11 +64,10 @@ static dispatch_once_t onceToken;
     }
 }
 
-/// iOS14之后 是否为限制选择照片
--(BOOL)xy_authorizationStatusLimit{
+- (BOOL)isPHAuthorizationStatusLimited {
     if (@available(iOS 14,*)) {
         NSInteger status = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
-        if (status == 4) {
+        if (status == PHAuthorizationStatusLimited) {
             return YES;
         }
     }

@@ -183,7 +183,6 @@
 /// Single selection mode, valid when maxImagesCount = 1
 /// 单选模式,maxImagesCount为1时才生效
 @property (nonatomic, assign) BOOL showSelectBtn;        ///< 在单选模式下，照片列表页中，显示选择按钮,默认为NO
-@property (nonatomic,assign,readonly) BOOL xy_isLimitAuth;///< 是否是限制照片访问，iOS14 available
 @property (nonatomic, assign) BOOL allowCrop;            ///< 允许裁剪,默认为YES，showSelectBtn为NO才生效
 @property (nonatomic, assign) BOOL scaleAspectFillCrop;  ///< 是否图片等比缩放填充cropRect区域，开启后预览页面无法左右滑动切换图片
 @property (nonatomic, assign) CGRect cropRect;           ///< 裁剪框的尺寸

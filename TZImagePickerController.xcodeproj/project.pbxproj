@@ -325,8 +325,6 @@
 		900EEFF51C2BBF7600EA709B /* TZImagePickerController */ = {
 			isa = PBXGroup;
 			children = (
-				57DD378826D61592005090FF /* TZTipShowFooterView.h */,
-				57DD378926D61592005090FF /* TZTipShowFooterView.m */,
 				900EEFF61C2BBF9500EA709B /* TZImagePickerController.h */,
 				900EEFF71C2BBF9500EA709B /* TZImagePickerController.m */,
 				900EEFFC1C2BD58B00EA709B /* TZPhotoPickerController.h */,
@@ -349,6 +347,8 @@
 				B662C36E2662914D006A672A /* TZVideoEditedPreviewController.m */,
 				6DD050291DF659ED0057C78D /* TZProgressView.h */,
 				6DD0502A1DF659ED0057C78D /* TZProgressView.m */,
+				57DD378826D61592005090FF /* TZTipShowFooterView.h */,
+				57DD378926D61592005090FF /* TZTipShowFooterView.m */,
 				90CE84AC1C3A89EF003D0779 /* TZImageManager.h */,
 				90CE84AD1C3A89EF003D0779 /* TZImageManager.m */,
 				901CC3F821CB757500C55443 /* TZImageRequestOperation.h */,
