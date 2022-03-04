@@ -49,7 +49,9 @@
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
 @property (nonatomic, assign) BOOL isSavingMedia;
 @property (nonatomic, assign) BOOL isFetchingMedia;
-
+@property (nonatomic, strong) TZPhotoPickerTitleView *titleView;
+@property (nonatomic, strong) TZAlbumPickerController *albumVc;
+@property (nonatomic, strong) UIView *albumBackgroundView;
 @end
 
 static CGSize AssetGridThumbnailSize;
@@ -59,6 +61,54 @@ static CGFloat itemMargin = 5;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+- (void)updateAlbum{
+    if (SYSTEM_VERSION_GREATER_THAN_15) {
+        [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+    }
+    [self.albumVc configTableView];
+}
+
+- (void)setModel:(TZAlbumModel *)model{
+    _model = model;
+    
+    if (self.model && self.isFirstAppear == NO){
+        if (self.showAlbumInPhotoPickerVc) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self configTitleView];
+                self->_shouldScrollToBottom = YES;
+                [self fetchAssetModels];
+            });
+        }
+    }
+}
+
+- (void)setIsShowAlbum:(BOOL)isShowAlbum {
+    if (_isShowAlbum == isShowAlbum) {
+        return;
+    }
+    
+    _isShowAlbum = isShowAlbum;
+    
+    self.titleView.isShowAlbum = self.isShowAlbum;
+    if (self.isShowAlbum) {
+        [UIView animateWithDuration:0.3 animations:^{
+            self.albumBackgroundView.hidden = NO;
+            self.albumBackgroundView.alpha = 1.0;
+            self.albumVc.view.alpha = 1.0;
+            [self.albumVc.view setTz_top:self.collectionView.tz_top];
+        }];
+        [self.albumVc configTableView];
+    }else{
+        [UIView animateWithDuration:0.3 animations:^{
+            self.albumBackgroundView.alpha = 0.0;
+            self.albumVc.view.alpha = 0.0;
+            [self.albumVc.view setTz_top:-self.albumVc.view.tz_height];
+        } completion:^(BOOL finished) {
+            self.albumBackgroundView.hidden = YES;
+        }];
+    }
+}
+
 - (UIImagePickerController *)imagePickerVc {
     if (_imagePickerVc == nil) {
         _imagePickerVc = [[UIImagePickerController alloc] init];
@@ -86,6 +136,7 @@ static CGFloat itemMargin = 5;
         [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     }
     self.isFirstAppear = YES;
+    
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     _isSelectOriginalPhoto = tzImagePickerVc.isSelectOriginalPhoto;
     _shouldScrollToBottom = YES;
@@ -94,7 +145,13 @@ static CGFloat itemMargin = 5;
     } else {
         self.view.backgroundColor = [UIColor whiteColor];
     }
-    self.navigationItem.title = _model.name;
+    
+    if (self.showAlbumInPhotoPickerVc) {
+        _isShowAlbum = NO;
+    }else{
+        self.navigationItem.title = _model.name;
+    }
+
     UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:tzImagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:tzImagePickerVc action:@selector(cancelButtonClick)];
     [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:tzImagePickerVc];
     self.navigationItem.rightBarButtonItem = cancelItem;
@@ -125,9 +182,9 @@ static CGFloat itemMargin = 5;
     }
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         CGFloat systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
-        if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && self->_model.isCameraRoll) {
+        if ((!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && self->_model.isCameraRoll) || (self->_showAlbumInPhotoPickerVc && self->_model == nil)) {
             [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:YES completion:^(TZAlbumModel *model) {
-                self->_model = model;
+                self.model = model;
                 self->_models = [NSMutableArray arrayWithArray:self->_model.models];
                 [self initSubviews];
             }];
@@ -148,11 +205,18 @@ static CGFloat itemMargin = 5;
         TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
         [tzImagePickerVc hideProgressHUD];
         
+        if (self.showAlbumInPhotoPickerVc) {
+            self->_authorizationLimited = [[TZImageManager manager] isPHAuthorizationStatusLimited];
+            self->_showTakePhotoBtn = self->_model.isCameraRoll && ((tzImagePickerVc.allowTakePicture && tzImagePickerVc.allowPickingImage) || (tzImagePickerVc.allowTakeVideo && tzImagePickerVc.allowPickingVideo));
+        }
+        
         [self checkSelectedModels];
         [self configCollectionView];
         self->_collectionView.hidden = YES;
         [self configBottomToolBar];
-        
+        if (self.showAlbumInPhotoPickerVc) {
+            [self configAlbumView];
+        }
         [self prepareScrollCollectionViewToBottom];
     });
 }
@@ -204,13 +268,15 @@ static CGFloat itemMargin = 5;
     
     _collectionView.contentSize = CGSizeMake(self.view.tz_width, (([self getAllCellCount] + self.columnNumber - 1) / self.columnNumber) * self.view.tz_width);
     if (_models.count == 0) {
-        _noDataLabel = [UILabel new];
-        _noDataLabel.textAlignment = NSTextAlignmentCenter;
-        _noDataLabel.text = [NSBundle tz_localizedStringForKey:@"No Photos or Videos"];
-        CGFloat rgb = 153 / 256.0;
-        _noDataLabel.textColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
-        _noDataLabel.font = [UIFont boldSystemFontOfSize:20];
-        [_collectionView addSubview:_noDataLabel];
+        if (_noDataLabel == nil) {
+            _noDataLabel = [UILabel new];
+            _noDataLabel.textAlignment = NSTextAlignmentCenter;
+            _noDataLabel.text = [NSBundle tz_localizedStringForKey:@"No Photos or Videos"];
+            CGFloat rgb = 153 / 256.0;
+            _noDataLabel.textColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+            _noDataLabel.font = [UIFont boldSystemFontOfSize:20];
+            [_collectionView addSubview:_noDataLabel];
+        }
     } else if (_noDataLabel) {
         [_noDataLabel removeFromSuperview];
         _noDataLabel = nil;
@@ -228,6 +294,9 @@ static CGFloat itemMargin = 5;
     AssetGridThumbnailSize = CGSizeMake(cellSize.width * scale, cellSize.height * scale);
     
     if (!_models) {
+        if (self.showAlbumInPhotoPickerVc) {
+            [self configTitleView];
+        }
         [self fetchAssetModels];
     }
 }
@@ -236,6 +305,48 @@ static CGFloat itemMargin = 5;
     [super viewDidAppear:animated];
     self.isFirstAppear = NO;
     // [self updateCachedAssets];
+}
+
+- (void)configTitleView{
+    if (self.model){
+        TZPhotoPickerTitleView *titleView = [TZPhotoPickerTitleView new];
+        titleView.isShowAlbum = self.isShowAlbum;
+        titleView.selectAlbumName = self.model.name;
+        CGSize size = titleView.getSize;
+        titleView.frame = CGRectMake(0, 0, size.width, size.height);
+        
+        UITapGestureRecognizer *ges = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(titleViewClick)];
+        [titleView addGestureRecognizer:ges];
+        
+        self.titleView = titleView;
+        self.navigationItem.titleView = titleView;
+    }else{
+        self.titleView = nil;
+        self.navigationItem.titleView = nil;
+    }
+}
+
+- (void)configAlbumView{
+    if (self.albumBackgroundView == nil) {
+        self.albumBackgroundView = [UIView new];
+        self.albumBackgroundView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.6];
+        [self.view addSubview:self.albumBackgroundView];
+        
+        UITapGestureRecognizer *ges = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(albumBackgroundViewClick)];
+        [self.albumBackgroundView addGestureRecognizer:ges];
+        
+        self.albumBackgroundView.alpha = 0;
+    }
+
+    if (self.albumVc == nil) {
+        self.albumVc = [TZAlbumPickerController new];
+        self.albumVc.showAlbumInPhotoPickerVc = YES;
+        self.albumVc.photoPickerController = self;
+        [self addChildViewController:self.albumVc];
+        [self.view addSubview:self.albumVc.view];
+        
+        self.albumVc.view.alpha = 0;
+    }
 }
 
 - (void)configBottomToolBar {
@@ -424,6 +535,15 @@ static CGFloat itemMargin = 5;
     if (tzImagePickerVc.photoPickerPageDidLayoutSubviewsBlock) {
         tzImagePickerVc.photoPickerPageDidLayoutSubviewsBlock(_collectionView, _bottomToolBar, _previewButton, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel, _divideLine);
     }
+    
+    if (self.showAlbumInPhotoPickerVc) {
+        self.albumBackgroundView.frame = CGRectMake(0, top, self.view.tz_width, self.view.tz_height - top);
+        if (self.isShowAlbum) {
+            self.albumVc.view.frame = CGRectMake(0, top, self.view.tz_width, collectionViewHeight - toolBarHeight);
+        }else{
+            self.albumVc.view.frame = CGRectMake(0, -(collectionViewHeight - toolBarHeight), self.view.tz_width, collectionViewHeight - toolBarHeight);
+        }
+    }
 }
 
 #pragma mark - Notification
@@ -433,9 +553,18 @@ static CGFloat itemMargin = 5;
 }
 
 #pragma mark - Click Event
+- (void)titleViewClick{
+    self.isShowAlbum = !self.isShowAlbum;
+}
+
+- (void)albumBackgroundViewClick{
+    self.isShowAlbum = NO;
+}
+
 - (void)navLeftBarButtonClick{
     [self.navigationController popViewControllerAnimated:YES];
 }
+
 - (void)previewButtonClick {
     TZPhotoPreviewController *photoPreviewVc = [[TZPhotoPreviewController alloc] init];
     [self pushPhotoPrevireViewController:photoPreviewVc needCheckSelectedModels:YES];
@@ -1216,7 +1345,6 @@ static CGFloat itemMargin = 5;
 @end
 
 
-
 @implementation TZCollectionView
 
 - (BOOL)touchesShouldCancelInContentView:(UIView *)view {
@@ -1226,4 +1354,60 @@ static CGFloat itemMargin = 5;
     return [super touchesShouldCancelInContentView:view];
 }
 
+@end
+
+@interface TZPhotoPickerTitleView ()
+@property (nonatomic, strong) UILabel *albumNameLabel;
+@property (nonatomic, strong) UIImageView *arrowImageView;
+@end
+
+@implementation TZPhotoPickerTitleView
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor grayColor];
+        self.layer.cornerRadius = 14;
+        self.clipsToBounds = YES;
+        
+        self.albumNameLabel = [UILabel new];
+        self.albumNameLabel.font = [UIFont boldSystemFontOfSize:17];
+        self.albumNameLabel.textColor = [UIColor whiteColor];
+        [self addSubview:self.albumNameLabel];
+        
+        self.arrowImageView = [UIImageView new];
+        [self addSubview:self.arrowImageView];
+    }
+    return self;
+}
+
+- (void)layoutSubviews{
+    [super layoutSubviews];
+    
+    CGFloat space = 5;
+    CGSize labelSize = [self.albumNameLabel sizeThatFits:CGSizeMake(MAXFLOAT, MAXFLOAT)];
+    CGSize imageSize = self.arrowImageView.image.size;
+    self.albumNameLabel.frame = CGRectMake(10, (self.tz_height - labelSize.height)/2, labelSize.width, labelSize.height);
+    self.arrowImageView.frame = CGRectMake(self.albumNameLabel.tz_right + space, (self.tz_height - imageSize.height)/2, imageSize.width, imageSize.height);
+}
+
+- (CGSize)getSize{
+    CGFloat space = 5;
+    CGSize labelSize = [self.albumNameLabel sizeThatFits:CGSizeMake(MAXFLOAT, MAXFLOAT)];
+    CGSize imageSize = self.arrowImageView.image.size;
+    return CGSizeMake(labelSize.width + space + imageSize.width + 20, MAX(labelSize.height, imageSize.height) + 8);
+}
+
+- (void)setSelectAlbumName:(NSString *)selectAlbumName {
+    _selectAlbumName = selectAlbumName;
+    self.albumNameLabel.text = self.selectAlbumName;
+}
+
+- (void)setIsShowAlbum:(BOOL)isShowAlbum{
+    _isShowAlbum = isShowAlbum;
+    if (self.isShowAlbum) {
+        self.arrowImageView.image = [UIImage tz_imageNamedFromMyBundle:@"album_sel_arrow_up"];
+    }else{
+        self.arrowImageView.image = [UIImage tz_imageNamedFromMyBundle:@"album_sel_arrow_down"];
+    }
+}
 @end

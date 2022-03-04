@@ -43,7 +43,10 @@ typedef enum : NSUInteger {
 
 @class TZAlbumModel;
 @interface TZAlbumCell : UITableViewCell
+@property (nonatomic, assign) BOOL showAlbumInPhotoPickerVc;
 @property (nonatomic, strong) TZAlbumModel *model;
+@property (nonatomic, assign) BOOL isSelected;
+
 @property (weak, nonatomic) UIButton *selectedCountButton;
 
 @property (nonatomic, copy) void (^albumCellDidSetModelBlock)(TZAlbumCell *cell, UIImageView *posterImageView, UILabel *titleLabel);

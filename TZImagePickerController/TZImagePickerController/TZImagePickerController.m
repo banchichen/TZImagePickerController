@@ -22,6 +22,7 @@
     UIButton *_settingBtn;
     BOOL _pushPhotoPickerVc;
     BOOL _didPushPhotoPickerVc;
+    BOOL _showAlbumInPhotoPickerVc;
     CGRect _cropRect;
     
     UIButton *_progressHUD;
@@ -173,12 +174,31 @@
     return [self initWithMaxImagesCount:maxImagesCount columnNumber:columnNumber delegate:delegate pushPhotoPickerVc:YES];
 }
 
-- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc {
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate showAlbumInPhotoPickerVc:(BOOL)showAlbumInPhotoPickerVc{
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:columnNumber delegate:delegate pushPhotoPickerVc:YES showAlbumInPhotoPickerVc:showAlbumInPhotoPickerVc];
+}
+
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc{
+    return [self initWithMaxImagesCount:maxImagesCount columnNumber:columnNumber delegate:delegate pushPhotoPickerVc:pushPhotoPickerVc showAlbumInPhotoPickerVc:NO];
+}
+
+- (instancetype)initWithMaxImagesCount:(NSInteger)maxImagesCount columnNumber:(NSInteger)columnNumber delegate:(id<TZImagePickerControllerDelegate>)delegate pushPhotoPickerVc:(BOOL)pushPhotoPickerVc  showAlbumInPhotoPickerVc:(BOOL)showAlbumInPhotoPickerVc{
+    _showAlbumInPhotoPickerVc = showAlbumInPhotoPickerVc;
     _pushPhotoPickerVc = pushPhotoPickerVc;
-    TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
-    albumPickerVc.isFirstAppear = YES;
-    albumPickerVc.columnNumber = columnNumber;
-    self = [super initWithRootViewController:albumPickerVc];
+    
+    TZPhotoPickerController *photoPickerVc;
+    if (showAlbumInPhotoPickerVc) {
+        photoPickerVc = [[TZPhotoPickerController alloc] init];
+        photoPickerVc.showAlbumInPhotoPickerVc = showAlbumInPhotoPickerVc;
+        photoPickerVc.isFirstAppear = YES;
+        photoPickerVc.columnNumber = columnNumber;
+        self = [super initWithRootViewController:photoPickerVc];
+    }else{
+        TZAlbumPickerController *albumPickerVc = [[TZAlbumPickerController alloc] init];
+        albumPickerVc.isFirstAppear = YES;
+        albumPickerVc.columnNumber = columnNumber;
+        self = [super initWithRootViewController:albumPickerVc];
+    }
     if (self) {
         self.maxImagesCount = maxImagesCount > 0 ? maxImagesCount : 9; // Default is 9 / 默认最大可选9张图片
         self.pickerDelegate = delegate;
@@ -224,7 +244,13 @@
                 _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
             }
         } else {
-            [self pushPhotoPickerVc];
+            if (showAlbumInPhotoPickerVc) {
+                [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:NO completion:^(TZAlbumModel *model) {
+                    photoPickerVc.model = model;
+                }];
+            }else{
+                [self pushPhotoPickerVc];
+            }
         }
     }
     return self;
@@ -414,11 +440,21 @@
         [_tipLabel removeFromSuperview];
         [_settingBtn removeFromSuperview];
 
-        [self pushPhotoPickerVc];
-        
-        TZAlbumPickerController *albumPickerVc = (TZAlbumPickerController *)self.visibleViewController;
-        if ([albumPickerVc isKindOfClass:[TZAlbumPickerController class]]) {
-            [albumPickerVc configTableView];
+        if (_showAlbumInPhotoPickerVc) {
+            TZPhotoPickerController *photoPickerVc = (TZPhotoPickerController *)self.visibleViewController;
+            if ([photoPickerVc isKindOfClass:[TZPhotoPickerController class]]) {
+                [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:NO completion:^(TZAlbumModel *model) {
+                    photoPickerVc.model = model;
+                }];
+                [photoPickerVc updateAlbum];
+            }
+        }else{
+            [self pushPhotoPickerVc];
+            
+            TZAlbumPickerController *albumPickerVc = (TZAlbumPickerController *)self.visibleViewController;
+            if ([albumPickerVc isKindOfClass:[TZAlbumPickerController class]]) {
+                [albumPickerVc configTableView];
+            }
         }
     }
 }
@@ -819,6 +855,13 @@
                 
                 if (!self->_tableView) {
                     self->_tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+                    if (self.showAlbumInPhotoPickerVc) {
+                        if (@available(iOS 11.0, *)) {
+                            self->_tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+                        } else {
+                            self.automaticallyAdjustsScrollViewInsets = NO;
+                        }
+                    }
                     self->_tableView.rowHeight = 70;
                     if (@available(iOS 13.0, *)) {
                         self->_tableView.backgroundColor = [UIColor tertiarySystemBackgroundColor];
@@ -867,19 +910,24 @@
 - (void)viewDidLayoutSubviews {
     [super viewDidLayoutSubviews];
     
-    CGFloat top = 0;
-    CGFloat tableViewHeight = 0;
-    CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
-    BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
-    BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
-    if (self.navigationController.navigationBar.isTranslucent) {
-        top = naviBarHeight;
-        if (!isStatusBarHidden && isFullScreen) top += [TZCommonTools tz_statusBarHeight];
-        tableViewHeight = self.view.tz_height - top;
-    } else {
-        tableViewHeight = self.view.tz_height;
+    if (self.showAlbumInPhotoPickerVc) {
+        _tableView.frame = self.view.bounds;
+    }else{
+        CGFloat top = 0;
+        CGFloat tableViewHeight = 0;
+        CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
+        BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
+        BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
+        if (self.navigationController.navigationBar.isTranslucent) {
+            top = naviBarHeight;
+            if (!isStatusBarHidden && isFullScreen) top += [TZCommonTools tz_statusBarHeight];
+            tableViewHeight = self.view.tz_height - top;
+        } else {
+            tableViewHeight = self.view.tz_height;
+        }
+        _tableView.frame = CGRectMake(0, top, self.view.tz_width, tableViewHeight);
     }
-    _tableView.frame = CGRectMake(0, top, self.view.tz_width, tableViewHeight);
+
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     if (imagePickerVc.albumPickerPageDidLayoutSubviewsBlock) {
         imagePickerVc.albumPickerPageDidLayoutSubviewsBlock(_tableView);
@@ -901,17 +949,28 @@
     cell.albumCellDidLayoutSubviewsBlock = imagePickerVc.albumCellDidLayoutSubviewsBlock;
     cell.albumCellDidSetModelBlock = imagePickerVc.albumCellDidSetModelBlock;
     cell.selectedCountButton.backgroundColor = imagePickerVc.iconThemeColor;
+    cell.showAlbumInPhotoPickerVc = self.showAlbumInPhotoPickerVc;
     cell.model = _albumArr[indexPath.row];
-    cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+    if ([self.photoPickerController isKindOfClass:[TZPhotoPickerController class]]){
+        TZPhotoPickerController *photoPickerVc = (TZPhotoPickerController *)self.photoPickerController;
+        cell.isSelected = [photoPickerVc.model.name isEqualToString:cell.model.name];
+    }
     return cell;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
-    photoPickerVc.columnNumber = self.columnNumber;
-    TZAlbumModel *model = _albumArr[indexPath.row];
-    photoPickerVc.model = model;
-    [self.navigationController pushViewController:photoPickerVc animated:YES];
+    if ([self.photoPickerController isKindOfClass:[TZPhotoPickerController class]]){
+        TZPhotoPickerController *photoPickerVc = (TZPhotoPickerController *)self.photoPickerController;
+        TZAlbumModel *model = _albumArr[indexPath.row];
+        photoPickerVc.model = model;
+        photoPickerVc.isShowAlbum = NO;
+    }else{
+        TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
+        photoPickerVc.columnNumber = self.columnNumber;
+        TZAlbumModel *model = _albumArr[indexPath.row];
+        photoPickerVc.model = model;
+        [self.navigationController pushViewController:photoPickerVc animated:YES];
+    }
     [tableView deselectRowAtIndexPath:indexPath animated:NO];
 }
 
