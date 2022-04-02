@@ -246,6 +246,8 @@
 @property (nonatomic, strong) UIFont *naviTitleFont;
 @property (nonatomic, strong) UIColor *barItemTextColor;
 @property (nonatomic, strong) UIFont *barItemTextFont;
+@property (nonatomic, strong) UIFont *doneBtnTitleFont;
+@property (nonatomic, strong) UIFont *previewBtnTitleFont;
 
 @property (nonatomic, copy) NSString *doneBtnTitleStr;
 @property (nonatomic, copy) NSString *cancelBtnTitleStr;

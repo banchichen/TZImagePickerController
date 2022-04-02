@@ -248,7 +248,7 @@ static CGFloat itemMargin = 5;
     _previewButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _previewButton.translatesAutoresizingMaskIntoConstraints = NO;
     [_previewButton addTarget:self action:@selector(previewButtonClick) forControlEvents:UIControlEventTouchUpInside];
-    _previewButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    _previewButton.titleLabel.font = tzImagePickerVc.previewBtnTitleFont;
     [_previewButton setTitle:tzImagePickerVc.previewBtnTitleStr forState:UIControlStateNormal];
     [_previewButton setTitle:tzImagePickerVc.previewBtnTitleStr forState:UIControlStateDisabled];
     if (@available(iOS 13.0, *)) {
@@ -294,7 +294,7 @@ static CGFloat itemMargin = 5;
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
     _doneButton.translatesAutoresizingMaskIntoConstraints = NO;
-    _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    _doneButton.titleLabel.font = tzImagePickerVc.doneBtnTitleFont;
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateDisabled];
