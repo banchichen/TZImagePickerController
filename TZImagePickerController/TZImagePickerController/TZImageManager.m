@@ -64,6 +64,16 @@ static dispatch_once_t onceToken;
     }
 }
 
+- (BOOL)isPHAuthorizationStatusLimited {
+    if (@available(iOS 14,*)) {
+        NSInteger status = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+        if (status == PHAuthorizationStatusLimited) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 /// Return YES if Authorized 返回YES如果得到了授权
 - (BOOL)authorizationStatusAuthorized {
     if (self.isPreviewNetworkImage) {
