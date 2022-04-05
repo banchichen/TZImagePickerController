@@ -54,3 +54,8 @@ typedef enum : NSUInteger {
 @interface TZAssetCameraCell : UICollectionViewCell
 @property (nonatomic, strong) UIImageView *imageView;
 @end
+
+
+@interface TZAssetAddMoreCell : TZAssetCameraCell
+@property (nonatomic, strong) UILabel *tipLabel;
+@end
