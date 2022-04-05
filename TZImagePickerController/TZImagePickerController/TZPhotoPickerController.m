@@ -110,7 +110,7 @@ static CGFloat itemMargin = 5;
         [tzImagePickerVc.childViewControllers firstObject].navigationItem.backBarButtonItem = backItem;
     }
     _showTakePhotoBtn = _model.isCameraRoll && ((tzImagePickerVc.allowTakePicture && tzImagePickerVc.allowPickingImage) || (tzImagePickerVc.allowTakeVideo && tzImagePickerVc.allowPickingVideo));
-    _authorizationLimited = [[TZImageManager manager] isPHAuthorizationStatusLimited];
+    _authorizationLimited = _model.isCameraRoll && [[TZImageManager manager] isPHAuthorizationStatusLimited];
     // [self resetCachedAssets];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
     
@@ -211,6 +211,7 @@ static CGFloat itemMargin = 5;
         CGFloat rgb = 153 / 256.0;
         _noDataLabel.textColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
         _noDataLabel.font = [UIFont boldSystemFontOfSize:20];
+        _noDataLabel.frame = _collectionView.bounds;
         [_collectionView addSubview:_noDataLabel];
     } else if (_noDataLabel) {
         [_noDataLabel removeFromSuperview];
