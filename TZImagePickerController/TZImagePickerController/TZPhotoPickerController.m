@@ -1100,8 +1100,21 @@ static CGFloat itemMargin = 5;
         return;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
-        [self.model refreshFetchResult];
-        [self fetchAssetModels];
+        PHFetchResultChangeDetails *changeDetail = [changeInstance changeDetailsForFetchResult:self.model.result];
+        if (changeDetail == nil) return;
+        if (changeDetail.hasIncrementalChanges == NO) {
+            [self.model refreshFetchResult];
+            [self fetchAssetModels];
+        } else {
+            NSInteger insertedCount = changeDetail.insertedObjects.count;
+            NSInteger removedCount = changeDetail.removedObjects.count;
+            NSInteger changedCount = changeDetail.changedObjects.count;
+            if (insertedCount > 0 || removedCount > 0 || changedCount > 0) {
+                self.model.result = changeDetail.fetchResultAfterChanges;
+                self.model.count = changeDetail.fetchResultAfterChanges.count;
+                [self fetchAssetModels];
+            }
+        }
     });
 }
 

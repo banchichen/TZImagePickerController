@@ -542,7 +542,7 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _tipLabel.frame = CGRectMake(5, self.tz_centerY, self.tz_width - 10, self.tz_height / 2 - 5);
+    _tipLabel.frame = CGRectMake(5, self.tz_height / 2, self.tz_width - 10, self.tz_height / 2 - 5);
 }
 
 @end
