@@ -54,10 +54,11 @@
    TZImagePickerController uses Camera、Location、Microphone、Photo Library，you need add these properties to info.plist like Demo：       
    TZImagePickerController使用了相机、定位、麦克风、相册，请参考Demo添加下列属性到info.plist文件：        
    	`Privacy - Camera Usage Description`     
-        `Privacy - Location Usage Description`
+    `Privacy - Location Usage Description`    
 	`Privacy - Location When In Use Usage Description`    
  	`Privacy - Microphone Usage Description`   
  	`Privacy - Photo Library Usage Description`   
+    `Prevent limited photos access alert`    
    
 ## 四. More 更多 
 
@@ -127,13 +128,14 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
+**3.8.1 iOS14下可添加访问更多照片，详见PR内的评论** [#1526](https://github.com/banchichen/TZImagePickerController/pull/1526)               
 **3.7.6 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题** [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
 **3.6.7 修复Xcode13&iOS15下导航栏颜色异常问题**        
 3.6.2 新增allowEditVideo，单选视频时支持裁剪        
 3.6.0 修复iOS14下iCloud视频导出失败问题        
 **3.5.2 适配iPhone12系列设备**        
 3.4.4 支持Dark Mode      
-**3.4.2 适配iOS14，若干问题修复**                  
+3.4.2 适配iOS14，若干问题修复                  
 3.3.2 适配iOS13，若干问题修复                 
 3.2.1 新增裁剪用scaleAspectFillCrop属性，设置为YES后，照片尺寸小于裁剪框时会自动放大撑满                
 3.2.0 加入用NSOperationQueue控制获取原图并发数降低内存的示例          

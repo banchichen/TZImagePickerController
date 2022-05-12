@@ -67,7 +67,7 @@
     if (!_tipLable) {
         _tipLable = [[UILabel alloc] init];
         NSString *appName = [TZCommonTools tz_getAppName];
-        _tipLable.text = [NSString stringWithFormat:@"你已设置%@只能访问相册部分照片，建议允许访问「所有照片」",appName];
+        _tipLable.text = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Allow %@ to access your all photos"], appName];
         _tipLable.numberOfLines = 0;
         _tipLable.font = [UIFont systemFontOfSize:14];
         _tipLable.textColor = [UIColor colorWithRed:0.40 green:0.40 blue:0.40 alpha:1.0];
