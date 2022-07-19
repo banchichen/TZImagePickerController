@@ -22,9 +22,15 @@
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
-#import "TZLocationManager.h"
 #import "TZPhotoPreviewController.h"
 #import "TZPhotoPreviewCell.h"
+
+#if __has_include("TZLocationManager.h")
+#define TZ_HAVE_LOCATION_CODE   1
+#import "TZLocationManager.h"
+#else
+#undef TZ_HAVE_LOCATION_CODE
+#endif
 
 #define CURRENT_SYSTEM_VERSION         [[UIDevice currentDevice] systemVersion]
 #define SYSTEM_VERSION_GREATER_THAN_15 ([CURRENT_SYSTEM_VERSION floatValue] >= 15.0)
@@ -112,7 +118,10 @@
 /// Default is YES, if set NO, user can't take picture.
 /// 默认为YES，如果设置为NO, 用户将不能拍摄照片
 @property (nonatomic, assign) BOOL allowTakePicture;
+
+#ifdef TZ_HAVE_LOCATION_CODE
 @property (nonatomic, assign) BOOL allowCameraLocation;
+#endif
 
 /// Default is YES, if set NO, user can't take video.
 /// 默认为YES，如果设置为NO, 用户将不能拍摄视频
