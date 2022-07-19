@@ -16,7 +16,6 @@
 #import "TZVideoPlayerController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZGifPhotoPreviewController.h"
-#import "TZLocationManager.h"
 #import "TZAssetCell.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "FLAnimatedImage.h"
@@ -481,6 +480,7 @@
 
 // 调用相机
 - (void)pushImagePickerController {
+#ifdef TZ_HAVE_LOCATION_CODE
     // 提前定位
     __weak typeof(self) weakSelf = self;
     [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
@@ -490,7 +490,8 @@
         __strong typeof(weakSelf) strongSelf = weakSelf;
         strongSelf.location = nil;
     }];
-    
+#endif
+
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: UIImagePickerControllerSourceTypeCamera]) {
         self.imagePickerVc.sourceType = sourceType;
