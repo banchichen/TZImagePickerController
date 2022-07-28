@@ -23,7 +23,10 @@ let package = Package(
             name: "TZImagePickerController",
             path: "TZImagePickerController/TZImagePickerController",
             resources: [.process("TZImagePickerController.bundle")],
-            publicHeadersPath: "."
+            publicHeadersPath: "include",
+            cSettings: [
+                .headerSearchPath(".")
+            ]
         )
     ]
 )
