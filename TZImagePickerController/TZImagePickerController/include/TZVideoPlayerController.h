@@ -1,1 +1,0 @@
-/Users/huangguojian/Desktop/Git/TZImagePickerController/TZImagePickerController/TZImagePickerController/TZVideoPlayerController.h
