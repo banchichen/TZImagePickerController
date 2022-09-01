@@ -1054,6 +1054,9 @@
             notSelectable = true;
         }
     }
+    if (model.type == TZAssetModelMediaTypePhotoGif && tzImagePickerVc.allowPickingGif == NO) {
+        notSelectable = true;
+    }
     return notSelectable;
 }
 
