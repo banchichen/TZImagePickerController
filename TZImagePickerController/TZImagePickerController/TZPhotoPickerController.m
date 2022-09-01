@@ -623,8 +623,10 @@ static CGFloat itemMargin = 5;
     if (notSelectable && tzImagePickerVc.showPhotoCannotSelectLayer && !model.isSelected) {
         cell.cannotSelectLayerButton.backgroundColor = tzImagePickerVc.cannotSelectLayerColor;
         cell.cannotSelectLayerButton.hidden = NO;
+        cell.showSelectBtn = NO;
     } else {
         cell.cannotSelectLayerButton.hidden = YES;
+        cell.showSelectBtn = tzImagePickerVc.showSelectBtn;
     }
     
     __weak typeof(cell) weakCell = cell;
