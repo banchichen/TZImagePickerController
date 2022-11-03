@@ -261,6 +261,9 @@
 @property (nonatomic, strong) UIFont *barItemTextFont;
 @property (nonatomic, strong) UIFont *doneBtnTitleFont;
 @property (nonatomic, strong) UIFont *previewBtnTitleFont;
+@property (nonatomic, strong) UIColor *viewBackgroundColor; // 控制器背景色
+@property (nonatomic, strong) UIColor *authorizationTipTextColor; // 授权提示文字颜色
+@property (nonatomic, strong) UIColor *authorizationSettingTextColor; // 授权跳转按钮文字颜色
 
 @property (nonatomic, copy) NSString *doneBtnTitleStr;
 @property (nonatomic, copy) NSString *cancelBtnTitleStr;
