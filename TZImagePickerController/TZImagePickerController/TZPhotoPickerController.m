@@ -15,7 +15,6 @@
 #import "TZImageManager.h"
 #import "TZVideoPlayerController.h"
 #import "TZGifPhotoPreviewController.h"
-#import "TZLocationManager.h"
 #import <MobileCoreServices/MobileCoreServices.h>
 #import "TZImageRequestOperation.h"
 #import "TZAuthLimitedFooterTipView.h"
@@ -891,6 +890,7 @@ static CGFloat itemMargin = 5;
 - (void)pushImagePickerController {
     // 提前定位
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+#ifdef TZ_HAVE_LOCATION_CODE
     if (tzImagePickerVc.allowCameraLocation) {
         __weak typeof(self) weakSelf = self;
         [[TZLocationManager manager] startLocationWithSuccessBlock:^(NSArray<CLLocation *> *locations) {
@@ -901,6 +901,7 @@ static CGFloat itemMargin = 5;
             strongSelf.location = nil;
         }];
     }
+#endif
     
     UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
     if ([UIImagePickerController isSourceTypeAvailable: sourceType]) {
