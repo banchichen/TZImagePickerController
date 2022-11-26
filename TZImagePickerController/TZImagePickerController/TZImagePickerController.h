@@ -94,7 +94,7 @@
 
 /// Export quality of cropped video, Default is AVAssetExportPresetMediumQuality
 /// 裁剪视频的导出质量，默认是 AVAssetExportPresetMediumQuality
-@property (nonatomic, assign) NSString *presetName;
+@property (nonatomic, copy) NSString *presetName;
 
 /// Default is 30s. If it exceeds the video duration, it is the video duration.The minimum duration of video crop is 1s.
 /// 默认是30s，如果超过视频时长，则为视频时长，小于1s不裁剪
