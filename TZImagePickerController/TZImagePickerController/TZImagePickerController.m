@@ -203,7 +203,7 @@
             _tipLabel.textAlignment = NSTextAlignmentCenter;
             _tipLabel.numberOfLines = 0;
             _tipLabel.font = [UIFont systemFontOfSize:16];
-            _tipLabel.textColor = [UIColor blackColor];
+            _tipLabel.textColor = self.authorizationTipTextColor ? self.authorizationTipTextColor : [UIColor blackColor];
             _tipLabel.autoresizingMask = UIViewAutoresizingFlexibleWidth;
 
             NSString *appName = [TZCommonTools tz_getAppName];
@@ -213,6 +213,9 @@
             
             _settingBtn = [UIButton buttonWithType:UIButtonTypeSystem];
             [_settingBtn setTitle:self.settingBtnTitleStr forState:UIControlStateNormal];
+            if (self.authorizationSettingTextColor){
+                [_settingBtn setTitleColor:self.authorizationSettingTextColor forState:UIControlStateNormal];
+            }
             _settingBtn.frame = CGRectMake(0, 180, self.view.tz_width, 44);
             _settingBtn.titleLabel.font = [UIFont systemFontOfSize:18];
             [_settingBtn addTarget:self action:@selector(settingBtnClick) forControlEvents:UIControlEventTouchUpInside];
@@ -296,6 +299,8 @@
     self.naviTitleColor = [UIColor whiteColor];
     self.naviTitleFont = [UIFont systemFontOfSize:17];
     self.barItemTextFont = [UIFont systemFontOfSize:15];
+    self.doneBtnTitleFont = [UIFont systemFontOfSize:16];
+    self.previewBtnTitleFont = [UIFont systemFontOfSize:16];
     self.barItemTextColor = [UIColor whiteColor];
     self.allowPreview = YES;
     // 2.2.26版本，不主动缩放图片，降低内存占用
@@ -766,16 +771,21 @@
         [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     }
     self.isFirstAppear = YES;
-    if (@available(iOS 13.0, *)) {
-        self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
-    } else {
-        self.view.backgroundColor = [UIColor whiteColor];
-    }
     
     TZImagePickerController *imagePickerVc = (TZImagePickerController *)self.navigationController;
     UIBarButtonItem *cancelItem = [[UIBarButtonItem alloc] initWithTitle:imagePickerVc.cancelBtnTitleStr style:UIBarButtonItemStylePlain target:imagePickerVc action:@selector(cancelButtonClick)];
     [TZCommonTools configBarButtonItem:cancelItem tzImagePickerVc:imagePickerVc];
     self.navigationItem.rightBarButtonItem = cancelItem;
+    
+    if (imagePickerVc.viewBackgroundColor){
+        self.view.backgroundColor = imagePickerVc.viewBackgroundColor;
+    }else{
+        if (@available(iOS 13.0, *)) {
+            self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
+        } else {
+            self.view.backgroundColor = [UIColor whiteColor];
+        }
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -1072,7 +1082,7 @@
     dispatch_once(&onceToken, ^{
         if (config == nil) {
             config = [[TZImagePickerConfig alloc] init];
-            config.supportedLanguages = [NSSet setWithObjects:@"zh-Hans", @"zh-Hant", @"en", @"ar", @"de", @"es", @"fr", @"ja", @"ko-KP", @"pt", @"ru", @"vi", nil];
+            config.supportedLanguages = [NSSet setWithObjects:@"zh-Hans", @"zh-Hant", @"en", @"ar", @"de", @"es", @"fr", @"ja", @"ko-KP", @"pt", @"ru", @"vi",@"tr", nil];
             config.preferredLanguage = nil;
             config.gifPreviewMaxImagesCount = 50;
         }
@@ -1083,10 +1093,20 @@
 - (void)setPreferredLanguage:(NSString *)preferredLanguage {
     _preferredLanguage = preferredLanguage;
     
-    if (!preferredLanguage || !preferredLanguage.length) {
-        preferredLanguage = [NSLocale preferredLanguages].firstObject;
-    }
-
+//    if (!preferredLanguage || !preferredLanguage.length) {
+//        preferredLanguage = [NSLocale preferredLanguages].firstObject;
+//    }
+//    if ([preferredLanguage rangeOfString:@"zh-Hans"].location != NSNotFound) {
+//        preferredLanguage = @"zh-Hans";
+//    } else if ([preferredLanguage rangeOfString:@"zh-Hant"].location != NSNotFound) {
+//        preferredLanguage = @"zh-Hant";
+//    } else if ([preferredLanguage rangeOfString:@"vi"].location != NSNotFound) {
+//        preferredLanguage = @"vi";
+//    } else if ([preferredLanguage rangeOfString:@"ar"].location != NSNotFound){
+//        preferredLanguage = @"ar";
+//    }else {
+//        preferredLanguage = @"en";
+//    }
     NSString *usedLanguage = @"en";
     for (NSString *language in self.supportedLanguages) {
         if ([preferredLanguage hasPrefix:language]) {

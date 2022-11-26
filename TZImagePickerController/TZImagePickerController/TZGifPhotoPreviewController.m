@@ -68,27 +68,31 @@
 }
 
 - (void)configBottomToolBar {
-    _toolBar = [[UIView alloc] initWithFrame:CGRectZero];
+    _toolBar = [[UIView alloc] init];
+    _toolBar.translatesAutoresizingMaskIntoConstraints = NO;
     CGFloat rgb = 34 / 255.0;
     _toolBar.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:0.7];
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    _doneButton.translatesAutoresizingMaskIntoConstraints = NO;
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
         [_doneButton setTitle:tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
         [_doneButton setTitleColor:tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
+        _doneButton.titleLabel.font = tzImagePickerVc.doneBtnTitleFont;
     } else {
         [_doneButton setTitle:[NSBundle tz_localizedStringForKey:@"Done"] forState:UIControlStateNormal];
         [_doneButton setTitleColor:[UIColor colorWithRed:(83/255.0) green:(179/255.0) blue:(17/255.0) alpha:1.0] forState:UIControlStateNormal];
+        _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
     }
     [_toolBar addSubview:_doneButton];
     
     UILabel *byteLabel = [[UILabel alloc] init];
     byteLabel.textColor = [UIColor whiteColor];
+    byteLabel.textAlignment = NSTextAlignmentNatural;
     byteLabel.font = [UIFont systemFontOfSize:13];
-    byteLabel.frame = CGRectMake(10, 0, 100, 44);
+    byteLabel.translatesAutoresizingMaskIntoConstraints = NO;
     [[TZImageManager manager] getPhotosBytesWithArray:@[_model] completion:^(NSString *totalBytes) {
         byteLabel.text = totalBytes;
     }];
@@ -99,6 +103,27 @@
     if (tzImagePickerVc.gifPreviewPageUIConfigBlock) {
         tzImagePickerVc.gifPreviewPageUIConfigBlock(_toolBar, _doneButton);
     }
+    
+    CGFloat toolBarHeight = [TZCommonTools tz_isIPhoneX] ? 44 + (83 - 49) : 44;
+    
+    NSLayoutConstraint *toolBar_left = [NSLayoutConstraint constraintWithItem:_toolBar attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0];
+    NSLayoutConstraint *toolBar_right = [NSLayoutConstraint constraintWithItem:_toolBar attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:0];
+    NSLayoutConstraint *toolBar_bottom = [NSLayoutConstraint constraintWithItem:_toolBar attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeBottom multiplier:1.0 constant:0];
+    NSLayoutConstraint *toolBar_height = [NSLayoutConstraint constraintWithItem:_toolBar attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:toolBarHeight];
+    [self.view addConstraints:@[toolBar_left,toolBar_right,toolBar_bottom]];
+    [_toolBar addConstraints:@[toolBar_height]];
+    
+    NSLayoutConstraint *doneButton_right = [NSLayoutConstraint constraintWithItem:_doneButton attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:_toolBar attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:-12];
+    NSLayoutConstraint *doneButton_top = [NSLayoutConstraint constraintWithItem:_doneButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_toolBar attribute:NSLayoutAttributeTop multiplier:1.0 constant:0];
+    NSLayoutConstraint *doneButton_height = [NSLayoutConstraint constraintWithItem:_doneButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:44];
+    [_toolBar addConstraints:@[doneButton_right,doneButton_top]];
+    [_doneButton addConstraint:doneButton_height];
+    
+    NSLayoutConstraint *byteLabel_left = [NSLayoutConstraint constraintWithItem:byteLabel attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_toolBar attribute:NSLayoutAttributeLeading multiplier:1.0 constant:10];
+    NSLayoutConstraint *byteLabel_top = [NSLayoutConstraint constraintWithItem:byteLabel attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_toolBar attribute:NSLayoutAttributeTop multiplier:1.0 constant:0];
+    NSLayoutConstraint *byteLabel_height = [NSLayoutConstraint constraintWithItem:byteLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:44];
+    [_toolBar addConstraints:@[byteLabel_left,byteLabel_top]];
+    [byteLabel addConstraints:@[byteLabel_height]];
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
@@ -116,10 +141,10 @@
     
     _previewView.frame = self.view.bounds;
     _previewView.scrollView.frame = self.view.bounds;
-    CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
-    _toolBar.frame = CGRectMake(0, self.view.tz_height - toolBarHeight, self.view.tz_width, toolBarHeight);
-    [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 44);
+//    CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
+//    _toolBar.frame = CGRectMake(0, self.view.tz_height - toolBarHeight, self.view.tz_width, toolBarHeight);
+//    [_doneButton sizeToFit];
+//    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 44);
     
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc.gifPreviewPageDidLayoutSubviewsBlock) {

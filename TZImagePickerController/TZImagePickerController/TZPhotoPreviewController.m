@@ -106,11 +106,17 @@
     _naviBar.backgroundColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:0.7];
     
     _backButton = [[UIButton alloc] initWithFrame:CGRectZero];
-    [_backButton setImage:[UIImage tz_imageNamedFromMyBundle:@"navi_back"] forState:UIControlStateNormal];
+    UIImage *backImage = [UIImage tz_imageNamedFromMyBundle:@"navi_back"];
+    if ([TZCommonTools tz_isRightToLeftLayout]) {
+        backImage = [UIImage imageWithCGImage:backImage.CGImage scale:backImage.scale orientation:UIImageOrientationDown];
+    }
+    _backButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [_backButton setImage:backImage forState:UIControlStateNormal];
     [_backButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [_backButton addTarget:self action:@selector(backButtonClick) forControlEvents:UIControlEventTouchUpInside];
     
     _selectButton = [[UIButton alloc] initWithFrame:CGRectZero];
+    _selectButton.translatesAutoresizingMaskIntoConstraints = NO;
     [_selectButton setImage:tzImagePickerVc.photoDefImage forState:UIControlStateNormal];
     [_selectButton setImage:tzImagePickerVc.photoSelImage forState:UIControlStateSelected];
     _selectButton.imageView.clipsToBounds = YES;
@@ -120,6 +126,7 @@
     _selectButton.hidden = !tzImagePickerVc.showSelectBtn;
     
     _indexLabel = [[UILabel alloc] init];
+    _indexLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _indexLabel.adjustsFontSizeToFitWidth = YES;
     _indexLabel.font = [UIFont systemFontOfSize:14];
     _indexLabel.textColor = [UIColor whiteColor];
@@ -129,6 +136,29 @@
     [_naviBar addSubview:_indexLabel];
     [_naviBar addSubview:_backButton];
     [self.view addSubview:_naviBar];
+    
+    NSLayoutConstraint *backButton_left = [NSLayoutConstraint constraintWithItem:_backButton attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_naviBar attribute:NSLayoutAttributeLeading multiplier:1.0 constant:10];
+    NSLayoutConstraint *backButton_bottom = [NSLayoutConstraint constraintWithItem:_backButton attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:_naviBar attribute:NSLayoutAttributeBottom multiplier:1.0 constant:-5];
+    NSLayoutConstraint *backButton_width = [NSLayoutConstraint constraintWithItem:_backButton attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:44];
+    NSLayoutConstraint *backButton_height = [NSLayoutConstraint constraintWithItem:_backButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:44];
+    [_naviBar addConstraints:@[backButton_left,backButton_bottom]];
+    [_backButton addConstraints:@[backButton_width,backButton_height]];
+    
+    NSLayoutConstraint *selectButton_right = [NSLayoutConstraint constraintWithItem:_selectButton attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:_naviBar attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:-12];
+    NSLayoutConstraint *selectButton_centerY = [NSLayoutConstraint constraintWithItem:_selectButton attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:_backButton attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+    NSLayoutConstraint *selectButton_width = [NSLayoutConstraint constraintWithItem:_selectButton attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:44];
+    NSLayoutConstraint *selectButton_height = [NSLayoutConstraint constraintWithItem:_selectButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:44];
+    [_naviBar addConstraints:@[selectButton_right,selectButton_centerY]];
+    [_selectButton addConstraints:@[selectButton_width,selectButton_height]];
+    
+    NSLayoutConstraint *indexLabel_centerX = [NSLayoutConstraint constraintWithItem:_indexLabel attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:_selectButton attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0];
+    NSLayoutConstraint *indexLabel_centerY = [NSLayoutConstraint constraintWithItem:_indexLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:_selectButton attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+    NSLayoutConstraint *indexLabel_width = [NSLayoutConstraint constraintWithItem:_indexLabel attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:_selectButton attribute:NSLayoutAttributeWidth multiplier:1.0 constant:0];
+    NSLayoutConstraint *indexLabel_height = [NSLayoutConstraint constraintWithItem:_indexLabel attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:_selectButton attribute:NSLayoutAttributeHeight multiplier:1.0 constant:0];
+    [_naviBar addConstraints:@[indexLabel_centerX,indexLabel_centerY,indexLabel_width,indexLabel_height]];
+    
+    
+    
 }
 
 - (void)configBottomToolBar {
@@ -139,6 +169,7 @@
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_tzImagePickerVc.allowPickingOriginalPhoto) {
         _originalPhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        _originalPhotoButton.translatesAutoresizingMaskIntoConstraints = NO;
         _originalPhotoButton.imageEdgeInsets = UIEdgeInsetsMake(0, [TZCommonTools tz_isRightToLeftLayout] ? 10 : -10, 0, 0);
         _originalPhotoButton.backgroundColor = [UIColor clearColor];
         [_originalPhotoButton addTarget:self action:@selector(originalPhotoButtonClick) forControlEvents:UIControlEventTouchUpInside];
@@ -151,6 +182,7 @@
         [_originalPhotoButton setImage:_tzImagePickerVc.photoOriginSelImage forState:UIControlStateSelected];
         
         _originalPhotoLabel = [[UILabel alloc] init];
+        _originalPhotoLabel.translatesAutoresizingMaskIntoConstraints = NO;
         _originalPhotoLabel.textAlignment = NSTextAlignmentLeft;
         _originalPhotoLabel.font = [UIFont systemFontOfSize:13];
         _originalPhotoLabel.textColor = [UIColor whiteColor];
@@ -159,18 +191,21 @@
     }
     
     _doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    _doneButton.titleLabel.font = [UIFont systemFontOfSize:16];
+    _doneButton.translatesAutoresizingMaskIntoConstraints = NO;
+    _doneButton.titleLabel.font = _tzImagePickerVc.doneBtnTitleFont;
     [_doneButton addTarget:self action:@selector(doneButtonClick) forControlEvents:UIControlEventTouchUpInside];
     [_doneButton setTitle:_tzImagePickerVc.doneBtnTitleStr forState:UIControlStateNormal];
     [_doneButton setTitleColor:_tzImagePickerVc.oKButtonTitleColorNormal forState:UIControlStateNormal];
     
     _numberImageView = [[UIImageView alloc] initWithImage:_tzImagePickerVc.photoNumberIconImage];
+    _numberImageView.translatesAutoresizingMaskIntoConstraints = NO;
     _numberImageView.backgroundColor = [UIColor clearColor];
     _numberImageView.clipsToBounds = YES;
     _numberImageView.contentMode = UIViewContentModeScaleAspectFit;
     _numberImageView.hidden = _tzImagePickerVc.selectedModels.count <= 0;
     
     _numberLabel = [[UILabel alloc] init];
+    _numberLabel.translatesAutoresizingMaskIntoConstraints = NO;
     _numberLabel.font = [UIFont systemFontOfSize:15];
     _numberLabel.adjustsFontSizeToFitWidth = YES;
     _numberLabel.textColor = [UIColor whiteColor];
@@ -193,6 +228,37 @@
     if (_tzImagePickerVc.photoPreviewPageUIConfigBlock) {
         _tzImagePickerVc.photoPreviewPageUIConfigBlock(_collectionView, _naviBar, _backButton, _selectButton, _indexLabel, _toolBar, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel);
     }
+    
+    if (_tzImagePickerVc.allowPickingOriginalPhoto) {
+        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
+        
+        NSLayoutConstraint *originalPhotoButton_left = [NSLayoutConstraint constraintWithItem:_originalPhotoButton attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_toolBar attribute:NSLayoutAttributeLeading multiplier:1.0 constant:0];
+        NSLayoutConstraint *originalPhotoButton_top = [NSLayoutConstraint constraintWithItem:_originalPhotoButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_toolBar attribute:NSLayoutAttributeTop multiplier:1.0 constant:10];
+        NSLayoutConstraint *originalPhotoButton_width = [NSLayoutConstraint constraintWithItem:_originalPhotoButton attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeWidth multiplier:1.0 constant:fullImageWidth + 56];
+        NSLayoutConstraint *originalPhotoButton_height = [NSLayoutConstraint constraintWithItem:_originalPhotoButton attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeHeight multiplier:1.0 constant:44];
+        [_toolBar addConstraints:@[originalPhotoButton_left,originalPhotoButton_top]];
+        [_originalPhotoButton addConstraints:@[originalPhotoButton_width,originalPhotoButton_height]];
+        
+        NSLayoutConstraint *originalPhotoLabel_left = [NSLayoutConstraint constraintWithItem:_originalPhotoLabel attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:_originalPhotoButton attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:-10];
+        NSLayoutConstraint *originalPhotoLabel_centerY = [NSLayoutConstraint constraintWithItem:_originalPhotoLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:_originalPhotoButton attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+        [_toolBar addConstraints:@[originalPhotoLabel_left,originalPhotoLabel_centerY]];
+    }
+    
+    NSLayoutConstraint *doneButton_right = [NSLayoutConstraint constraintWithItem:_doneButton attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:_toolBar attribute:NSLayoutAttributeTrailing multiplier:1.0 constant:-12];
+    NSLayoutConstraint *doneButton_top = [NSLayoutConstraint constraintWithItem:_doneButton attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:_toolBar attribute:NSLayoutAttributeTop multiplier:1.0 constant:10];
+    [_toolBar addConstraints:@[doneButton_right,doneButton_top]];
+    
+    NSLayoutConstraint *numberImage_right = [NSLayoutConstraint constraintWithItem:_numberImageView attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:_doneButton attribute:NSLayoutAttributeLeading multiplier:1.0 constant:-5];
+    NSLayoutConstraint *numberImage_centerY = [NSLayoutConstraint constraintWithItem:_numberImageView attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:_doneButton attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+    NSLayoutConstraint *numberImage_width = [NSLayoutConstraint constraintWithItem:_numberImageView attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:24];
+    NSLayoutConstraint *numberImage_height = [NSLayoutConstraint constraintWithItem:_numberImageView attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1.0 constant:24];
+    [_toolBar addConstraints:@[numberImage_right,numberImage_centerY]];
+    [_numberImageView addConstraints:@[numberImage_width,numberImage_height]];
+    
+    NSLayoutConstraint *numberLabel_centerX = [NSLayoutConstraint constraintWithItem:_numberLabel attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:_numberImageView attribute:NSLayoutAttributeCenterX multiplier:1.0 constant:0];
+    NSLayoutConstraint *numberLabel_centerY = [NSLayoutConstraint constraintWithItem:_numberLabel attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:_numberImageView attribute:NSLayoutAttributeCenterY multiplier:1.0 constant:0];
+    [_toolBar addConstraints:@[numberLabel_centerX,numberLabel_centerY]];
+    
 }
 
 - (void)configCollectionView {
@@ -263,12 +329,8 @@
     
     BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
     CGFloat statusBarHeight = isFullScreen ? [TZCommonTools tz_statusBarHeight] : 0;
-    CGFloat statusBarHeightInterval = isFullScreen ? (statusBarHeight - 20) : 0;
     CGFloat naviBarHeight = statusBarHeight + _tzImagePickerVc.navigationBar.tz_height;
     _naviBar.frame = CGRectMake(0, 0, self.view.tz_width, naviBarHeight);
-    _backButton.frame = CGRectMake(10, 10 + statusBarHeightInterval, 44, 44);
-    _selectButton.frame = CGRectMake(self.view.tz_width - 56, 10 + statusBarHeightInterval, 44, 44);
-    _indexLabel.frame = _selectButton.frame;
     
     _layout.itemSize = CGSizeMake(self.view.tz_width + 20, self.view.tz_height);
     _layout.minimumInteritemSpacing = 0;
@@ -286,15 +348,16 @@
     CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
     CGFloat toolBarTop = self.view.tz_height - toolBarHeight;
     _toolBar.frame = CGRectMake(0, toolBarTop, self.view.tz_width, toolBarHeight);
-    if (_tzImagePickerVc.allowPickingOriginalPhoto) {
-        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
-        _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
-        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
-    }
-    [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 44);
-    _numberImageView.frame = CGRectMake(_doneButton.tz_left - 24 - 5, 10, 24, 24);
-    _numberLabel.frame = _numberImageView.frame;
+
+//    if (_tzImagePickerVc.allowPickingOriginalPhoto) {
+//        CGFloat fullImageWidth = [_tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
+//        _originalPhotoButton.frame = CGRectMake(0, 0, fullImageWidth + 56, 44);
+//        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 42, 0, 80, 44);
+//    }
+//    [_doneButton sizeToFit];
+//    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 44);
+//    _numberImageView.frame = CGRectMake(_doneButton.tz_left - 24 - 5, 10, 24, 24);
+//    _numberLabel.frame = _numberImageView.frame;
     
     [self configCropView];
     
