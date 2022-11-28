@@ -204,6 +204,7 @@ static CGFloat itemMargin = 5;
     
     _collectionView.contentSize = CGSizeMake(self.view.tz_width, (([self getAllCellCount] + self.columnNumber - 1) / self.columnNumber) * self.view.tz_width);
     if (_models.count == 0) {
+        [_noDataLabel removeFromSuperview];
         _noDataLabel = [UILabel new];
         _noDataLabel.textAlignment = NSTextAlignmentCenter;
         _noDataLabel.text = [NSBundle tz_localizedStringForKey:@"No Photos or Videos"];
