@@ -132,6 +132,39 @@ static CGFloat itemMargin = 5;
             }];
         } else if (self->_showTakePhotoBtn || self->_isFirstAppear || !self.model.models || systemVersion >= 14.0) {
             [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
+                NSMutableArray<TZAssetModel *> *newModels = [NSMutableArray array];
+                if (!self->_isFirstAppear) {
+                    for (TZAssetModel *model in models) {
+                        BOOL isNew = YES;
+                        for (TZAssetModel *preModel in self->_models) {
+                            if ([model.asset.localIdentifier isEqualToString: preModel.asset.localIdentifier]) {
+                                isNew = NO;
+                                break;
+                            }
+                        }
+                        if (isNew) {
+                            [newModels addObject:model];
+                        }
+                    }
+                    NSMutableIndexSet *set = [[NSMutableIndexSet alloc]init];
+                    for (int i = 0; i < tzImagePickerVc.selectedModels.count; i++) {
+                        BOOL isRemoved = YES;
+                        TZAssetModel *selectedModel = tzImagePickerVc.selectedModels[i];
+                        for (TZAssetModel *model in models) {
+                            if ([selectedModel.asset.localIdentifier isEqualToString: model.asset.localIdentifier]) {
+                                isRemoved = NO;
+                                break;
+                            }
+                        }
+                        if (isRemoved) {
+                            [set addIndex:i];
+                        }
+                    }
+                    [tzImagePickerVc.selectedModels removeObjectsAtIndexes:set];
+                }
+                if (newModels.count == 1 && tzImagePickerVc.selectedModels.count == 0) {
+                    tzImagePickerVc.selectedModels = newModels;
+                }
                 self->_models = [NSMutableArray arrayWithArray:models];
                 [self initSubviews];
             }];
