@@ -146,7 +146,6 @@ static CGFloat itemMargin = 5;
                             [newModels addObject:model];
                         }
                     }
-                    NSMutableIndexSet *set = [[NSMutableIndexSet alloc]init];
                     for (int i = 0; i < tzImagePickerVc.selectedModels.count; i++) {
                         BOOL isRemoved = YES;
                         TZAssetModel *selectedModel = tzImagePickerVc.selectedModels[i];
@@ -157,16 +156,19 @@ static CGFloat itemMargin = 5;
                             }
                         }
                         if (isRemoved) {
-                            [set addIndex:i];
+                            [tzImagePickerVc removeSelectedModel:selectedModel];
                         }
                     }
-                    [tzImagePickerVc.selectedModels removeObjectsAtIndexes:set];
                 }
                 if (newModels.count == 1 && tzImagePickerVc.selectedModels.count == 0) {
-                    tzImagePickerVc.selectedModels = newModels;
+                    [tzImagePickerVc addSelectedModel:newModels[0]];
                 }
                 self->_models = [NSMutableArray arrayWithArray:models];
                 [self initSubviews];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self refreshBottomToolBarStatus];
+                });
+                
             }];
         } else {
             self->_models = [NSMutableArray arrayWithArray:self->_model.models];
