@@ -249,7 +249,13 @@
 
             [self.view addSubview:_settingBtn];
             
-            if ([PHPhotoLibrary authorizationStatus] == 0) {
+            PHAuthorizationStatus orizationStatus = 0;
+            if (@available(iOS 14.0, *)) {
+                orizationStatus = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+            } else {
+                orizationStatus = [PHPhotoLibrary authorizationStatus];
+            }
+            if (orizationStatus == 0) {
                 _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
             }
         } else {
@@ -437,7 +443,13 @@
 - (void)observeAuthrizationStatusChange {
     [_timer invalidate];
     _timer = nil;
-    if ([PHPhotoLibrary authorizationStatus] == 0) {
+    PHAuthorizationStatus orizationStatus = 0;
+    if (@available(iOS 14.0, *)) {
+        orizationStatus = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+    } else {
+        orizationStatus = [PHPhotoLibrary authorizationStatus];
+    }
+    if (orizationStatus == 0) {
         _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
     }
     

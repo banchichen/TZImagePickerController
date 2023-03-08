@@ -79,15 +79,20 @@ static dispatch_once_t onceToken;
     if (self.isPreviewNetworkImage) {
         return YES;
     }
-    NSInteger status = [PHPhotoLibrary authorizationStatus];
-    if (status == 0) {
+    PHAuthorizationStatus orizationStatus = 0;
+    if (@available(iOS 14.0, *)) {
+        orizationStatus = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+    } else {
+        orizationStatus = [PHPhotoLibrary authorizationStatus];
+    }
+    if (orizationStatus == 0) {
         /**
          * 当某些情况下AuthorizationStatus == AuthorizationStatusNotDetermined时，无法弹出系统首次使用的授权alertView，系统应用设置里亦没有相册的设置，此时将无法使用，故作以下操作，弹出系统首次使用的授权alertView
          */
         [self requestAuthorizationWithCompletion:nil];
     }
     
-    return status == 3;
+    return orizationStatus == 3;
 }
 
 - (void)requestAuthorizationWithCompletion:(void (^)(void))completion {
