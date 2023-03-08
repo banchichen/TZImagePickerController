@@ -71,7 +71,11 @@
     
     self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
     self.navigationBar.tintColor = [UIColor whiteColor];
-    self.automaticallyAdjustsScrollViewInsets = NO;
+    if (@available(iOS 11.0, *)) {
+        
+    } else {
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
     if (self.needShowStatusBar) {
         if (@available(iOS 9.0, *)) {
             
@@ -146,7 +150,7 @@
 
 - (void)configBarButtonItemAppearance {
     UIBarButtonItem *barItem;
-    if (@available(iOS 9, *)) {
+    if (@available(iOS 9.0, *)) {
         barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
     } else {
         barItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
@@ -164,7 +168,7 @@
     } else {
         _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
     }
-    if (@available(iOS 9, *)) {
+    if (@available(iOS 9.0, *)) {
         
     } else {
         [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
@@ -174,7 +178,7 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    if (@available(iOS 9, *)) {
+    if (@available(iOS 9.0, *)) {
         
     } else {
         [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
@@ -685,7 +689,11 @@
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    viewController.automaticallyAdjustsScrollViewInsets = NO;
+    if (@available(iOS 11.0, *)) {
+        
+    } else {
+        viewController.automaticallyAdjustsScrollViewInsets = NO;
+    }
     [super pushViewController:viewController animated:animated];
 }
 
@@ -855,6 +863,9 @@
                 
                 if (!self->_tableView) {
                     self->_tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+                    if (@available(iOS 11.0, *)) {
+                        self->_tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+                    }
                     self->_tableView.rowHeight = 70;
                     if (@available(iOS 13.0, *)) {
                         self->_tableView.backgroundColor = [UIColor tertiarySystemBackgroundColor];

@@ -65,7 +65,7 @@ static dispatch_once_t onceToken;
 }
 
 - (BOOL)isPHAuthorizationStatusLimited {
-    if (@available(iOS 14,*)) {
+    if (@available(iOS 14.0, *)) {
         NSInteger status = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
         if (status == PHAuthorizationStatusLimited) {
             return YES;

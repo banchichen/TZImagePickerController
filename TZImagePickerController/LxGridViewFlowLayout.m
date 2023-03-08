@@ -174,7 +174,7 @@ CG_INLINE CGPoint CGPointOffset(CGPoint point, CGFloat dx, CGFloat dy)
         {
             if (_displayLink == nil) {
                 _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkTriggered:)];
-                if (@available(iOS 10, *)) {
+                if (@available(iOS 10.0, *)) {
                     _displayLink.preferredFramesPerSecond = 6;
                 } else {
                     _displayLink.frameInterval = 6;

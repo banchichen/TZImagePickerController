@@ -20,7 +20,7 @@
 }
 
 - (UIWindow *)currentWindow {
-    if (@available(iOS 15, *)) {
+    if (@available(iOS 15.0, *)) {
        __block UIScene * _Nonnull tmpSc;
         [[[UIApplication sharedApplication] connectedScenes] enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, BOOL * _Nonnull stop) {
             if (obj.activationState == UISceneActivationStateForegroundActive || obj.activationState == UISceneActivationStateForegroundInactive) {

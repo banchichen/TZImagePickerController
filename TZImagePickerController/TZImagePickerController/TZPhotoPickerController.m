@@ -66,7 +66,7 @@ static CGFloat itemMargin = 5;
         _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
         _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
         UIBarButtonItem *tzBarItem, *BarItem;
-        if (@available(iOS 9, *)) {
+        if (@available(iOS 9.0, *)) {
             tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
             BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
         } else {
@@ -180,6 +180,9 @@ static CGFloat itemMargin = 5;
     if (!_collectionView) {
         _layout = [[UICollectionViewFlowLayout alloc] init];
         _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
+        if (@available(iOS 11.0, *)) {
+            _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
         if (@available(iOS 13.0, *)) {
             _collectionView.backgroundColor = UIColor.tertiarySystemBackgroundColor;
         } else {
@@ -817,7 +820,7 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)addMorePhoto {
-    if (@available(iOS 14, *)) {
+    if (@available(iOS 14.0, *)) {
         [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
     }
 }

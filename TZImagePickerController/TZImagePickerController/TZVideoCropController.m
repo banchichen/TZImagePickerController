@@ -66,7 +66,7 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    if (@available(iOS 9, *)) {
+    if (@available(iOS 9.0, *)) {
         
     } else {
         [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
@@ -146,6 +146,9 @@
     layout.minimumLineSpacing = 0;
     layout.minimumInteritemSpacing = 0;
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+    if (@available(iOS 11.0, *)) {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
     _collectionView.contentInset = UIEdgeInsetsMake(0, VideoEditLeftMargin + PanImageWidth, 0, VideoEditLeftMargin + PanImageWidth);

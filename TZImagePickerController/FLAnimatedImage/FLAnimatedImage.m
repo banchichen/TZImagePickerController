@@ -219,7 +219,7 @@ static NSHashTable *allAnimatedImagesWeak;
 //        const BOOL isGIFData = imageSourceContainerType ? UTTypeConformsTo(imageSourceContainerType, kUTTypeGIF) : NO;
         //为了做iOS 15判断
         NSLog(@"imageSourceContainerType========%@",imageSourceContainerType);
-        if (@available(iOS 15, *)) {
+        if (@available(iOS 15.0, *)) {
             NSLog(@"UTTypeGIF=======================%@",UTTypeGIF);
             NSLog(@"UTTypeGIF.preferredMIMEType=====%@",UTTypeGIF.preferredMIMEType);
         } else {
@@ -227,7 +227,7 @@ static NSHashTable *allAnimatedImagesWeak;
         }
         BOOL isGIFData = NO;
         if (imageSourceContainerType) {
-            if (@available(iOS 15, *)) {
+            if (@available(iOS 15.0, *)) {
                 if ([[NSString stringWithFormat:@"%@", imageSourceContainerType] isEqualToString:[NSString stringWithFormat:@"%@",UTTypeGIF]]) {
                     isGIFData = YES;
                 }

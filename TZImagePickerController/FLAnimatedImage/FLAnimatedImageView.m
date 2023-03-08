@@ -305,7 +305,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
             [self.displayLink addToRunLoop:[NSRunLoop mainRunLoop] forMode:self.runLoopMode];
         }
 
-        if (@available(iOS 10, *)) {
+        if (@available(iOS 10.0, *)) {
             // Adjusting preferredFramesPerSecond allows us to skip unnecessary calls to displayDidRefresh: when showing GIFs
             // that don't animate quickly. Use ceil to err on the side of too many FPS so we don't miss a frame transition moment.
             self.displayLink.preferredFramesPerSecond = ceil(1.0 / [self frameDelayGreatestCommonDivisor]);
@@ -397,7 +397,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
                 self.needsDisplayWhenImageBecomesAvailable = NO;
             }
             
-            if (@available(iOS 10, *)) {
+            if (@available(iOS 10.0, *)) {
                 self.accumulator += displayLink.targetTimestamp - CACurrentMediaTime();
             } else {
                 self.accumulator += displayLink.duration * (NSTimeInterval)displayLink.frameInterval;
@@ -428,7 +428,7 @@ static NSUInteger gcd(NSUInteger a, NSUInteger b)
             FLLog(FLLogLevelDebug, @"Waiting for frame %lu for animated image: %@", (unsigned long)self.currentFrameIndex, self.animatedImage);
 #if defined(DEBUG) && DEBUG
             if ([self.debug_delegate respondsToSelector:@selector(debug_animatedImageView:waitingForFrame:duration:)]) {
-                if (@available(iOS 10, *)) {
+                if (@available(iOS 10.0, *)) {
                     [self.debug_delegate debug_animatedImageView:self waitingForFrame:self.currentFrameIndex duration:displayLink.targetTimestamp - CACurrentMediaTime()];
                 } else {
                     [self.debug_delegate debug_animatedImageView:self waitingForFrame:self.currentFrameIndex duration:displayLink.duration * (NSTimeInterval)displayLink.frameInterval];

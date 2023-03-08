@@ -66,7 +66,7 @@
     } else {
         _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
     }
-    if (@available(iOS 9, *)) {
+    if (@available(iOS 9.0, *)) {
         
     } else {
         [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
@@ -82,7 +82,7 @@
             [UIApplication sharedApplication].statusBarHidden = NO;
         }
     }
-    if (@available(iOS 9, *)) {
+    if (@available(iOS 9.0, *)) {
         
     } else {
         [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
