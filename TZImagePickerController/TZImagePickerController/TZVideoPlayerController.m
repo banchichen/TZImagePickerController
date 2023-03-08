@@ -61,8 +61,16 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    if (@available(iOS 13.0, *)) {
+        _originStatusBarStyle = [[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarStyle;
+    } else {
+        _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
+    }
+    if (@available(iOS 9, *)) {
+        
+    } else {
+        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -74,7 +82,11 @@
             [UIApplication sharedApplication].statusBarHidden = NO;
         }
     }
-    [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
+    if (@available(iOS 9, *)) {
+        
+    } else {
+        [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
+    }
 }
 
 - (void)configMoviePlayer {

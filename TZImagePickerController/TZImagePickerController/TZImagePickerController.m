@@ -159,14 +159,26 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
+    if (@available(iOS 13.0, *)) {
+        _originStatusBarStyle = [[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarStyle;
+    } else {
+        _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
+    }
+    if (@available(iOS 9, *)) {
+        
+    } else {
+        [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
+    }
     [self configNavigationBarAppearance];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
+    if (@available(iOS 9, *)) {
+        
+    } else {
+        [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
+    }
     [self hideProgressHUD];
 }
 
