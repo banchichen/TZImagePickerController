@@ -62,7 +62,10 @@
     [self configCustomNaviBar];
     [self configBottomToolBar];
     self.view.clipsToBounds = YES;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
+}
+
+-(void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    _offsetItemCount = _collectionView.contentOffset.x / _layout.itemSize.width;
 }
 
 - (void)setIsSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
@@ -78,7 +81,11 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    [UIApplication sharedApplication].statusBarHidden = YES;
+    if (@available(iOS 9.0, *)) {
+        
+    } else {
+        [UIApplication sharedApplication].statusBarHidden = YES;
+    }
     if (_currentIndex) {
         [_collectionView setContentOffset:CGPointMake((self.view.tz_width + 20) * self.currentIndex, 0) animated:NO];
     }
@@ -89,7 +96,11 @@
     [super viewWillDisappear:animated];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc.needShowStatusBar) {
-        [UIApplication sharedApplication].statusBarHidden = NO;
+        if (@available(iOS 9.0, *)) {
+            
+        } else {
+            [UIApplication sharedApplication].statusBarHidden = NO;
+        }
     }
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     [TZImageManager manager].shouldFixOrientation = NO;
@@ -263,11 +274,10 @@
     
     BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
     CGFloat statusBarHeight = isFullScreen ? [TZCommonTools tz_statusBarHeight] : 0;
-    CGFloat statusBarHeightInterval = isFullScreen ? (statusBarHeight - 20) : 0;
     CGFloat naviBarHeight = statusBarHeight + _tzImagePickerVc.navigationBar.tz_height;
     _naviBar.frame = CGRectMake(0, 0, self.view.tz_width, naviBarHeight);
-    _backButton.frame = CGRectMake(10, 10 + statusBarHeightInterval, 44, 44);
-    _selectButton.frame = CGRectMake(self.view.tz_width - 56, 10 + statusBarHeightInterval, 44, 44);
+    _backButton.frame = CGRectMake(10, statusBarHeight, 44, 44);
+    _selectButton.frame = CGRectMake(self.view.tz_width - 54, statusBarHeight, 44, 44);
     _indexLabel.frame = _selectButton.frame;
     
     _layout.itemSize = CGSizeMake(self.view.tz_width + 20, self.view.tz_height);
@@ -301,12 +311,6 @@
     if (_tzImagePickerVc.photoPreviewPageDidLayoutSubviewsBlock) {
         _tzImagePickerVc.photoPreviewPageDidLayoutSubviewsBlock(_collectionView, _naviBar, _backButton, _selectButton, _indexLabel, _toolBar, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel);
     }
-}
-
-#pragma mark - Notification
-
-- (void)didChangeStatusBarOrientationNotification:(NSNotification *)noti {
-    _offsetItemCount = _collectionView.contentOffset.x / _layout.itemSize.width;
 }
 
 #pragma mark - Click Event

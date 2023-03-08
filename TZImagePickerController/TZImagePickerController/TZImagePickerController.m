@@ -11,7 +11,6 @@
 #import "TZPhotoPickerController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZAssetModel.h"
-#import "TZAssetCell.h"
 #import "UIView+TZLayout.h"
 #import "TZImageManager.h"
 #import "TZVideoCropController.h"
@@ -51,7 +50,11 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    if (@available(iOS 13.0, *)) {
+        self.needShowStatusBar = ![[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarHidden;
+    } else {
+        self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    }
     if (@available(iOS 13.0, *)) {
         self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
     } else {
@@ -69,7 +72,13 @@
     self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
     self.navigationBar.tintColor = [UIColor whiteColor];
     self.automaticallyAdjustsScrollViewInsets = NO;
-    if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
+    if (self.needShowStatusBar) {
+        if (@available(iOS 9.0, *)) {
+            
+        } else {
+            [UIApplication sharedApplication].statusBarHidden = NO;
+        }
+    }
 }
 
 - (void)setNaviBgColor:(UIColor *)naviBgColor {
@@ -159,6 +168,10 @@
     [super viewWillDisappear:animated];
     [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
     [self hideProgressHUD];
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return !self.needShowStatusBar;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
@@ -695,11 +708,20 @@
 }
 
 #pragma mark - UIContentContainer
-
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (![UIApplication sharedApplication].statusBarHidden) {
-            if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
+        if (@available(iOS 13.0, *)) {
+            
+        } else {
+            if (![UIApplication sharedApplication].statusBarHidden) {
+                if (self.needShowStatusBar) {
+                    if (@available(iOS 9.0, *)) {
+                        
+                    } else {
+                        [UIApplication sharedApplication].statusBarHidden = NO;
+                    }
+                }
+            }
         }
     });
     if (size.width > size.height) {
@@ -872,7 +894,12 @@
     CGFloat top = 0;
     CGFloat tableViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
-    BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
+    BOOL isStatusBarHidden = NO;
+    if (@available(iOS 13.0, *)) {
+        isStatusBarHidden = [[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarHidden;
+    } else {
+        isStatusBarHidden = [UIApplication sharedApplication].statusBarHidden;
+    }
     BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
@@ -943,13 +970,7 @@
 @implementation TZCommonTools
 
 + (UIEdgeInsets)tz_safeAreaInsets {
-    UIWindow *window = [UIApplication sharedApplication].windows.firstObject;
-    if (![window isKeyWindow]) {
-        UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-        if (CGRectEqualToRect(keyWindow.bounds, [UIScreen mainScreen].bounds)) {
-            window = keyWindow;
-        }
-    }
+    UIWindow *window = [[TZWindowManager manager] currentWindow];
     if (@available(iOS 11.0, *)) {
         UIEdgeInsets insets = [window safeAreaInsets];
         return insets;
@@ -972,9 +993,17 @@
 }
 
 + (BOOL)tz_isLandscape {
-    if ([UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeRight ||
-        [UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeLeft) {
-        return true;
+    if (@available(iOS 13.0, *)) {
+        UIWindow *window = [[TZWindowManager manager] currentWindow];
+        if (window.windowScene.interfaceOrientation == UIDeviceOrientationLandscapeRight ||
+            window.windowScene.interfaceOrientation == UIDeviceOrientationLandscapeLeft) {
+            return true;
+        }
+    } else {
+        if ([UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeRight ||
+            [UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeLeft) {
+            return true;
+        }
     }
     return false;
 }

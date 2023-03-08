@@ -24,6 +24,8 @@
 #import "TZGifPhotoPreviewController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZPhotoPreviewCell.h"
+#import "TZWindowManager.h"
+#import "TZAssetCell.h"
 
 #if __has_include("TZLocationManager.h")
 #define TZ_HAVE_LOCATION_CODE   1
@@ -35,7 +37,7 @@
 #define CURRENT_SYSTEM_VERSION         [[UIDevice currentDevice] systemVersion]
 #define SYSTEM_VERSION_GREATER_THAN_15 ([CURRENT_SYSTEM_VERSION floatValue] >= 15.0)
 
-@class TZAlbumCell, TZAssetCell;
+@class TZAlbumCell;
 @protocol TZImagePickerControllerDelegate;
 @interface TZImagePickerController : UINavigationController
 

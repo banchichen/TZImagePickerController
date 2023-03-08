@@ -3,13 +3,18 @@
 //  Flipboard
 //
 //  Created by Raphael Schaad on 7/8/13.
-//  Copyright (c) 2013-2015 Flipboard. All rights reserved.
+//  Copyright (c) Flipboard. All rights reserved.
 //
 
 
 #import "FLAnimatedImage.h"
 #import <ImageIO/ImageIO.h>
+#import <UniformTypeIdentifiers/UniformTypeIdentifiers.h>
+#if __has_include(<MobileCoreServices/MobileCoreServices.h>)
 #import <MobileCoreServices/MobileCoreServices.h>
+#else
+#import <CoreServices/CoreServices.h>
+#endif
 
 
 // From vm_param.h, define for iOS 8.0 or higher to build on device.
@@ -107,7 +112,7 @@ static NSHashTable *allAnimatedImagesWeak;
     if (_frameCacheSizeMax != frameCacheSizeMax) {
         
         // Remember whether the new cap will cause the current cache size to shrink; then we'll make sure to purge from the cache if needed.
-        BOOL willFrameCacheSizeShrink = (frameCacheSizeMax < self.frameCacheSizeCurrent);
+        const BOOL willFrameCacheSizeShrink = (frameCacheSizeMax < self.frameCacheSizeCurrent);
         
         // Update the value
         _frameCacheSizeMax = frameCacheSizeMax;
@@ -164,7 +169,7 @@ static NSHashTable *allAnimatedImagesWeak;
 
 - (instancetype)init
 {
-    FLAnimatedImage *animatedImage = [self initWithAnimatedGIFData:nil];
+    FLAnimatedImage *_Nullable const animatedImage = [self initWithAnimatedGIFData:nil];
     if (!animatedImage) {
         FLLog(FLLogLevelError, @"Use `-initWithAnimatedGIFData:` and supply the animated GIF data as an argument to initialize an object of type `FLAnimatedImage`.");
     }
@@ -180,7 +185,7 @@ static NSHashTable *allAnimatedImagesWeak;
 - (instancetype)initWithAnimatedGIFData:(NSData *)data optimalFrameCacheSize:(NSUInteger)optimalFrameCacheSize predrawingEnabled:(BOOL)isPredrawingEnabled
 {
     // Early return if no data supplied!
-    BOOL hasData = ([data length] > 0);
+    const BOOL hasData = (data.length > 0);
     if (!hasData) {
         FLLog(FLLogLevelError, @"No animated GIF data supplied.");
         return nil;
@@ -210,8 +215,26 @@ static NSHashTable *allAnimatedImagesWeak;
         }
         
         // Early return if not GIF!
-        CFStringRef imageSourceContainerType = CGImageSourceGetType(_imageSource);
-        BOOL isGIFData = UTTypeConformsTo(imageSourceContainerType, kUTTypeGIF);
+        const CFStringRef _Nullable imageSourceContainerType = CGImageSourceGetType(_imageSource);
+//        const BOOL isGIFData = imageSourceContainerType ? UTTypeConformsTo(imageSourceContainerType, kUTTypeGIF) : NO;
+        //为了做iOS 15判断
+        NSLog(@"imageSourceContainerType========%@",imageSourceContainerType);
+        if (@available(iOS 15, *)) {
+            NSLog(@"UTTypeGIF=======================%@",UTTypeGIF);
+            NSLog(@"UTTypeGIF.preferredMIMEType=====%@",UTTypeGIF.preferredMIMEType);
+        } else {
+            NSLog(@"kUTTypeGIF======================%@",kUTTypeGIF);
+        }
+        BOOL isGIFData = NO;
+        if (imageSourceContainerType) {
+            if (@available(iOS 15, *)) {
+                if ([[NSString stringWithFormat:@"%@", imageSourceContainerType] isEqualToString:[NSString stringWithFormat:@"%@",UTTypeGIF]]) {
+                    isGIFData = YES;
+                }
+            } else {
+                isGIFData = UTTypeConformsTo(imageSourceContainerType, kUTTypeGIF);
+            }
+        }
         if (!isGIFData) {
             FLLog(FLLogLevelError, @"Supplied data is of type %@ and doesn't seem to be GIF data %@", imageSourceContainerType, data);
             return nil;
@@ -227,16 +250,16 @@ static NSHashTable *allAnimatedImagesWeak;
         //         LoopCount = 0;
         //     };
         // }
-        NSDictionary *imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(_imageSource, NULL);
+        NSDictionary *_Nullable const imageProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyProperties(_imageSource, NULL);
         _loopCount = [[[imageProperties objectForKey:(id)kCGImagePropertyGIFDictionary] objectForKey:(id)kCGImagePropertyGIFLoopCount] unsignedIntegerValue];
         
         // Iterate through frame images
-        size_t imageCount = CGImageSourceGetCount(_imageSource);
+        const size_t imageCount = CGImageSourceGetCount(_imageSource);
         NSUInteger skippedFrameCount = 0;
-        NSMutableDictionary *delayTimesForIndexesMutable = [NSMutableDictionary dictionaryWithCapacity:imageCount];
+        NSMutableDictionary *const delayTimesForIndexesMutable = [NSMutableDictionary dictionaryWithCapacity:imageCount];
         for (size_t i = 0; i < imageCount; i++) {
             @autoreleasepool {
-                CGImageRef frameImageRef = CGImageSourceCreateImageAtIndex(_imageSource, i, NULL);
+                const CGImageRef _Nullable frameImageRef = CGImageSourceCreateImageAtIndex(_imageSource, i, NULL);
                 if (frameImageRef) {
                     UIImage *frameImage = [UIImage imageWithCGImage:frameImageRef];
                     // Check for valid `frameImage` before parsing its properties as frames can be corrupted (and `frameImage` even `nil` when `frameImageRef` was valid).
@@ -266,17 +289,17 @@ static NSHashTable *allAnimatedImagesWeak;
                         //     };
                         // }
                         
-                        NSDictionary *frameProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(_imageSource, i, NULL);
-                        NSDictionary *framePropertiesGIF = [frameProperties objectForKey:(id)kCGImagePropertyGIFDictionary];
+                        NSDictionary *_Nullable const frameProperties = (__bridge_transfer NSDictionary *)CGImageSourceCopyPropertiesAtIndex(_imageSource, i, NULL);
+                        NSDictionary *_Nullable const framePropertiesGIF = [frameProperties objectForKey:(id)kCGImagePropertyGIFDictionary];
                         
                         // Try to use the unclamped delay time; fall back to the normal delay time.
-                        NSNumber *delayTime = [framePropertiesGIF objectForKey:(id)kCGImagePropertyGIFUnclampedDelayTime];
-                        if (!delayTime) {
+                        NSNumber *_Nullable delayTime = [framePropertiesGIF objectForKey:(id)kCGImagePropertyGIFUnclampedDelayTime];
+                        if (delayTime == nil) {
                             delayTime = [framePropertiesGIF objectForKey:(id)kCGImagePropertyGIFDelayTime];
                         }
                         // If we don't get a delay time from the properties, fall back to `kDelayTimeIntervalDefault` or carry over the preceding frame's value.
                         const NSTimeInterval kDelayTimeIntervalDefault = 0.1;
-                        if (!delayTime) {
+                        if (delayTime == nil) {
                             if (i == 0) {
                                 FLLog(FLLogLevelInfo, @"Falling back to default delay time for first frame %@ because none found in GIF properties %@", frameImage, frameProperties);
                                 delayTime = @(kDelayTimeIntervalDefault);
@@ -320,7 +343,7 @@ static NSHashTable *allAnimatedImagesWeak;
         if (optimalFrameCacheSize == 0) {
             // Calculate the optimal frame cache size: try choosing a larger buffer window depending on the predicted image size.
             // It's only dependent on the image size & number of frames and never changes.
-            CGFloat animatedImageDataSize = CGImageGetBytesPerRow(self.posterImage.CGImage) * self.size.height * (self.frameCount - skippedFrameCount) / MEGABYTE;
+            const CGFloat animatedImageDataSize = (CGFloat)CGImageGetBytesPerRow(self.posterImage.CGImage) * self.size.height * (CGFloat)(self.frameCount - skippedFrameCount) / (CGFloat)MEGABYTE;
             if (animatedImageDataSize <= FLAnimatedImageDataSizeCategoryAll) {
                 _frameCacheSizeOptimal = self.frameCount;
             } else if (animatedImageDataSize <= FLAnimatedImageDataSizeCategoryDefault) {
@@ -355,7 +378,7 @@ static NSHashTable *allAnimatedImagesWeak;
 
 + (instancetype)animatedImageWithGIFData:(NSData *)data
 {
-    FLAnimatedImage *animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:data];
+    FLAnimatedImage *const animatedImage = [[FLAnimatedImage alloc] initWithAnimatedGIFData:data];
     return animatedImage;
 }
 
@@ -410,7 +433,7 @@ static NSHashTable *allAnimatedImagesWeak;
     }
     
     // Get the specified image.
-    UIImage *image = self.cachedFramesForIndexes[@(index)];
+    UIImage *const image = self.cachedFramesForIndexes[@(index)];
     
     // Purge if needed based on the current playhead position.
     [self purgeFrameCacheIfNeeded];
@@ -424,8 +447,8 @@ static NSHashTable *allAnimatedImagesWeak;
 {
     // Order matters. First, iterate over the indexes starting from the requested frame index.
     // Then, if there are any indexes before the requested frame index, do those.
-    NSRange firstRange = NSMakeRange(self.requestedFrameIndex, self.frameCount - self.requestedFrameIndex);
-    NSRange secondRange = NSMakeRange(0, self.requestedFrameIndex);
+    const NSRange firstRange = NSMakeRange(self.requestedFrameIndex, self.frameCount - self.requestedFrameIndex);
+    const NSRange secondRange = NSMakeRange(0, self.requestedFrameIndex);
     if (firstRange.length + secondRange.length != self.frameCount) {
         FLLog(FLLogLevelWarn, @"Two-part frame cache range doesn't equal full range.");
     }
@@ -440,18 +463,18 @@ static NSHashTable *allAnimatedImagesWeak;
     
     // Start streaming requested frames in the background into the cache.
     // Avoid capturing self in the block as there's no reason to keep doing work if the animated image went away.
-    FLAnimatedImage * __weak weakSelf = self;
+    __weak __typeof(self) weakSelf = self;
     dispatch_async(self.serialQueue, ^{
         // Produce and cache next needed frame.
         void (^frameRangeBlock)(NSRange, BOOL *) = ^(NSRange range, BOOL *stop) {
             // Iterate through contiguous indexes; can be faster than `enumerateIndexesInRange:options:usingBlock:`.
             for (NSUInteger i = range.location; i < NSMaxRange(range); i++) {
 #if defined(DEBUG) && DEBUG
-                CFTimeInterval predrawBeginTime = CACurrentMediaTime();
+                const CFTimeInterval predrawBeginTime = CACurrentMediaTime();
 #endif
-                UIImage *image = [weakSelf imageAtIndex:i];
+                UIImage *const image = [weakSelf imageAtIndex:i];
 #if defined(DEBUG) && DEBUG
-                CFTimeInterval predrawDuration = CACurrentMediaTime() - predrawBeginTime;
+                const CFTimeInterval predrawDuration = CACurrentMediaTime() - predrawBeginTime;
                 CFTimeInterval slowdownDuration = 0.0;
                 if ([self.debug_delegate respondsToSelector:@selector(debug_animatedImagePredrawingSlowdownFactor:)]) {
                     CGFloat predrawingSlowdownFactor = [self.debug_delegate debug_animatedImagePredrawingSlowdownFactor:self];
@@ -493,10 +516,10 @@ static NSHashTable *allAnimatedImagesWeak;
     }
     
     if ([image isKindOfClass:[UIImage class]]) {
-        UIImage *uiImage = (UIImage *)image;
+        UIImage *const uiImage = (UIImage *)image;
         imageSize = uiImage.size;
     } else if ([image isKindOfClass:[FLAnimatedImage class]]) {
-        FLAnimatedImage *animatedImage = (FLAnimatedImage *)image;
+        FLAnimatedImage *const animatedImage = (FLAnimatedImage *)image;
         imageSize = animatedImage.size;
     } else {
         // Bear trap to capture bad images; we have seen crashers cropping up on iOS 7.
@@ -513,7 +536,7 @@ static NSHashTable *allAnimatedImagesWeak;
 - (UIImage *)imageAtIndex:(NSUInteger)index
 {
     // It's very important to use the cached `_imageSource` since the random access to a frame with `CGImageSourceCreateImageAtIndex` turns from an O(1) into an O(n) operation when re-initializing the image source every time.
-    CGImageRef imageRef = CGImageSourceCreateImageAtIndex(_imageSource, index, NULL);
+    const CGImageRef _Nullable imageRef = CGImageSourceCreateImageAtIndex(_imageSource, index, NULL);
 
     // Early return for nil
     if (!imageRef) {
@@ -545,10 +568,10 @@ static NSHashTable *allAnimatedImagesWeak;
         
         // Add indexes to the set in two separate blocks- the first starting from the requested frame index, up to the limit or the end.
         // The second, if needed, the remaining number of frames beginning at index zero.
-        NSUInteger firstLength = MIN(self.frameCacheSizeCurrent, self.frameCount - self.requestedFrameIndex);
-        NSRange firstRange = NSMakeRange(self.requestedFrameIndex, firstLength);
+        const NSUInteger firstLength = MIN(self.frameCacheSizeCurrent, self.frameCount - self.requestedFrameIndex);
+        const NSRange firstRange = NSMakeRange(self.requestedFrameIndex, firstLength);
         [indexesToCache addIndexesInRange:firstRange];
-        NSUInteger secondLength = self.frameCacheSizeCurrent - firstLength;
+        const NSUInteger secondLength = self.frameCacheSizeCurrent - firstLength;
         if (secondLength > 0) {
             NSRange secondRange = NSMakeRange(0, secondLength);
             [indexesToCache addIndexesInRange:secondRange];
@@ -655,7 +678,7 @@ static NSHashTable *allAnimatedImagesWeak;
 + (UIImage *)predrawnImageFromImage:(UIImage *)imageToPredraw
 {
     // Always use a device RGB color space for simplicity and predictability what will be going on.
-    CGColorSpaceRef colorSpaceDeviceRGBRef = CGColorSpaceCreateDeviceRGB();
+    const CGColorSpaceRef _Nullable colorSpaceDeviceRGBRef = CGColorSpaceCreateDeviceRGB();
     // Early return on failure!
     if (!colorSpaceDeviceRGBRef) {
         FLLog(FLLogLevelError, @"Failed to `CGColorSpaceCreateDeviceRGB` for image %@", imageToPredraw);
@@ -665,17 +688,17 @@ static NSHashTable *allAnimatedImagesWeak;
     // Even when the image doesn't have transparency, we have to add the extra channel because Quartz doesn't support other pixel formats than 32 bpp/8 bpc for RGB:
     // kCGImageAlphaNoneSkipFirst, kCGImageAlphaNoneSkipLast, kCGImageAlphaPremultipliedFirst, kCGImageAlphaPremultipliedLast
     // (source: docs "Quartz 2D Programming Guide > Graphics Contexts > Table 2-1 Pixel formats supported for bitmap graphics contexts")
-    size_t numberOfComponents = CGColorSpaceGetNumberOfComponents(colorSpaceDeviceRGBRef) + 1; // 4: RGB + A
+    const size_t numberOfComponents = CGColorSpaceGetNumberOfComponents(colorSpaceDeviceRGBRef) + 1; // 4: RGB + A
     
     // "In iOS 4.0 and later, and OS X v10.6 and later, you can pass NULL if you want Quartz to allocate memory for the bitmap." (source: docs)
-    void *data = NULL;
-    size_t width = imageToPredraw.size.width;
-    size_t height = imageToPredraw.size.height;
-    size_t bitsPerComponent = CHAR_BIT;
+    void *_Nullable data = NULL;
+    const size_t width = imageToPredraw.size.width;
+    const size_t height = imageToPredraw.size.height;
+    const size_t bitsPerComponent = CHAR_BIT;
     
-    size_t bitsPerPixel = (bitsPerComponent * numberOfComponents);
-    size_t bytesPerPixel = (bitsPerPixel / BYTE_SIZE);
-    size_t bytesPerRow = (bytesPerPixel * width);
+    const size_t bitsPerPixel = (bitsPerComponent * numberOfComponents);
+    const size_t bytesPerPixel = (bitsPerPixel / BYTE_SIZE);
+    const size_t bytesPerRow = (bytesPerPixel * width);
     
     CGBitmapInfo bitmapInfo = kCGBitmapByteOrderDefault;
     
@@ -694,7 +717,7 @@ static NSHashTable *allAnimatedImagesWeak;
     
     // Create our own graphics context to draw to; `UIGraphicsGetCurrentContext`/`UIGraphicsBeginImageContextWithOptions` doesn't create a new context but returns the current one which isn't thread-safe (e.g. main thread could use it at the same time).
     // Note: It's not worth caching the bitmap context for multiple frames ("unique key" would be `width`, `height` and `hasAlpha`), it's ~50% slower. Time spent in libRIP's `CGSBlendBGRA8888toARGB8888` suddenly shoots up -- not sure why.
-    CGContextRef bitmapContextRef = CGBitmapContextCreate(data, width, height, bitsPerComponent, bytesPerRow, colorSpaceDeviceRGBRef, bitmapInfo);
+    const CGContextRef _Nullable bitmapContextRef = CGBitmapContextCreate(data, width, height, bitsPerComponent, bytesPerRow, colorSpaceDeviceRGBRef, bitmapInfo);
     CGColorSpaceRelease(colorSpaceDeviceRGBRef);
     // Early return on failure!
     if (!bitmapContextRef) {
@@ -704,8 +727,8 @@ static NSHashTable *allAnimatedImagesWeak;
     
     // Draw image in bitmap context and create image by preserving receiver's properties.
     CGContextDrawImage(bitmapContextRef, CGRectMake(0.0, 0.0, imageToPredraw.size.width, imageToPredraw.size.height), imageToPredraw.CGImage);
-    CGImageRef predrawnImageRef = CGBitmapContextCreateImage(bitmapContextRef);
-    UIImage *predrawnImage = [UIImage imageWithCGImage:predrawnImageRef scale:imageToPredraw.scale orientation:imageToPredraw.imageOrientation];
+    const CGImageRef _Nullable predrawnImageRef = CGBitmapContextCreateImage(bitmapContextRef);
+    UIImage *_Nullable predrawnImage = predrawnImageRef ? [UIImage imageWithCGImage:predrawnImageRef scale:imageToPredraw.scale orientation:imageToPredraw.imageOrientation] : nil;
     CGImageRelease(predrawnImageRef);
     CGContextRelease(bitmapContextRef);
     
@@ -741,13 +764,13 @@ static NSHashTable *allAnimatedImagesWeak;
 static void (^_logBlock)(NSString *logString, FLLogLevel logLevel) = nil;
 static FLLogLevel _logLevel;
 
-+ (void)setLogBlock:(void (^)(NSString *logString, FLLogLevel logLevel))logBlock logLevel:(FLLogLevel)logLevel
++ (void)setLogBlock:(void (^_Nullable)(NSString *logString, FLLogLevel logLevel))logBlock logLevel:(FLLogLevel)logLevel
 {
-    _logBlock = logBlock;
+    _logBlock = [logBlock copy];
     _logLevel = logLevel;
 }
 
-+ (void)logStringFromBlock:(NSString *(^)(void))stringBlock withLevel:(FLLogLevel)level
++ (void)logStringFromBlock:(NSString *(^_Nullable)(void))stringBlock withLevel:(FLLogLevel)level
 {
     if (level <= _logLevel && _logBlock && stringBlock) {
         _logBlock(stringBlock(), level);
@@ -797,7 +820,7 @@ static FLLogLevel _logLevel;
     // Fallback for when target is nil. Don't do anything, just return 0/NULL/nil.
     // The method signature we've received to get here is just a dummy to keep `doesNotRecognizeSelector:` from firing.
     // We can't really handle struct return types here because we don't know the length.
-    void *nullPointer = NULL;
+    void *_Nullable nullPointer = NULL;
     [invocation setReturnValue:&nullPointer];
 }
 

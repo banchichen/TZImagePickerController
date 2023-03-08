@@ -3,7 +3,7 @@
 //  Flipboard
 //
 //  Created by Raphael Schaad on 7/8/13.
-//  Copyright (c) 2013-2015 Flipboard. All rights reserved.
+//  Copyright (c) Flipboard. All rights reserved.
 //
 
 
@@ -11,7 +11,6 @@
 
 // Allow user classes conveniently just importing one header.
 #import "FLAnimatedImageView.h"
-
 
 #ifndef NS_DESIGNATED_INITIALIZER
     #if __has_attribute(objc_designated_initializer)
@@ -34,7 +33,7 @@ extern const NSTimeInterval kFLAnimatedImageDelayTimeIntervalMinimum;
 @property (nonatomic, strong, readonly) UIImage *posterImage; // Guaranteed to be loaded; usually equivalent to `-imageLazilyCachedAtIndex:0`
 @property (nonatomic, assign, readonly) CGSize size; // The `.posterImage`'s `.size`
 
-@property (nonatomic, assign, readonly) NSUInteger loopCount; // 0 means repeating the animation indefinitely
+@property (nonatomic, assign, readonly) NSUInteger loopCount; // "The number of times to repeat an animated sequence." according to ImageIO (note the slightly different definition to Netscape 2.0 Loop Extension); 0 means repeating the animation forever
 @property (nonatomic, strong, readonly) NSDictionary *delayTimesForIndexes; // Of type `NSTimeInterval` boxed in `NSNumber`s
 @property (nonatomic, assign, readonly) NSUInteger frameCount; // Number of valid frames; equal to `[.delayTimes count]`
 

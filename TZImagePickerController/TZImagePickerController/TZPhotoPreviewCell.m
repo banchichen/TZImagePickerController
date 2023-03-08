@@ -516,10 +516,16 @@
     CMTime durationTime = _player.currentItem.duration;
     if (_player.rate == 0.0f) {
         [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_VIDEO_PLAY_NOTIFICATION" object:_player];
-        if (currentTime.value == durationTime.value) [_player.currentItem seekToTime:CMTimeMake(0, 1)];
+        if (currentTime.value == durationTime.value) {
+            [_player.currentItem seekToTime:CMTimeMake(0, 1) completionHandler:nil];
+        }
         [_player play];
         [_playButton setImage:nil forState:UIControlStateNormal];
-        [UIApplication sharedApplication].statusBarHidden = YES;
+        if (@available(iOS 9.0, *)) {
+            
+        } else {
+            [UIApplication sharedApplication].statusBarHidden = YES;
+        }
         if (self.singleTapGestureBlock) {
             self.singleTapGestureBlock();
         }

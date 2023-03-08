@@ -45,7 +45,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    if (@available(iOS 13.0, *)) {
+        self.needShowStatusBar = ![[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarHidden;
+    } else {
+        self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    }
     self.view.backgroundColor = [UIColor blackColor];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
@@ -64,7 +68,11 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     if (self.needShowStatusBar) {
-        [UIApplication sharedApplication].statusBarHidden = NO;
+        if (@available(iOS 9.0, *)) {
+            
+        } else {
+            [UIApplication sharedApplication].statusBarHidden = NO;
+        }
     }
     [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
 }
@@ -155,6 +163,10 @@
     }
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return !self.needShowStatusBar;
+}
+
 - (UIStatusBarStyle)preferredStatusBarStyle {
     TZImagePickerController *tzImagePicker = (TZImagePickerController *)self.navigationController;
     if (tzImagePicker && [tzImagePicker isKindOfClass:[TZImagePickerController class]]) {
@@ -195,13 +207,19 @@
     CMTime durationTime = _player.currentItem.duration;
     if (_player.rate == 0.0f) {
         [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_VIDEO_PLAY_NOTIFICATION" object:_player];
-        if (currentTime.value == durationTime.value) [_player.currentItem seekToTime:CMTimeMake(0, 1)];
+        if (currentTime.value == durationTime.value) {
+            [_player.currentItem seekToTime:CMTimeMake(0, 1) completionHandler:nil];
+        }
         [_player play];
         [self.navigationController setNavigationBarHidden:YES];
         _toolBar.hidden = YES;
         _playButtonNormalImage = [_playButton imageForState:UIControlStateNormal];
         [_playButton setImage:nil forState:UIControlStateNormal];
-        [UIApplication sharedApplication].statusBarHidden = YES;
+        if (@available(iOS 9.0, *)) {
+            
+        } else {
+            [UIApplication sharedApplication].statusBarHidden = YES;
+        }
     } else {
         [self pausePlayerAndShowNaviBar];
     }
@@ -290,9 +308,12 @@
     [self.navigationController setNavigationBarHidden:NO];
     UIImage *normalImage = _playButtonNormalImage ?: [UIImage tz_imageNamedFromMyBundle:@"MMVideoPreviewPlay"];
     [_playButton setImage:normalImage forState:UIControlStateNormal];
-    
     if (self.needShowStatusBar) {
-        [UIApplication sharedApplication].statusBarHidden = NO;
+        if (@available(iOS 9.0, *)) {
+            
+        } else {
+            [UIApplication sharedApplication].statusBarHidden = NO;
+        }
     }
 }
 

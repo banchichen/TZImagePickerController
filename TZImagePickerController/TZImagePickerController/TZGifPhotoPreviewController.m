@@ -32,7 +32,11 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    if (@available(iOS 13.0, *)) {
+        self.needShowStatusBar = ![[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarHidden;
+    } else {
+        self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    }
     self.view.backgroundColor = [UIColor blackColor];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
@@ -51,7 +55,11 @@
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
     if (self.needShowStatusBar) {
-        [UIApplication sharedApplication].statusBarHidden = NO;
+        if (@available(iOS 9.0, *)) {
+            
+        } else {
+            [UIApplication sharedApplication].statusBarHidden = NO;
+        }
     }
     [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
 }
@@ -101,6 +109,10 @@
     }
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return !self.needShowStatusBar;
+}
+
 - (UIStatusBarStyle)preferredStatusBarStyle {
     TZImagePickerController *tzImagePicker = (TZImagePickerController *)self.navigationController;
     if (tzImagePicker && [tzImagePicker isKindOfClass:[TZImagePickerController class]]) {
@@ -134,9 +146,17 @@
     [self.navigationController setNavigationBarHidden:_toolBar.isHidden];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_toolBar.isHidden) {
-        [UIApplication sharedApplication].statusBarHidden = YES;
+        if (@available(iOS 9.0, *)) {
+            
+        } else {
+            [UIApplication sharedApplication].statusBarHidden = YES;
+        }
     } else if (tzImagePickerVc.needShowStatusBar) {
-        [UIApplication sharedApplication].statusBarHidden = NO;
+        if (@available(iOS 9.0, *)) {
+            
+        } else {
+            [UIApplication sharedApplication].statusBarHidden = NO;
+        }
     }
 }
 
