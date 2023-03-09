@@ -24,7 +24,6 @@
 #import "TZGifPhotoPreviewController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZPhotoPreviewCell.h"
-#import "TZWindowManager.h"
 #import "TZAssetCell.h"
 
 #if __has_include("TZLocationManager.h")
@@ -377,6 +376,11 @@
 + (void)configBarButtonItem:(UIBarButtonItem *)item tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc;
 + (BOOL)isICloudSyncError:(NSError *)error;
 + (BOOL)isAssetNotSelectable:(TZAssetModel *)model tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc;
++ (UIWindowScene *)currentWindowScene  API_AVAILABLE(ios(13.0));
++ (UIWindow *)currentKeyWindow;
++ (BOOL)currentStatusBarHidden;
++ (BOOL)currentStatusBarStyle;
+
 @end
 
 

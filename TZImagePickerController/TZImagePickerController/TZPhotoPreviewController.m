@@ -64,7 +64,8 @@
     self.view.clipsToBounds = YES;
 }
 
--(void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+#pragma mark - UIContentContainer
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     _offsetItemCount = _collectionView.contentOffset.x / _layout.itemSize.width;
 }
 
@@ -81,11 +82,6 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.navigationController setNavigationBarHidden:YES animated:YES];
-    if (@available(iOS 9.0, *)) {
-        
-    } else {
-        [UIApplication sharedApplication].statusBarHidden = YES;
-    }
     if (_currentIndex) {
         [_collectionView setContentOffset:CGPointMake((self.view.tz_width + 20) * self.currentIndex, 0) animated:NO];
     }
@@ -94,14 +90,6 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (tzImagePickerVc.needShowStatusBar) {
-        if (@available(iOS 9.0, *)) {
-            
-        } else {
-            [UIApplication sharedApplication].statusBarHidden = NO;
-        }
-    }
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     [TZImageManager manager].shouldFixOrientation = NO;
 }

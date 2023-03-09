@@ -115,7 +115,8 @@ static CGFloat itemMargin = 5;
     self.operationQueue.maxConcurrentOperationCount = 3;
 }
 
--(void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+#pragma mark - UIContentContainer
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
     _offsetItemCount = _collectionView.contentOffset.y / (_layout.itemSize.height + _layout.minimumLineSpacing);
 }
 
@@ -370,12 +371,7 @@ static CGFloat itemMargin = 5;
     CGFloat collectionViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
     CGFloat footerTipViewH = _authorizationLimited ? 80 : 0;
-    BOOL isStatusBarHidden = NO;
-    if (@available(iOS 13.0, *)) {
-        isStatusBarHidden = [[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarHidden;
-    } else {
-        isStatusBarHidden = [UIApplication sharedApplication].statusBarHidden;
-    }
+    BOOL isStatusBarHidden = [TZCommonTools currentStatusBarHidden];
     BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
     CGFloat toolBarHeight = 50 + [TZCommonTools tz_safeAreaInsets].bottom;
     if (self.navigationController.navigationBar.isTranslucent) {

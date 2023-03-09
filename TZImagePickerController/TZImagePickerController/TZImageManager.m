@@ -327,25 +327,14 @@ static dispatch_once_t onceToken;
         if (model.type == TZAssetModelMediaTypePhotoGif) {
             options.version = PHImageRequestOptionsVersionOriginal;
         }
-        if (@available(iOS 13.0, *)) {
-            [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:model.asset options:options resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, CGImagePropertyOrientation orientation, NSDictionary * _Nullable info) {
-                if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
-                assetCount ++;
-                if (assetCount >= photos.count) {
-                    NSString *bytes = [self getBytesFromDataLength:dataLength];
-                    if (completion) completion(bytes);
-                }
-            }];
-        } else {
-            [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
-                assetCount ++;
-                if (assetCount >= photos.count) {
-                    NSString *bytes = [self getBytesFromDataLength:dataLength];
-                    if (completion) completion(bytes);
-                }
-            }];
-        }
+        [[TZImageManager manager] requestImageDataFitSystemForAsset:model.asset options:options completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+            if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
+            assetCount ++;
+            if (assetCount >= photos.count) {
+                NSString *bytes = [self getBytesFromDataLength:dataLength];
+                if (completion) completion(bytes);
+            }
+        }];
     }
 }
 
@@ -391,7 +380,14 @@ static dispatch_once_t onceToken;
     };
     options.networkAccessAllowed = YES;
     options.resizeMode = PHImageRequestOptionsResizeModeFast;
-    
+    int32_t imageRequestID = [[TZImageManager manager] requestImageDataFitSystemForAsset:asset options:options completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+        if (completion) completion(imageData,dataUTI,orientation,info);
+    }];
+    return imageRequestID;
+}
+
+//适配iOS13
+- (PHImageRequestID)requestImageDataFitSystemForAsset:(PHAsset *)asset options:(nullable PHImageRequestOptions *)options completion:(void (^_Nonnull)(NSData *_Nullable imageData, NSString *_Nullable dataUTI, UIImageOrientation orientation, NSDictionary *_Nullable info))completion {
     int32_t imageRequestID = 0;
     if (@available(iOS 13.0, *)) {
         imageRequestID = [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, CGImagePropertyOrientation orientation, NSDictionary * _Nullable info) {
@@ -447,31 +443,17 @@ static dispatch_once_t onceToken;
             };
             options.networkAccessAllowed = YES;
             options.resizeMode = PHImageRequestOptionsResizeModeFast;
-            if (@available(iOS 13.0, *)) {
-                [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, CGImagePropertyOrientation orientation, NSDictionary * _Nullable info) {
-                    UIImage *resultImage = [UIImage imageWithData:imageData];
-                    if (![TZImagePickerConfig sharedInstance].notScaleImage) {
-                        resultImage = [self scaleImage:resultImage toSize:imageSize];
-                    }
-                    if (!resultImage && result) {
-                        resultImage = result;
-                    }
-                    resultImage = [self fixOrientation:resultImage];
-                    if (completion) completion(resultImage,info,NO);
-                }];
-            } else {
-                [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-                    UIImage *resultImage = [UIImage imageWithData:imageData];
-                    if (![TZImagePickerConfig sharedInstance].notScaleImage) {
-                        resultImage = [self scaleImage:resultImage toSize:imageSize];
-                    }
-                    if (!resultImage && result) {
-                        resultImage = result;
-                    }
-                    resultImage = [self fixOrientation:resultImage];
-                    if (completion) completion(resultImage,info,NO);
-                }];
-            }
+            [[TZImageManager manager] requestImageDataFitSystemForAsset:asset options:options completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+                UIImage *resultImage = [UIImage imageWithData:imageData];
+                if (![TZImagePickerConfig sharedInstance].notScaleImage) {
+                    resultImage = [self scaleImage:resultImage toSize:imageSize];
+                }
+                if (!resultImage && result) {
+                    resultImage = result;
+                }
+                resultImage = [self fixOrientation:resultImage];
+                if (completion) completion(resultImage,info,NO);
+            }];
         }
     }];
     return imageRequestID;
@@ -511,25 +493,14 @@ static dispatch_once_t onceToken;
         [option setProgressHandler:progressHandler];
     }
     option.resizeMode = PHImageRequestOptionsResizeModeFast;
-    if (@available(iOS 13.0, *)) {
-        return [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, CGImagePropertyOrientation orientation, NSDictionary * _Nullable info) {
-            BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
-            if (!cancelled && imageData) {
-                UIImage *result = [self fixOrientation:[UIImage imageWithData:imageData]];
-                BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
-                if (completion) completion(result,info,isDegraded);
-            }
-        }];
-    } else {
-        return [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
-            BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
-            if (!cancelled && imageData) {
-                UIImage *result = [self fixOrientation:[UIImage imageWithData:imageData]];
-                BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
-                if (completion) completion(result,info,isDegraded);
-            }
-        }];
-    }
+    return [[TZImageManager manager] requestImageDataFitSystemForAsset:asset options:option completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+        BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
+        if (!cancelled && imageData) {
+            UIImage *result = [self fixOrientation:[UIImage imageWithData:imageData]];
+            BOOL isDegraded = [[info objectForKey:PHImageResultIsDegradedKey] boolValue];
+            if (completion) completion(result,info,isDegraded);
+        }
+    }];
 }
 
 - (PHImageRequestID)getOriginalPhotoDataWithAsset:(PHAsset *)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion {
@@ -545,21 +516,12 @@ static dispatch_once_t onceToken;
     }
     [option setProgressHandler:progressHandler];
     option.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
-    if (@available(iOS 13.0, *)) {
-        return [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, CGImagePropertyOrientation orientation, NSDictionary * _Nullable info) {
-            BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
-            if (!cancelled && imageData) {
-                if (completion) completion(imageData,info,NO);
-            }
-        }];
-    } else {
-        return [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
-            BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
-            if (!cancelled && imageData) {
-                if (completion) completion(imageData,info,NO);
-            }
-        }];
-    }
+    return [[TZImageManager manager] requestImageDataFitSystemForAsset:asset options:option completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+        BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
+        if (!cancelled && imageData) {
+            if (completion) completion(imageData,info,NO);
+        }
+    }];
 }
 
 - (UIImage *)getImageWithVideoURL:(NSURL *)videoURL {

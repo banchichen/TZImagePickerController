@@ -521,11 +521,6 @@
         }
         [_player play];
         [_playButton setImage:nil forState:UIControlStateNormal];
-        if (@available(iOS 9.0, *)) {
-            
-        } else {
-            [UIApplication sharedApplication].statusBarHidden = YES;
-        }
         if (self.singleTapGestureBlock) {
             self.singleTapGestureBlock();
         }

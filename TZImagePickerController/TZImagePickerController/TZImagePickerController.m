@@ -50,11 +50,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)viewDidLoad {
     [super viewDidLoad];
-    if (@available(iOS 13.0, *)) {
-        self.needShowStatusBar = ![[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarHidden;
-    } else {
-        self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
-    }
+    self.needShowStatusBar = ![TZCommonTools currentStatusBarHidden];
     if (@available(iOS 13.0, *)) {
         self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
     } else {
@@ -75,13 +71,6 @@
         
     } else {
         self.automaticallyAdjustsScrollViewInsets = NO;
-    }
-    if (self.needShowStatusBar) {
-        if (@available(iOS 9.0, *)) {
-            
-        } else {
-            [UIApplication sharedApplication].statusBarHidden = NO;
-        }
     }
 }
 
@@ -163,26 +152,12 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    if (@available(iOS 13.0, *)) {
-        _originStatusBarStyle = [[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarStyle;
-    } else {
-        _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    }
-    if (@available(iOS 9.0, *)) {
-        
-    } else {
-        [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
-    }
+    _originStatusBarStyle = [TZCommonTools currentStatusBarStyle];
     [self configNavigationBarAppearance];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    if (@available(iOS 9.0, *)) {
-        
-    } else {
-        [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
-    }
     [self hideProgressHUD];
 }
 
@@ -748,21 +723,6 @@
 
 #pragma mark - UIContentContainer
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (@available(iOS 13.0, *)) {
-            
-        } else {
-            if (![UIApplication sharedApplication].statusBarHidden) {
-                if (self.needShowStatusBar) {
-                    if (@available(iOS 9.0, *)) {
-                        
-                    } else {
-                        [UIApplication sharedApplication].statusBarHidden = NO;
-                    }
-                }
-            }
-        }
-    });
     if (size.width > size.height) {
         _cropRect = _cropRectLandscape;
     } else {
@@ -936,12 +896,7 @@
     CGFloat top = 0;
     CGFloat tableViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
-    BOOL isStatusBarHidden = NO;
-    if (@available(iOS 13.0, *)) {
-        isStatusBarHidden = [[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarHidden;
-    } else {
-        isStatusBarHidden = [UIApplication sharedApplication].statusBarHidden;
-    }
+    BOOL isStatusBarHidden = [TZCommonTools currentStatusBarHidden];
     BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
@@ -1012,7 +967,7 @@
 @implementation TZCommonTools
 
 + (UIEdgeInsets)tz_safeAreaInsets {
-    UIWindow *window = [[TZWindowManager manager] currentWindow];
+    UIWindow *window = [TZCommonTools currentKeyWindow];
     if (@available(iOS 11.0, *)) {
         UIEdgeInsets insets = [window safeAreaInsets];
         return insets;
@@ -1036,9 +991,9 @@
 
 + (BOOL)tz_isLandscape {
     if (@available(iOS 13.0, *)) {
-        UIWindow *window = [[TZWindowManager manager] currentWindow];
-        if (window.windowScene.interfaceOrientation == UIDeviceOrientationLandscapeRight ||
-            window.windowScene.interfaceOrientation == UIDeviceOrientationLandscapeLeft) {
+        UIWindowScene *windowScene = [TZCommonTools currentWindowScene];
+        if (windowScene.interfaceOrientation == UIDeviceOrientationLandscapeRight ||
+            windowScene.interfaceOrientation == UIDeviceOrientationLandscapeLeft) {
             return true;
         }
     } else {
@@ -1126,6 +1081,54 @@
         }
     }
     return notSelectable;
+}
+
++ (UIWindowScene *)currentWindowScene  API_AVAILABLE(ios(13.0)) {
+    __block UIScene * _Nonnull tempScene;
+    [[[UIApplication sharedApplication] connectedScenes] enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, BOOL * _Nonnull stop) {
+        if (obj.activationState == UISceneActivationStateForegroundActive || obj.activationState == UISceneActivationStateForegroundInactive) {
+            tempScene = obj;
+            *stop = YES;
+        }
+    }];
+    UIWindowScene *windowScene = (UIWindowScene *)tempScene;
+    return windowScene;
+}
+
++ (UIWindow *)currentKeyWindow {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *windowScene = [TZCommonTools currentWindowScene];
+        if (@available(iOS 15.0, *)) {
+            return windowScene.keyWindow;
+        } else {
+            for (UIWindow *window in windowScene.windows) {
+                if (window.isKeyWindow) {
+                    return window;
+                }
+            }
+        }
+    } else {
+        return UIApplication.sharedApplication.keyWindow;
+    }
+    return nil;
+}
+
++ (BOOL)currentStatusBarHidden {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *windowScene = [TZCommonTools currentWindowScene];
+        return windowScene.statusBarManager.statusBarHidden;
+    } else {
+        return [UIApplication sharedApplication].statusBarHidden;
+    }
+}
+
++ (BOOL)currentStatusBarStyle {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *windowScene = [TZCommonTools currentWindowScene];
+        return windowScene.statusBarManager.statusBarStyle;
+    } else {
+        return [UIApplication sharedApplication].statusBarStyle;
+    }
 }
 
 @end

@@ -32,11 +32,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    if (@available(iOS 13.0, *)) {
-        self.needShowStatusBar = ![[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarHidden;
-    } else {
-        self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
-    }
+    self.needShowStatusBar = ![TZCommonTools currentStatusBarHidden];
     self.view.backgroundColor = [UIColor blackColor];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
@@ -48,32 +44,11 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    if (@available(iOS 13.0, *)) {
-        _originStatusBarStyle = [[TZWindowManager manager] currentWindow].windowScene.statusBarManager.statusBarStyle;
-    } else {
-        _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    }
-    if (@available(iOS 9, *)) {
-        
-    } else {
-        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
-    }
+    _originStatusBarStyle = [TZCommonTools currentStatusBarStyle];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    if (self.needShowStatusBar) {
-        if (@available(iOS 9.0, *)) {
-            
-        } else {
-            [UIApplication sharedApplication].statusBarHidden = NO;
-        }
-    }
-    if (@available(iOS 9.0, *)) {
-        
-    } else {
-        [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
-    }
 }
 
 - (void)configPreviewView {
@@ -156,20 +131,6 @@
 - (void)signleTapAction {
     _toolBar.hidden = !_toolBar.isHidden;
     [self.navigationController setNavigationBarHidden:_toolBar.isHidden];
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (_toolBar.isHidden) {
-        if (@available(iOS 9.0, *)) {
-            
-        } else {
-            [UIApplication sharedApplication].statusBarHidden = YES;
-        }
-    } else if (tzImagePickerVc.needShowStatusBar) {
-        if (@available(iOS 9.0, *)) {
-            
-        } else {
-            [UIApplication sharedApplication].statusBarHidden = NO;
-        }
-    }
 }
 
 - (void)doneButtonClick {
