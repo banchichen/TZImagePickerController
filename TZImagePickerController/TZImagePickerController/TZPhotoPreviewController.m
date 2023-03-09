@@ -13,10 +13,11 @@
 #import "TZImagePickerController.h"
 #import "TZImageManager.h"
 #import "TZImageCropManager.h"
+#import "TZCollectionViewFlowLayout.h"
 
 @interface TZPhotoPreviewController ()<UICollectionViewDataSource,UICollectionViewDelegate,UIScrollViewDelegate> {
     UICollectionView *_collectionView;
-    UICollectionViewFlowLayout *_layout;
+    TZCollectionViewFlowLayout *_layout;
     NSArray *_photosTemp;
     NSArray *_assetsTemp;
     
@@ -262,7 +263,7 @@
 }
 
 - (void)configCollectionView {
-    _layout = [[UICollectionViewFlowLayout alloc] init];
+    _layout = [[TZCollectionViewFlowLayout alloc] init];
     _layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
     _collectionView.backgroundColor = [UIColor blackColor];
@@ -717,7 +718,8 @@
 }
 
 - (NSInteger)currentIndex {
-    return [TZCommonTools tz_isRightToLeftLayout] ? self.models.count - _currentIndex - 1 : _currentIndex;
+    return _currentIndex;
+//    return [TZCommonTools tz_isRightToLeftLayout] ? self.models.count - _currentIndex - 1 : _currentIndex;
 }
 
 /// 选中/取消选中某张照片
