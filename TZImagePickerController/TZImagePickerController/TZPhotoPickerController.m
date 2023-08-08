@@ -137,9 +137,11 @@ static CGFloat itemMargin = 5;
                     for (TZAssetModel *model in models) {
                         BOOL isNew = YES;
                         for (TZAssetModel *preModel in self->_models) {
-                            if ([model.asset.localIdentifier isEqualToString: preModel.asset.localIdentifier]) {
-                                isNew = NO;
-                                break;
+                            @autoreleasepool {
+                                if ([model.asset.localIdentifier isEqualToString: preModel.asset.localIdentifier]) {
+                                    isNew = NO;
+                                    break;
+                                }
                             }
                         }
                         if (isNew) {
