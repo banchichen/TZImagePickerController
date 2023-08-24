@@ -68,7 +68,7 @@
         _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
         _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
         UIBarButtonItem *tzBarItem, *BarItem;
-        if (@available(iOS 9, *)) {
+        if (@available(iOS 9.0, *)) {
             tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
             BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
         } else {
@@ -98,6 +98,9 @@
     // 如不需要长按排序效果，将LxGridViewFlowLayout类改成UICollectionViewFlowLayout即可
     _layout = [[LxGridViewFlowLayout alloc] init];
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
+    if (@available(iOS 11.0, *)) {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
     CGFloat rgb = 244 / 255.0;
     _collectionView.alwaysBounceVertical = YES;
     _collectionView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
@@ -449,7 +452,14 @@
         UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"无法使用相机" message:@"请在iPhone的""设置-隐私-相机""中允许访问相机" preferredStyle:UIAlertControllerStyleAlert];
         [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
         [alertController addAction:[UIAlertAction actionWithTitle:@"设置" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+            NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+            if ([[UIApplication sharedApplication]canOpenURL:url]) {
+                if (@available(iOS 10.0, *)) {
+                    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+                } else {
+                    [[UIApplication sharedApplication] openURL:url];
+                }
+            }
         }]];
         [self presentViewController:alertController animated:YES completion:nil];
     } else if (authStatus == AVAuthorizationStatusNotDetermined) {
@@ -462,19 +472,34 @@
             }
         }];
         // 拍照之前还需要检查相册权限
-    } else if ([PHPhotoLibrary authorizationStatus] == 2) { // 已被拒绝，没有相册权限，将无法保存拍的照片
-        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"无法访问相册" message:@"请在iPhone的""设置-隐私-相册""中允许访问相册" preferredStyle:UIAlertControllerStyleAlert];
-        [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
-        [alertController addAction:[UIAlertAction actionWithTitle:@"设置" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
-        }]];
-        [self presentViewController:alertController animated:YES completion:nil];
-    } else if ([PHPhotoLibrary authorizationStatus] == 0) { // 未请求过相册权限
-        [[TZImageManager manager] requestAuthorizationWithCompletion:^{
-            [self takePhoto];
-        }];
     } else {
-        [self pushImagePickerController];
+        PHAuthorizationStatus orizationStatus = 0;
+        if (@available(iOS 14.0, *)) {
+            orizationStatus = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+        } else {
+            orizationStatus = [PHPhotoLibrary authorizationStatus];
+        }
+        if (orizationStatus == 2) { // 已被拒绝，没有相册权限，将无法保存拍的照片
+            UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"无法访问相册" message:@"请在iPhone的""设置-隐私-相册""中允许访问相册" preferredStyle:UIAlertControllerStyleAlert];
+            [alertController addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+            [alertController addAction:[UIAlertAction actionWithTitle:@"设置" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+                if ([[UIApplication sharedApplication]canOpenURL:url]) {
+                    if (@available(iOS 10.0, *)) {
+                        [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+                    } else {
+                        [[UIApplication sharedApplication] openURL:url];
+                    }
+                }
+            }]];
+            [self presentViewController:alertController animated:YES completion:nil];
+        } else if (orizationStatus == 0) { // 未请求过相册权限
+            [[TZImageManager manager] requestAuthorizationWithCompletion:^{
+                [self takePhoto];
+            }];
+        } else {
+            [self pushImagePickerController];
+        }
     }
 }
 

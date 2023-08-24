@@ -11,7 +11,6 @@
 #import "TZPhotoPickerController.h"
 #import "TZPhotoPreviewController.h"
 #import "TZAssetModel.h"
-#import "TZAssetCell.h"
 #import "UIView+TZLayout.h"
 #import "TZImageManager.h"
 #import "TZVideoCropController.h"
@@ -51,7 +50,7 @@
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    self.needShowStatusBar = ![TZCommonTools currentStatusBarHidden];
     if (@available(iOS 13.0, *)) {
         self.view.backgroundColor = UIColor.tertiarySystemBackgroundColor;
     } else {
@@ -68,8 +67,11 @@
     
     self.navigationBar.barTintColor = [UIColor colorWithRed:(34/255.0) green:(34/255.0)  blue:(34/255.0) alpha:1.0];
     self.navigationBar.tintColor = [UIColor whiteColor];
-    self.automaticallyAdjustsScrollViewInsets = NO;
-    if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
+    if (@available(iOS 11.0, *)) {
+        
+    } else {
+        self.automaticallyAdjustsScrollViewInsets = NO;
+    }
 }
 
 - (void)setNaviBgColor:(UIColor *)naviBgColor {
@@ -137,7 +139,7 @@
 
 - (void)configBarButtonItemAppearance {
     UIBarButtonItem *barItem;
-    if (@available(iOS 9, *)) {
+    if (@available(iOS 9.0, *)) {
         barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
     } else {
         barItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
@@ -150,15 +152,17 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    [UIApplication sharedApplication].statusBarStyle = self.statusBarStyle;
+    _originStatusBarStyle = [TZCommonTools currentStatusBarStyle];
     [self configNavigationBarAppearance];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
     [self hideProgressHUD];
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return !self.needShowStatusBar;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
@@ -220,7 +224,13 @@
 
             [self.view addSubview:_settingBtn];
             
-            if ([PHPhotoLibrary authorizationStatus] == 0) {
+            PHAuthorizationStatus orizationStatus = 0;
+            if (@available(iOS 14.0, *)) {
+                orizationStatus = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+            } else {
+                orizationStatus = [PHPhotoLibrary authorizationStatus];
+            }
+            if (orizationStatus == 0) {
                 _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
             }
         } else {
@@ -408,7 +418,13 @@
 - (void)observeAuthrizationStatusChange {
     [_timer invalidate];
     _timer = nil;
-    if ([PHPhotoLibrary authorizationStatus] == 0) {
+    PHAuthorizationStatus orizationStatus = 0;
+    if (@available(iOS 14.0, *)) {
+        orizationStatus = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+    } else {
+        orizationStatus = [PHPhotoLibrary authorizationStatus];
+    }
+    if (orizationStatus == 0) {
         _timer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(observeAuthrizationStatusChange) userInfo:nil repeats:NO];
     }
     
@@ -656,11 +672,22 @@
 }
 
 - (void)settingBtnClick {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    if ([[UIApplication sharedApplication]canOpenURL:url]) {
+        if (@available(iOS 10.0, *)) {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        } else {
+            [[UIApplication sharedApplication] openURL:url];
+        }
+    }
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
-    viewController.automaticallyAdjustsScrollViewInsets = NO;
+    if (@available(iOS 11.0, *)) {
+        
+    } else {
+        viewController.automaticallyAdjustsScrollViewInsets = NO;
+    }
     [super pushViewController:viewController animated:animated];
 }
 
@@ -695,13 +722,7 @@
 }
 
 #pragma mark - UIContentContainer
-
 - (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        if (![UIApplication sharedApplication].statusBarHidden) {
-            if (self.needShowStatusBar) [UIApplication sharedApplication].statusBarHidden = NO;
-        }
-    });
     if (size.width > size.height) {
         _cropRect = _cropRectLandscape;
     } else {
@@ -821,6 +842,9 @@
                 
                 if (!self->_tableView) {
                     self->_tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
+                    if (@available(iOS 11.0, *)) {
+                        self->_tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+                    }
                     self->_tableView.rowHeight = 70;
                     if (@available(iOS 13.0, *)) {
                         self->_tableView.backgroundColor = [UIColor tertiarySystemBackgroundColor];
@@ -872,7 +896,7 @@
     CGFloat top = 0;
     CGFloat tableViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
-    BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
+    BOOL isStatusBarHidden = [TZCommonTools currentStatusBarHidden];
     BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
@@ -943,13 +967,7 @@
 @implementation TZCommonTools
 
 + (UIEdgeInsets)tz_safeAreaInsets {
-    UIWindow *window = [UIApplication sharedApplication].windows.firstObject;
-    if (![window isKeyWindow]) {
-        UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-        if (CGRectEqualToRect(keyWindow.bounds, [UIScreen mainScreen].bounds)) {
-            window = keyWindow;
-        }
-    }
+    UIWindow *window = [TZCommonTools currentKeyWindow];
     if (@available(iOS 11.0, *)) {
         UIEdgeInsets insets = [window safeAreaInsets];
         return insets;
@@ -972,9 +990,17 @@
 }
 
 + (BOOL)tz_isLandscape {
-    if ([UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeRight ||
-        [UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeLeft) {
-        return true;
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *windowScene = [TZCommonTools currentWindowScene];
+        if (windowScene.interfaceOrientation == UIDeviceOrientationLandscapeRight ||
+            windowScene.interfaceOrientation == UIDeviceOrientationLandscapeLeft) {
+            return true;
+        }
+    } else {
+        if ([UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeRight ||
+            [UIApplication sharedApplication].statusBarOrientation == UIDeviceOrientationLandscapeLeft) {
+            return true;
+        }
     }
     return false;
 }
@@ -1055,6 +1081,54 @@
         }
     }
     return notSelectable;
+}
+
++ (UIWindowScene *)currentWindowScene  API_AVAILABLE(ios(13.0)) {
+    __block UIScene * _Nonnull tempScene;
+    [[[UIApplication sharedApplication] connectedScenes] enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, BOOL * _Nonnull stop) {
+        if (obj.activationState == UISceneActivationStateForegroundActive || obj.activationState == UISceneActivationStateForegroundInactive) {
+            tempScene = obj;
+            *stop = YES;
+        }
+    }];
+    UIWindowScene *windowScene = (UIWindowScene *)tempScene;
+    return windowScene;
+}
+
++ (UIWindow *)currentKeyWindow {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *windowScene = [TZCommonTools currentWindowScene];
+        if (@available(iOS 15.0, *)) {
+            return windowScene.keyWindow;
+        } else {
+            for (UIWindow *window in windowScene.windows) {
+                if (window.isKeyWindow) {
+                    return window;
+                }
+            }
+        }
+    } else {
+        return UIApplication.sharedApplication.keyWindow;
+    }
+    return nil;
+}
+
++ (BOOL)currentStatusBarHidden {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *windowScene = [TZCommonTools currentWindowScene];
+        return windowScene.statusBarManager.statusBarHidden;
+    } else {
+        return [UIApplication sharedApplication].statusBarHidden;
+    }
+}
+
++ (BOOL)currentStatusBarStyle {
+    if (@available(iOS 13.0, *)) {
+        UIWindowScene *windowScene = [TZCommonTools currentWindowScene];
+        return windowScene.statusBarManager.statusBarStyle;
+    } else {
+        return [UIApplication sharedApplication].statusBarStyle;
+    }
 }
 
 @end

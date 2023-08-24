@@ -32,7 +32,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.needShowStatusBar = ![UIApplication sharedApplication].statusBarHidden;
+    self.needShowStatusBar = ![TZCommonTools currentStatusBarHidden];
     self.view.backgroundColor = [UIColor blackColor];
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc) {
@@ -44,16 +44,11 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    _originStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
-    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    _originStatusBarStyle = [TZCommonTools currentStatusBarStyle];
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
     [super viewWillDisappear:animated];
-    if (self.needShowStatusBar) {
-        [UIApplication sharedApplication].statusBarHidden = NO;
-    }
-    [UIApplication sharedApplication].statusBarStyle = _originStatusBarStyle;
 }
 
 - (void)configPreviewView {
@@ -101,6 +96,10 @@
     }
 }
 
+- (BOOL)prefersStatusBarHidden {
+    return !self.needShowStatusBar;
+}
+
 - (UIStatusBarStyle)preferredStatusBarStyle {
     TZImagePickerController *tzImagePicker = (TZImagePickerController *)self.navigationController;
     if (tzImagePicker && [tzImagePicker isKindOfClass:[TZImagePickerController class]]) {
@@ -132,12 +131,6 @@
 - (void)signleTapAction {
     _toolBar.hidden = !_toolBar.isHidden;
     [self.navigationController setNavigationBarHidden:_toolBar.isHidden];
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (_toolBar.isHidden) {
-        [UIApplication sharedApplication].statusBarHidden = YES;
-    } else if (tzImagePickerVc.needShowStatusBar) {
-        [UIApplication sharedApplication].statusBarHidden = NO;
-    }
 }
 
 - (void)doneButtonClick {

@@ -66,7 +66,7 @@ static CGFloat itemMargin = 5;
         _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
         _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
         UIBarButtonItem *tzBarItem, *BarItem;
-        if (@available(iOS 9, *)) {
+        if (@available(iOS 9.0, *)) {
             tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
             BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
         } else {
@@ -111,10 +111,13 @@ static CGFloat itemMargin = 5;
     _showTakePhotoBtn = _model.isCameraRoll && ((tzImagePickerVc.allowTakePicture && tzImagePickerVc.allowPickingImage) || (tzImagePickerVc.allowTakeVideo && tzImagePickerVc.allowPickingVideo));
     _authorizationLimited = _model.isCameraRoll && [[TZImageManager manager] isPHAuthorizationStatusLimited];
     // [self resetCachedAssets];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(didChangeStatusBarOrientationNotification:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
-    
     self.operationQueue = [[NSOperationQueue alloc] init];
     self.operationQueue.maxConcurrentOperationCount = 3;
+}
+
+#pragma mark - UIContentContainer
+- (void)viewWillTransitionToSize:(CGSize)size withTransitionCoordinator:(id<UIViewControllerTransitionCoordinator>)coordinator {
+    _offsetItemCount = _collectionView.contentOffset.y / (_layout.itemSize.height + _layout.minimumLineSpacing);
 }
 
 - (void)fetchAssetModels {
@@ -178,6 +181,9 @@ static CGFloat itemMargin = 5;
     if (!_collectionView) {
         _layout = [[UICollectionViewFlowLayout alloc] init];
         _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
+        if (@available(iOS 11.0, *)) {
+            _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
         if (@available(iOS 13.0, *)) {
             _collectionView.backgroundColor = UIColor.tertiarySystemBackgroundColor;
         } else {
@@ -365,7 +371,7 @@ static CGFloat itemMargin = 5;
     CGFloat collectionViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
     CGFloat footerTipViewH = _authorizationLimited ? 80 : 0;
-    BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
+    BOOL isStatusBarHidden = [TZCommonTools currentStatusBarHidden];
     BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
     CGFloat toolBarHeight = 50 + [TZCommonTools tz_safeAreaInsets].bottom;
     if (self.navigationController.navigationBar.isTranslucent) {
@@ -425,12 +431,6 @@ static CGFloat itemMargin = 5;
     if (tzImagePickerVc.photoPickerPageDidLayoutSubviewsBlock) {
         tzImagePickerVc.photoPickerPageDidLayoutSubviewsBlock(_collectionView, _bottomToolBar, _previewButton, _originalPhotoButton, _originalPhotoLabel, _doneButton, _numberImageView, _numberLabel, _divideLine);
     }
-}
-
-#pragma mark - Notification
-
-- (void)didChangeStatusBarOrientationNotification:(NSNotification *)noti {
-    _offsetItemCount = _collectionView.contentOffset.y / (_layout.itemSize.height + _layout.minimumLineSpacing);
 }
 
 #pragma mark - Click Event
@@ -793,7 +793,14 @@ static CGFloat itemMargin = 5;
         UIAlertAction *cancelAct = [UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] style:UIAlertActionStyleCancel handler:nil];
         [alertController addAction:cancelAct];
         UIAlertAction *settingAct = [UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"Setting"] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+            NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+            if ([[UIApplication sharedApplication]canOpenURL:url]) {
+                if (@available(iOS 10.0, *)) {
+                    [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+                } else {
+                    [[UIApplication sharedApplication] openURL:url];
+                }
+            }
         }];
         [alertController addAction:settingAct];
         [self.navigationController presentViewController:alertController animated:YES completion:nil];
@@ -812,11 +819,18 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)openSettingsApplication {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    if ([[UIApplication sharedApplication]canOpenURL:url]) {
+        if (@available(iOS 10.0, *)) {
+            [[UIApplication sharedApplication] openURL:url options:@{} completionHandler:nil];
+        } else {
+            [[UIApplication sharedApplication] openURL:url];
+        }
+    }
 }
 
 - (void)addMorePhoto {
-    if (@available(iOS 14, *)) {
+    if (@available(iOS 14.0, *)) {
         [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
     }
 }

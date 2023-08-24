@@ -3,7 +3,7 @@
 //  Flipboard
 //
 //  Created by Raphael Schaad on 7/8/13.
-//  Copyright (c) 2013-2015 Flipboard. All rights reserved.
+//  Copyright (c) Flipboard. All rights reserved.
 //
 
 
@@ -31,6 +31,6 @@
 
 // The animation runloop mode. Enables playback during scrolling by allowing timer events (i.e. animation) with NSRunLoopCommonModes.
 // To keep scrolling smooth on single-core devices such as iPhone 3GS/4 and iPod Touch 4th gen, the default run loop mode is NSDefaultRunLoopMode. Otherwise, the default is NSDefaultRunLoopMode.
-@property (nonatomic, copy) NSString *runLoopMode;
+@property (nonatomic, copy) NSRunLoopMode runLoopMode;
 
 @end

@@ -174,7 +174,11 @@ CG_INLINE CGPoint CGPointOffset(CGPoint point, CGFloat dx, CGFloat dy)
         {
             if (_displayLink == nil) {
                 _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkTriggered:)];
-                _displayLink.frameInterval = 6;
+                if (@available(iOS 10.0, *)) {
+                    _displayLink.preferredFramesPerSecond = 6;
+                } else {
+                    _displayLink.frameInterval = 6;
+                }
                 [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
                 
                 _remainSecondsToBeginEditing = MIN_PRESS_TO_BEGIN_EDITING_DURATION;

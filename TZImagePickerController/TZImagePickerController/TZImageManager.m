@@ -65,7 +65,7 @@ static dispatch_once_t onceToken;
 }
 
 - (BOOL)isPHAuthorizationStatusLimited {
-    if (@available(iOS 14,*)) {
+    if (@available(iOS 14.0, *)) {
         NSInteger status = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
         if (status == PHAuthorizationStatusLimited) {
             return YES;
@@ -79,15 +79,20 @@ static dispatch_once_t onceToken;
     if (self.isPreviewNetworkImage) {
         return YES;
     }
-    NSInteger status = [PHPhotoLibrary authorizationStatus];
-    if (status == 0) {
+    PHAuthorizationStatus orizationStatus = 0;
+    if (@available(iOS 14.0, *)) {
+        orizationStatus = [PHPhotoLibrary authorizationStatusForAccessLevel:PHAccessLevelReadWrite];
+    } else {
+        orizationStatus = [PHPhotoLibrary authorizationStatus];
+    }
+    if (orizationStatus == 0) {
         /**
          * 当某些情况下AuthorizationStatus == AuthorizationStatusNotDetermined时，无法弹出系统首次使用的授权alertView，系统应用设置里亦没有相册的设置，此时将无法使用，故作以下操作，弹出系统首次使用的授权alertView
          */
         [self requestAuthorizationWithCompletion:nil];
     }
     
-    return status == 3;
+    return orizationStatus == 3;
 }
 
 - (void)requestAuthorizationWithCompletion:(void (^)(void))completion {
@@ -100,9 +105,15 @@ static dispatch_once_t onceToken;
     };
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
-            callCompletionBlock();
-        }];
+        if (@available(iOS 14.0, *)) {
+            [PHPhotoLibrary requestAuthorizationForAccessLevel:PHAccessLevelReadWrite handler:^(PHAuthorizationStatus status) {
+                callCompletionBlock();
+            }];
+        } else {
+            [PHPhotoLibrary requestAuthorization:^(PHAuthorizationStatus status) {
+                callCompletionBlock();
+            }];
+        }
     });
 }
 
@@ -322,7 +333,7 @@ static dispatch_once_t onceToken;
         if (model.type == TZAssetModelMediaTypePhotoGif) {
             options.version = PHImageRequestOptionsVersionOriginal;
         }
-        [[PHImageManager defaultManager] requestImageDataForAsset:model.asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+        [[TZImageManager manager] requestImageDataFitSystemForAsset:model.asset options:options completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
             if (model.type != TZAssetModelMediaTypeVideo) dataLength += imageData.length;
             assetCount ++;
             if (assetCount >= photos.count) {
@@ -375,9 +386,24 @@ static dispatch_once_t onceToken;
     };
     options.networkAccessAllowed = YES;
     options.resizeMode = PHImageRequestOptionsResizeModeFast;
-    int32_t imageRequestID = [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+    int32_t imageRequestID = [[TZImageManager manager] requestImageDataFitSystemForAsset:asset options:options completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
         if (completion) completion(imageData,dataUTI,orientation,info);
     }];
+    return imageRequestID;
+}
+
+//适配iOS13
+- (PHImageRequestID)requestImageDataFitSystemForAsset:(PHAsset *)asset options:(nullable PHImageRequestOptions *)options completion:(void (^_Nonnull)(NSData *_Nullable imageData, NSString *_Nullable dataUTI, UIImageOrientation orientation, NSDictionary *_Nullable info))completion {
+    int32_t imageRequestID = 0;
+    if (@available(iOS 13.0, *)) {
+        imageRequestID = [[PHImageManager defaultManager] requestImageDataAndOrientationForAsset:asset options:options resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, CGImagePropertyOrientation orientation, NSDictionary * _Nullable info) {
+            if (completion) completion(imageData,dataUTI,[self imageOrientationWithCGImageOrientation:orientation],info);
+        }];
+    } else {
+        imageRequestID = [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+            if (completion) completion(imageData,dataUTI,orientation,info);
+        }];
+    }
     return imageRequestID;
 }
 
@@ -423,7 +449,7 @@ static dispatch_once_t onceToken;
             };
             options.networkAccessAllowed = YES;
             options.resizeMode = PHImageRequestOptionsResizeModeFast;
-            [[PHImageManager defaultManager] requestImageDataForAsset:asset options:options resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+            [[TZImageManager manager] requestImageDataFitSystemForAsset:asset options:options completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
                 UIImage *resultImage = [UIImage imageWithData:imageData];
                 if (![TZImagePickerConfig sharedInstance].notScaleImage) {
                     resultImage = [self scaleImage:resultImage toSize:imageSize];
@@ -473,7 +499,7 @@ static dispatch_once_t onceToken;
         [option setProgressHandler:progressHandler];
     }
     option.resizeMode = PHImageRequestOptionsResizeModeFast;
-    return [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
+    return [[TZImageManager manager] requestImageDataFitSystemForAsset:asset options:option completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
         BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
         if (!cancelled && imageData) {
             UIImage *result = [self fixOrientation:[UIImage imageWithData:imageData]];
@@ -496,7 +522,7 @@ static dispatch_once_t onceToken;
     }
     [option setProgressHandler:progressHandler];
     option.deliveryMode = PHImageRequestOptionsDeliveryModeHighQualityFormat;
-    return [[PHImageManager defaultManager] requestImageDataForAsset:asset options:option resultHandler:^(NSData *imageData, NSString *dataUTI, UIImageOrientation orientation, NSDictionary *info) {
+    return [[TZImageManager manager] requestImageDataFitSystemForAsset:asset options:option completion:^(NSData * _Nullable imageData, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
         BOOL cancelled = [[info objectForKey:PHImageCancelledKey] boolValue];
         if (!cancelled && imageData) {
             if (completion) completion(imageData,info,NO);
@@ -1061,6 +1087,30 @@ static dispatch_once_t onceToken;
     CGContextRelease(ctx);
     CGImageRelease(cgimg);
     return img;
+}
+
+- (UIImageOrientation)imageOrientationWithCGImageOrientation:(CGImagePropertyOrientation)orientation {
+    UIImageOrientation sureOrientation;
+    if (orientation == kCGImagePropertyOrientationUp) {
+        sureOrientation = UIImageOrientationUp;
+    } else if (orientation == kCGImagePropertyOrientationUpMirrored) {
+        sureOrientation = UIImageOrientationUpMirrored;
+    } else if (orientation == kCGImagePropertyOrientationDown) {
+        sureOrientation = UIImageOrientationDown;
+    } else if (orientation == kCGImagePropertyOrientationDownMirrored) {
+        sureOrientation = UIImageOrientationDownMirrored;
+    } else if (orientation == kCGImagePropertyOrientationLeftMirrored) {
+        sureOrientation = UIImageOrientationLeftMirrored;
+    } else if (orientation == kCGImagePropertyOrientationRight) {
+        sureOrientation = UIImageOrientationRight;
+    } else if (orientation == kCGImagePropertyOrientationRightMirrored) {
+        sureOrientation = UIImageOrientationRightMirrored;
+    } else if (orientation == kCGImagePropertyOrientationLeft) {
+        sureOrientation = UIImageOrientationLeft;
+    } else {
+        sureOrientation = UIImageOrientationUp;
+    }
+    return sureOrientation;
 }
 
 #pragma clang diagnostic pop

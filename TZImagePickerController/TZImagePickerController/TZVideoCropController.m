@@ -66,7 +66,11 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    if (@available(iOS 9.0, *)) {
+        
+    } else {
+        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    }
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -142,6 +146,9 @@
     layout.minimumLineSpacing = 0;
     layout.minimumInteritemSpacing = 0;
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+    if (@available(iOS 11.0, *)) {
+        _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
     _collectionView.contentInset = UIEdgeInsetsMake(0, VideoEditLeftMargin + PanImageWidth, 0, VideoEditLeftMargin + PanImageWidth);
@@ -315,7 +322,9 @@
     CMTime durationTime = _player.currentItem.duration;
     if (_player.rate == 0.0f) {
         [[NSNotificationCenter defaultCenter] postNotificationName:@"TZ_VIDEO_PLAY_NOTIFICATION" object:_player];
-        if (currentTime.value == durationTime.value) [_player.currentItem seekToTime:CMTimeMake(0, 1)];
+        if (currentTime.value == durationTime.value) {
+            [_player.currentItem seekToTime:CMTimeMake(0, 1) completionHandler:nil];
+        }
         _isPlayed = YES;
         [self starTimer];
         [_playButton setImage:nil forState:UIControlStateNormal];
