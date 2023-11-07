@@ -136,12 +136,8 @@
 }
 
 - (void)configBarButtonItemAppearance {
-    UIBarButtonItem *barItem;
-    if (@available(iOS 9, *)) {
-        barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
-    } else {
-        barItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
-    }
+    UIBarButtonItem *barItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
+    
     NSMutableDictionary *textAttrs = [NSMutableDictionary dictionary];
     textAttrs[NSForegroundColorAttributeName] = self.barItemTextColor;
     textAttrs[NSFontAttributeName] = self.barItemTextFont;
@@ -1014,15 +1010,8 @@
 }
 
 + (BOOL)tz_isRightToLeftLayout {
-    if (@available(iOS 9.0, *)) {
-        if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:UIView.appearance.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
-            return YES;
-        }
-    } else {
-        NSString *preferredLanguage = [NSLocale preferredLanguages].firstObject;
-        if ([preferredLanguage hasPrefix:@"ar-"]) {
-            return YES;
-        }
+    if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:UIView.appearance.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
+        return YES;
     }
     return NO;
 }
