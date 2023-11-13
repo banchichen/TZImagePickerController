@@ -151,7 +151,7 @@ static CGFloat itemMargin = 5;
         [self configCollectionView];
         self->_collectionView.hidden = YES;
         [self configBottomToolBar];
-        
+        [self updateBottomToolBar]; //fix: 受限的权限访问 更改选中的图片
         [self prepareScrollCollectionViewToBottom];
     });
 }
@@ -237,6 +237,16 @@ static CGFloat itemMargin = 5;
     [super viewDidAppear:animated];
     self.isFirstAppear = NO;
     // [self updateCachedAssets];
+}
+
+//fix 受限的权限访问 更改选中的图片
+- (void)updateBottomToolBar {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (!tzImagePickerVc.showSelectBtn) return;
+    _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
+    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
+    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
 }
 
 - (void)configBottomToolBar {
@@ -965,6 +975,23 @@ static CGFloat itemMargin = 5;
         if ([selectedAssets containsObject:model.asset]) {
             model.isSelected = YES;
         }
+    }
+    // fix: 受限的权限访问 更改选中的图片
+    NSMutableArray *removeArray = [NSMutableArray array];
+    for (TZAssetModel *model in selectedModels) {
+        __block BOOL isHave = NO;
+        [_models enumerateObjectsUsingBlock:^(TZAssetModel *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if([model.asset.localIdentifier isEqualToString:obj.asset.localIdentifier]){
+                isHave = YES;
+                *stop = YES;
+            }
+        }];
+        if(!isHave){
+            [removeArray addObject:model];
+        }
+    }
+    for (TZAssetModel *model in removeArray) {
+        [tzImagePickerVc removeSelectedModel:model];
     }
 }
 
