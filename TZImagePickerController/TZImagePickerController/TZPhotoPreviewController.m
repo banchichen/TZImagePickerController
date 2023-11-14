@@ -455,14 +455,6 @@
             }
         }
     }
-    
-    TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.currentIndex inSection:0];
-    TZPhotoPreviewCell *cell = (TZPhotoPreviewCell *)[_collectionView cellForItemAtIndexPath:indexPath];
-    if (_tzImagePickerVc.allowCrop && [cell isKindOfClass:[TZPhotoPreviewCell class]]) {
-        ///允许截屏时，实时传递是否选择原图状态
-        cell.isSelectOriginalPhoto = _isSelectOriginalPhoto;
-    }
 }
 
 - (void)didTapPreviewCell {
@@ -540,7 +532,6 @@
             [weakSelf didICloudSyncStatusChanged:model];
         };
     }
-    cell.isSelectOriginalPhoto = _isSelectOriginalPhoto;
     cell.model = model;
     [cell setSingleTapGestureBlock:^{
         __strong typeof(weakSelf) strongSelf = weakSelf;
