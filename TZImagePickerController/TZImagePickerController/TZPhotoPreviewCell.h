@@ -12,6 +12,8 @@
 @interface TZAssetPreviewCell : UICollectionViewCell
 @property (nonatomic, strong) TZAssetModel *model;
 @property (nonatomic, copy) void (^singleTapGestureBlock)(void);
+/// 是否选择原图
+@property (nonatomic, assign) BOOL isSelectOriginalPhoto;
 - (void)configSubviews;
 - (void)photoPreviewCollectionViewDidScroll;
 @end
@@ -52,6 +54,9 @@
 @property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
 
 @property (nonatomic, assign) int32_t imageRequestID;
+
+/// 是否选择原图
+@property (nonatomic, assign) BOOL isSelectOriginalPhoto;
 
 - (void)recoverSubviews;
 @end

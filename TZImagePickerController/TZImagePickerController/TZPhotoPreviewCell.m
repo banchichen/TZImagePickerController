@@ -26,6 +26,9 @@
     }
     return self;
 }
+- (void)setIsSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
+    _isSelectOriginalPhoto = isSelectOriginalPhoto;
+}
 
 - (void)configSubviews {
     
@@ -86,6 +89,17 @@
 - (void)setCropRect:(CGRect)cropRect {
     _cropRect = cropRect;
     _previewView.cropRect = cropRect;
+}
+
+- (void)setIsSelectOriginalPhoto:(BOOL)isSelectOriginalPhoto {
+    [super setIsSelectOriginalPhoto:isSelectOriginalPhoto];
+    self.previewView.isSelectOriginalPhoto = isSelectOriginalPhoto;
+    if (self.model) {
+        //切换原图后，已经展示过图片，重新赋值，刷新页面
+        self.model = self.model;
+    }
+    
+
 }
 
 - (void)layoutSubviews {
@@ -223,50 +237,86 @@
     }
     
     _asset = asset;
-    self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
-        BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
-        self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
-        self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
-        if (self.iCloudSyncFailedHandle) {
-            self.iCloudSyncFailedHandle(asset, iCloudSyncFailed);
-        }
-        if (![asset isEqual:self->_asset]) return;
-        if (photo) {
-            self.imageView.image = photo;
-        }
-        [self resizeSubviews];
-        if (self.imageView.tz_height && self.allowCrop) {
-            CGFloat scale = MAX(self.cropRect.size.width / self.imageView.tz_width, self.cropRect.size.height / self.imageView.tz_height);
-            if (self.scaleAspectFillCrop && scale > 1) { // 如果设置图片缩放裁剪并且图片需要缩放
-                CGFloat multiple = self.scrollView.maximumZoomScale / self.scrollView.minimumZoomScale;
-                self.scrollView.minimumZoomScale = scale;
-                self.scrollView.maximumZoomScale = scale * MAX(multiple, 2);
-                [self.scrollView setZoomScale:scale animated:YES];
+    if (_isSelectOriginalPhoto) {
+        //选择原图
+        self.imageRequestID = [[TZImageManager manager] getOriginalPhotoWithAsset:asset newCompletion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+            BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
+            self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
+            self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
+            if (self.iCloudSyncFailedHandle) {
+                self.iCloudSyncFailedHandle(asset, iCloudSyncFailed);
             }
-        }
-        
-        self->_progressView.hidden = YES;
-        if (self.imageProgressUpdateBlock) {
-            self.imageProgressUpdateBlock(1);
-        }
-        if (!isDegraded) {
-            self.imageRequestID = 0;
-        }
-    } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
-        if (![asset isEqual:self->_asset]) return;
-        self->_progressView.hidden = NO;
-        [self bringSubviewToFront:self->_progressView];
-        progress = progress > 0.02 ? progress : 0.02;
-        self->_progressView.progress = progress;
-        if (self.imageProgressUpdateBlock && progress < 1) {
-            self.imageProgressUpdateBlock(progress);
-        }
-        
-        if (progress >= 1) {
+            if (![asset isEqual:self->_asset]) return;
+            if (photo) {
+                self.imageView.image = photo;
+            }
+            [self resizeSubviews];
+            if (self.imageView.tz_height && self.allowCrop) {
+                CGFloat scale = MAX(self.cropRect.size.width / self.imageView.tz_width, self.cropRect.size.height / self.imageView.tz_height);
+                if (self.scaleAspectFillCrop && scale > 1) { // 如果设置图片缩放裁剪并且图片需要缩放
+                    CGFloat multiple = self.scrollView.maximumZoomScale / self.scrollView.minimumZoomScale;
+                    self.scrollView.minimumZoomScale = scale;
+                    self.scrollView.maximumZoomScale = scale * MAX(multiple, 2);
+                    [self.scrollView setZoomScale:scale animated:YES];
+                }
+            }
+            
             self->_progressView.hidden = YES;
-            self.imageRequestID = 0;
-        }
-    } networkAccessAllowed:YES];
+            if (self.imageProgressUpdateBlock) {
+                self.imageProgressUpdateBlock(1);
+            }
+            if (!isDegraded) {
+                self.imageRequestID = 0;
+            }
+        }];
+    } else {
+        //缩略图
+        self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+            BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
+            self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
+            self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
+            if (self.iCloudSyncFailedHandle) {
+                self.iCloudSyncFailedHandle(asset, iCloudSyncFailed);
+            }
+            if (![asset isEqual:self->_asset]) return;
+            if (photo) {
+                self.imageView.image = photo;
+            }
+            [self resizeSubviews];
+            if (self.imageView.tz_height && self.allowCrop) {
+                CGFloat scale = MAX(self.cropRect.size.width / self.imageView.tz_width, self.cropRect.size.height / self.imageView.tz_height);
+                if (self.scaleAspectFillCrop && scale > 1) { // 如果设置图片缩放裁剪并且图片需要缩放
+                    CGFloat multiple = self.scrollView.maximumZoomScale / self.scrollView.minimumZoomScale;
+                    self.scrollView.minimumZoomScale = scale;
+                    self.scrollView.maximumZoomScale = scale * MAX(multiple, 2);
+                    [self.scrollView setZoomScale:scale animated:YES];
+                }
+            }
+            
+            self->_progressView.hidden = YES;
+            if (self.imageProgressUpdateBlock) {
+                self.imageProgressUpdateBlock(1);
+            }
+            if (!isDegraded) {
+                self.imageRequestID = 0;
+            }
+        } progressHandler:^(double progress, NSError *error, BOOL *stop, NSDictionary *info) {
+            if (![asset isEqual:self->_asset]) return;
+            self->_progressView.hidden = NO;
+            [self bringSubviewToFront:self->_progressView];
+            progress = progress > 0.02 ? progress : 0.02;
+            self->_progressView.progress = progress;
+            if (self.imageProgressUpdateBlock && progress < 1) {
+                self.imageProgressUpdateBlock(progress);
+            }
+            
+            if (progress >= 1) {
+                self->_progressView.hidden = YES;
+                self.imageRequestID = 0;
+            }
+        } networkAccessAllowed:YES];
+    }
+    
     
     [self configMaximumZoomScale];
 }
