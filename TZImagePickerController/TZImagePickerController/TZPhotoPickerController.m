@@ -151,7 +151,7 @@ static CGFloat itemMargin = 5;
         [self configCollectionView];
         self->_collectionView.hidden = YES;
         [self configBottomToolBar];
-        
+        [self updateBottomToolBar];
         [self prepareScrollCollectionViewToBottom];
     });
 }
@@ -237,6 +237,15 @@ static CGFloat itemMargin = 5;
     [super viewDidAppear:animated];
     self.isFirstAppear = NO;
     // [self updateCachedAssets];
+}
+
+- (void)updateBottomToolBar {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    if (!tzImagePickerVc.showSelectBtn) return;
+    _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
+    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
+    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
+    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
 }
 
 - (void)configBottomToolBar {
@@ -1104,10 +1113,15 @@ static CGFloat itemMargin = 5;
     dispatch_async(dispatch_get_main_queue(), ^{
         PHFetchResultChangeDetails *changeDetail = [changeInstance changeDetailsForFetchResult:self.model.result];
         if (changeDetail == nil) return;
-        if (changeDetail.hasIncrementalChanges == NO) {
+        if ([[TZImageManager manager] isPHAuthorizationStatusLimited]) {
+            self.model.result = changeDetail.fetchResultAfterChanges;
+            self.model.count = changeDetail.fetchResultAfterChanges.count;
+            [self updateSelectModels:changeDetail.fetchResultAfterChanges]; //更新选中图片列表
+            [self fetchAssetModels];
+        }else if (changeDetail.hasIncrementalChanges == NO) {
             [self.model refreshFetchResult];
             [self fetchAssetModels];
-        } else {
+        }else {
             NSInteger insertedCount = changeDetail.insertedObjects.count;
             NSInteger removedCount = changeDetail.removedObjects.count;
             NSInteger changedCount = changeDetail.changedObjects.count;
@@ -1118,6 +1132,28 @@ static CGFloat itemMargin = 5;
             }
         }
     });
+}
+
+//更新选中的图片列表
+- (void)updateSelectModels:(PHFetchResult *)fetchResultAfterChanges{
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    NSArray *selectedModels = tzImagePickerVc.selectedModels;
+    NSMutableArray *removeArray = [NSMutableArray array];
+    for (TZAssetModel *model in selectedModels) {
+        __block BOOL isHave = NO;
+        [fetchResultAfterChanges enumerateObjectsUsingBlock:^(PHAsset *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if([model.asset.localIdentifier isEqualToString:obj.localIdentifier]){
+                isHave = YES;
+                *stop = YES; //找到后停止遍历
+            }
+        }];
+        if(!isHave){
+            [removeArray addObject:model];
+        }
+    }
+    for (TZAssetModel *model in removeArray) {
+        [tzImagePickerVc removeSelectedModel:model];
+    }
 }
 
 #pragma mark - Asset Caching
