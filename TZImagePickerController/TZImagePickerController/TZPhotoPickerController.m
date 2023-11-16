@@ -151,7 +151,7 @@ static CGFloat itemMargin = 5;
         [self configCollectionView];
         self->_collectionView.hidden = YES;
         [self configBottomToolBar];
-        [self updateBottomToolBar];
+        [self refreshBottomToolBarStatus];
         [self prepareScrollCollectionViewToBottom];
     });
 }
@@ -237,15 +237,6 @@ static CGFloat itemMargin = 5;
     [super viewDidAppear:animated];
     self.isFirstAppear = NO;
     // [self updateCachedAssets];
-}
-
-- (void)updateBottomToolBar {
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    if (!tzImagePickerVc.showSelectBtn) return;
-    _doneButton.enabled = tzImagePickerVc.selectedModels.count || tzImagePickerVc.alwaysEnableDoneBtn;
-    _numberImageView.hidden = tzImagePickerVc.selectedModels.count <= 0;
-    _numberLabel.text = [NSString stringWithFormat:@"%zd",tzImagePickerVc.selectedModels.count];
-    _numberLabel.hidden = tzImagePickerVc.selectedModels.count <= 0;
 }
 
 - (void)configBottomToolBar {
@@ -966,6 +957,7 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     NSArray *selectedModels = tzImagePickerVc.selectedModels;
     NSMutableSet *selectedAssets = [NSMutableSet setWithCapacity:selectedModels.count];
+    NSMutableSet *selectedAfterChanges = [NSMutableSet setWithCapacity:selectedModels.count];
     for (TZAssetModel *model in selectedModels) {
         [selectedAssets addObject:model.asset];
     }
@@ -973,8 +965,21 @@ static CGFloat itemMargin = 5;
         model.isSelected = NO;
         if ([selectedAssets containsObject:model.asset]) {
             model.isSelected = YES;
+            [selectedAfterChanges addObject:model.asset];
         }
     }
+    if(selectedAssets.count != selectedAfterChanges.count){
+        NSMutableArray *removeArray = [NSMutableArray array];
+        for (TZAssetModel *model in selectedModels) {
+            if(![selectedAfterChanges containsObject:model.asset]){
+                [removeArray addObject:model];
+            }
+        }
+        for (TZAssetModel *model in removeArray) {
+            [tzImagePickerVc removeSelectedModel:model];
+        }
+    }
+
 }
 
 /// 选中/取消选中某张照片
@@ -1116,7 +1121,6 @@ static CGFloat itemMargin = 5;
         if ([[TZImageManager manager] isPHAuthorizationStatusLimited]) {
             self.model.result = changeDetail.fetchResultAfterChanges;
             self.model.count = changeDetail.fetchResultAfterChanges.count;
-            [self updateSelectModels:changeDetail.fetchResultAfterChanges]; //更新选中图片列表
             [self fetchAssetModels];
         }else if (changeDetail.hasIncrementalChanges == NO) {
             [self.model refreshFetchResult];
@@ -1132,28 +1136,6 @@ static CGFloat itemMargin = 5;
             }
         }
     });
-}
-
-//更新选中的图片列表
-- (void)updateSelectModels:(PHFetchResult *)fetchResultAfterChanges{
-    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    NSArray *selectedModels = tzImagePickerVc.selectedModels;
-    NSMutableArray *removeArray = [NSMutableArray array];
-    for (TZAssetModel *model in selectedModels) {
-        __block BOOL isHave = NO;
-        [fetchResultAfterChanges enumerateObjectsUsingBlock:^(PHAsset *obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            if([model.asset.localIdentifier isEqualToString:obj.localIdentifier]){
-                isHave = YES;
-                *stop = YES; //找到后停止遍历
-            }
-        }];
-        if(!isHave){
-            [removeArray addObject:model];
-        }
-    }
-    for (TZAssetModel *model in removeArray) {
-        [tzImagePickerVc removeSelectedModel:model];
-    }
 }
 
 #pragma mark - Asset Caching
