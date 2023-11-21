@@ -521,6 +521,8 @@
     if (allowCrop) { // 允许裁剪的时候，不能选原图和GIF
         self.allowPickingOriginalPhoto = NO;
         self.allowPickingGif = NO;
+        self.photoWidth = 1200;
+        self.photoPreviewMaxWidth = 1200;
     }
 }
 
