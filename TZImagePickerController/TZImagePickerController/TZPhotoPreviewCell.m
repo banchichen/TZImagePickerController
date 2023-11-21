@@ -133,6 +133,7 @@
         _imageView.contentMode = UIViewContentModeScaleAspectFill;
         _imageView.clipsToBounds = YES;
         [_imageContainerView addSubview:_imageView];
+
         _iCloudErrorIcon = [[UIImageView alloc] init];
         _iCloudErrorIcon.image = [UIImage tz_imageNamedFromMyBundle:@"iCloudError"];
         _iCloudErrorIcon.hidden = YES;
@@ -222,7 +223,6 @@
     }
     
     _asset = asset;
-    
     self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
         self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
@@ -567,7 +567,7 @@
 
 #pragma mark - Click Event
 
-- (void)signleTapAction {    
+- (void)signleTapAction {
     if (self.singleTapGestureBlock) {
         self.singleTapGestureBlock();
     }
