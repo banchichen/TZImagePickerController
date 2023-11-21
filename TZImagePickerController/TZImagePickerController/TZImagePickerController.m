@@ -678,6 +678,15 @@
     [_selectedAssetIds removeObject:model.asset.localIdentifier];
 }
 
+- (void)setSelectedModels:(NSMutableArray<TZAssetModel *> *)selectedModels {
+    _selectedModels = selectedModels;
+    NSMutableArray *selectedAssetIds = [NSMutableArray array];
+    for (TZAssetModel *model in selectedModels) {
+        [selectedAssetIds addObject:model.asset.localIdentifier];
+    }
+    _selectedAssetIds = selectedAssetIds;
+}
+
 - (UIImage *)createImageWithColor:(UIColor *)color size:(CGSize)size radius:(CGFloat)radius {
     if (!color) {
         color = self.iconThemeColor;

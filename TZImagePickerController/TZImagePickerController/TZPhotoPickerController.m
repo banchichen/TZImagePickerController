@@ -957,29 +957,20 @@ static CGFloat itemMargin = 5;
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     NSArray *selectedModels = tzImagePickerVc.selectedModels;
     NSMutableSet *selectedAssets = [NSMutableSet setWithCapacity:selectedModels.count];
-    NSMutableSet *selectedAfterChanges = [NSMutableSet setWithCapacity:selectedModels.count];
     for (TZAssetModel *model in selectedModels) {
         [selectedAssets addObject:model.asset];
     }
+    // 拿到了最新的models，在此刷新照片选中状态
+    // 由于可能有照片权限变化，也需要刷新selectedModels https://github.com/banchichen/TZImagePickerController/pull/1658
+    NSMutableArray *newSelectedModels = [NSMutableArray array];
     for (TZAssetModel *model in _models) {
         model.isSelected = NO;
         if ([selectedAssets containsObject:model.asset]) {
             model.isSelected = YES;
-            [selectedAfterChanges addObject:model.asset];
+            [newSelectedModels addObject:model];
         }
     }
-    if(selectedAssets.count != selectedAfterChanges.count){
-        NSMutableArray *removeArray = [NSMutableArray array];
-        for (TZAssetModel *model in selectedModels) {
-            if(![selectedAfterChanges containsObject:model.asset]){
-                [removeArray addObject:model];
-            }
-        }
-        for (TZAssetModel *model in removeArray) {
-            [tzImagePickerVc removeSelectedModel:model];
-        }
-    }
-
+    tzImagePickerVc.selectedModels = newSelectedModels;
 }
 
 /// 选中/取消选中某张照片
