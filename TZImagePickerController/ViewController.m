@@ -299,8 +299,8 @@
     }];
     // imagePickerVc.autoSelectCurrentWhenDone = NO;
     
-//     imagePickerVc.photoWidth = 1600;
-//     imagePickerVc.photoPreviewMaxWidth = 1600;
+    // imagePickerVc.photoWidth = 1600;
+    // imagePickerVc.photoPreviewMaxWidth = 1600;
     
     // 2. Set the appearance
     // 2. 在这里设置imagePickerVc的外观

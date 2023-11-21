@@ -532,6 +532,7 @@
             [weakSelf didICloudSyncStatusChanged:model];
         };
     }
+    
     cell.model = model;
     [cell setSingleTapGestureBlock:^{
         __strong typeof(weakSelf) strongSelf = weakSelf;

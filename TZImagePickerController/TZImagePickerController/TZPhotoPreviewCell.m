@@ -88,7 +88,6 @@
     _previewView.cropRect = cropRect;
 }
 
-
 - (void)layoutSubviews {
     [super layoutSubviews];
     self.previewView.frame = self.bounds;
@@ -134,7 +133,6 @@
         _imageView.contentMode = UIViewContentModeScaleAspectFill;
         _imageView.clipsToBounds = YES;
         [_imageContainerView addSubview:_imageView];
-        
         _iCloudErrorIcon = [[UIImageView alloc] init];
         _iCloudErrorIcon.image = [UIImage tz_imageNamedFromMyBundle:@"iCloudError"];
         _iCloudErrorIcon.hidden = YES;
@@ -224,7 +222,7 @@
     }
     
     _asset = asset;
-    //缩略图
+    
     self.imageRequestID = [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
         BOOL iCloudSyncFailed = !photo && [TZCommonTools isICloudSyncError:info[PHImageErrorKey]];
         self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
@@ -269,8 +267,6 @@
             self.imageRequestID = 0;
         }
     } networkAccessAllowed:YES];
-    
-    
     
     [self configMaximumZoomScale];
 }
@@ -571,7 +567,7 @@
 
 #pragma mark - Click Event
 
-- (void)signleTapAction {
+- (void)signleTapAction {    
     if (self.singleTapGestureBlock) {
         self.singleTapGestureBlock();
     }
