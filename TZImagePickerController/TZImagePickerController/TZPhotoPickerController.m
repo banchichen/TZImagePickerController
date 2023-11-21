@@ -151,7 +151,7 @@ static CGFloat itemMargin = 5;
         [self configCollectionView];
         self->_collectionView.hidden = YES;
         [self configBottomToolBar];
-        
+        [self refreshBottomToolBarStatus];
         [self prepareScrollCollectionViewToBottom];
     });
 }
@@ -960,12 +960,17 @@ static CGFloat itemMargin = 5;
     for (TZAssetModel *model in selectedModels) {
         [selectedAssets addObject:model.asset];
     }
+    // 拿到了最新的models，在此刷新照片选中状态
+    // 由于可能有照片权限变化，也需要刷新selectedModels https://github.com/banchichen/TZImagePickerController/pull/1658
+    NSMutableArray *newSelectedModels = [NSMutableArray array];
     for (TZAssetModel *model in _models) {
         model.isSelected = NO;
         if ([selectedAssets containsObject:model.asset]) {
             model.isSelected = YES;
+            [newSelectedModels addObject:model];
         }
     }
+    tzImagePickerVc.selectedModels = newSelectedModels;
 }
 
 /// 选中/取消选中某张照片
@@ -1104,7 +1109,11 @@ static CGFloat itemMargin = 5;
     dispatch_async(dispatch_get_main_queue(), ^{
         PHFetchResultChangeDetails *changeDetail = [changeInstance changeDetailsForFetchResult:self.model.result];
         if (changeDetail == nil) return;
-        if (changeDetail.hasIncrementalChanges == NO) {
+        if ([[TZImageManager manager] isPHAuthorizationStatusLimited]) {
+            self.model.result = changeDetail.fetchResultAfterChanges;
+            self.model.count = changeDetail.fetchResultAfterChanges.count;
+            [self fetchAssetModels];
+        } else if (changeDetail.hasIncrementalChanges == NO) {
             [self.model refreshFetchResult];
             [self fetchAssetModels];
         } else {
