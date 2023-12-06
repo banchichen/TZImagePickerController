@@ -125,11 +125,14 @@ static CGFloat itemMargin = 5;
     dispatch_async(dispatch_get_global_queue(0, 0), ^{
         CGFloat systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
         if (!tzImagePickerVc.sortAscendingByModificationDate && self->_isFirstAppear && self->_model.isCameraRoll) {
-            [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:YES completion:^(TZAlbumModel *model) {
-                self->_model = model;
-                self->_models = [NSMutableArray arrayWithArray:self->_model.models];
-                [self initSubviews];
-            }];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:YES completion:^(TZAlbumModel *model) {
+                    self->_model = model;
+                    self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+                    [self initSubviews];
+                }];
+            });
+            
         } else if (self->_showTakePhotoBtn || self->_isFirstAppear || !self.model.models || systemVersion >= 14.0) {
             [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
                 self->_models = [NSMutableArray arrayWithArray:models];
