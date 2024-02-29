@@ -204,22 +204,23 @@ static CGFloat itemMargin = 5;
     
     _collectionView.contentSize = CGSizeMake(self.view.tz_width, (([self getAllCellCount] + self.columnNumber - 1) / self.columnNumber) * self.view.tz_width);
     if (_models.count == 0) {
-        if (_noDataLabel) {
-            [_noDataLabel removeFromSuperview];
-            _noDataLabel = nil;
-        }
-        _noDataLabel = [UILabel new];
+        [_collectionView addSubview:self.noDataLabel];
+    } else if (_noDataLabel) {
+        [_noDataLabel removeFromSuperview];
+        _noDataLabel = nil;
+    }
+}
+
+- (UILabel *)noDataLabel {
+    if (!_noDataLabel) {
+        _noDataLabel = [[UILabel alloc] initWithFrame:_collectionView.bounds];
         _noDataLabel.textAlignment = NSTextAlignmentCenter;
         _noDataLabel.text = [NSBundle tz_localizedStringForKey:@"No Photos or Videos"];
         CGFloat rgb = 153 / 256.0;
         _noDataLabel.textColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
         _noDataLabel.font = [UIFont boldSystemFontOfSize:20];
-        _noDataLabel.frame = _collectionView.bounds;
-        [_collectionView addSubview:_noDataLabel];
-    } else if (_noDataLabel) {
-        [_noDataLabel removeFromSuperview];
-        _noDataLabel = nil;
     }
+    return _noDataLabel;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
