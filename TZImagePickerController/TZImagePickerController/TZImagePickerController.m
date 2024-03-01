@@ -432,11 +432,51 @@
         TZPhotoPickerController *photoPickerVc = [[TZPhotoPickerController alloc] init];
         photoPickerVc.isFirstAppear = YES;
         photoPickerVc.columnNumber = self.columnNumber;
-        [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:NO completion:^(TZAlbumModel *model) {
-            photoPickerVc.model = model;
-            [self pushViewController:photoPickerVc animated:YES];
-            self->_didPushPhotoPickerVc = YES;
-        }];
+        
+        if (self.historySelectedAlbumName.length > 0) {
+            [[TZImageManager manager] getAllAlbumsWithFetchAssets:YES completion:^(NSArray<TZAlbumModel *> *models) {
+                BOOL matchAssetId = NO;
+                TZAlbumModel *cameraModel;
+                TZAlbumModel *findModel;
+                for (TZAlbumModel *model in models) {
+                    if (model.isCameraRoll) {
+                        cameraModel = model;
+                    }
+                    if ([model.name isEqualToString:self.historySelectedAlbumName]) {
+                        for (TZAssetModel *assetModel in model.models) {
+                            for (NSString *historyAssetId in self.historySelectedAssetIds) {
+                                if ([assetModel.asset.localIdentifier isEqualToString:historyAssetId]) {
+                                    // 有找到历史选择的资源
+                                    matchAssetId = YES;
+                                    findModel = model;
+                                    break;
+                                }
+                            }
+                            if (matchAssetId) {
+                                break;
+                            }
+                        }
+                    }
+                    if (matchAssetId) {
+                        break;
+                    }
+                }
+                
+                if (matchAssetId) {
+                    photoPickerVc.model = findModel;
+                } else {
+                    photoPickerVc.model = cameraModel;
+                }
+                [self pushViewController:photoPickerVc animated:YES];
+                self->_didPushPhotoPickerVc = YES;
+            }];
+        } else { // 默认是 push 到 最近项目-相册
+            [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:NO completion:^(TZAlbumModel *model) {
+                photoPickerVc.model = model;
+                [self pushViewController:photoPickerVc animated:YES];
+                self->_didPushPhotoPickerVc = YES;
+            }];
+        }
     }
 }
 

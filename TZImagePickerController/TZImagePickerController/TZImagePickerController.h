@@ -50,6 +50,10 @@
 - (instancetype)initCropTypeWithAsset:(PHAsset *)asset photo:(UIImage *)photo completion:(void (^)(UIImage *cropImage,PHAsset *asset))completion;
 
 #pragma mark -
+/// 历史选择相册名称
+@property (nonatomic, assign) NSString *historySelectedAlbumName;
+/// 历史选择资源 assetIds
+@property (nonatomic, copy) NSArray *historySelectedAssetIds;
 /// Default is 9 / 默认最大可选9张图片
 @property (nonatomic, assign) NSInteger maxImagesCount;
 
