@@ -1,13 +1,13 @@
 Pod::Spec.new do |s|
   s.name         = "TZImagePickerController"
-  s.version      = "3.8.4"
+  s.version      = "3.8.5"
   s.summary      = "A clone of UIImagePickerController, support picking multiple photos、original photo and video"
   s.homepage     = "https://github.com/banchichen/TZImagePickerController"
   s.license      = "MIT"
   s.author       = { "banchichen" => "tanzhenios@foxmail.com" }
   s.platform     = :ios
-  s.ios.deployment_target = "8.0"
-  s.source       = { :git => "https://github.com/banchichen/TZImagePickerController.git", :tag => "3.8.4" }
+  s.ios.deployment_target = "12.0"
+  s.source       = { :git => "https://github.com/banchichen/TZImagePickerController.git", :tag => "3.8.5" }
   s.requires_arc = true
   
   s.subspec 'Basic' do |b|

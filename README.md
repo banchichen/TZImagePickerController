@@ -128,6 +128,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
+**3.8.5 新增隐私清单文件** [#1675](https://github.com/banchichen/TZImagePickerController/pull/1675)               
 **3.8.4 支持使用不带定位代码的版本** [#1606](https://github.com/banchichen/TZImagePickerController/pull/1606)               
 **3.8.1 iOS14下可添加访问更多照片，详见PR内的评论** [#1526](https://github.com/banchichen/TZImagePickerController/pull/1526)               
 **3.7.6 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题** [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
