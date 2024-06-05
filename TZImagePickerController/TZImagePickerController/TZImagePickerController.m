@@ -193,7 +193,6 @@
         self.allowTakeVideo = YES;
         self.videoMaximumDuration = 10 * 60;
         self.sortAscendingByModificationDate = YES;
-        self.autoDismiss = YES;
         self.columnNumber = columnNumber;
         [self configDefaultSetting];
         
@@ -289,6 +288,7 @@
 }
 
 - (void)configDefaultSetting {
+    self.autoDismiss = YES;
     self.autoSelectCurrentWhenDone = YES;
     self.timeout = 30;
     self.photoWidth = 828.0;
