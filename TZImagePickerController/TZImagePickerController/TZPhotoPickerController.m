@@ -151,7 +151,6 @@ static CGFloat itemMargin = 5;
         [self configCollectionView];
         self->_collectionView.hidden = YES;
         [self configBottomToolBar];
-        [self refreshBottomToolBarStatus];
         [self prepareScrollCollectionViewToBottom];
     });
 }
@@ -966,16 +965,12 @@ static CGFloat itemMargin = 5;
         [selectedAssets addObject:model.asset];
     }
     // 拿到了最新的models，在此刷新照片选中状态
-    // 由于可能有照片权限变化，也需要刷新selectedModels https://github.com/banchichen/TZImagePickerController/pull/1658
-    NSMutableArray *newSelectedModels = [NSMutableArray array];
     for (TZAssetModel *model in _models) {
         model.isSelected = NO;
         if ([selectedAssets containsObject:model.asset]) {
             model.isSelected = YES;
-            [newSelectedModels addObject:model];
         }
     }
-    tzImagePickerVc.selectedModels = newSelectedModels;
 }
 
 /// 选中/取消选中某张照片
@@ -1115,10 +1110,14 @@ static CGFloat itemMargin = 5;
         PHFetchResultChangeDetails *changeDetail = [changeInstance changeDetailsForFetchResult:self.model.result];
         if (changeDetail == nil) return;
         if ([[TZImageManager manager] isPHAuthorizationStatusLimited]) {
-            self.model.result = changeDetail.fetchResultAfterChanges;
-            self.model.count = changeDetail.fetchResultAfterChanges.count;
-            [self fetchAssetModels];
-        } else if (changeDetail.hasIncrementalChanges == NO) {
+            NSArray *changedObjects = [changeDetail changedObjects];
+            changeDetail = [PHFetchResultChangeDetails changeDetailsFromFetchResult:self.model.result toFetchResult:changeDetail.fetchResultAfterChanges changedObjects:changedObjects];
+            if (changeDetail && changeDetail.removedObjects.count) {
+                [self handleRemovedAssets:changeDetail.removedObjects];
+            }
+        }
+
+        if (changeDetail.hasIncrementalChanges == NO) {
             [self.model refreshFetchResult];
             [self fetchAssetModels];
         } else {
@@ -1132,6 +1131,21 @@ static CGFloat itemMargin = 5;
             }
         }
     });
+}
+
+- (void)handleRemovedAssets:(NSArray<PHAsset *> *)removedObjects {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    for (PHAsset *asset in removedObjects) {
+        Boolean isSelected = [tzImagePickerVc.selectedAssetIds containsObject:asset.localIdentifier];
+        if (!isSelected) continue;
+        NSArray *selectedModels = [NSArray arrayWithArray:tzImagePickerVc.selectedModels];
+        for (TZAssetModel *model_item in selectedModels) {
+            if ([asset.localIdentifier isEqualToString:model_item.asset.localIdentifier]) {
+                [tzImagePickerVc removeSelectedModel:model_item];
+            }
+        }
+        [self refreshBottomToolBarStatus];
+    }
 }
 
 #pragma mark - Asset Caching
