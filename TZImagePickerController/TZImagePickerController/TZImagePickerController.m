@@ -658,7 +658,7 @@
 }
 
 - (void)settingBtnClick {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
