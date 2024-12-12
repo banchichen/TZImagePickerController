@@ -141,10 +141,10 @@
     layout.itemSize = CGSizeMake(_itemW, _itemW * 2);
     layout.minimumLineSpacing = 0;
     layout.minimumInteritemSpacing = 0;
+    layout.sectionInset = UIEdgeInsetsMake(0, VideoEditLeftMargin + PanImageWidth, 0, VideoEditLeftMargin + PanImageWidth);
     _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
     _collectionView.dataSource = self;
     _collectionView.delegate = self;
-    _collectionView.contentInset = UIEdgeInsetsMake(0, VideoEditLeftMargin + PanImageWidth, 0, VideoEditLeftMargin + PanImageWidth);
     _collectionView.clipsToBounds = NO;
     _collectionView.showsHorizontalScrollIndicator = NO;
     _collectionView.alwaysBounceHorizontal = YES;
@@ -271,7 +271,12 @@
 
 - (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TZVideoPictureCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZVideoPictureCell" forIndexPath:indexPath];
-    cell.imgView.image = self.videoImgArray[indexPath.item];
+    // 在RTL环境下，普通的UICollectionViewFlowLayout的cell是从右到左排列的，所以这里【需要】反向取值
+    if ([TZCommonTools tz_isRightToLeftLayout]) {
+        cell.imgView.image = self.videoImgArray[self.videoImgArray.count - 1 - indexPath.item];
+    } else {
+        cell.imgView.image = self.videoImgArray[indexPath.item];
+    }
     return cell;
 }
 
@@ -279,6 +284,8 @@
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     if (!_isDraging) return;
+    
+    // 在RTL环境下，普通的UICollectionViewFlowLayout的cell虽然是从右到左排列的，但是contentOffset依旧是从左到右的，所以这里【不需要】反向取值
     CGFloat offsetX = scrollView.contentOffset.x;
     if (offsetX - _collectionViewBeginOffsetX >= self.view.tz_width) {
         [self.collectionView setContentOffset:CGPointMake(self.view.tz_width + _collectionViewBeginOffsetX, 0) animated:NO];
