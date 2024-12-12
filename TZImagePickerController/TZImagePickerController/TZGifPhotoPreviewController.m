@@ -19,6 +19,7 @@
 @interface TZGifPhotoPreviewController () {
     UIView *_toolBar;
     UIButton *_doneButton;
+    UILabel *_byteLabel;
     UIProgressView *_progress;
     
     TZPhotoPreviewView *_previewView;
@@ -85,14 +86,14 @@
     }
     [_toolBar addSubview:_doneButton];
     
-    UILabel *byteLabel = [[UILabel alloc] init];
-    byteLabel.textColor = [UIColor whiteColor];
-    byteLabel.font = [UIFont systemFontOfSize:13];
-    byteLabel.frame = CGRectMake(10, 0, 100, 44);
+    _byteLabel = [[UILabel alloc] init];
+    _byteLabel.textColor = [UIColor whiteColor];
+    _byteLabel.font = [UIFont systemFontOfSize:13];
+    __weak typeof(_byteLabel) byteLabel = _byteLabel;
     [[TZImageManager manager] getPhotosBytesWithArray:@[_model] completion:^(NSString *totalBytes) {
         byteLabel.text = totalBytes;
     }];
-    [_toolBar addSubview:byteLabel];
+    [_toolBar addSubview:_byteLabel];
     
     [self.view addSubview:_toolBar];
     
@@ -119,7 +120,14 @@
     CGFloat toolBarHeight = 44 + [TZCommonTools tz_safeAreaInsets].bottom;
     _toolBar.frame = CGRectMake(0, self.view.tz_height - toolBarHeight, self.view.tz_width, toolBarHeight);
     [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 44);
+    
+    if ([TZCommonTools tz_isRightToLeftLayout]) {
+        _doneButton.frame = CGRectMake(12, 0, MAX(44, _doneButton.tz_width), 44);
+        _byteLabel.frame = CGRectMake(self.view.tz_width - 100 - 10, 0, 100, 44);
+    } else {
+        _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 44);
+        _byteLabel.frame = CGRectMake(10, 0, 100, 44);
+    }
     
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (tzImagePickerVc.gifPreviewPageDidLayoutSubviewsBlock) {
