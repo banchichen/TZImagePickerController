@@ -879,7 +879,7 @@ static dispatch_once_t onceToken;
 
 /// 缩放图片至新尺寸
 - (UIImage *)scaleImage:(UIImage *)image toSize:(CGSize)size {
-    if (image.size.width > size.width) {
+    if (image.size.width > size.width && size.width > 0 && size.height > 0) {
         UIGraphicsBeginImageContext(size);
         [image drawInRect:CGRectMake(0, 0, size.width, size.height)];
         UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
