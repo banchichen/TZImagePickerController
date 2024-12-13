@@ -175,7 +175,7 @@ static CGFloat itemMargin = 5;
 
 - (void)configCollectionView {
     if (!_collectionView) {
-        _layout = [[UICollectionViewFlowLayout alloc] init];
+        _layout = [TZCommonTools tz_rtlFlowLayout];
         _collectionView = [[TZCollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:_layout];
         if (@available(iOS 13.0, *)) {
             _collectionView.backgroundColor = UIColor.tertiarySystemBackgroundColor;
@@ -290,7 +290,7 @@ static CGFloat itemMargin = 5;
         _originalPhotoButton.enabled = tzImagePickerVc.selectedModels.count > 0;
         
         _originalPhotoLabel = [[UILabel alloc] init];
-        _originalPhotoLabel.textAlignment = NSTextAlignmentLeft;
+        _originalPhotoLabel.textAlignment = NSTextAlignmentNatural;
         _originalPhotoLabel.font = [UIFont systemFontOfSize:16];
         if (@available(iOS 13.0, *)) {
             _originalPhotoLabel.textColor = [UIColor labelColor];
@@ -369,8 +369,11 @@ static CGFloat itemMargin = 5;
     CGFloat collectionViewHeight = 0;
     CGFloat naviBarHeight = self.navigationController.navigationBar.tz_height;
     CGFloat footerTipViewH = _authorizationLimited ? 80 : 0;
+    
     BOOL isStatusBarHidden = [UIApplication sharedApplication].isStatusBarHidden;
     BOOL isFullScreen = self.view.tz_height == [UIScreen mainScreen].bounds.size.height;
+    BOOL isRTL = [TZCommonTools tz_isRightToLeftLayout];
+    
     CGFloat toolBarHeight = 50 + [TZCommonTools tz_safeAreaInsets].bottom;
     if (self.navigationController.navigationBar.isTranslucent) {
         top = naviBarHeight;
@@ -409,16 +412,33 @@ static CGFloat itemMargin = 5;
     if (!tzImagePickerVc.allowPreview) {
         previewWidth = 0.0;
     }
-    _previewButton.frame = CGRectMake(10, 3, previewWidth, 44);
-    _previewButton.tz_width = !tzImagePickerVc.showSelectBtn ? 0 : previewWidth;
+    previewWidth = !tzImagePickerVc.showSelectBtn ? 0 : previewWidth;
+    if (isRTL) {
+        _previewButton.frame = CGRectMake(self.view.tz_width - previewWidth - 10, 3, previewWidth, 44);
+    } else {
+        _previewButton.frame = CGRectMake(10, 3, previewWidth, 44);
+    }
+    
     if (tzImagePickerVc.allowPickingOriginalPhoto) {
         CGFloat fullImageWidth = [tzImagePickerVc.fullImageBtnTitleStr boundingRectWithSize:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX) options:NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13]} context:nil].size.width;
-        _originalPhotoButton.frame = CGRectMake(CGRectGetMaxX(_previewButton.frame), 0, fullImageWidth + 56, 50);
-        _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 46, 0, 80, 50);
+        if (isRTL) {
+            _originalPhotoButton.frame = CGRectMake(_previewButton.frame.origin.x - (fullImageWidth + 56), 0, fullImageWidth + 56, 50);
+            _originalPhotoLabel.frame = CGRectMake(-80 + 11, 0, 80, 50);
+        } else {
+            _originalPhotoButton.frame = CGRectMake(CGRectGetMaxX(_previewButton.frame), 0, fullImageWidth + 56, 50);
+            _originalPhotoLabel.frame = CGRectMake(fullImageWidth + 46, 0, 80, 50);
+        }
     }
+    
     [_doneButton sizeToFit];
-    _doneButton.frame = CGRectMake(self.view.tz_width - _doneButton.tz_width - 12, 0, MAX(44, _doneButton.tz_width), 50);
-    _numberImageView.frame = CGRectMake(_doneButton.tz_left - 24 - 5, 13, 24, 24);
+    CGFloat donwButtonWidth = MAX(44, _doneButton.tz_width);
+    if (isRTL) {
+        _doneButton.frame = CGRectMake(12, 0, donwButtonWidth, 50);
+        _numberImageView.frame = CGRectMake(_doneButton.tz_right + 5, 13, 24, 24);
+    } else {
+        _doneButton.frame = CGRectMake(self.view.tz_width - donwButtonWidth - 12, 0, donwButtonWidth, 50);
+        _numberImageView.frame = CGRectMake(_doneButton.tz_left - 24 - 5, 13, 24, 24);
+    }
     _numberLabel.frame = _numberImageView.frame;
     _divideLine.frame = CGRectMake(0, 0, self.view.tz_width, 1);
     

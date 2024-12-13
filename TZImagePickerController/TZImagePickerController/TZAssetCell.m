@@ -436,10 +436,23 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 24, 23, 24, 24);
+    
+    CGFloat selectedCountButtonX;
+    CGFloat titleLabelX;
+    CGFloat posterImageViewX;
+    if ([TZCommonTools tz_isRightToLeftLayout]) {
+        selectedCountButtonX = 24;
+        titleLabelX = 24;
+        posterImageViewX = self.contentView.tz_width - 70;
+    } else {
+        selectedCountButtonX = self.contentView.tz_width - 24;
+        titleLabelX = 80;
+        posterImageViewX = 0;
+    }
+    _selectedCountButton.frame = CGRectMake(selectedCountButtonX, 23, 24, 24);
     NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
-    self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
-    self.posterImageView.frame = CGRectMake(0, 0, 70, 70);
+    self.titleLabel.frame = CGRectMake(titleLabelX, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
+    self.posterImageView.frame = CGRectMake(posterImageViewX, 0, 70, 70);
     
     if (self.albumCellDidLayoutSubviewsBlock) {
         self.albumCellDidLayoutSubviewsBlock(self, _posterImageView, _titleLabel);
@@ -472,7 +485,7 @@
         } else {
             titleLabel.textColor = [UIColor blackColor];
         }
-        titleLabel.textAlignment = NSTextAlignmentLeft;
+        titleLabel.textAlignment = NSTextAlignmentNatural;
         [self.contentView addSubview:titleLabel];
         _titleLabel = titleLabel;
     }
