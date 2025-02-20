@@ -567,7 +567,7 @@
 
 #pragma mark - Click Event
 
-- (void)signleTapAction {    
+- (void)signleTapAction {
     if (self.singleTapGestureBlock) {
         self.singleTapGestureBlock();
     }

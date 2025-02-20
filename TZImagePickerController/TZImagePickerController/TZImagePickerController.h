@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.8.2 - 2022.07.20
+//  version 3.8.8 - 2024.10.27
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 /*
@@ -107,8 +107,8 @@
 /// Default is NO / 默认为NO，为YES时可以多选视频/gif/图片，和照片共享最大可选张数maxImagesCount的限制
 @property (nonatomic, assign) BOOL allowPickingMultipleVideo;
 
-/// Default is NO, if set YES, user can picking gif image.
-/// 默认为NO，如果设置为YES,用户可以选择gif图片
+/// Default is NO, if set YES, user can picking gif image. When NO, gif will be treated as a regular image. If want not displayed, please refer to isAssetCanBeDisplayed
+/// 默认为NO，如果设置为YES，用户可以选择gif图片。为NO时gif会被当成普通图片，若要不显示，请参考isAssetCanBeDisplayed
 @property (nonatomic, assign) BOOL allowPickingGif;
 
 /// Default is YES, if set NO, user can't picking image.

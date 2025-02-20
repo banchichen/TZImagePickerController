@@ -188,7 +188,6 @@ static CGFloat itemMargin = 5;
         [self configCollectionView];
         self->_collectionView.hidden = YES;
         [self configBottomToolBar];
-        
         [self prepareScrollCollectionViewToBottom];
     });
 }
@@ -243,17 +242,23 @@ static CGFloat itemMargin = 5;
     if (_models.count == 0) {
         [_noDataLabel removeFromSuperview];
         _noDataLabel = [UILabel new];
+        [_collectionView addSubview:self.noDataLabel];
+    } else if (_noDataLabel) {
+        [_noDataLabel removeFromSuperview];
+        _noDataLabel = nil;
+    }
+}
+
+- (UILabel *)noDataLabel {
+    if (!_noDataLabel) {
+        _noDataLabel = [[UILabel alloc] initWithFrame:_collectionView.bounds];
         _noDataLabel.textAlignment = NSTextAlignmentCenter;
         _noDataLabel.text = [NSBundle tz_localizedStringForKey:@"No Photos or Videos"];
         CGFloat rgb = 153 / 256.0;
         _noDataLabel.textColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
         _noDataLabel.font = [UIFont boldSystemFontOfSize:20];
-        _noDataLabel.frame = _collectionView.bounds;
-        [_collectionView addSubview:_noDataLabel];
-    } else if (_noDataLabel) {
-        [_noDataLabel removeFromSuperview];
-        _noDataLabel = nil;
     }
+    return _noDataLabel;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -831,7 +836,7 @@ static CGFloat itemMargin = 5;
         UIAlertAction *cancelAct = [UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] style:UIAlertActionStyleCancel handler:nil];
         [alertController addAction:cancelAct];
         UIAlertAction *settingAct = [UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"Setting"] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
         }];
         [alertController addAction:settingAct];
         [self.navigationController presentViewController:alertController animated:YES completion:nil];
@@ -850,7 +855,7 @@ static CGFloat itemMargin = 5;
 }
 
 - (void)openSettingsApplication {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
 }
 
 - (void)addMorePhoto {
@@ -998,6 +1003,7 @@ static CGFloat itemMargin = 5;
     for (TZAssetModel *model in selectedModels) {
         [selectedAssets addObject:model.asset];
     }
+    // 拿到了最新的models，在此刷新照片选中状态
     for (TZAssetModel *model in _models) {
         model.isSelected = NO;
         if ([selectedAssets containsObject:model.asset]) {
@@ -1142,6 +1148,14 @@ static CGFloat itemMargin = 5;
     dispatch_async(dispatch_get_main_queue(), ^{
         PHFetchResultChangeDetails *changeDetail = [changeInstance changeDetailsForFetchResult:self.model.result];
         if (changeDetail == nil) return;
+        if ([[TZImageManager manager] isPHAuthorizationStatusLimited]) {
+            NSArray *changedObjects = [changeDetail changedObjects];
+            changeDetail = [PHFetchResultChangeDetails changeDetailsFromFetchResult:self.model.result toFetchResult:changeDetail.fetchResultAfterChanges changedObjects:changedObjects];
+            if (changeDetail && changeDetail.removedObjects.count) {
+                [self handleRemovedAssets:changeDetail.removedObjects];
+            }
+        }
+
         if (changeDetail.hasIncrementalChanges == NO) {
             [self.model refreshFetchResult];
             [self fetchAssetModels];
@@ -1156,6 +1170,21 @@ static CGFloat itemMargin = 5;
             }
         }
     });
+}
+
+- (void)handleRemovedAssets:(NSArray<PHAsset *> *)removedObjects {
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
+    for (PHAsset *asset in removedObjects) {
+        Boolean isSelected = [tzImagePickerVc.selectedAssetIds containsObject:asset.localIdentifier];
+        if (!isSelected) continue;
+        NSArray *selectedModels = [NSArray arrayWithArray:tzImagePickerVc.selectedModels];
+        for (TZAssetModel *model_item in selectedModels) {
+            if ([asset.localIdentifier isEqualToString:model_item.asset.localIdentifier]) {
+                [tzImagePickerVc removeSelectedModel:model_item];
+            }
+        }
+        [self refreshBottomToolBarStatus];
+    }
 }
 
 #pragma mark - Asset Caching
