@@ -36,7 +36,7 @@
 @property (nonatomic, assign) NSInteger columnNumber;
 @property (nonatomic, assign) NSInteger HUDTimeoutCount; ///< 超时隐藏HUD计数
 @end
-
+// 这是一个测试代码
 @implementation TZImagePickerController
 
 - (instancetype)init {
