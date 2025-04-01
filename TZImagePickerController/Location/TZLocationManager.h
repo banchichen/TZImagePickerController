@@ -14,7 +14,7 @@
 
 + (instancetype)manager NS_SWIFT_NAME(default());
 
-/// 开始定位
+/// 开始定位哈哈哈哈
 - (void)startLocation;
 - (void)startLocationWithSuccessBlock:(void (^)(NSArray<CLLocation *> *))successBlock failureBlock:(void (^)(NSError *error))failureBlock;
 - (void)startLocationWithGeocoderBlock:(void (^)(NSArray *geocoderArray))geocoderBlock;
