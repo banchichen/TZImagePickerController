@@ -942,6 +942,16 @@
 @end
 
 
+// 适配RTL的UICollectionViewFlowLayout
+@interface TZRTLLayout : UICollectionViewFlowLayout
+@end
+
+@implementation TZRTLLayout
+- (BOOL)flipsHorizontallyInOppositeLayoutDirection {
+    return [TZCommonTools tz_isRightToLeftLayout];
+}
+@end
+
 @implementation TZCommonTools
 
 + (UIEdgeInsets)tz_safeAreaInsets {
@@ -1057,6 +1067,10 @@
         }
     }
     return notSelectable;
+}
+
++ (UICollectionViewFlowLayout *)tz_rtlFlowLayout {
+    return [[TZRTLLayout alloc] init];
 }
 
 @end

@@ -375,6 +375,7 @@
 + (void)configBarButtonItem:(UIBarButtonItem *)item tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc;
 + (BOOL)isICloudSyncError:(NSError *)error;
 + (BOOL)isAssetNotSelectable:(TZAssetModel *)model tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc;
++ (UICollectionViewFlowLayout *)tz_rtlFlowLayout;
 @end
 
 
