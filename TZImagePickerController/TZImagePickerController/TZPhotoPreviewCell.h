@@ -29,11 +29,16 @@
 @property (nonatomic, assign) BOOL scaleAspectFillCrop;
 
 - (void)recoverSubviews;
+- (void)reloadImageView;
 
 @end
 
 
 @interface TZPhotoPreviewView : UIView
+
+@property (atomic, strong) UIImage* originImage;
+@property (atomic, strong) UIImage* correctedImage;
+
 @property (nonatomic, strong) UIImageView *imageView;
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIView *imageContainerView;
@@ -53,7 +58,10 @@
 
 @property (nonatomic, assign) int32_t imageRequestID;
 
+@property (nonatomic, assign) float tempCorrectedStrenth;
+
 - (void)recoverSubviews;
+- (void)reloadImageView;
 @end
 
 

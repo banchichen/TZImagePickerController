@@ -8,6 +8,8 @@
 
 #import "UIView+TZLayout.h"
 
+#define angle2Radian(angle) ((angle)/180.0*M_PI)
+
 @implementation UIView (TZLayout)
 
 - (CGFloat)tz_left {
@@ -122,5 +124,64 @@
         }];
     }];
 }
+
++ (void)showOscillatoryAnimationWithLayerForShare:(CALayer *)layer {
+    NSNumber *animationScale1 = @(2.0);
+    NSNumber *animationScale2 = @(1.0);
+    // UIViewAnimationOptionRepeat
+    [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
+        [layer setValue:animationScale1 forKeyPath:@"transform.scale"];
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
+            [layer setValue:animationScale2 forKeyPath:@"transform.scale"];
+        } completion:^(BOOL finished) {
+            [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
+                [layer setValue:animationScale1 forKeyPath:@"transform.scale"];
+            } completion:^(BOOL finished) {
+                [UIView animateWithDuration:0.3 delay:0 options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionCurveEaseInOut animations:^{
+                    [layer setValue:animationScale2 forKeyPath:@"transform.scale"];
+                } completion:^(BOOL finished) {
+                }];
+            }];
+        }];
+    }];
+}
+
++ (void)shakeLeftAndRightActionWithView:(__kindof UIView *)view {
+    
+    CABasicAnimation *shake = [CABasicAnimation animationWithKeyPath:@"position"];
+    [shake setDuration:0.1];
+    [shake setRepeatCount:2];
+    [shake setAutoreverses:YES];
+    [shake setFromValue:[NSValue valueWithCGPoint:
+                         CGPointMake(view.center.x - 6, view.center.y)]];
+    [shake setToValue:[NSValue valueWithCGPoint:
+                       CGPointMake(view.center.x + 6, view.center.y)]];
+    [view.layer addAnimation:shake forKey:@"position"];
+    
+}
+
++ (void)shakeUpperLeftAndRightActionWithView:(__kindof UIView *)view {
+    
+    CAKeyframeAnimation *keyAnima = [CAKeyframeAnimation animation];
+    keyAnima.keyPath = @"transform.rotation";
+    view.layer.position = CGPointMake(view.frame.origin.x +view.frame.size.width/2,
+                                         view.frame.origin.y +view.frame.size.height);
+    view.layer.anchorPoint = CGPointMake(0.5, 1);
+    //设置图标抖动弧度  把度数转换为弧度  度数/180*M_PI
+    keyAnima.values = @[@(angle2Radian(0)),
+                        @(-angle2Radian(12)),
+                        @(angle2Radian(0)),
+                        @(angle2Radian(12)),
+                        @(angle2Radian(0))];
+    //设置动画时间
+    keyAnima.duration = 0.3;
+    //设置动画的重复次数
+    keyAnima.repeatCount = 2;
+    keyAnima.fillMode = kCAFillModeForwards;
+    keyAnima.removedOnCompletion = NO;
+    [view.layer addAnimation:keyAnima forKey:@"animateLayer"];
+}
+
 
 @end

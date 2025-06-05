@@ -28,4 +28,12 @@ typedef enum : NSUInteger {
 
 + (void)showOscillatoryAnimationWithLayer:(CALayer *)layer type:(TZOscillatoryAnimationType)type;
 
++ (void)showOscillatoryAnimationWithLayerForShare:(CALayer *)layer;
+
+// 横向摇动
++ (void)shakeLeftAndRightActionWithView:(__kindof UIView *)view;
+
+// 头部摇动，底部不动
++ (void)shakeUpperLeftAndRightActionWithView:(__kindof UIView *)view;
+
 @end

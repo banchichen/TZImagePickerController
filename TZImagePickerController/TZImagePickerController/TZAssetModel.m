@@ -8,6 +8,30 @@
 
 #import "TZAssetModel.h"
 #import "TZImageManager.h"
+#import "ImageProcessor.h"
+#import "Utils.h"
+
+@implementation TZImageModel
+
++ (instancetype)modelWithImage:(UIImage*)image failed:(BOOL)isFailed
+{
+    TZImageModel* model = [TZImageModel new];
+    model.image = image;
+    model.isFailed = isFailed;
+    model.isSelected = NO;
+    return model;
+}
+
++ (instancetype)modelWithImagePath:(NSString*)path failed:(BOOL)isFailed
+{
+    TZImageModel* model = [TZImageModel new];
+    model.imagePath = path;
+    model.isFailed = isFailed;
+    model.isSelected = NO;
+    return model;
+}
+
+@end
 
 @implementation TZAssetModel
 
@@ -23,6 +47,46 @@
     TZAssetModel *model = [self modelWithAsset:asset type:type];
     model.timeLength = timeLength;
     return model;
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        _strenth = 1.0;
+    }
+    return self;
+}
+
+- (void)processAutoColorSaveWithCompletion:(void(^)(BOOL success, NSError* error, UIImage* resultImage))completion
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        if (self->_asset) {
+            [[TZImageManager manager] getOriginalPhotoDataWithAsset:self->_asset completion:^(NSData *data, NSDictionary *info, BOOL isDegraded) {
+                if (isDegraded) {
+                    return;
+                }
+                if (!data) {
+                    NSError* error = [Utils error:@"ColorCorrection" desc:@"Original image data should not be null." code:-4];
+                    completion(NO, error, nil);
+                }
+                UIImage *originImage = [UIImage imageWithData:data];
+                NSDate *creationDate = [self->_asset isKindOfClass:[PHAsset class]] ? ((PHAsset*)self->_asset).creationDate : nil;
+                
+                CGImageSourceRef imageSource = CGImageSourceCreateWithData((__bridge CFDataRef)data, NULL);
+                NSDictionary *imageInfo = (__bridge NSDictionary *)CGImageSourceCopyPropertiesAtIndex(imageSource, 0, NULL);
+                CFRelease(imageSource);
+                
+                [ImageProcessor saveCorrectedImage:originImage metaData:imageInfo strenth:self->_strenth creationDate:creationDate forceFixOrientation:YES completionHandler:^(BOOL success, NSError *error, NSString *localIdentifier, UIImage *resultImage) {
+                    completion(success, error, resultImage);
+                }];
+            }];
+        }
+        else {
+            NSError* error = [Utils error:@"ColorCorrection" desc:@"Selected asset should not be null." code:-1];
+            completion(NO, error, nil);
+        }
+    });
 }
 
 @end

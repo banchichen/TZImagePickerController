@@ -19,7 +19,23 @@ typedef enum : NSUInteger {
 } TZAssetModelMediaType;
 
 @class PHAsset;
+
+@interface TZImageModel : NSObject
+
+@property (nonatomic, strong) UIImage* image;
+@property (nonatomic, strong) NSString* imagePath;
+@property (nonatomic, assign) BOOL isSelected;
+@property (nonatomic, assign) BOOL isFailed;
+
++ (instancetype)modelWithImage:(UIImage*)image failed:(BOOL)isFailed;
++ (instancetype)modelWithImagePath:(NSString*)path failed:(BOOL)isFailed;
+
+@end
+
 @interface TZAssetModel : NSObject
+
+@property (nonatomic, assign) BOOL showCorrectedImage;
+@property (nonatomic, assign) float strenth;
 
 @property (nonatomic, strong) PHAsset *asset;
 @property (nonatomic, assign) BOOL isSelected;      ///< The select status of a photo, default is No
@@ -31,6 +47,8 @@ typedef enum : NSUInteger {
 /// 用一个PHAsset实例，初始化一个照片模型
 + (instancetype)modelWithAsset:(PHAsset *)asset type:(TZAssetModelMediaType)type;
 + (instancetype)modelWithAsset:(PHAsset *)asset type:(TZAssetModelMediaType)type timeLength:(NSString *)timeLength;
+
+- (void)processAutoColorSaveWithCompletion:(void(^)(BOOL success, NSError* error, UIImage* resultImage))completion;
 
 @end
 
