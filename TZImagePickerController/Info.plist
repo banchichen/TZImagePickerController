@@ -32,6 +32,8 @@
 	<string>访问麦克风以录像</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>访问相册以选择照片</string>
+	<key>PHPhotoLibraryPreventAutomaticLimitedAccessAlert</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

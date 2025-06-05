@@ -3,12 +3,12 @@
 [![Carthage compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
 
- A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, support iOS6+.   
- 一个支持多选、选原图和视频的图片选择器，同时有预览功能，支持iOS6+。
+ A clone of UIImagePickerController, support picking multiple photos、original photo、video, also allow preview photo and video, support iOS10+.   
+ 一个支持多选、选原图和视频的图片选择器，同时有预览功能，支持iOS10+。
  
 ## 重要提示1：提issue前，请先对照Demo、常见问题自查！Demo正常说明你可以升级下新版试试。          
  
-## 重要提示2：3.7.0版本修复了iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题，强烈建议尽快更新  
+## 重要提示2：3.8.8版本修复了iOS18下无照片和openURL失效的问题       
      关于iOS14模拟器的问题
  PHAuthorizationStatusLimited授权模式下，iOS14模拟器有bug，未授权照片无法显示，真机正常，暂可忽略：https://github.com/banchichen/TZImagePickerController/issues/1347 
  
@@ -22,8 +22,8 @@
 ## 一. Installation 安装
 
 #### CocoaPods
-> pod 'TZImagePickerController'   #iOS8 and later        
-> pod 'TZImagePickerController', '2.2.6'   #iOS6、iOS7        
+> pod 'TZImagePickerController'        # Full version with all features      
+> pod 'TZImagePickerController/Basic'  # No location code        
 
 #### Carthage
 > github "banchichen/TZImagePickerController"
@@ -43,21 +43,17 @@
     [self presentViewController:imagePickerVc animated:YES completion:nil];
   
 ## 三. Requirements 要求
-   iOS 6 or later. Requires ARC  
-   iOS6及以上系统可使用. ARC环境.
-   
-   When system version is iOS6 or iOS7,  Using AssetsLibrary.  
-   When system version is iOS8 or later, Using PhotoKit.  
-   如果运行在iOS6或7系统上，用的是AssetsLibrary库获取照片资源。  
-   如果运行在iOS8及以上系统上，用的是PhotoKit库获取照片资源。
-   
+   iOS 10 or later.      
+   支持iOS10及以上系统。      
+  
    TZImagePickerController uses Camera、Location、Microphone、Photo Library，you need add these properties to info.plist like Demo：       
    TZImagePickerController使用了相机、定位、麦克风、相册，请参考Demo添加下列属性到info.plist文件：        
    	`Privacy - Camera Usage Description`     
-        `Privacy - Location Usage Description`
+    `Privacy - Location Usage Description`    
 	`Privacy - Location When In Use Usage Description`    
  	`Privacy - Microphone Usage Description`   
  	`Privacy - Photo Library Usage Description`   
+    `Prevent limited photos access alert`    
    
 ## 四. More 更多 
 
@@ -96,12 +92,11 @@ A：https://github.com/banchichen/TZImagePickerController/issues/652
 **Q：可否增加微信编辑图片的功能？**           
 A：考虑下，优先级低  
 
-**Q：是否有QQ/微信群？**            
-A：有QQ群：859033147           
+**Q：是否有QQ/微信群/钉钉群？**            
+A：有「钉钉群：33192786」和「QQ群：859033147」，推荐加钉钉群，答疑响应更快         
 
 **Q：想提交一个Pull Request？**           
-A：请先加下面钉钉群说下方案，和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。     
-<img src="https://gw.alicdn.com/tfs/TB1xvz7jIVl614jSZKPXXaGjpXa-970-1280.jpg" width="30%" height="30%">
+A：请先加钉钉群(33192786)说下方案，和我确认下，避免同时改动同一处内容。**一个PR请只修复1个问题，变动内容越少越好**。     
 
 **Q：demo在真机上跑不起来？**             
 A：1、team选你自己的；2、bundleId也改成你自己的或改成一个不会和别人重复的。可参考[简书的这篇博客](https://www.jianshu.com/p/cbe59138fca6)             
@@ -128,13 +123,17 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 
 ## 六. Release Notes 最近更新     
 
-**3.7.2 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题** [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
+**3.8.8 支持iOS18，修复openURL的失效问题** [#1686](https://github.com/banchichen/TZImagePickerController/issues/1686)               
+**3.8.5 新增隐私清单文件** [#1675](https://github.com/banchichen/TZImagePickerController/pull/1675)               
+**3.8.4 支持使用不带定位代码的版本** [#1606](https://github.com/banchichen/TZImagePickerController/pull/1606)               
+3.8.1 iOS14下可添加访问更多照片，详见PR内的评论 [#1526](https://github.com/banchichen/TZImagePickerController/pull/1526)               
+3.7.6 修复iOS15.2下初次授权相册权限时的长时间卡顿&白屏问题 [#1547](https://github.com/banchichen/TZImagePickerController/issues/1547)               
 **3.6.7 修复Xcode13&iOS15下导航栏颜色异常问题**        
 3.6.2 新增allowEditVideo，单选视频时支持裁剪        
 3.6.0 修复iOS14下iCloud视频导出失败问题        
 **3.5.2 适配iPhone12系列设备**        
 3.4.4 支持Dark Mode      
-**3.4.2 适配iOS14，若干问题修复**                  
+3.4.2 适配iOS14，若干问题修复                  
 3.3.2 适配iOS13，若干问题修复                 
 3.2.1 新增裁剪用scaleAspectFillCrop属性，设置为YES后，照片尺寸小于裁剪框时会自动放大撑满                
 3.2.0 加入用NSOperationQueue控制获取原图并发数降低内存的示例          
@@ -171,3 +170,7 @@ A：不要去拿PHImageFileURLKey，没用的，只有通过Photos框架才能�
 ...      
 1.4.5  性能大幅提升（性能测试截图请去博客查看）；可在照片列表页拍照；Demo大幅优化；   
 ...        
+
+## 七. Common links 常用链接    
+1. Json diff online: https://www.jsondiffonline.com/       
+

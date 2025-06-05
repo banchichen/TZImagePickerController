@@ -529,10 +529,23 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    _selectedCountButton.frame = CGRectMake(self.contentView.tz_width - 24, 23, 24, 24);
+    
+    CGFloat selectedCountButtonX;
+    CGFloat titleLabelX;
+    CGFloat posterImageViewX;
+    if ([TZCommonTools tz_isRightToLeftLayout]) {
+        selectedCountButtonX = 24;
+        titleLabelX = 24;
+        posterImageViewX = self.contentView.tz_width - 70;
+    } else {
+        selectedCountButtonX = self.contentView.tz_width - 24;
+        titleLabelX = 80;
+        posterImageViewX = 0;
+    }
+    _selectedCountButton.frame = CGRectMake(selectedCountButtonX, 23, 24, 24);
     NSInteger titleHeight = ceil(self.titleLabel.font.lineHeight);
-    self.titleLabel.frame = CGRectMake(80, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
-    self.posterImageView.frame = CGRectMake(0, 0, 70, 70);
+    self.titleLabel.frame = CGRectMake(titleLabelX, (self.tz_height - titleHeight) / 2, self.tz_width - 80 - 50, titleHeight);
+    self.posterImageView.frame = CGRectMake(posterImageViewX, 0, 70, 70);
     
     if (self.albumCellDidLayoutSubviewsBlock) {
         self.albumCellDidLayoutSubviewsBlock(self, _posterImageView, _titleLabel);
@@ -560,8 +573,12 @@
     if (_titleLabel == nil) {
         UILabel *titleLabel = [[UILabel alloc] init];
         titleLabel.font = [UIFont boldSystemFontOfSize:17];
-        titleLabel.textColor = [UIColor blackColor];
-        titleLabel.textAlignment = NSTextAlignmentLeft;
+        if (@available(iOS 13.0, *)) {
+            titleLabel.textColor = UIColor.labelColor;
+        } else {
+            titleLabel.textColor = [UIColor blackColor];
+        }
+        titleLabel.textAlignment = NSTextAlignmentNatural;
         [self.contentView addSubview:titleLabel];
         _titleLabel = titleLabel;
     }
@@ -605,6 +622,33 @@
 - (void)layoutSubviews {
     [super layoutSubviews];
     _imageView.frame = self.bounds;
+}
+
+@end
+
+
+@implementation TZAssetAddMoreCell
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        _tipLabel = [[UILabel alloc] init];
+        _tipLabel.numberOfLines = 2;
+        _tipLabel.textAlignment = NSTextAlignmentCenter;
+        _tipLabel.font = [UIFont systemFontOfSize:12];
+        _tipLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
+        CGFloat rgb = 156 / 255.0;
+        _tipLabel.textColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
+        [self.contentView addSubview:_tipLabel];
+
+        self.clipsToBounds = YES;
+    }
+    return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _tipLabel.frame = CGRectMake(5, self.tz_height / 2, self.tz_width - 10, self.tz_height / 2 - 5);
 }
 
 @end

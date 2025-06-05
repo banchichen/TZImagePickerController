@@ -4,7 +4,7 @@
 //
 //  Created by 谭真 on 15/12/24.
 //  Copyright © 2015年 谭真. All rights reserved.
-//  version 3.7.2 - 2022.01.12
+//  version 3.8.9 - 2025.5.27
 //  更多信息，请前往项目的github地址：https://github.com/banchichen/TZImagePickerController
 
 #import "TZImagePickerController.h"
@@ -196,7 +196,6 @@
         self.allowTakeVideo = YES;
         self.videoMaximumDuration = 10 * 60;
         self.sortAscendingByModificationDate = YES;
-        self.autoDismiss = YES;
         self.columnNumber = columnNumber;
         [self configDefaultSetting];
         
@@ -296,6 +295,7 @@
 }
 
 - (void)configDefaultSetting {
+    self.autoDismiss = YES;
     self.autoSelectCurrentWhenDone = YES;
     self.timeout = 30;
     self.photoWidth = 828.0;
@@ -311,7 +311,9 @@
     self.needFixComposition = NO;
     self.statusBarStyle = UIStatusBarStyleLightContent;
     self.cannotSelectLayerColor = [[UIColor whiteColor] colorWithAlphaComponent:0.8];
+#ifdef TZ_HAVE_LOCATION_CODE
     self.allowCameraLocation = YES;
+#endif
     self.presetName = AVAssetExportPresetMediumQuality;
     self.maxCropVideoDuration = 30;
     
@@ -330,6 +332,7 @@
     self.photoPreviewOriginDefImageName = @"preview_original_def";
     self.photoOriginDefImageName = @"photo_original_def";
     self.photoOriginSelImageName = @"photo_original_sel";
+    self.addMorePhotoImage = [UIImage tz_imageNamedFromMyBundle:@"addMore"];
 }
 
 - (void)setTakePictureImageName:(NSString *)takePictureImageName {
@@ -553,6 +556,8 @@
     if (allowCrop) { // 允许裁剪的时候，不能选原图和GIF
         self.allowPickingOriginalPhoto = NO;
         self.allowPickingGif = NO;
+        self.photoWidth = 1200;
+        self.photoPreviewMaxWidth = 1200;
     }
 }
 
@@ -688,7 +693,7 @@
 }
 
 - (void)settingBtnClick {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
 }
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated {
@@ -794,7 +799,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    if ([[TZImageManager manager] authorizationStatusAuthorized]) {
+    if ([[TZImageManager manager] authorizationStatusAuthorized] || !SYSTEM_VERSION_GREATER_THAN_15) {
         [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     }
     self.isFirstAppear = YES;
@@ -984,6 +989,16 @@
 @end
 
 
+// 适配RTL的UICollectionViewFlowLayout
+@interface TZRTLLayout : UICollectionViewFlowLayout
+@end
+
+@implementation TZRTLLayout
+- (BOOL)flipsHorizontallyInOppositeLayoutDirection {
+    return [TZCommonTools tz_isRightToLeftLayout];
+}
+@end
+
 @implementation TZCommonTools
 
 + (UIEdgeInsets)tz_safeAreaInsets {
@@ -1059,7 +1074,7 @@
 
 + (BOOL)tz_isRightToLeftLayout {
     if (@available(iOS 9.0, *)) {
-        if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:UISemanticContentAttributeUnspecified] == UIUserInterfaceLayoutDirectionRightToLeft) {
+        if ([UIView userInterfaceLayoutDirectionForSemanticContentAttribute:UIView.appearance.semanticContentAttribute] == UIUserInterfaceLayoutDirectionRightToLeft) {
             return YES;
         }
     } else {
@@ -1101,6 +1116,10 @@
     return notSelectable;
 }
 
++ (UICollectionViewFlowLayout *)tz_rtlFlowLayout {
+    return [[TZRTLLayout alloc] init];
+}
+
 @end
 
 
@@ -1116,7 +1135,7 @@
     dispatch_once(&onceToken, ^{
         if (config == nil) {
             config = [[TZImagePickerConfig alloc] init];
-            config.supportedLanguages = [NSSet setWithObjects:@"zh-Hans", @"zh-Hant", @"en", @"ar", @"bg", @"cs-CZ", @"de", @"el", @"es", @"fr", @"he", @"it", @"ja", @"ko-KP", @"ko", @"nl", @"pl", @"pt", @"ro", @"ru", @"sk", @"sv", @"th", @"tr", @"uk", @"vi", nil];
+            config.supportedLanguages = [NSSet setWithObjects:@"zh-Hans", @"zh-Hant", @"en", @"ar", @"de", @"es", @"fr", @"ja", @"ko-KP", @"pt", @"ru", @"vi", nil];
             config.preferredLanguage = nil;
             config.gifPreviewMaxImagesCount = 50;
         }
@@ -1139,7 +1158,6 @@
         }
     }
     _languageBundle = [NSBundle bundleWithPath:[[NSBundle tz_imagePickerBundle] pathForResource:usedLanguage ofType:@"lproj"]];
-
 }
 
 @end

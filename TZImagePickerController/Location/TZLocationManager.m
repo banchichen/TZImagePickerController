@@ -7,7 +7,6 @@
 //  定位管理类
 
 #import "TZLocationManager.h"
-#import "TZImagePickerController.h"
 
 @interface TZLocationManager ()<CLLocationManagerDelegate>
 @property (nonatomic, strong) CLLocationManager *locationManager;

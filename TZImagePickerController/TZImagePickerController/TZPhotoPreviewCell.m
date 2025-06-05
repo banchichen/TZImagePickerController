@@ -112,7 +112,7 @@
     if (self) {
         _scrollView = [[UIScrollView alloc] init];
         _scrollView.bouncesZoom = YES;
-        _scrollView.maximumZoomScale = 2.5;
+        _scrollView.maximumZoomScale = 4;
         _scrollView.minimumZoomScale = 1.0;
         _scrollView.multipleTouchEnabled = YES;
         _scrollView.delegate = self;
@@ -413,7 +413,7 @@
 }
 
 - (void)configMaximumZoomScale {
-    _scrollView.maximumZoomScale = _allowCrop ? 4.0 : 2.5;
+    _scrollView.maximumZoomScale = _allowCrop ? 6.0 : 4.0;
     
     if ([self.asset isKindOfClass:[PHAsset class]]) {
         PHAsset *phAsset = (PHAsset *)self.asset;
@@ -421,6 +421,10 @@
         // 优化超宽图片的显示
         if (aspectRatio > 1.5) {
             self.scrollView.maximumZoomScale *= aspectRatio / 1.5;
+        }
+        // 优化超长图片的显示
+        else if (aspectRatio < 0.667) {
+            self.scrollView.maximumZoomScale *= 0.667 / aspectRatio;
         }
     }
 }
@@ -437,7 +441,7 @@
         _scrollView.alwaysBounceVertical = YES;
         // 2.让scrollView新增滑动区域（裁剪框左上角的图片部分）
         if (contentHeightAdd > 0 || contentWidthAdd > 0) {
-            _scrollView.contentInset = UIEdgeInsetsMake(contentHeightAdd, contentWidthAdd, 0, 0);
+            _scrollView.contentInset = UIEdgeInsetsMake(MAX(contentHeightAdd, 0), MAX(contentWidthAdd, 0), 0, 0);
         } else {
             _scrollView.contentInset = UIEdgeInsetsZero;
         }
@@ -464,7 +468,7 @@
         [_scrollView setZoomScale:_scrollView.minimumZoomScale animated:YES];
     } else {
         CGPoint touchPoint = [tap locationInView:self.imageView];
-        CGFloat newZoomScale = _scrollView.maximumZoomScale;
+        CGFloat newZoomScale = MIN(_scrollView.maximumZoomScale, 2.5);
         CGFloat xsize = self.frame.size.width / newZoomScale;
         CGFloat ysize = self.frame.size.height / newZoomScale;
         [_scrollView zoomToRect:CGRectMake(touchPoint.x - xsize/2, touchPoint.y - ysize/2, xsize, ysize) animated:YES];
@@ -671,7 +675,7 @@
 
 #pragma mark - Click Event
 
-- (void)signleTapAction {    
+- (void)signleTapAction {
     if (self.singleTapGestureBlock) {
         self.singleTapGestureBlock();
     }

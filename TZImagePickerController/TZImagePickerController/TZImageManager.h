@@ -51,6 +51,7 @@ typedef void(^ProgressBlock)(double progress, NSError * _Nullable error, BOOL * 
 /// Return YES if Authorized 返回YES如果得到了授权
 - (BOOL)authorizationStatusAuthorized;
 - (void)requestAuthorizationWithCompletion:(void (^)(void))completion;
+- (BOOL)isPHAuthorizationStatusLimited;
 
 /// Get Album 获得相册/相册数组
 - (void)getCameraRollAlbumWithFetchAssets:(BOOL)needFetchAssets completion:(void (^)(TZAlbumModel *model))completion;
