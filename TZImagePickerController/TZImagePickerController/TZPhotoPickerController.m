@@ -132,8 +132,45 @@ static CGFloat itemMargin = 5;
             }];
         } else if (self->_showTakePhotoBtn || self->_isFirstAppear || !self.model.models || systemVersion >= 14.0) {
             [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
+                NSMutableArray<TZAssetModel *> *newModels = [NSMutableArray array];
+                if (!self->_isFirstAppear) {
+                    for (TZAssetModel *model in models) {
+                        BOOL isNew = YES;
+                        for (TZAssetModel *preModel in self->_models) {
+                            @autoreleasepool {
+                                if ([model.asset.localIdentifier isEqualToString: preModel.asset.localIdentifier]) {
+                                    isNew = NO;
+                                    break;
+                                }
+                            }
+                        }
+                        if (isNew) {
+                            [newModels addObject:model];
+                        }
+                    }
+                    for (int i = 0; i < tzImagePickerVc.selectedModels.count; i++) {
+                        BOOL isRemoved = YES;
+                        TZAssetModel *selectedModel = tzImagePickerVc.selectedModels[i];
+                        for (TZAssetModel *model in models) {
+                            if ([selectedModel.asset.localIdentifier isEqualToString: model.asset.localIdentifier]) {
+                                isRemoved = NO;
+                                break;
+                            }
+                        }
+                        if (isRemoved) {
+                            [tzImagePickerVc removeSelectedModel:selectedModel];
+                        }
+                    }
+                }
+                if (newModels.count == 1 && tzImagePickerVc.selectedModels.count == 0) {
+                    [tzImagePickerVc addSelectedModel:newModels[0]];
+                }
                 self->_models = [NSMutableArray arrayWithArray:models];
                 [self initSubviews];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self refreshBottomToolBarStatus];
+                });
+                
             }];
         } else {
             self->_models = [NSMutableArray arrayWithArray:self->_model.models];
@@ -203,6 +240,8 @@ static CGFloat itemMargin = 5;
     
     _collectionView.contentSize = CGSizeMake(self.view.tz_width, (([self getAllCellCount] + self.columnNumber - 1) / self.columnNumber) * self.view.tz_width);
     if (_models.count == 0) {
+        [_noDataLabel removeFromSuperview];
+        _noDataLabel = [UILabel new];
         [_collectionView addSubview:self.noDataLabel];
     } else if (_noDataLabel) {
         [_noDataLabel removeFromSuperview];
