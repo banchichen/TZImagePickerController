@@ -213,7 +213,8 @@
     [_collectionView registerClass:[TZPhotoPreviewCell class] forCellWithReuseIdentifier:@"TZPhotoPreviewCellGIF"];
     [_collectionView registerClass:[TZVideoPreviewCell class] forCellWithReuseIdentifier:@"TZVideoPreviewCell"];
     [_collectionView registerClass:[TZGifPreviewCell class] forCellWithReuseIdentifier:@"TZGifPreviewCell"];
-    
+    [_collectionView registerClass:[TZLivePhotoPreviewCell class] forCellWithReuseIdentifier:@"TZLivePhotoPreviewCell"];
+
     TZImagePickerController *_tzImagePickerVc = (TZImagePickerController *)self.navigationController;
     if (_tzImagePickerVc.scaleAspectFillCrop && _tzImagePickerVc.allowCrop) {
         _collectionView.scrollEnabled = NO;
@@ -522,6 +523,13 @@
             model.iCloudFailed = isSyncFailed;
             [weakSelf didICloudSyncStatusChanged:model];
         };
+    }else if (model.type == TZAssetModelMediaTypeLivePhoto && _tzImagePickerVc.allowPickingLiveImage) {
+        cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZLivePhotoPreviewCell" forIndexPath:indexPath];
+        TZLivePhotoPreviewCell *currentCell = (TZLivePhotoPreviewCell *)cell;
+        currentCell.iCloudSyncFailedHandle = ^(id asset, BOOL isSyncFailed) {
+            model.iCloudFailed = isSyncFailed;
+            [weakSelf didICloudSyncStatusChanged:model];
+        };
     } else {
         NSString *reuseId = model.type == TZAssetModelMediaTypePhotoGif ? @"TZPhotoPreviewCellGIF" : @"TZPhotoPreviewCell";
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseId forIndexPath:indexPath];
@@ -564,6 +572,8 @@
 - (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath {
     if ([cell isKindOfClass:[TZPhotoPreviewCell class]]) {
         [(TZPhotoPreviewCell *)cell recoverSubviews];
+    }else if ([cell isKindOfClass:[TZLivePhotoPreviewCell class]]) {
+        [(TZLivePhotoPreviewCell *)cell prepareForDisplay];
     }
 }
 
@@ -575,6 +585,8 @@
         if (videoCell.player && videoCell.player.rate != 0.0) {
             [videoCell pausePlayerAndShowNaviBar];
         }
+    } else if ([cell isKindOfClass:[TZLivePhotoPreviewCell class]]) {
+        [(TZLivePhotoPreviewCell *)cell prepareForHide];
     }
 }
 

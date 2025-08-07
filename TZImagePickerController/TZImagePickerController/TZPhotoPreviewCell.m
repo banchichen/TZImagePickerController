@@ -578,3 +578,335 @@
 }
 
 @end
+
+
+@interface TZLivePhotoPreviewCell ()<UIScrollViewDelegate>
+
+@property (nonatomic, assign) BOOL isRequestingLive;
+
+
+@end
+@implementation TZLivePhotoPreviewCell
+
+- (void)configSubviews {
+    
+    _scrollView = [[UIScrollView alloc] init];
+    _scrollView.bouncesZoom = YES;
+    _scrollView.maximumZoomScale = 4;
+    _scrollView.minimumZoomScale = 1.0;
+    _scrollView.multipleTouchEnabled = YES;
+    _scrollView.delegate = self;
+    _scrollView.scrollsToTop = NO;
+    _scrollView.showsHorizontalScrollIndicator = NO;
+    _scrollView.showsVerticalScrollIndicator = YES;
+    _scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    _scrollView.delaysContentTouches = NO;
+    _scrollView.canCancelContentTouches = YES;
+    _scrollView.alwaysBounceVertical = NO;
+    if (@available(iOS 11, *)) {
+        _scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }
+    [self.contentView addSubview:_scrollView];
+    
+    _imageContainerView = [[UIView alloc] init];
+    _imageContainerView.clipsToBounds = YES;
+    _imageContainerView.contentMode = UIViewContentModeScaleAspectFill;
+    [_scrollView addSubview:_imageContainerView];
+    
+    _imageView = [[UIImageView alloc] init];
+    _imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
+    _imageView.contentMode = UIViewContentModeScaleAspectFill;
+    _imageView.clipsToBounds = YES;
+    [_imageContainerView addSubview:_imageView];
+    
+    _livePhotoView = [[PHLivePhotoView alloc] initWithFrame:CGRectZero];
+    _livePhotoView.userInteractionEnabled = NO;
+    [_imageContainerView addSubview:_livePhotoView];
+    
+    _useLivePhotoButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    
+    UIImage *openImage = [UIImage tz_imageNamedFromMyBundle:@"photo_livephoto"];
+    UIImage *closeImage = [UIImage tz_imageNamedFromMyBundle:@"photo_livephoto_slash"];
+    if (@available(iOS 13.0, *)) {
+        UIImageSymbolConfiguration *config = [UIImageSymbolConfiguration configurationWithPointSize:13 weight:UIImageSymbolWeightRegular];
+        openImage = [[UIImage systemImageNamed:@"livephoto" withConfiguration:config]
+                              imageWithTintColor:[UIColor whiteColor]
+                              renderingMode:UIImageRenderingModeAlwaysOriginal];
+
+        closeImage = [[UIImage systemImageNamed:@"livephoto.slash" withConfiguration:config]
+                               imageWithTintColor:[UIColor whiteColor]
+                               renderingMode:UIImageRenderingModeAlwaysOriginal];
+
+    }
+    [_useLivePhotoButton setImage:openImage forState:UIControlStateNormal];
+    [_useLivePhotoButton setImage:closeImage forState:UIControlStateSelected];
+    [_useLivePhotoButton setTitle:@" LIVE" forState:UIControlStateNormal];
+    [_useLivePhotoButton setTitle:@" 关闭" forState:UIControlStateSelected];
+    [_useLivePhotoButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    _useLivePhotoButton.titleLabel.font = [UIFont systemFontOfSize:12];
+    [_useLivePhotoButton addTarget:self action:@selector(useLivePhotoButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+    _useLivePhotoButton.layer.cornerRadius = 12;
+    _useLivePhotoButton.layer.masksToBounds = YES;
+    _useLivePhotoButton.backgroundColor =  [UIColor colorWithWhite:0.000 alpha:0.300];
+    [_imageContainerView addSubview:_useLivePhotoButton];
+    
+    
+    _iCloudErrorIcon = [[UIImageView alloc] init];
+    _iCloudErrorIcon.image = [UIImage tz_imageNamedFromMyBundle:@"iCloudError"];
+    _iCloudErrorIcon.hidden = YES;
+    [self.contentView addSubview:_iCloudErrorIcon];
+    _iCloudErrorLabel = [[UILabel alloc] init];
+    _iCloudErrorLabel.font = [UIFont systemFontOfSize:10];
+    _iCloudErrorLabel.textColor = [UIColor whiteColor];
+    _iCloudErrorLabel.text = [NSBundle tz_localizedStringForKey:@"iCloud sync failed"];
+    _iCloudErrorLabel.hidden = YES;
+    [self.contentView addSubview:_iCloudErrorLabel];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTap:)];
+    [self.contentView addGestureRecognizer:tap1];
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(doubleTap:)];
+    tap2.numberOfTapsRequired = 2;
+    [tap1 requireGestureRecognizerToFail:tap2];
+    [self.contentView addGestureRecognizer:tap2];
+    
+    [self configProgressView];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appWillResignActiveNotification) name:UIApplicationWillResignActiveNotification object:nil];
+    
+}
+
+- (void)configProgressView {
+    _progressView = [[TZProgressView alloc] init];
+    _progressView.hidden = YES;
+    [self.contentView addSubview:_progressView];
+}
+- (void)setModel:(TZAssetModel *)model {
+    
+    [super setModel:model];
+    
+    [_scrollView setZoomScale:1.0 animated:NO];
+    
+    self.canPlayLivePhoto = NO;
+    [self stopLivePlayback];
+    self.imageView.hidden = NO;
+    self.livePhotoView.hidden = self.useLivePhotoButton.hidden = YES;
+    self.livePhotoView.livePhoto = nil;
+    self.imageView.image = nil;
+    
+    self.asset = model.asset;
+}
+- (void)setAsset:(PHAsset *)asset {
+    
+    if (_asset && self.imageRequestID) {
+        [[PHImageManager defaultManager] cancelImageRequest:self.imageRequestID];
+    }
+    
+    _asset = asset;
+    
+    // 先显示缩略图
+    [[TZImageManager manager] getPhotoWithAsset:asset completion:^(UIImage *photo, NSDictionary *info, BOOL isDegraded) {
+        if (photo) {
+            self.imageView.image = photo;
+        }
+        [self resizeSubviews];
+        if (self.isRequestingLive) {
+            return;
+        }
+        // 再显示live图
+        self.isRequestingLive = YES;
+        self.imageRequestID = [[TZImageManager manager] getLivePhotoWithAsset:self.model.asset completion:^(PHLivePhoto *livePhoto, NSDictionary *info) {
+            self.isRequestingLive = NO;
+            self.progressView.hidden = YES;
+            if (!livePhoto){
+                self.imageRequestID = 0;
+                self.livePhotoView.hidden = self.useLivePhotoButton.hidden = YES;
+                self.imageView.hidden = NO;
+                return;
+            }
+            
+            self.livePhoto = livePhoto;
+            self.livePhotoView.livePhoto = self.livePhoto;
+            
+            self.livePhotoView.hidden = self.useLivePhotoButton.hidden = NO;
+            self.useLivePhotoButton.selected = !self.model.useLivePhoto;
+            self.imageView.hidden = YES;
+            
+            [self resizeSubviews];
+            
+            // ✅ 加载完成后，根据当前是否允许播放来决定
+            if (self.canPlayLivePhoto && self.model.useLivePhoto) {
+                [self startLivePlayback];
+            }
+        } withProgressHandler:^(double progress, NSError * _Nullable error, BOOL * _Nonnull stop, NSDictionary * _Nullable info) {
+            progress = progress > 0.02 ? progress : 0.02;
+            dispatch_async(dispatch_get_main_queue(), ^{
+                BOOL iCloudSyncFailed = [TZCommonTools isICloudSyncError:error];
+                self.iCloudErrorLabel.hidden = !iCloudSyncFailed;
+                self.iCloudErrorIcon.hidden = !iCloudSyncFailed;
+                if (self.iCloudSyncFailedHandle) {
+                    self.iCloudSyncFailedHandle(asset, iCloudSyncFailed);
+                }
+                
+                self.progressView.progress = progress;
+                if (progress >= 1) {
+                    self.progressView.hidden = YES;
+                    self.imageRequestID = 0;
+                } else {
+                    self.progressView.hidden = NO;
+                }
+            });
+        }];
+    } progressHandler:nil networkAccessAllowed:NO];
+    
+    [self configMaximumZoomScale];
+}
+- (void)recoverSubviews {
+    [_scrollView setZoomScale:_scrollView.minimumZoomScale animated:NO];
+    [self resizeSubviews];
+}
+- (void)resizeSubviews {
+    _imageContainerView.tz_origin = CGPointZero;
+    _imageContainerView.tz_width = self.scrollView.tz_width;
+    
+    UIImage *image = _imageView.image;
+    if (image.size.height / image.size.width > self.tz_height / self.scrollView.tz_width) {
+        CGFloat width = image.size.width / image.size.height * self.scrollView.tz_height;
+        if (width < 1 || isnan(width)) width = self.tz_width;
+        width = floor(width);
+        
+        _imageContainerView.tz_width = width;
+        _imageContainerView.tz_height = self.tz_height;
+        _imageContainerView.tz_centerX = self.scrollView.tz_width  / 2;
+    } else {
+        CGFloat height = image.size.height / image.size.width * self.scrollView.tz_width;
+        if (height < 1 || isnan(height)) height = self.tz_height;
+        height = floor(height);
+        _imageContainerView.tz_height = height;
+        _imageContainerView.tz_centerY = self.tz_height / 2;
+    }
+    if (_imageContainerView.tz_height > self.tz_height && _imageContainerView.tz_height - self.tz_height <= 1) {
+        _imageContainerView.tz_height = self.tz_height;
+    }
+    CGFloat contentSizeH = MAX(_imageContainerView.tz_height, self.tz_height);
+    _scrollView.contentSize = CGSizeMake(self.scrollView.tz_width, contentSizeH);
+    [_scrollView scrollRectToVisible:self.bounds animated:NO];
+    _scrollView.alwaysBounceVertical = _imageContainerView.tz_height <= self.tz_height ? NO : YES;
+    _imageView.frame = _imageContainerView.bounds;
+    _livePhotoView.frame = _imageContainerView.bounds;
+}
+
+- (void)configMaximumZoomScale {
+    
+    _scrollView.maximumZoomScale = 4.0;
+    
+    if ([self.asset isKindOfClass:[PHAsset class]]) {
+        PHAsset *phAsset = (PHAsset *)self.asset;
+        CGFloat aspectRatio = phAsset.pixelWidth / (CGFloat)phAsset.pixelHeight;
+        // 优化超宽图片的显示
+        if (aspectRatio > 1.5) {
+            self.scrollView.maximumZoomScale *= aspectRatio / 1.5;
+        }
+    }
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _scrollView.frame = CGRectMake(10, 0, self.tz_width - 20, self.tz_height);
+    static CGFloat progressWH = 40;
+    CGFloat progressX = (self.tz_width - progressWH) / 2;
+    CGFloat progressY = (self.tz_height - progressWH) / 2;
+    _progressView.frame = CGRectMake(progressX, progressY, progressWH, progressWH);
+    [self recoverSubviews];
+    _iCloudErrorIcon.frame = CGRectMake(20, [TZCommonTools tz_statusBarHeight] + 44 + 10, 28, 28);
+    _iCloudErrorLabel.frame = CGRectMake(53, [TZCommonTools tz_statusBarHeight] + 44 + 10, self.tz_width - 63, 28);
+    CGFloat MinY = 0;
+    CGFloat imageContainerMinY = CGRectGetMinY(self.imageContainerView.frame);
+    if (imageContainerMinY < [TZCommonTools tz_statusBarHeight] + 44) {
+        MinY = ([TZCommonTools tz_statusBarHeight] + 44) - imageContainerMinY;
+    }
+    self.useLivePhotoButton.frame = CGRectMake(CGRectGetMinX(self.livePhotoView.frame) + 16, MinY + 16, 56, 24);
+}
+#pragma mark - UITapGestureRecognizer Event
+- (void)doubleTap:(UITapGestureRecognizer *)tap {
+    if (_scrollView.zoomScale > _scrollView.minimumZoomScale) {
+        _scrollView.contentInset = UIEdgeInsetsZero;
+        [_scrollView setZoomScale:_scrollView.minimumZoomScale animated:YES];
+    } else {
+        CGPoint touchPoint = [tap locationInView:self.imageView];
+        CGFloat newZoomScale = MIN(_scrollView.maximumZoomScale, 2.5);
+        CGFloat xsize = self.frame.size.width / newZoomScale;
+        CGFloat ysize = self.frame.size.height / newZoomScale;
+        [_scrollView zoomToRect:CGRectMake(touchPoint.x - xsize/2, touchPoint.y - ysize/2, xsize, ysize) animated:YES];
+    }
+}
+
+- (void)singleTap:(UITapGestureRecognizer *)tap {
+    if (self.singleTapGestureBlock) {
+        self.singleTapGestureBlock();
+    }
+}
+- (void)prepareForDisplay {
+    self.canPlayLivePhoto = YES;
+    [self recoverSubviews];
+    if (self.livePhoto && self.model.useLivePhoto) {
+        [self startLivePlayback];
+    }
+}
+
+- (void)prepareForHide {
+    self.canPlayLivePhoto = NO;
+    [self stopLivePlayback];
+    [self recoverSubviews];
+}
+
+- (void)startLivePlayback {
+    if (!self.livePhoto || !self.model.useLivePhoto || !self.canPlayLivePhoto) {
+        [self stopLivePlayback];
+        return;
+    }
+    if (self.livePhotoView.livePhoto != self.livePhoto) {
+        self.livePhotoView.livePhoto = self.livePhoto;
+    }
+    // ✅ 播放前加入轻微震动反馈
+    if (@available(iOS 10.0, *)) {
+        UIImpactFeedbackGenerator *feedback = [[UIImpactFeedbackGenerator alloc] initWithStyle:UIImpactFeedbackStyleLight];
+        [feedback prepare];
+        [feedback impactOccurred];
+    }
+    [self.livePhotoView startPlaybackWithStyle:PHLivePhotoViewPlaybackStyleFull];
+}
+
+- (void)useLivePhotoButtonClick:(UIButton *)sender {
+    self.model.useLivePhoto = !self.model.useLivePhoto;
+    self.useLivePhotoButton.selected = !self.model.useLivePhoto;
+    [self startLivePlayback];
+}
+- (void)stopLivePlayback {
+    [self.livePhotoView stopPlayback];
+}
+- (void)appWillResignActiveNotification {
+    [self stopLivePlayback];
+}
+
+//MARK: UIScrollViewDelegate
+- (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
+    return _imageContainerView;
+}
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view {
+    scrollView.contentInset = UIEdgeInsetsZero;
+}
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView {
+    [self refreshImageContainerViewCenter];
+}
+- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
+    
+}
+//MARK:  Private
+- (void)refreshImageContainerViewCenter {
+    CGFloat offsetX = (_scrollView.tz_width > _scrollView.contentSize.width) ? ((_scrollView.tz_width - _scrollView.contentSize.width) * 0.5) : 0.0;
+    CGFloat offsetY = (_scrollView.tz_height > _scrollView.contentSize.height) ? ((_scrollView.tz_height - _scrollView.contentSize.height) * 0.5) : 0.0;
+    self.imageContainerView.center = CGPointMake(_scrollView.contentSize.width * 0.5 + offsetX, _scrollView.contentSize.height * 0.5 + offsetY);
+}
+
+
+@end

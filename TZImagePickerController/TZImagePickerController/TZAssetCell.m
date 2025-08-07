@@ -109,6 +109,8 @@
         _selectPhotoButton.hidden = YES;
     }
     
+    _toggleLiveImageView.hidden = YES;
+    
     if (type == TZAssetCellTypeVideo) {
         self.bottomView.hidden = NO;
         self.timeLength.text = _model.timeLength;
@@ -121,6 +123,8 @@
         self.videoImgView.hidden = YES;
         _timeLength.tz_left = 5;
         _timeLength.textAlignment = NSTextAlignmentLeft;
+    }else if (type == TZAssetCellTypeLivePhoto && self.allowPickingLiveImage) {
+        self.toggleLiveImageView.hidden = NO;
     }
 }
 
@@ -338,7 +342,18 @@
     }
     return _indexLabel;
 }
-
+- (UIImageView *)toggleLiveImageView{
+    if (!_toggleLiveImageView) {
+        UIImage *image = [UIImage tz_imageNamedFromMyBundle:@"photo_livephoto"];
+        if (@available(iOS 13.0, *)) {
+            image = [[UIImage systemImageNamed:@"livephoto"] imageWithTintColor:UIColor.whiteColor renderingMode:UIImageRenderingModeAlwaysOriginal];
+        }
+        _toggleLiveImageView = [[UIImageView alloc]initWithImage:image];
+        _toggleLiveImageView.contentMode = UIViewContentModeScaleAspectFit;
+        [self.contentView addSubview:_toggleLiveImageView];
+    }
+    return _toggleLiveImageView;
+}
 - (TZProgressView *)progressView {
     if (_progressView == nil) {
         _progressView = [[TZProgressView alloc] init];
@@ -365,6 +380,8 @@
     _indexLabel.frame = _selectImageView.frame;
     _imageView.frame = self.bounds;
 
+    self.toggleLiveImageView.frame = CGRectMake(3, 3, 18, 18);
+
     static CGFloat progressWH = 20;
     CGFloat progressXY = (self.tz_width - progressWH) / 2;
     _progressView.frame = CGRectMake(progressXY, progressXY, progressWH, progressWH);
@@ -381,7 +398,8 @@
     [self.contentView bringSubviewToFront:_selectPhotoButton];
     [self.contentView bringSubviewToFront:_selectImageView];
     [self.contentView bringSubviewToFront:_indexLabel];
-    
+    [self.contentView bringSubviewToFront:_toggleLiveImageView];
+
     if (self.assetCellDidLayoutSubviewsBlock) {
         self.assetCellDidLayoutSubviewsBlock(self, _imageView, _selectImageView, _indexLabel, _bottomView, _timeLength, _videoImgView);
     }

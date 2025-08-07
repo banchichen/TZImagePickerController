@@ -26,6 +26,8 @@ typedef enum : NSUInteger {
 @property (nonatomic, assign) TZAssetModelMediaType type;
 @property (nonatomic, copy) NSString *timeLength;
 @property (nonatomic, assign) BOOL iCloudFailed;
+/// 是否使用 Live Photo 模式，默认 YES
+@property (nonatomic, assign) BOOL useLivePhoto;
 
 /// Init a photo dataModel With a PHAsset
 /// 用一个PHAsset实例，初始化一个照片模型
