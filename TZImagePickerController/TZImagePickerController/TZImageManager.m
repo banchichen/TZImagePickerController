@@ -17,6 +17,9 @@
 @end
 
 @implementation TZImageManager
+{
+    PHCachingImageManager *_phCachingImageManager;
+}
 
 CGSize AssetGridThumbnailSize;
 CGFloat TZScreenWidth;
@@ -257,7 +260,8 @@ static dispatch_once_t onceToken;
     if (!allowPickingVideo && type == TZAssetModelMediaTypeVideo) return nil;
     if (!allowPickingImage && type == TZAssetModelMediaTypePhoto) return nil;
     if (!allowPickingImage && type == TZAssetModelMediaTypePhotoGif) return nil;
-    
+    if (!allowPickingImage && type == TZAssetModelMediaTypeLivePhoto) return nil;
+
     PHAsset *phAsset = (PHAsset *)asset;
     if (self.hideWhenCanNotSelect) {
         // 过滤掉尺寸不满足要求的图片
@@ -278,7 +282,10 @@ static dispatch_once_t onceToken;
     else if (phAsset.mediaType == PHAssetMediaTypeAudio) type = TZAssetModelMediaTypeAudio;
     else if (phAsset.mediaType == PHAssetMediaTypeImage) {
         if (@available(iOS 9.1, *)) {
-            // if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
+            // PHAssetMediaSubtype 是一个 位掩码（bitmask）类型，多个值可以 按位“或”组合在一起，判断一个类型是否包含某一项（比如是否包含 Live）时，不能用 ==
+            // asset.mediaSubtypes & PHAssetMediaSubtypePhotoLive 等价于：
+            // 判断 asset.mediaSubtypes 的二进制值中，是否包含 Live Photo（1 << 2，对应二进制位是00000100）
+             if (asset.mediaSubtypes & PHAssetMediaSubtypePhotoLive) type = TZAssetModelMediaTypeLivePhoto;
         }
         // Gif
         if ([[phAsset valueForKey:@"filename"] hasSuffix:@"GIF"]) {
@@ -502,6 +509,31 @@ static dispatch_once_t onceToken;
             if (completion) completion(imageData,info,NO);
         }
     }];
+}
+
+- (PHImageRequestID)getLivePhotoWithAsset:(PHAsset *)asset completion:(void (^)(PHLivePhoto *livePhoto, NSDictionary *info))completion  withProgressHandler:(PHAssetImageProgressHandler)phProgressHandler{
+    if (!asset) {
+        if (completion) completion(nil, nil);
+        return -1;
+    }
+    if ([[PHCachingImageManager class] instancesRespondToSelector:@selector(requestLivePhotoForAsset:targetSize:contentMode:options:resultHandler:)]) {
+        PHLivePhotoRequestOptions *livePhotoRequestOptions = [[PHLivePhotoRequestOptions alloc] init];
+        livePhotoRequestOptions.networkAccessAllowed = YES; // 允许访问网络
+        livePhotoRequestOptions.progressHandler = phProgressHandler;
+        int32_t imageRequestID = [[[TZImageManager manager] phCachingImageManager]  requestLivePhotoForAsset:asset
+                                                                                targetSize:PHImageManagerMaximumSize
+                                                                               contentMode:PHImageContentModeAspectFit
+                                                                                   options:livePhotoRequestOptions
+                                                                             resultHandler:^(PHLivePhoto * _Nullable livePhoto, NSDictionary * _Nullable info) {
+                                    if (completion) {
+                                        completion(livePhoto, info);
+                                    }
+                                }];
+        return imageRequestID;
+    }else {
+        if (completion) completion(nil, nil);
+        return -1;
+    }
 }
 
 - (UIImage *)getImageWithVideoURL:(NSURL *)videoURL {
@@ -1061,6 +1093,13 @@ static dispatch_once_t onceToken;
     CGContextRelease(ctx);
     CGImageRelease(cgimg);
     return img;
+}
+
+- (PHCachingImageManager *)phCachingImageManager {
+    if (!_phCachingImageManager) {
+        _phCachingImageManager = [[PHCachingImageManager alloc] init];
+    }
+    return _phCachingImageManager;
 }
 
 #pragma clang diagnostic pop

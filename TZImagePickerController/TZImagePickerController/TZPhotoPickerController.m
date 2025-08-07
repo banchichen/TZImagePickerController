@@ -513,7 +513,13 @@ static CGFloat itemMargin = 5;
                     }
                     [photos replaceObjectAtIndex:i withObject:photo];
                 }
-                if (info)  [infoArr replaceObjectAtIndex:i withObject:info];
+                NSMutableDictionary *infoDict = [NSMutableDictionary dictionary];
+                if (info) {
+                    infoDict = [NSMutableDictionary dictionaryWithDictionary:info];
+                }
+                if (model.type == TZAssetModelMediaTypeLivePhoto && model.useLivePhoto) {
+                    [infoDict setObject:@"1" forKey:@"TZ_LIVEPHOTO_USELIVE"];
+                }
                 [assets replaceObjectAtIndex:i withObject:model.asset];
                 
                 for (id item in photos) { if ([item isKindOfClass:[NSNumber class]]) return; }
@@ -636,6 +642,7 @@ static CGFloat itemMargin = 5;
         model = _models[indexPath.item - diff];;
     }
     cell.allowPickingGif = tzImagePickerVc.allowPickingGif;
+    cell.allowPickingLiveImage = tzImagePickerVc.allowPickingLiveImage;
     cell.model = model;
     if (model.isSelected && tzImagePickerVc.showSelectedIndex) {
         cell.index = [tzImagePickerVc.selectedAssetIds indexOfObject:model.asset.localIdentifier] + 1;
