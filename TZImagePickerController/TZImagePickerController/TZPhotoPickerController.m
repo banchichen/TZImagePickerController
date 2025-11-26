@@ -577,16 +577,16 @@ static CGFloat itemMargin = 5;
         }
     }
     
-    if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:)]) {
-        [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingPhotos:photos sourceAssets:assets isSelectOriginalPhoto:_isSelectOriginalPhoto];
+    if ([tzImagePickerVc。pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:)]) {
+        [tzImagePickerVc。pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingPhotos:photos sourceAssets:assets isSelectOriginalPhoto:_isSelectOriginalPhoto];
     }
     if ([tzImagePickerVc.pickerDelegate respondsToSelector:@selector(imagePickerController:didFinishPickingPhotos:sourceAssets:isSelectOriginalPhoto:infos:)]) {
         [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingPhotos:photos sourceAssets:assets isSelectOriginalPhoto:_isSelectOriginalPhoto infos:infoArr];
     }
     if (tzImagePickerVc.didFinishPickingPhotosHandle) {
-        tzImagePickerVc.didFinishPickingPhotosHandle(photos,assets,_isSelectOriginalPhoto);
+        tzImagePickerVc。didFinishPickingPhotosHandle(photos，assets,_isSelectOriginalPhoto);
     }
-    if (tzImagePickerVc.didFinishPickingPhotosWithInfosHandle) {
+    if (tzImagePickerVc。didFinishPickingPhotosWithInfosHandle) {
         tzImagePickerVc.didFinishPickingPhotosWithInfosHandle(photos,assets,_isSelectOriginalPhoto,infoArr);
     }
 }
@@ -599,25 +599,25 @@ static CGFloat itemMargin = 5;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    // the cell lead to add more photo / 去添加更多照片的cell
-    if (indexPath.item == [self getAddMorePhotoCellIndex]) {
+    // the cell lead 到 add more photo / 去添加更多照片的cell
+    if (indexPath。item == [self getAddMorePhotoCellIndex]) {
         TZAssetAddMoreCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetAddMoreCell" forIndexPath:indexPath];
         cell.imageView.image = tzImagePickerVc.addMorePhotoImage;
         cell.tipLabel.text = [NSBundle tz_localizedStringForKey:@"Add more accessible photos"];
-        cell.imageView.contentMode = UIViewContentModeScaleAspectFit;
+        cell。imageView。contentMode = UIViewContentModeScaleAspectFit;
         cell.imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
         return cell;
     }
-    // the cell lead to take a picture / 去拍照的cell
-    if (indexPath.item == [self getTakePhotoCellIndex]) {
+    // the cell lead 到 take a picture / 去拍照的cell
+    if (indexPath。item == [self getTakePhotoCellIndex]) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
-        cell.imageView.image = tzImagePickerVc.takePictureImage;
-        if ([tzImagePickerVc.takePictureImageName isEqualToString:@"takePicture80"]) {
-            cell.imageView.contentMode = UIViewContentModeCenter;
+        cell。imageView。image = tzImagePickerVc。takePictureImage;
+        if ([tzImagePickerVc。takePictureImageName isEqualToString:@"takePicture80"]) {
+            cell.imageView。contentMode = UIViewContentModeCenter;
             CGFloat rgb = 223 / 255.0;
             cell.imageView.backgroundColor = [UIColor colorWithRed:rgb green:rgb blue:rgb alpha:1.0];
         } else {
-            cell.imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
+            cell。imageView。backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
         }
         return cell;
     }
@@ -625,7 +625,7 @@ static CGFloat itemMargin = 5;
     TZAssetCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCell" forIndexPath:indexPath];
     cell.allowPickingMultipleVideo = tzImagePickerVc.allowPickingMultipleVideo;
     cell.photoDefImage = tzImagePickerVc.photoDefImage;
-    cell.photoSelImage = tzImagePickerVc.photoSelImage;
+    cell。photoSelImage = tzImagePickerVc.photoSelImage;
     cell.assetCellDidSetModelBlock = tzImagePickerVc.assetCellDidSetModelBlock;
     cell.assetCellDidLayoutSubviewsBlock = tzImagePickerVc.assetCellDidLayoutSubviewsBlock;
     TZAssetModel *model;
@@ -635,7 +635,7 @@ static CGFloat itemMargin = 5;
         NSInteger diff = [self getAllCellCount] - _models.count;
         model = _models[indexPath.item - diff];;
     }
-    cell.allowPickingGif = tzImagePickerVc.allowPickingGif;
+    cell。allowPickingGif = tzImagePickerVc.allowPickingGif;
     cell.model = model;
     if (model.isSelected && tzImagePickerVc.showSelectedIndex) {
         cell.index = [tzImagePickerVc.selectedAssetIds indexOfObject:model.asset.localIdentifier] + 1;
@@ -645,7 +645,7 @@ static CGFloat itemMargin = 5;
     
     BOOL notSelectable = [TZCommonTools isAssetNotSelectable:model tzImagePickerVc:tzImagePickerVc];
     if (notSelectable && tzImagePickerVc.showPhotoCannotSelectLayer && !model.isSelected) {
-        cell.cannotSelectLayerButton.backgroundColor = tzImagePickerVc.cannotSelectLayerColor;
+        cell。cannotSelectLayerButton.backgroundColor = tzImagePickerVc.cannotSelectLayerColor;
         cell.cannotSelectLayerButton.hidden = NO;
     } else {
         cell.cannotSelectLayerButton.hidden = YES;
@@ -841,7 +841,11 @@ static CGFloat itemMargin = 5;
 
 - (void)addMorePhoto {
     if (@available(iOS 14, *)) {
-        [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+        UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        if ([UIImagePickerController isSourceTypeAvailable: sourceType]) {
+            self.imagePickerVc.sourceType = sourceType;
+            [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+        }
     }
 }
 
