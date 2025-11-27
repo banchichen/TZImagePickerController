@@ -584,7 +584,7 @@ static CGFloat itemMargin = 5;
         [tzImagePickerVc.pickerDelegate imagePickerController:tzImagePickerVc didFinishPickingPhotos:photos sourceAssets:assets isSelectOriginalPhoto:_isSelectOriginalPhoto infos:infoArr];
     }
     if (tzImagePickerVc.didFinishPickingPhotosHandle) {
-        tzImagePickerVc.didFinishPickingPhotosHandle(photos，assets,_isSelectOriginalPhoto);
+        tzImagePickerVc.didFinishPickingPhotosHandle(photos,assets,_isSelectOriginalPhoto);
     }
     if (tzImagePickerVc.didFinishPickingPhotosWithInfosHandle) {
         tzImagePickerVc.didFinishPickingPhotosWithInfosHandle(photos,assets,_isSelectOriginalPhoto,infoArr);
@@ -599,7 +599,7 @@ static CGFloat itemMargin = 5;
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;
-    // the cell lead 到 add more photo / 去添加更多照片的cell
+    // the cell lead to add more photo / 去添加更多照片的cell
     if (indexPath.item == [self getAddMorePhotoCellIndex]) {
         TZAssetAddMoreCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetAddMoreCell" forIndexPath:indexPath];
         cell.imageView.image = tzImagePickerVc.addMorePhotoImage;
@@ -608,7 +608,7 @@ static CGFloat itemMargin = 5;
         cell.imageView.backgroundColor = [UIColor colorWithWhite:1.000 alpha:0.500];
         return cell;
     }
-    // the cell lead 到 take a picture / 去拍照的cell
+    // the cell lead to take a picture / 去拍照的cell
     if (indexPath.item == [self getTakePhotoCellIndex]) {
         TZAssetCameraCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"TZAssetCameraCell" forIndexPath:indexPath];
         cell.imageView.image = tzImagePickerVc.takePictureImage;
