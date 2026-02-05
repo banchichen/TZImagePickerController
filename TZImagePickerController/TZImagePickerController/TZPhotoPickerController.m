@@ -1144,7 +1144,9 @@ static CGFloat itemMargin = 5;
             NSInteger insertedCount = changeDetail.insertedObjects.count;
             NSInteger removedCount = changeDetail.removedObjects.count;
             NSInteger changedCount = changeDetail.changedObjects.count;
-            if (insertedCount > 0 || removedCount > 0 || changedCount > 0) {
+            if (insertedCount == 0 && removedCount == 0 && changedCount > 1) {
+                return;
+            } else if (insertedCount > 0 || removedCount > 0 || changedCount > 0) {
                 self.model.result = changeDetail.fetchResultAfterChanges;
                 self.model.count = changeDetail.fetchResultAfterChanges.count;
                 [self fetchAssetModels];
