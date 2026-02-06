@@ -5,25 +5,31 @@ import PackageDescription
 
 let package = Package(
     name: "TZImagePickerController",
-    platforms: [.iOS(.v8)],
+    defaultLocalization: "en",
+    platforms: [.iOS(.v10)],
     products: [
-        // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "TZImagePickerController",
             targets: ["TZImagePickerController"]),
     ],
-    dependencies: [
-        // Dependencies declare other packages that this package depends on.
-        // .package(url: /* package url */, from: "1.0.0"),
-    ],
+    dependencies: [],
     targets: [
-        // Targets are the basic building blocks of a package. A target can define a module or a test suite.
-        // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "TZImagePickerController",
-            path: "TZImagePickerController/TZImagePickerController",
-            resources: [.process("TZImagePickerController.bundle")],
-            publicHeadersPath: "."
+            path: ".",
+            exclude: ["TZImagePickerController/TZImagePickerController/TZImagePickerController.bundle"],
+            sources: [
+                "TZImagePickerController/TZImagePickerController",
+                "TZImagePickerController/Location"
+            ],
+            resources: [
+                .process("TZImagePickerController/TZImagePickerController/TZImagePickerController.bundle"),
+                .process("TZImagePickerControllerFramework/PrivacyInfo.xcprivacy")
+            ],
+            linkerSettings: [
+                .linkedFramework("Photos"),
+                .linkedFramework("PhotosUI")
+            ]
         )
     ]
 )
