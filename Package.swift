@@ -17,15 +17,15 @@ let package = Package(
         .target(
             name: "TZImagePickerController",
             path: ".",
-            exclude: ["TZImagePickerController/TZImagePickerController/TZImagePickerController.bundle"],
             sources: [
                 "TZImagePickerController/TZImagePickerController",
                 "TZImagePickerController/Location"
             ],
             resources: [
-                .process("TZImagePickerController/TZImagePickerController/TZImagePickerController.bundle"),
+                .process("TZImagePickerController/Resources/TZImagePickerController.bundle"),
                 .process("TZImagePickerControllerFramework/PrivacyInfo.xcprivacy")
             ],
+            publicHeadersPath: "TZImagePickerController/TZImagePickerController",
             linkerSettings: [
                 .linkedFramework("Photos"),
                 .linkedFramework("PhotosUI")
