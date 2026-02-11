@@ -1144,8 +1144,14 @@ static CGFloat itemMargin = 5;
             NSInteger insertedCount = changeDetail.insertedObjects.count;
             NSInteger removedCount = changeDetail.removedObjects.count;
             NSInteger changedCount = changeDetail.changedObjects.count;
-            if (insertedCount == 0 && removedCount == 0 && changedCount > 0) {
-                return;
+            
+            // 只 changed：精准更新
+            if (insertedCount == 0 && removedCount == 0 && changedCount > 0 && !changeDetail.hasMoves) {
+                NSArray *changedAssets = [[changeDetail changedObjects] copy];
+                self.model.result = changeDetail.fetchResultAfterChanges;
+                self.model.count = changeDetail.fetchResultAfterChanges.count;
+                // 使用 updateAssetModels 方法更新特定资产
+                [self updateAssetModels:changedAssets];
             } else if (insertedCount > 0 || removedCount > 0 || changedCount > 0) {
                 self.model.result = changeDetail.fetchResultAfterChanges;
                 self.model.count = changeDetail.fetchResultAfterChanges.count;
@@ -1168,6 +1174,58 @@ static CGFloat itemMargin = 5;
         }
         [self refreshBottomToolBarStatus];
     }
+}
+
+#pragma mark - Update Asset Models
+
+// 更新特定的asset models
+- (void)updateAssetModels:(NSArray<PHAsset *> *)changedAssets {
+    
+    TZImagePickerController *tzImagePickerVc = (TZImagePickerController *)self.navigationController;  
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                
+        CGFloat systemVersion = [[[UIDevice currentDevice] systemVersion] floatValue];
+        if (!tzImagePickerVc.sortAscendingByModificationDate && self->_model.isCameraRoll) {
+            [[TZImageManager manager] getCameraRollAlbumWithFetchAssets:YES completion:^(TZAlbumModel *model) {
+                self->_model = model;
+                self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+            }];
+        } else if (self->_showTakePhotoBtn || !self.model.models || systemVersion >= 14.0) {
+            [[TZImageManager manager] getAssetsFromFetchResult:self->_model.result completion:^(NSArray<TZAssetModel *> *models) {
+                self->_models = [NSMutableArray arrayWithArray:models];
+            }];
+        } else {
+            self->_models = [NSMutableArray arrayWithArray:self->_model.models];
+        }
+        
+        // 通过对比 localIdentifier 来找到索引
+        NSMutableArray<NSNumber *> *updatedIndexes = [NSMutableArray array];
+        for (PHAsset *asset in changedAssets) {
+            for (int i = 0; i < self.model.count; i++) {
+                TZAssetModel *currentModel = self->_models[i];
+                if ([currentModel.asset.localIdentifier isEqualToString:asset.localIdentifier]) {
+                    [updatedIndexes addObject:@(i)];
+                    break;
+                }
+            }
+        }
+        
+        if (updatedIndexes.count > 0) {
+            NSMutableArray<NSIndexPath *> *indexPaths = [NSMutableArray array];
+            for (NSNumber *indexNum in updatedIndexes) {
+                NSIndexPath *indexPath = [NSIndexPath indexPathForItem:[indexNum intValue] inSection:0];
+                [indexPaths addObject:indexPath];
+            }
+
+            // 重载指定的items
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self.collectionView reloadItemsAtIndexPaths:indexPaths];
+            });
+        } else {
+            NSLog(@"updateAssetModels no changes, models.count:%ld", (long)self.model.count);
+        }
+        
+    });
 }
 
 #pragma mark - Asset Caching
