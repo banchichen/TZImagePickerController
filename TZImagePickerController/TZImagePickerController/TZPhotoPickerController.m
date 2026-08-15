@@ -843,7 +843,11 @@ static CGFloat itemMargin = 5;
 
 - (void)addMorePhoto {
     if (@available(iOS 14, *)) {
-        [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+        UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        if ([UIImagePickerController isSourceTypeAvailable: sourceType]) {
+            self.imagePickerVc.sourceType = sourceType;
+            [[PHPhotoLibrary sharedPhotoLibrary] presentLimitedLibraryPickerFromViewController:self];
+        }
     }
 }
 
