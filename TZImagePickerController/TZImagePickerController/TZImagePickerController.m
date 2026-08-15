@@ -791,7 +791,9 @@
     }
     
     if (self.isFirstAppear && !imagePickerVc.navLeftBarButtonSettingBlock) {
-        self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
+        UIBarButtonItem *backItem = [[UIBarButtonItem alloc] initWithTitle:[NSBundle tz_localizedStringForKey:@"Back"] style:UIBarButtonItemStylePlain target:nil action:nil];
+        [TZCommonTools configBarButtonItem:backItem tzImagePickerVc:imagePickerVc];
+        self.navigationItem.backBarButtonItem = backItem;
     }
     
     [self configTableView];
@@ -1040,6 +1042,12 @@
 }
 
 + (void)configBarButtonItem:(UIBarButtonItem *)item tzImagePickerVc:(TZImagePickerController *)tzImagePickerVc {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 260000
+    if (@available(iOS 26.0, *)) {
+        // Keep the existing navigation bar appearance instead of mixing it with Liquid Glass.
+        item.hidesSharedBackground = YES;
+    }
+#endif
     item.tintColor = tzImagePickerVc.barItemTextColor;
     NSMutableDictionary *textAttrs = [NSMutableDictionary dictionary];
     textAttrs[NSForegroundColorAttributeName] = tzImagePickerVc.barItemTextColor;
