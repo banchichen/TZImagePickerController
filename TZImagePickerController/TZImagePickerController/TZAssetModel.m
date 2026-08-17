@@ -16,6 +16,7 @@
     model.asset = asset;
     model.isSelected = NO;
     model.type = type;
+    model.useLivePhoto = (model.type == TZAssetModelMediaTypeLivePhoto ? YES:NO);
     return model;
 }
 

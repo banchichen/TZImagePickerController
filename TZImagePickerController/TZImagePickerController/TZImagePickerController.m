@@ -189,6 +189,7 @@
         self.allowPickingOriginalPhoto = YES;
         self.allowPickingVideo = YES;
         self.allowPickingImage = YES;
+        self.allowPickingLiveImage = YES;
         self.allowTakePicture = YES;
         self.allowTakeVideo = YES;
         self.videoMaximumDuration = 10 * 60;
@@ -521,6 +522,7 @@
     if (allowCrop) { // 允许裁剪的时候，不能选原图和GIF
         self.allowPickingOriginalPhoto = NO;
         self.allowPickingGif = NO;
+        self.allowPickingLiveImage = NO;
         self.photoWidth = 1200;
         self.photoPreviewMaxWidth = 1200;
     }
@@ -629,6 +631,14 @@
     [TZImagePickerConfig sharedInstance].allowPickingImage = allowPickingImage;
     if (!allowPickingImage) {
         _allowTakePicture = NO;
+    }
+}
+
+- (void)setAllowPickingLiveImage:(BOOL)allowPickingLiveImage{
+    _allowPickingLiveImage = allowPickingLiveImage;
+    [TZImagePickerConfig sharedInstance].allowPickingLiveImage = allowPickingLiveImage;
+    if (!allowPickingLiveImage) {
+        _allowPickingLiveImage = NO;
     }
 }
 

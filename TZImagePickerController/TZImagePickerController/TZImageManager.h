@@ -80,6 +80,9 @@
 // 该方法中，completion只会走一次
 - (PHImageRequestID)getOriginalPhotoDataWithAsset:(PHAsset *)asset completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion;
 - (PHImageRequestID)getOriginalPhotoDataWithAsset:(PHAsset *)asset progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDictionary *info))progressHandler completion:(void (^)(NSData *data,NSDictionary *info,BOOL isDegraded))completion;
+/// Get livePhoto 获得实况图照片
+- (PHImageRequestID)getLivePhotoWithAsset:(PHAsset *)asset completion:(void (^)(PHLivePhoto *livePhoto, NSDictionary *info))completion  withProgressHandler:(PHAssetImageProgressHandler)phProgressHandler;
+
 
 /// Get Image For VideoURL
 - (UIImage *)getImageWithVideoURL:(NSURL *)videoURL;

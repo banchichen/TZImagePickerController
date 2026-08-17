@@ -115,6 +115,11 @@
 /// 默认为YES，如果设置为NO,用户将不能选择发送图片
 @property (nonatomic, assign) BOOL allowPickingImage;
 
+/// Default is NO, if set YES, user can picking liveImage.
+/// 默认为NO，如果设置为YES,用户将能选择发送实况图片
+@property (nonatomic, assign) BOOL allowPickingLiveImage;
+
+
 /// Default is YES, if set NO, user can't take picture.
 /// 默认为YES，如果设置为NO, 用户将不能拍摄照片
 @property (nonatomic, assign) BOOL allowTakePicture;
@@ -383,6 +388,7 @@
 + (instancetype)sharedInstance;
 @property (copy, nonatomic) NSString *preferredLanguage;
 @property(nonatomic, assign) BOOL allowPickingImage;
+@property (nonatomic, assign) BOOL allowPickingLiveImage;
 @property (nonatomic, assign) BOOL allowPickingVideo;
 @property (strong, nonatomic) NSBundle *languageBundle;
 @property (assign, nonatomic) BOOL showSelectedIndex;

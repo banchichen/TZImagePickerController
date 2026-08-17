@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <PhotosUI/PhotosUI.h>
 
 @class TZAssetModel;
 @interface TZAssetPreviewCell : UICollectionViewCell
@@ -73,4 +74,34 @@
 
 @interface TZGifPreviewCell : TZAssetPreviewCell
 @property (strong, nonatomic) TZPhotoPreviewView *previewView;
+@end
+
+
+@interface TZLivePhotoPreviewCell : TZAssetPreviewCell
+
+@property (nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, strong) UIScrollView *scrollView;
+@property (nonatomic, strong) UIView *imageContainerView;
+@property (nonatomic, strong) TZProgressView *progressView;
+@property (nonatomic, strong) UIImageView *iCloudErrorIcon;
+@property (nonatomic, strong) UILabel *iCloudErrorLabel;
+@property (nonatomic, strong) UIButton *useLivePhotoButton;
+@property (nonatomic, strong) PHLivePhotoView *livePhotoView;
+
+@property (nonatomic, copy) void (^iCloudSyncFailedHandle)(id asset, BOOL isSyncFailed);
+
+@property (nonatomic, strong) id asset;
+@property (nonatomic, strong) PHLivePhoto *livePhoto;
+@property (nonatomic, copy) void (^imageProgressUpdateBlock)(double progress);
+
+@property (nonatomic, assign) int32_t imageRequestID;
+
+@property (nonatomic, assign) BOOL canPlayLivePhoto;
+
+- (void)recoverSubviews;
+
+- (void)prepareForDisplay;
+
+- (void)prepareForHide;
+
 @end
